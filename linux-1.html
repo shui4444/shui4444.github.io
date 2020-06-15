@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="Shui">
+  <meta name="keywords" content="">
+  <title>【Linux】 Linux初始化必做的一些事情 - Shui&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Fluid</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2019-12-13 20:14">
+      2019年12月13日 晚上
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.2k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      29
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <h1 id="替换yum源"><a href="#替换yum源" class="headerlink" title="替换yum源"></a>替换yum源</h1><p><a href="https://idc.wanyunshuju.com/yum/851.html" target="_blank" rel="noopener">链接</a></p>
+<h1 id="设置静态IP"><a href="#设置静态IP" class="headerlink" title="设置静态IP"></a>设置静态IP</h1><pre><code class="hljs bash">vim /etc/sysconfig/network-scripts/ifcfg-ens33
+
+<span class="hljs-comment">#内容：</span>
+BOOTPROTO=<span class="hljs-string">"static"</span> <span class="hljs-comment">#dhcp改为static </span>
+ONBOOT=<span class="hljs-string">"yes"</span> <span class="hljs-comment">#开机启用本配置</span>
+IPADDR=192.168.202.106 <span class="hljs-comment">#静态IP</span>
+GATEWAY=192.168.7.1 <span class="hljs-comment">#默认网关</span>
+NETMASK=255.255.255.0 <span class="hljs-comment">#子网掩码</span>
+DNS1=192.168.202.1 <span class="hljs-comment">#DNS 配置</span></code></pre>
+
+<h1 id="自动补全"><a href="#自动补全" class="headerlink" title="自动补全"></a>自动补全</h1><pre><code class="hljs bash">yum -y install bash-completion</code></pre>
+
+<h1 id="修改主机名（HostName）"><a href="#修改主机名（HostName）" class="headerlink" title="修改主机名（HostName）"></a>修改主机名（HostName）</h1><pre><code class="hljs bash">hostnamectl <span class="hljs-built_in">set</span>-hostname <span class="hljs-variable">$&#123;name&#125;</span> ...</code></pre>
+
+<h1 id="安装依赖包"><a href="#安装依赖包" class="headerlink" title="安装依赖包"></a>安装依赖包</h1><pre><code class="hljs bash">yum install -y conntrack ntpdate ntp ipvsadm ipset jq  curl sysstat libseccomp wget vim net-tools git</code></pre>
+
+<h1 id="关闭-SELINUX"><a href="#关闭-SELINUX" class="headerlink" title="关闭 SELINUX"></a>关闭 SELINUX</h1><pre><code class="hljs bash">swapoff -a &amp;&amp; sed -i <span class="hljs-string">'/ swap / s/^\(.*\)$/#\1/g'</span> /etc/fstab
+
+setenforce 0 &amp;&amp; sed -i <span class="hljs-string">'s/^SELINUX=.*/SELINUX=disabled/'</span> /etc/selinux/config</code></pre>
+
+<h1 id="调整内核参数，对于-K8S"><a href="#调整内核参数，对于-K8S" class="headerlink" title="调整内核参数，对于 K8S"></a>调整内核参数，对于 K8S</h1><pre><code class="hljs bash">cat &gt; kubernetes.conf &lt;&lt;EOF
+net.bridge.bridge-nf-call-iptables=1
+net.bridge.bridge-nf-call-ip6tables=1
+net.ipv4.ip_forward=1
+net.ipv4.tcp_tw_recycle=0
+vm.swappiness=0 <span class="hljs-comment"># 禁止使用 swap 空间，只有当系统 OOM 时才允许使用它</span>
+vm.overcommit_memory=1 <span class="hljs-comment"># 不检查物理内存是否够用</span>
+vm.panic_on_oom=0 <span class="hljs-comment"># 开启 OOM</span>
+fs.inotify.max_user_instances=8192
+fs.inotify.max_user_watches=1048576
+fs.file-max=52706963
+fs.nr_open=52706963
+net.ipv6.conf.all.disable_ipv6=1
+net.netfilter.nf_conntrack_max=2310720
+EOF
+
+cp kubernetes.conf /etc/sysctl.d/kubernetes.conf
+sysctl -p /etc/sysctl.d/kubernetes.conf</code></pre>
+
+<h1 id="调整系统时区"><a href="#调整系统时区" class="headerlink" title="调整系统时区"></a>调整系统时区</h1><pre><code class="hljs dsconfig"><span class="hljs-comment"># 设置系统时区为 中国/上海</span>
+<span class="hljs-string">timedatectl </span><span class="hljs-built_in">set-timezone</span> <span class="hljs-string">Asia/</span><span class="hljs-string">Shanghai</span>
+<span class="hljs-string">#</span> 将当前的 <span class="hljs-string">UTC </span>时间写入硬件时钟
+<span class="hljs-string">timedatectl </span><span class="hljs-built_in">set-local-rtc</span> 0
+<span class="hljs-comment"># 重启依赖于系统时间的服务</span>
+<span class="hljs-string">systemctl </span><span class="hljs-string">restart </span><span class="hljs-string">rsyslog</span>
+<span class="hljs-string">systemctl </span><span class="hljs-string">restart </span><span class="hljs-string">crond</span></code></pre>
+
+<h1 id="关闭系统不需要服务"><a href="#关闭系统不需要服务" class="headerlink" title="关闭系统不需要服务"></a>关闭系统不需要服务</h1><pre><code class="hljs bash">systemctl stop postfix &amp;&amp; systemctl <span class="hljs-built_in">disable</span> postfix</code></pre>
+
+<h1 id="设置-rsyslogd-和-systemd-journald"><a href="#设置-rsyslogd-和-systemd-journald" class="headerlink" title="设置 rsyslogd 和 systemd journald"></a>设置 rsyslogd 和 systemd journald</h1><pre><code class="hljs bash">mkdir /var/<span class="hljs-built_in">log</span>/journal <span class="hljs-comment"># 持久化保存日志的目录</span>
+mkdir /etc/systemd/journald.conf.d
+
+cat &gt; /etc/systemd/journald.conf.d/99-prophet.conf &lt;&lt;EOF
+[Journal]
+<span class="hljs-comment"># 持久化保存到磁盘</span>
+Storage=persistent
+<span class="hljs-comment"># 压缩历史日志</span>
+Compress=yes
+SyncIntervalSec=5m
+RateLimitInterval=30s
+RateLimitBurst=1000
+<span class="hljs-comment"># 最大占用空间 10G</span>
+SystemMaxUse=10G
+<span class="hljs-comment"># 单日志文件最大 200M</span>
+SystemMaxFileSize=200M
+<span class="hljs-comment"># 日志保存时间 2 周</span>
+MaxRetentionSec=2week
+<span class="hljs-comment"># 不将日志转发到 syslog</span>
+ForwardToSyslog=no
+EOF
+systemctl restart systemd-journald</code></pre>
+
+<h1 id="升级系统内核为-4-44"><a href="#升级系统内核为-4-44" class="headerlink" title="升级系统内核为 4.44"></a>升级系统内核为 4.44</h1><pre><code class="hljs bash">uname -r <span class="hljs-comment">#查看内核</span>
+
+<span class="hljs-comment"># 安装完成后检查 /boot/grub2/grub.cfg 中对应内核 menuentry 中是否包含 initrd16 配置，如果没有，再安装一次！</span>
+rpm -Uvh http://www.elrepo.org/elrepo-release-7.0-3.el7.elrepo.noarch.rpm
+
+yum --enablerepo=elrepo-kernel install -y kernel<span class="hljs-_">-lt</span>
+
+<span class="hljs-comment"># 设置开机从新内核启动</span>
+grub2-set-default <span class="hljs-string">'CentOS Linux (4.4.189-1.el7.elrepo.x86_64) 7 (Core)'</span></code></pre>
+
+<h1 id="kube-proxy开启ipvs的前置条件"><a href="#kube-proxy开启ipvs的前置条件" class="headerlink" title="kube-proxy开启ipvs的前置条件"></a>kube-proxy开启ipvs的前置条件</h1><pre><code class="hljs bash">modprobe br_netfilter
+
+cat &gt; /etc/sysconfig/modules/ipvs.modules &lt;&lt;EOF
+<span class="hljs-meta">#!/bin/bash</span>
+modprobe -- ip_vs
+modprobe -- ip_vs_rr
+modprobe -- ip_vs_wrr
+modprobe -- ip_vs_sh
+modprobe -- nf_conntrack_ipv4
+EOF
+
+chmod 755 /etc/sysconfig/modules/ipvs.modules &amp;&amp; bash /etc/sysconfig/modules/ipvs.modules &amp;&amp; 
+lsmod | grep -e ip_vs -e nf_conntrack_ipv4</code></pre>
+
+<h1 id="安装Docker"><a href="#安装Docker" class="headerlink" title="安装Docker"></a>安装Docker</h1><pre><code class="hljs bash">yum install -y yum-utils device-mapper-persistent-data lvm2
+
+yum-config-manager \
+--add-repo \
+http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+
+<span class="hljs-comment">#2选1，这个保证最新</span>
+yum-config-manager \
+    --add-repo \
+    https://download.docker.com/linux/centos/docker-ce.repo
+
+yum update -y &amp;&amp; yum install -y docker-ce
+
+<span class="hljs-comment">## 创建 /etc/docker 目录</span>
+mkdir /etc/docker
+<span class="hljs-comment"># 配置 daemon.</span>
+cat &gt; /etc/docker/daemon.json &lt;&lt;EOF
+&#123;
+	<span class="hljs-string">"exec-opts"</span>: [<span class="hljs-string">"native.cgroupdriver=systemd"</span>],
+	<span class="hljs-string">"log-driver"</span>: <span class="hljs-string">"json-file"</span>,
+	<span class="hljs-string">"log-opts"</span>: &#123;
+		<span class="hljs-string">"max-size"</span>: <span class="hljs-string">"100m"</span>
+	&#125;,
+	<span class="hljs-string">"registry-mirrors"</span>: [<span class="hljs-string">"https://c0dhqpb1.mirror.aliyuncs.com"</span>]
+&#125;
+EOF
+
+mkdir -p /etc/systemd/system/docker.service.d
+<span class="hljs-comment"># 重启docker服务</span>
+systemctl daemon-reload &amp;&amp; systemctl restart docker &amp;&amp; systemctl <span class="hljs-built_in">enable</span> docker</code></pre>
+
+<h1 id="安装DockerComponent"><a href="#安装DockerComponent" class="headerlink" title="安装DockerComponent"></a>安装DockerComponent</h1><p> 通过以下命令自动下载并安装适应系统版本的 Compose</p>
+<pre><code class="hljs bash">sudo curl -L https://github.com/docker/compose/releases/download/1.16.1/docker-compose-`uname -s`-`uname -m` -o /usr/<span class="hljs-built_in">local</span>/bin/docker-compose</code></pre>
+
+<p>为安装脚本添加执行权限</p>
+<pre><code class="hljs bash">chmod +x /usr/<span class="hljs-built_in">local</span>/bin/docker-compose</code></pre>
+
+<p>这样，Compose 就安装完成了。可使用以下命令测试安装结果。</p>
+<pre><code class="hljs bash">~&gt; docker-compose --version
+docker-compose version 1.16.1, build 1719ceb</code></pre>
+
+<p>安装 Compose 命令补全工具</p>
+<pre><code class="hljs bash">sudo curl -L https://raw.githubusercontent.com/docker/compose/$(docker-compose version --short)/contrib/completion/bash/docker-compose -o /etc/bash_completion.d/docker-compose</code></pre>
+
+<h1 id="kubectl自动补全"><a href="#kubectl自动补全" class="headerlink" title="kubectl自动补全"></a>kubectl自动补全</h1><pre><code class="hljs bash"><span class="hljs-built_in">echo</span> <span class="hljs-string">"source &lt;(kubectl completion bash)"</span>&gt;&gt; /root/.bashrc
+<span class="hljs-built_in">source</span> /root/.bashrc
+<span class="hljs-built_in">echo</span> <span class="hljs-string">"source /usr/share/bash-completion/bash_completion"</span>&gt;&gt;/root/.bashrc
+<span class="hljs-built_in">source</span> /root/.bashrc</code></pre>
+
+<h1 id="让你提升命令行效率的-Bash-快捷键-完整版"><a href="#让你提升命令行效率的-Bash-快捷键-完整版" class="headerlink" title="让你提升命令行效率的 Bash 快捷键 [完整版]"></a>让你提升命令行效率的 Bash 快捷键 [完整版]</h1><h2 id="常用的命令行击键操作"><a href="#常用的命令行击键操作" class="headerlink" title="常用的命令行击键操作"></a>常用的命令行击键操作</h2><p>ctrl + insert　 xshell 中复制，可以设置选中内容自动复制<br>ctrl shift + c　 crt 中复制<br>shift + insert　xshell 中粘贴<br>ctrl shift + v　 crt 中粘贴<br>ctrl+tab 　 xshell 中快速切换连接选项卡<br>alt + N 　 N 为数字，CRT 中快速切换连接选项卡<br>alt + d 删除光标所在位置的后单词，要设置 alt 键为 meta 键<br>ctrl + w 删除光标前一个单词相当于 VIM 里 db<br>ctrl + k 删除光标后面所有字符相当于 VIM 里 d shift+$<br>ctrl + u 删除光标前面所有字符相当于 VIM 里 d shift+^<br>ctrl + y 恢复 ctrl+u 上次执行时删除的字符<br>ctrl + 键盘左右键 快速移动一个词（Xshell）<br>ctrl + a 将光标移动到命令行开头相当于 VIM 里 shift+^ 或者 home 键<br>ctrl + e 将光标移动到命令行结尾处相当于 VIM 里 shift+$ 或者 end 键<br>ctrl + p 返回上一次输入命令字符<br>ctrl + r 输入单词搜索历史命令<br>Ctrl + g 从历史搜索模式退出，Ctrl+r 后用作退出使用<br>alt + p 输入字符查找与字符相接近的历史命令<br>ESC + . 打印之前执行过的命令的最后一部分（参数）以空格为分隔符，也可以用 alt+.<br>Ctrl + l 清屏<br>Ctrl + o 执行当前命令，并选择上一条命令<br>Ctrl + z 挂起命令<br>Ctrl + d 退出登录<br>tab 键 自动补全<br>ctrl + i 类似 TAB 健补全功能，一般用 tab 不用它<br>Ctrl + Shift + r 重新登录前一个用户<br>ctrl + c 终止当前操作<br>ctrl + s 锁住终端<br>ctrl + q 解锁终端<br>ctrl + o 重复执行命令<br>alt + 数字键 操作的次数（Xshell）</p>
+<h2 id="命令行击键操作整理-复制粘贴和窗口切换"><a href="#命令行击键操作整理-复制粘贴和窗口切换" class="headerlink" title="命令行击键操作整理,复制粘贴和窗口切换"></a>命令行击键操作整理,复制粘贴和窗口切换</h2><p>ctrl + insert　 xshell 中复制，可以设置选中内容自动复制<br>ctrl shift + c　 crt 中复制<br>shift + insert　xshell 中粘贴<br>ctrl shift + v　 crt 中粘贴<br>ctrl+tab 　 xshell 中快速切换连接选项卡<br>alt + N 　 N 为数字，CRT 中快速切换连接选项卡<br>alt + d 删除光标所在位置的后单词，要设置 alt 键为 meta 键</p>
+<h2 id="删除"><a href="#删除" class="headerlink" title="删除"></a>删除</h2><p>ctrl + d 删除光标所在位置上的字符相当于 VIM 里 x 或者 dl<br>ctrl + h 删除光标所在位置前的字符相当于 VIM 里 hx 或者 dh<br>ctrl + k 删除光标后面所有字符相当于 VIM 里 d shift+$<br>ctrl + u 删除光标前面所有字符相当于 VIM 里 d shift+^<br>ctrl + w 删除光标前一个单词相当于 VIM 里 db<br>ctrl + y 恢复 ctrl+u 上次执行时删除的字符<br>ctrl + ? 撤消前一次输入<br>alt + r 撤消前一次动作<br>alt + d 删除光标所在位置的后单词</p>
+<h2 id="移动"><a href="#移动" class="headerlink" title="移动"></a>移动</h2><p>ctrl + a 将光标移动到命令行开头相当于 VIM 里 shift+^ 或者 home 键<br>ctrl + e 将光标移动到命令行结尾处相当于 VIM 里 shift+$ 或者 end 键<br>ctrl + f 光标向后移动一个字符相当于 VIM 里 l<br>ctrl + b 光标向前移动一个字符相当于 VIM 里 h<br>ctrl + 方向键左键 光标移动到前一个单词开头<br>ctrl + 方向键右键 光标移动到后一个单词结尾<br>ctrl + x 在上次光标所在字符和当前光标所在字符之间跳转<br>alt + f 跳到光标所在位置单词尾部</p>
+<h2 id="替换"><a href="#替换" class="headerlink" title="替换"></a>替换</h2><p>ctrl + t 将光标当前字符与前面一个字符替换<br>alt + t 交换两个光标当前所处位置单词和光标前一个单词<br>alt + u 把光标当前位置单词变为大写<br>alt + l 把光标当前位置单词变为小写<br>alt + c 把光标当前位置单词头一个字母变为大写<br>^oldstr^newstr 替换前一次命令中字符串</p>
+<h2 id="历史命令编辑"><a href="#历史命令编辑" class="headerlink" title="历史命令编辑"></a>历史命令编辑</h2><p>ctrl + p 返回上一次输入命令字符</p>
+<p>ctrl + r 输入单词搜索历史命令</p>
+<p>alt + p 输入字符查找与字符相接近的历史命令</p>
+<p>alt + &gt; 返回上一次执行命令</p>
+<p>Ctrl + g 从历史搜索模式退出</p>
+<p>Ctrl + n 历史中的下一条命令</p>
+<p>Alt + . 打印之前执行过的命令的最后一部分（参数）以空格为分隔符</p>
+<p>ESC + . 打印之前执行过的命令的最后一部分（参数）以空格为分隔符</p>
+<h2 id="控制命令"><a href="#控制命令" class="headerlink" title="控制命令"></a>控制命令</h2><p>Ctrl + l 清屏</p>
+<p>Ctrl + o 执行当前命令，并选择上一条命令</p>
+<p>Ctrl + z 挂起命令</p>
+<p>Ctrl + d 退出登录</p>
+<p>tab 键 自动补全</p>
+<p>clear 清屏</p>
+<p>logout 退出当前用户</p>
+<p>Ctrl + Shift + r 重新登录前一个用户</p>
+<p>ctrl + c 终止当前操作</p>
+<p>ctrl + s 锁住终端</p>
+<p>ctrl + q 解锁终端</p>
+<p>ctrl + i 类似 TAB 健补全功能，一般用 tab 不用它</p>
+<p>ctrl + o 重复执行命令</p>
+<p>alt + 数字键 操作的次数（xshell 中）</p>
+<h1 id="通过lrzsz-代替FTP"><a href="#通过lrzsz-代替FTP" class="headerlink" title="通过lrzsz 代替FTP"></a>通过lrzsz 代替FTP</h1><p><a href="https://www.jianshu.com/p/d4dcbd088a05" target="_blank" rel="noopener">链接</a></p>
+<pre><code class="hljs bash">~&gt; yum -y install lrzsz</code></pre>
+
+<h1 id="安装Jdk8"><a href="#安装Jdk8" class="headerlink" title="安装Jdk8"></a>安装Jdk8</h1><p><a href="https://blog.csdn.net/xingbaozhen1210/article/details/84062364" target="_blank" rel="noopener">链接</a></p>
+<pre><code class="hljs bash">~&gt; yum -y install java-1.8.0-openjdk*</code></pre>
+
+<h1 id="Xshell-登录-Linux-太慢怎么办"><a href="#Xshell-登录-Linux-太慢怎么办" class="headerlink" title="Xshell 登录 Linux 太慢怎么办"></a>Xshell 登录 Linux 太慢怎么办</h1><pre><code class="hljs bash">~&gt; vim /etc/ssh/sshd_config
+
+<span class="hljs-comment">#加入内容：</span>
+UseDNS no</code></pre>
+
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E8%BF%90%E7%BB%B4/Linux/">Linux</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E9%9B%B6%E7%A2%8E/">零碎</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/nginx-1.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【Nginx】 1.环境准备</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/redis-15.html">
+                        <span class="hidden-mobile">【 Redis-学习笔记 】 15.开发运维常见坑</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "【Linux】 Linux初始化必做的一些事情&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

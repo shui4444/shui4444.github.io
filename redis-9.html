@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="Shui">
+  <meta name="keywords" content="">
+  <title>【 Redis-学习笔记 】 9.深入Redis Cluster - Shui&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Fluid</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2019-10-17 21:09">
+      2019年10月17日 晚上
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      10.2k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      118
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <h1 id="集群缩容"><a href="#集群缩容" class="headerlink" title="集群缩容"></a>集群缩容</h1><h2 id="伸缩原理"><a href="#伸缩原理" class="headerlink" title="伸缩原理"></a>伸缩原理</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572147297362.png" srcset="/img/loading.gif" alt="1572147297362"></p>
+<p>伸就是加节点，缩就是某些节点不需要了，需要将他们进行下线</p>
+<h2 id="扩容集群"><a href="#扩容集群" class="headerlink" title="扩容集群"></a>扩容集群</h2><h3 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h3><ul>
+<li>准备新节点；</li>
+<li>加入集群（meet）；</li>
+<li>迁移槽和数据，把其他节点的槽数据均匀的移到这个节点，因为一个节点没有数据是没有 任何意义的,这个节点就可以工作了，实现性能的扩展。当然如果是从节点，给它meet就好了，不用做槽的迁移。</li>
+</ul>
+<h3 id="准备新节点"><a href="#准备新节点" class="headerlink" title="准备新节点"></a>准备新节点</h3><ul>
+<li><p>集群模式；</p>
+</li>
+<li><p>配置和其他节点统一；</p>
+</li>
+<li><p>启动后是孤儿节点；</p>
+<pre><code class="hljs bash">redis-server conf/redis-6385.conf
+redis-server conf/redis-6386.conf</code></pre>
+
+<p>启动之后的效果</p>
+<img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572147740859.png" srcset="/img/loading.gif" alt="1572147740859" style="zoom:50%;" />
+
+</li>
+</ul>
+<h3 id="加入集群"><a href="#加入集群" class="headerlink" title="加入集群"></a>加入集群</h3><pre><code class="hljs bash">127.0.0.1:6379&gt; cluster meet 127.0.0.1 6385
+127.0.0.1:6379&gt; cluster meet 127.0.0.1 6386</code></pre>
+
+<p>加入之后的效果：<img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572147701603.png" srcset="/img/loading.gif" alt="1572147701603" style="zoom: 50%;" /></p>
+<p>作用：</p>
+<ul>
+<li>为它迁移槽和数据实现扩容；</li>
+<li>作为从节点负责故障转移；</li>
+</ul>
+<p>使用redis-trib.rb：</p>
+<blockquote>
+<p>在redis中提供了加入节点的功能，我们可以用它提供的工具简单的加入</p>
+</blockquote>
+<ul>
+<li>redis-trib.rb add-node new_host: new_port existing _host:existing_port –slave master-id <arg></li>
+<li>redis-trib.rb add-node 127.0.0.1:6385 127.0.0.1:6379</li>
+<li>建议使用redis-trib:rb能够避免新节点已经加入了其他集群,造成故障。</li>
+</ul>
+<h2 id="迁移槽和数据"><a href="#迁移槽和数据" class="headerlink" title="迁移槽和数据"></a>迁移槽和数据</h2><h3 id="步骤-1"><a href="#步骤-1" class="headerlink" title="步骤"></a>步骤</h3><ul>
+<li>迁移计划</li>
+<li>迁移数据</li>
+<li>添加从节点</li>
+</ul>
+<h3 id="迁移计划"><a href="#迁移计划" class="headerlink" title="迁移计划"></a>迁移计划</h3><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572148492017.png" srcset="/img/loading.gif" alt="1572148492017"  />
+
+<h3 id="迁移数据"><a href="#迁移数据" class="headerlink" title="迁移数据"></a>迁移数据</h3><p>步骤</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572149049846.png" srcset="/img/loading.gif" alt="1572149049846"></p>
+<p>流程图</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572149126364.png" srcset="/img/loading.gif" alt="1572149126364"></p>
+<p>伪代码</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572149146990.png" srcset="/img/loading.gif" alt="1572149146990"></p>
+<h2 id="集群扩容演示"><a href="#集群扩容演示" class="headerlink" title="集群扩容演示"></a>集群扩容演示</h2><p>加入2个节点：7006、7007，7007是7006的从</p>
+<p>首先添加2个配置，并启动</p>
+<pre><code class="hljs bash">[root@mcr2 config] sed <span class="hljs-string">'s/7000/7006/g'</span> redis-7000.conf  &gt; redis-7006.conf
+[root@mcr2 config] sed <span class="hljs-string">'s/7000/7007/g'</span> redis-7000.conf  &gt; redis-7007.conf
+[root@mcr2 config] redis-server redis-7006.conf
+[root@mcr2 config] redis-server redis-7007.conf</code></pre>
+
+<p>将它们加入到集群</p>
+<pre><code class="hljs bash"><span class="hljs-comment">#将7006加入集群</span>
+[root@mcr2 config] redis-cli  -p 7000 cluster meet 127.0.0.1 7006
+OK
+<span class="hljs-comment">#将7007加入集群</span>
+[root@mcr2 config] redis-cli -p 7000  cluster meet 127.0.0.1 7007
+OK
+
+<span class="hljs-comment">#查看集群节点信息</span>
+[root@mcr2 config] redis-cli -p 7000 cluster nodes
+
+de08a3a948a73cc2fb8793e122817af1720ed87a 127.0.0.1:7006 master - 0 1572184022492 0 connected
+
+....
+
+<span class="hljs-comment">#7007复制7006</span>
+[root@mcr2 config] redis-cli -p 7007 cluster replicate de08a3a948a73cc2fb8793e122817af1720ed87a
+OK
+
+[root@mcr2 config] redis-trib.rb reshard  127.0.0.1:7000
+&gt;&gt;&gt; Performing Cluster Check (using node 127.0.0.1:7000)
+<span class="hljs-comment">#...</span>
+S: 8e1ac37cc5ec9c66cbfc1eab81b52cef25e9d255 127.0.0.1:7007
+   slots: (0 slots) slave
+   replicates de08a3a948a73cc2fb8793e122817af1720ed87a
+M: de08a3a948a73cc2fb8793e122817af1720ed87a 127.0.0.1:7006
+   slots: (0 slots) master
+   1 additional replica(s)
+<span class="hljs-comment">#...</span>
+
+[OK] All nodes agree about slots configuration.
+&gt;&gt;&gt; Check <span class="hljs-keyword">for</span> open slots...
+&gt;&gt;&gt; Check slots coverage...
+[OK] All 16384 slots covered.
+
+<span class="hljs-comment">#你希望迁移多少个槽</span>
+How many slots <span class="hljs-keyword">do</span> you want to move (from 1 to 16384)? 4096
+<span class="hljs-comment">#希望哪个id接收这些槽</span>
+What is the receiving node ID? de08a3a948a73cc2fb8793e122817af1720ed87a
+
+Please enter all the <span class="hljs-built_in">source</span> node IDs.
+	<span class="hljs-comment">#所有的其他节点作为作为resource id</span>
+  Type <span class="hljs-string">'all'</span> to use all the nodes as <span class="hljs-built_in">source</span> nodes <span class="hljs-keyword">for</span> the <span class="hljs-built_in">hash</span> slots.
+  Type <span class="hljs-string">'done'</span> once you entered all the <span class="hljs-built_in">source</span> nodes IDs.
+Source node 1: all
+
+	...
+    Moving slot 12287 from 325733e9d4ded75d31c68f978c75357334163428
+<span class="hljs-comment">#是否想继续？    </span>
+Do you want to proceed with the proposed reshard plan (yes/no)? yes
+
+<span class="hljs-comment">#以上步骤完成迁移，来检验一下</span>
+[root@mcr2 config] redis-cli -p 7000 cluster slots
+<span class="hljs-comment">#...</span>
+2) 1) (<span class="hljs-built_in">integer</span>) 0
+   2) (<span class="hljs-built_in">integer</span>) 1364
+   3) 1) <span class="hljs-string">"127.0.0.1"</span>
+      2) (<span class="hljs-built_in">integer</span>) 7006
+   4) 1) <span class="hljs-string">"127.0.0.1"</span>
+      2) (<span class="hljs-built_in">integer</span>) 7007
+<span class="hljs-comment">#...</span></code></pre>
+
+<h2 id="缩容集群"><a href="#缩容集群" class="headerlink" title="缩容集群"></a>缩容集群</h2><h3 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572157852975.png" srcset="/img/loading.gif" alt="1572157852975"></p>
+<p>集群缩容和扩容有很多相似的地方，例如需要将槽的数据进行迁移，就是上面这张图。</p>
+<p>缩容要对节点进行下线，然后再进行3个步骤：</p>
+<ol>
+<li><p>下线迁移槽：前提是当前下线节点是否有槽，如果没有就不用，                                                    <img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572157887160.png" srcset="/img/loading.gif" alt="1572157887160" style="zoom:33%;" />下线迁移槽和前面说的扩容是一样的，扩容：其他节点往迁移slot，下线槽：将下线节点的所有槽均匀迁移给其他节点；</p>
+</li>
+<li><p>忘记节点：Redis Cluster集群这些节点需要忘记它，因为集群节点之间                                                          是共享消息的，你要告诉每个节点去忘记它，<br>命令：<code>redis&gt;cli cluster forget {downNodeId}</code><br><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572158164591.png" srcset="/img/loading.gif" alt="1572158164591"></p>
+<p>这里的有效时间是60秒，在60秒之内有一个节点没有忘记它，仍然会有消息，所以说你要想让一个节点真正的下线你需要对所有节点去忘记；</p>
+</li>
+<li><p>关闭节点：当所有节点都忘记它之后再对节点进行关闭。</p>
+</li>
+</ol>
+<h2 id="操作"><a href="#操作" class="headerlink" title="操作"></a>操作</h2><p> 将7006和7007进行下线，首先先将7006的槽迁移到其他节点上</p>
+<pre><code class="hljs bash">[root@mcr2 config] redis-cli -p 7000 cluster nodes
+
+
+709ce3bd4d8fba5f62f57d7ec3b64569a070f22d 127.0.0.1:7000 myself,master - 0 0 1 co                                                                nnected 1365-5460
+
+
+8e1ac37cc5ec9c66cbfc1eab81b52cef25e9d255 127.0.0.1:7007 slave de08a3a948a73cc2fb                                                                8793e122817af1720ed87a 0 1572187198417 8 connected
+de08a3a948a73cc2fb8793e122817af1720ed87a 127.0.0.1:7006 master - 0 1572187201437                                                                 8 connected 0-1364 5461-6826 10923-12287
+
+<span class="hljs-comment">#...省略其他节点信息</span>
+
+
+[root@mcr2 config] redis-trib.rb reshard  \
+--from <span class="hljs-variable">$&#123;7007的node-id&#125;</span>  \
+--to  <span class="hljs-variable">$&#123;7000的node-id&#125;</span> \
+--slots 1366 127.0.0.1:7006 <span class="hljs-comment">#在哪里运行</span>
+<span class="hljs-comment">#是否同意</span>
+Do you want to proceed with the proposed reshard plan (yes/no)? yes
+
+<span class="hljs-comment">#然后剩余的槽也分给其他节点</span>
+
+[root@mcr2 config] redis-trib.rb reshard \
+--from <span class="hljs-variable">$&#123;7007的node-id&#125;</span>  \
+--to  <span class="hljs-variable">$&#123;7001的node-id&#125;</span> \
+--slots 1366 127.0.0.1:7006
+
+[root@mcr2 config] redis-trib.rb reshard \
+--from <span class="hljs-variable">$&#123;7007的node-id&#125;</span>  \
+--to  <span class="hljs-variable">$&#123;7002的node-id&#125;</span> \
+--slots 1365 127.0.0.1:7006
+
+
+<span class="hljs-comment">#查看7006节点，现在它的槽显示0个</span>
+[root@mcr2 config] redis-cli -p 7000 cluster nodes
+de08a3a948a73cc2fb8793e122817af1720ed87a 127.0.0.1:7006 master - 0 1572187933544 8 connected</code></pre>
+
+<p>忘记节点</p>
+<pre><code class="hljs bash">[root@mcr2 config] redis-trib.rb del-node   \
+127.0.0.1:7000   \ 	<span class="hljs-comment">#任意节点</span>
+<span class="hljs-variable">$&#123;7007:node-id&#125;</span>
+
+<span class="hljs-comment">#返回结果</span>
+&gt;&gt;&gt; Removing node de08a3a948a73cc2fb8793e122817af1720ed87a from cluster 127.0.0.1:7000
+&gt;&gt;&gt; Sending CLUSTER FORGET messages to the cluster...
+&gt;&gt;&gt; SHUTDOWN the node.
+
+<span class="hljs-comment">#查看7007是否存在</span>
+[root@mcr2 config] redis-cli -p 7007
+Could not connect to Redis at 127.0.0.1:7006: Connection refused
+not connected&gt; <span class="hljs-built_in">exit</span>
+
+<span class="hljs-comment">#下线7006</span>
+[root@mcr2 config] redis-trib.rb del-node   \
+127.0.0.1:7000   \ 	<span class="hljs-comment">#任意节点</span>
+<span class="hljs-variable">$&#123;7006:node-id&#125;</span></code></pre>
+
+<blockquote>
+<p>这里要说一下，下线的时候要先下从节点，然后再下主节点</p>
+</blockquote>
+<h1 id="客户端路由"><a href="#客户端路由" class="headerlink" title="客户端路由"></a>客户端路由</h1><h2 id="moved重定向"><a href="#moved重定向" class="headerlink" title="moved重定向"></a>moved重定向</h2><ol>
+<li>客户端发送向任意节点发送命令</li>
+<li>服务端计算key的ARC16哈希值，更16383去取余，算出它的槽，<ul>
+<li>如果这个数据的哈希算出来的槽是自身的，直接会返回执行结果；<br><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572163727292.png" srcset="/img/loading.gif" alt="1572163727292"></li>
+<li>如果不是，返回moved异常并告诉客户端这个key属于哪个节点的，客户端拿到这个异常，根据异常去重定向发送给对应的节点去执行<br><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572163776375.png" srcset="/img/loading.gif" alt="1572163776375"></li>
+</ul>
+</li>
+</ol>
+<p>redis-cli</p>
+<pre><code class="hljs bash">[root@mcr2 config] redis-cli -c -p 7000	<span class="hljs-comment"># -c：使用集群模式，它会帮助你自动完成跳转</span>
+
+127.0.0.1:7000&gt; CLUSTER KEYSLOT hello
+(<span class="hljs-built_in">integer</span>) 866
+127.0.0.1:7000&gt; <span class="hljs-built_in">set</span> hello world
+OK
+127.0.0.1:7000&gt; CLUSTER KEYSLOT php
+(<span class="hljs-built_in">integer</span>) 9244
+127.0.0.1:7000&gt; <span class="hljs-built_in">set</span> php best
+<span class="hljs-comment"># 自动重定向到7001节点</span>
+-&gt; Redirected to slot [9244] located at 127.0.0.1:7001
+OK
+<span class="hljs-comment">#自动改变连接节点，注意这里编程了7001</span>
+127.0.0.1:7001&gt;
+
+
+<span class="hljs-comment">#不使用集群模式的情况：</span>
+[root@mcr2 config] redis-cli  -p 7000
+127.0.0.1:7000&gt; <span class="hljs-built_in">set</span> php best
+(error) MOVED 9244 127.0.0.1:7001</code></pre>
+
+<h2 id="ask重定向"><a href="#ask重定向" class="headerlink" title="ask重定向"></a>ask重定向</h2><p>前面介绍了集群的伸缩，在集群伸缩的过程中就有一个问题：对槽迁移，这个对于客户端来说是一个挑战，因为在客户端中记录的是原节点，当前节点告诉客户端数据的位置在原节点，但是在访问的时候发现key迁移到了目标节点，这个时候就需要考虑设计一种方案解决这个问题，Redis Cluster就考虑了这个问题，下面看下它的实现演示</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572168669668.png" srcset="/img/loading.gif" alt="1572168669668"></p>
+<ol>
+<li>假如说source节点和target节点正在迁移一个槽；</li>
+<li>这个时候客户端发送一条命令；</li>
+<li>服务端会回复客户端这个键是在原节点，但是这个槽已经迁移到了target节点，它会返回一个ask转向异常；</li>
+<li>客户端收到ask异常的时候首先会执行Asking命令，然后给目标节点同时去发送之前的命令；</li>
+<li>然后就会返回对应的结果。</li>
+</ol>
+<h2 id="moved和ask的区别"><a href="#moved和ask的区别" class="headerlink" title="moved和ask的区别"></a>moved和ask的区别</h2><ul>
+<li>两种都是客户端重定向；</li>
+<li>moved：槽已经确定迁移；</li>
+<li>ask：槽在迁移过程中。</li>
+</ul>
+<h2 id="smart客户端"><a href="#smart客户端" class="headerlink" title="smart客户端"></a>smart客户端</h2><h3 id="smart客户端原理"><a href="#smart客户端原理" class="headerlink" title="smart客户端原理"></a>smart客户端原理</h3><ol>
+<li>从集群中选择恶一个可运行的节点，使用 cluster slots初始化槽和节点映射；</li>
+<li>将cluster slots的结果映射到本地，为每个节点创建JedisPool；</li>
+<li>准备执行命令。</li>
+</ol>
+<h3 id="执行命令基本步骤"><a href="#执行命令基本步骤" class="headerlink" title="执行命令基本步骤"></a>执行命令基本步骤</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572179020424.png" srcset="/img/loading.gif" alt="1572179020424"></p>
+<p>JedisCluster内部缓存了slot和节点的关系，而且对于key和slot的关系它是可以知道的，因为这个关系是公开的，它是一个CRC16去对key做一个哈希算出一个16383的模，也就是对应的槽就能找到目标节点，如果在发送命令的时候连接出错，客户端会将它理解为错误的节点，这里会随机选择一个节点，对这个节点发送命令，然后返回moved异常，这个大多数情况下是moved，因为我们在一个很大的集群执行随机节点去执行key肯定会返回moved，然后会重新初始化slot和node的关系再去目标节点发送命令，然后知道响应结果，如果这样的过程超过5次它就会返回一个错误：<code>Too many cluster redirection！</code>，</p>
+<h3 id="JedisCluster执行源码分析"><a href="#JedisCluster执行源码分析" class="headerlink" title="JedisCluster执行源码分析"></a>JedisCluster执行源码分析</h3><p>JedisCluster</p>
+<pre><code class="hljs java"><span class="hljs-meta">@Override</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">set</span><span class="hljs-params">(<span class="hljs-keyword">final</span> String key, <span class="hljs-keyword">final</span> String value)</span> </span>&#123;
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> JedisClusterCommand&lt;String&gt;(connectionHandler, maxAttempts) &#123;
+      <span class="hljs-meta">@Override</span>
+      <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">execute</span><span class="hljs-params">(Jedis connection)</span> </span>&#123;
+        <span class="hljs-keyword">return</span> connection.set(key, value);
+      &#125;
+    &#125;.run(key);
+  &#125;
+
+<span class="hljs-meta">@Override</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">get</span><span class="hljs-params">(<span class="hljs-keyword">final</span> String key)</span> </span>&#123;
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> JedisClusterCommand&lt;String&gt;(connectionHandler, maxAttempts) &#123;
+      <span class="hljs-meta">@Override</span>
+      <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">execute</span><span class="hljs-params">(Jedis connection)</span> </span>&#123;
+        <span class="hljs-keyword">return</span> connection.get(key);
+      &#125;
+    &#125;.run(key);
+  &#125;</code></pre>
+
+<p>从上面看出来，它的每个命令都是通过事先JedisClusterCommand类的execute方法，然后调用run方法，来看一下这个类</p>
+<hr>
+<p>JedisClusterCommand#run</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> T <span class="hljs-title">run</span><span class="hljs-params">(String key)</span> </span>&#123;
+    <span class="hljs-keyword">if</span> (key == <span class="hljs-keyword">null</span>) &#123;
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> JedisClusterException(<span class="hljs-string">"No way to dispatch this command to Redis Cluster."</span>);
+    &#125;
+
+    <span class="hljs-keyword">return</span> runWithRetries(SafeEncoder.encode(key), <span class="hljs-keyword">this</span>.maxAttempts, <span class="hljs-keyword">false</span>, <span class="hljs-keyword">false</span>);
+  &#125;</code></pre>
+
+<p>这里首先判断key是不是空的，这里我们关注的是它的runWithRetries方法</p>
+<pre><code class="hljs java"> <span class="hljs-function"><span class="hljs-keyword">private</span> T <span class="hljs-title">runWithRetries</span><span class="hljs-params">(<span class="hljs-keyword">byte</span>[] key, <span class="hljs-keyword">int</span> attempts, <span class="hljs-keyword">boolean</span> tryRandomNode, <span class="hljs-keyword">boolean</span> asking)</span> </span>&#123;
+   
+   <span class="hljs-comment">//attempts：尝试，这里初始化为5次</span>
+ 
+   <span class="hljs-keyword">if</span> (attempts &lt;= <span class="hljs-number">0</span>) &#123;
+     <span class="hljs-comment">//如果attempts小于0，就会返回以下异常</span>
+     <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> JedisClusterMaxRedirectionsException(<span class="hljs-string">"Too many Cluster redirections?"</span>);
+   &#125;
+   
+   Jedis connection = <span class="hljs-keyword">null</span>;
+   <span class="hljs-keyword">try</span> &#123;
+		<span class="hljs-comment">//是不是asking状态，下面代码就是进行asking的一些处理代码</span>
+     <span class="hljs-keyword">if</span> (asking) &#123;
+       
+       <span class="hljs-comment">//获取新连接</span>
+       connection = askConnection.get();
+       <span class="hljs-comment">//执行asking，把刚才的命令重新执行一遍</span>
+       connection.asking();
+
+       <span class="hljs-comment">// if asking success, reset asking flag</span>
+       asking = <span class="hljs-keyword">false</span>;
+     &#125; <span class="hljs-keyword">else</span> &#123;
+       <span class="hljs-comment">//我们先看这里，这里的tryRandomNode：是否是随机节点，这里是false，再前面的run方法传递的是false   </span>
+       <span class="hljs-keyword">if</span> (tryRandomNode) &#123;
+         connection = connectionHandler.getConnection();
+       &#125; <span class="hljs-keyword">else</span> &#123;
+         <span class="hljs-comment">//connectionHandler：这个就是前面介绍的，在Jedis初始化的时候，会初始化所有的槽和节点的对应关系</span>
+         <span class="hljs-comment">//这里调用了connectionHandler的getConnectionFromSlot方法，这里的参数是一个方法 JedisClusterCRC16.getSlot(key)，它会根据key为我们计算出对应的槽是哪个，这里作为一个这样的参数传递给getConnectionFromSlot方法，最终获得了一个连接</span>
+         
+         connection = connectionHandler.getConnectionFromSlot(JedisClusterCRC16.getSlot(key));
+       &#125;
+     &#125;
+		<span class="hljs-comment">//执行命令</span>
+     <span class="hljs-keyword">return</span> execute(connection);
+     
+     
+     <span class="hljs-comment">//如果没有节点可拿</span>
+   &#125; <span class="hljs-keyword">catch</span> (JedisNoReachableClusterNodeException jnrcne) &#123;
+     <span class="hljs-keyword">throw</span> jnrcne;
+     <span class="hljs-comment">//连接异常，这里不一定是伸缩导致的异常，可能是网络原因</span>
+   &#125; <span class="hljs-keyword">catch</span> (JedisConnectionException jce) &#123;
+     <span class="hljs-comment">// 在递归之前释放当前连接</span>
+     releaseConnection(connection);
+     connection = <span class="hljs-keyword">null</span>;
+		<span class="hljs-comment">//判断attempts是否小于等于1</span>
+     <span class="hljs-keyword">if</span> (attempts &lt;= <span class="hljs-number">1</span>) &#123;
+     <span class="hljs-comment">//我们需要这个，因为如果节点是不可达的-我们需要最终启动插槽更新，</span>
+     <span class="hljs-comment">//或者我们可以在没有节点的情况下保持集群状态。</span>
+     <span class="hljs-comment">//但是现在如果max= 1或2，我们就会经常这样做。对于每个超时请求。</span>
+     <span class="hljs-comment">//TODO跟踪节点成功或不成功的操作- do只更新</span>
+     <span class="hljs-comment">//如果这个节点在最后几秒内没有成功的响应</span>
+       
+       <span class="hljs-comment">//刷新本地缓存</span>
+       <span class="hljs-keyword">this</span>.connectionHandler.renewSlotCache();
+
+       <span class="hljs-comment">//no more redirections left, throw original exception, not JedisClusterMaxRedirectionsException, because it's not MOVED situation</span>
+       <span class="hljs-keyword">throw</span> jce;
+     &#125;
+
+     <span class="hljs-keyword">return</span> runWithRetries(key, attempts - <span class="hljs-number">1</span>, tryRandomNode, asking);
+     
+     <span class="hljs-comment">//之前介绍的moved和ask</span>
+   &#125; <span class="hljs-keyword">catch</span> (JedisRedirectionException jre) &#123;
+     <span class="hljs-comment">//如果发现是moved 确定槽不在当前节点，</span>
+     <span class="hljs-keyword">if</span> (jre <span class="hljs-keyword">instanceof</span> JedisMovedDataException) &#123;
+       <span class="hljs-comment">// it rebuilds cluster's slot cache</span>
+       <span class="hljs-comment">// recommended by Redis cluster specification</span>
+        <span class="hljs-comment">//刷新本地缓存</span>
+       <span class="hljs-keyword">this</span>.connectionHandler.renewSlotCache(connection);
+     &#125;
+
+     <span class="hljs-comment">// release current connection before recursion or renewing</span>
+     releaseConnection(connection);
+     connection = <span class="hljs-keyword">null</span>;
+		<span class="hljs-comment">// ask异常 </span>
+     <span class="hljs-keyword">if</span> (jre <span class="hljs-keyword">instanceof</span> JedisAskDataException) &#123;
+       asking = <span class="hljs-keyword">true</span>;
+
+<span class="hljs-comment">//对连接重定向       </span>
+       askConnection.set(<span class="hljs-keyword">this</span>.connectionHandler.getConnectionFromNode(jre.getTargetNode()));
+     &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (jre <span class="hljs-keyword">instanceof</span> JedisMovedDataException) &#123;
+     &#125; <span class="hljs-keyword">else</span> &#123;
+       <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> JedisClusterException(jre);
+     &#125;
+	<span class="hljs-comment">//做重试，这里的asking之前是false，现在设置为了true，回到这个代码的前面</span>
+     <span class="hljs-keyword">return</span> runWithRetries(key, attempts - <span class="hljs-number">1</span>, <span class="hljs-keyword">false</span>, asking);
+   &#125; <span class="hljs-keyword">finally</span> &#123;
+     releaseConnection(connection);
+   &#125;
+ &#125;</code></pre>
+
+<h1 id="JedisCluster"><a href="#JedisCluster" class="headerlink" title="JedisCluster"></a>JedisCluster</h1><h2 id="JedisCluster基本使用"><a href="#JedisCluster基本使用" class="headerlink" title="JedisCluster基本使用"></a>JedisCluster基本使用</h2><pre><code class="hljs java"><span class="hljs-comment">//定义一个集合，用来存储redis cluster的节点</span>
+Set&lt;HostAndPort&gt; nodeList= <span class="hljs-keyword">new</span> HashSet&lt;HostAndPort&gt;<span class="hljs-number">0</span>:
+nodeList.add(<span class="hljs-keyword">new</span> HostAndPort(HOST1, PORT1))
+nodeList.add(<span class="hljs-keyword">new</span> HostAndPort(HOST2, PORT2)
+nodeList.add(<span class="hljs-keyword">new</span> HostAndPort(HOST3, PORT3);
+nodeList.add(<span class="hljs-keyword">new</span> HostAndPort(HOST4, PORT4))
+nodeList.add(<span class="hljs-keyword">new</span> HostAndPort(HOST5, PORT5))
+nodeList.add(<span class="hljs-keyword">new</span> HostAndPort(HOST6, PORT6));
+<span class="hljs-comment">//Cluster有3个参数，集合、超时时间、配置</span>
+<span class="hljs-function">JedisCluster redisCluster new <span class="hljs-title">JedisCluster</span><span class="hljs-params">(nodeList, timeout, poolConfig)</span></span>
+<span class="hljs-function">rediscluster.command...</span></code></pre>
+
+<blockquote>
+<p>这里不需要关心连接池的归还，在它内部帮我们封装好了</p>
+</blockquote>
+<p>使用技巧</p>
+<ol>
+<li>单例：内置了所有节点的连接池；</li>
+<li>无需手动借还连接池；</li>
+<li>合理设置commons-pool；</li>
+</ol>
+<h2 id="整合Spring"><a href="#整合Spring" class="headerlink" title="整合Spring"></a>整合Spring</h2><blockquote>
+<p>笔者正在补充~</p>
+</blockquote>
+<h2 id="多节点命令"><a href="#多节点命令" class="headerlink" title="多节点命令"></a>多节点命令</h2><p>假如我们要执行一个scan操作扫描节点所有的键值，对于RedisCluster来说它不能支持一个scan命令去扫描所有节点，所以我们有一种要求就是在所有节点去执行这样的命令要怎么做呢？</p>
+<pre><code class="hljs java">∥获取所有节点的JedisPool
+Map&lt;String, JedisPool&gt; jedisPoolMap=jedisCLuster.getClusterNodes();
+<span class="hljs-keyword">for</span>(Entry&lt;String, Jedis Pool&gt; entry: <span class="hljs-function">jedisPoolMap <span class="hljs-title">entrySet</span><span class="hljs-params">()</span>)</span>
+<span class="hljs-function">	<span class="hljs-comment">//获取每个节点的Jedis连接</span></span>
+<span class="hljs-function">	Jedis jedis</span>=entry.getValue().getResource();
+	<span class="hljs-keyword">if</span>(!isMaster(jedis))&#123;
+    <span class="hljs-keyword">continue</span>;
+  &#125;
+	<span class="hljs-comment">//finally close</span>
+&#125;</code></pre>
+
+
+
+<h2 id="批量命令实现"><a href="#批量命令实现" class="headerlink" title="批量命令实现"></a>批量命令实现</h2><blockquote>
+<p>在RedisCluster中执行批量操作有一个问题：mget、mset必须在一个槽，下面介绍4种方法对这种问题进行优化</p>
+</blockquote>
+<h3 id="串行mget"><a href="#串行mget" class="headerlink" title="串行mget"></a>串行mget</h3><p>执行<code>megt</code>时，我们写一个for循环来执行，通过RedisCluster执行每个key，例如下面这张图：左边的是要执行的批量操作，右边是3个redis节点，这种方法比较简单，当效率是非常差的，它需要n次网络时间</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572188972006-1572188977000.png" srcset="/img/loading.gif" alt="1572188972006"></p>
+<h3 id="串行IO"><a href="#串行IO" class="headerlink" title="串行IO"></a>串行IO</h3><p>它对上面的<code>串行mget</code>方案进行了优化</p>
+<p> 左边仍然是<code>meget</code>操作，右边仍然是对应的3个节点，它有一个不同是在客户端本地做一个内聚，我现在知道所有的key，通过本地的<code>CRC16</code>然后对<code>16383</code>去取余，算出它的槽，知道本地的槽和节点的对应关系就可以将这些key进行分组，这个分组就是按照节点进行分组，给它成立一个字节，各各<code>master</code>节点一个子集，当我们有这个子集之后，我们只需要执行3次<code>pipeline</code>就可以完成对应的<code>mget</code>操作，这样就变成了nodes次网络时间，大大降低网络开销</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572189341535-1572189466437.png" srcset="/img/loading.gif" alt="1572189341535"></p>
+<h3 id="并行IO"><a href="#并行IO" class="headerlink" title="并行IO"></a>并行IO</h3><p>并行IO是对串行IO方案的优化，利用多线程，分别在3个线程下去获取对应节点<code>pipeline</code>的返回值</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572189489205.png" srcset="/img/loading.gif" alt="1572189489205"></p>
+<h3 id="hash-tag"><a href="#hash-tag" class="headerlink" title="hash_tag"></a>hash_tag</h3><p>这是更加极端的方案，将key做一个hash_tag的包装，将tag值用一个大括号去括起来，这样保证所有的key都落到一个redis节点，这样每次mget只需要是一个节点去写就好了</p>
+<h3 id="四种方案优缺点"><a href="#四种方案优缺点" class="headerlink" title="四种方案优缺点"></a>四种方案优缺点</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572189600178.png" srcset="/img/loading.gif" alt="1572189600178"></p>
+<h1 id="故障转移"><a href="#故障转移" class="headerlink" title="故障转移"></a>故障转移</h1><h2 id="故障发现"><a href="#故障发现" class="headerlink" title="故障发现"></a>故障发现</h2><ul>
+<li>通过ping/pong消息实现故障发现：不需要sentinel</li>
+<li>主观下线和客观下线；</li>
+</ul>
+<h3 id="主观下线"><a href="#主观下线" class="headerlink" title="主观下线"></a>主观下线</h3><ul>
+<li>定义：某个节点认为另一个节点不可用“偏见”，这是某一个节点的认知，不代表所有节点的认知；</li>
+<li>主观下线流程：<img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572265817397.png" srcset="/img/loading.gif" alt="1572265817397"><br>这里抽象2个节点的模型观察，现在有节点1和节点2，节点1会定期发送一个ping消息给节点2，如果发送成功就是代表ping通了， 然后节点2会回复pong消息，节点1会更新与节点2最后的通信时间，如果这个ping失败了，这个通信异常就会断开连接，再下一次触发ping消息的时候，它依然会执行ping/pong这个过程，当它发现与节点2的最后时间超过了<code>node-timeout</code>，我们之前配置的<code>cluster-node-timeout</code>，就会将它标记为<code>pfail</code>,<code>pfail</code>就是主观下线，以上内容就是主观下线的基本流程；</li>
+</ul>
+<h3 id="客观下线"><a href="#客观下线" class="headerlink" title="客观下线"></a>客观下线</h3><ul>
+<li>定义：当半数以上持有槽的节点都标记某节点主观下线，这里的半数以上是防止网络分区的情况，而且还要是主节点，这是因为在集群模式才有资格进行读写的请求以及进行槽的相关维护，而从节点只负责复制；</li>
+<li>客观下线逻辑流程：<img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572266269416.png" srcset="/img/loading.gif" alt="1572266269416"><br>它接受到其他节点发来的ping消息，如果它包含了pfail消息（主观下线），然后它会将主观下线的消息内容添加到自身的故障列表中，这个故障列表中包含了当前节点收到每个节点的对其他节点的信息，假如我当前是节点2，我的故障列表里面有节点1一直到节点n这样为列，故障n为行这样的矩阵列表能知道每个节点对每个节点的看法，这样当它添加之后它会去尝试做客观下线，因为它这个列表中维护了所有故障列表，这个列表也是有周期的，这个周期需要在<code>cluster-node-timeout * 2</code>范围内，这样是为了保证一个很久之前的故障消息不会在我这里很久是有效的，保证了客观下线的公平性和有效性；</li>
+</ul>
+<h3 id="尝试客观下线"><a href="#尝试客观下线" class="headerlink" title="尝试客观下线"></a>尝试客观下线</h3><p><strong>流程</strong></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572266968180.png" srcset="/img/loading.gif" alt="1572266968180"></p>
+<p>它会统计有效下线列表报告中的数量，如果小于集群中持有槽主节点的一半则退出，如果下线报告大于主节点数量一半时会标记故障节点为一个客观下线状态，也就是图中右边部分，并向集群中发送广播通知所有节点将故障节点标识为客观下线</p>
+<ul>
+<li>通知集群内所有节点标记故障节点为客观下线；</li>
+<li>通知故障节点的从节点触发故障转移流程。</li>
+</ul>
+<h2 id="故障恢复"><a href="#故障恢复" class="headerlink" title="故障恢复"></a>故障恢复</h2><p>故障恢复就是在发现主观下线的操作之后后面做了客观下线，然后客观下线通知给从节点，从节点接受到了这个消息之后它就会开始准备做故障恢复从而保证集群的高可用，它主要分为4个部分：</p>
+<ul>
+<li>资格检查：对多个从节点的一个资格进行审查，只有在资格审查范围内的从节点才有资格做故障恢复的工作；</li>
+<li>准备选举时间：这个为了使偏移量最大的一个从节点具备优先级，成为主节点的条件；</li>
+<li>选举投票：对多个选举出来的从节点，主节点要进行一个投票，最终选定谁是成为未来的主节点；</li>
+<li>替换主节点。</li>
+</ul>
+<h3 id="检查资格"><a href="#检查资格" class="headerlink" title="检查资格"></a>检查资格</h3><ul>
+<li>每个从节点检查与故障主节点的断线时间；</li>
+<li>如果超过<code>cluster-node-timeout * cluster-slave-validity-factor</code>取消资格；</li>
+<li>cluster-node-timeout：默认时间是15秒；</li>
+<li>cluster-slave-validity-factor：默认是10，如果都使用默认值的话相当于150秒，每个从节点检查与故障主节点的断线时间超过个150秒就没有资格成为主节点的可能性。</li>
+</ul>
+<h3 id="准备选举时间"><a href="#准备选举时间" class="headerlink" title="准备选举时间"></a>准备选举时间</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572268020906.png" srcset="/img/loading.gif" alt="1572268020906"></p>
+<p>当从节点符合故障转移资格之后，需要更新触发故障选举的时间，只有达到该时间才有可能触发后续的流程，这一步其实是为了保证偏移量比较大的从节点有更小的延迟达到所谓的一个选举时间，为了保证数据的一致性会更高，因为当前主节点已经发生了故障，只有偏移量最大的更接近原来的主节点，它更有可能成为未来的master节点，所有我们会给它更小的选举时间，让它首先去达到这个选举时间，然后完成为未来的选举，让它获得更高的票数，最终成为master节点，从节点拿到选举时间之后它会对主节点发起一个选举，让主节点发起一个选举然后主节点给它进行投票，它的一个优先级更高也就是它的偏移量更大它的选举时间会更短，就是它获得选举时间越短它就更可能获得更多的票数，例如现在这个图中的slave1由于它的偏移量比较大，它获得了更多的票数，然后slave2可能是稍后拿到选举的时间，它只获得了1票，然后这个RedisCluster会规定当你获取了这个集群中主节点的2分之1再加1这个数字之后就可以做一个替换主节点的工作了；</p>
+<h3 id="替换主节点"><a href="#替换主节点" class="headerlink" title="替换主节点"></a>替换主节点</h3><ol>
+<li>当前从节点取消复制变为主节点（slaveof no none）；</li>
+<li>执行cluserDelSlot撤销故障主节点负责的槽，并执行clusterAddSlot把这些槽分配给自己；</li>
+<li>向集群广播自己的pong消息，表明已经替换了故障从节点。</li>
+</ol>
+<h2 id="故障转移演练"><a href="#故障转移演练" class="headerlink" title="故障转移演练"></a>故障转移演练</h2><blockquote>
+<p>这里对某节点通过<code>kill    -9 {pid}</code>来模拟宕机的情况，假如6385部署到一台机器上，然后突然发生了宕机，这里就用 <code>kill    -9 {pid}</code>来模拟，看看它能否实现故障转移，故障转移的最终目标就是图的右边，6385成为了一个从节点，6386成为了主节点，当然6385可能是一个失败状态或者故障恢复的状态</p>
+</blockquote>
+<h3 id="具体步骤"><a href="#具体步骤" class="headerlink" title="具体步骤"></a>具体步骤</h3><ol>
+<li>执行kill -9节点模拟宕机；</li>
+<li>观察客户端故障恢复时间；</li>
+<li>观察各个节点的日志。</li>
+</ol>
+<h3 id="开始"><a href="#开始" class="headerlink" title="开始"></a>开始</h3><p>（1）客户端打印日志存放的目录</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572276083100.png" srcset="/img/loading.gif" alt="1572276083100"></p>
+<hr>
+<p>（2）这是一个简单的while死循环</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572276112807.png" srcset="/img/loading.gif" alt="1572276112807"></p>
+<hr>
+<p>（3）查看客户端的日志</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572276191669.png" srcset="/img/loading.gif" alt="1572276191669"></p>
+<hr>
+<p>（4）这个时候将服务端使用kill关闭7000端口</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572276152318.png" srcset="/img/loading.gif" alt="1572276152318"></p>
+<hr>
+<p>（5）这个时候就会收到很多异常信息</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572276220715.png" srcset="/img/loading.gif" alt="1572276220715"></p>
+<hr>
+<p>（6）稍等一会，会发现恢复正常了</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572276268731.png" srcset="/img/loading.gif" alt="1572276268731"></p>
+<hr>
+<p>（7）这里恢复时间大概20多秒左右，这里包含了主观下线、客观下线和选举的时间，对于一般的应用来说还是可以容忍的，如果你在客户端做了一些对故障容忍的熔断措施，这个故障时间还是比较小的，如果你不容忍这些时间你可以把<code>cluseter-node-timeout</code>调小一些，但是在后面的开发运维场景问题的时候会提到这个参数会影响到带宽的一个传播的速率，就是这个消息传输的频率，可能会加重带宽，所以这个参数是比较综合的参数</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572276323869.png" srcset="/img/loading.gif" alt="1572276323869"></p>
+<hr>
+<p>（8）然后看一下节点的变化，之前的7000被kill了之后7000的从节点7003变为了master，7000已经成为了slave节点</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572276640360.png" srcset="/img/loading.gif" alt="1572276640360"></p>
+<p>（9）这个时候启动7000，</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572276817565.png" srcset="/img/loading.gif" alt="1572276817565"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572276838894.png" srcset="/img/loading.gif" alt="1572276838894"></p>
+<p>（10）接下来对日志做分析，首先看一下7000</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572276892421.png" srcset="/img/loading.gif" alt="1572276892421"></p>
+<p>这里由于使用的是kill操作，所以不会留下日志，只会留下启动和复制master日志</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572276978705.png" srcset="/img/loading.gif" alt="1572276978705"></p>
+<hr>
+<p>看7003</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572277091059.png" srcset="/img/loading.gif" alt="1572277091059"></p>
+<p>收到了它主节点下线的消息</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572277134120.png" srcset="/img/loading.gif" alt="1572277134120"></p>
+<p>选举时间，这里由于搭建的是一主已从的结构，所以只有它能变成主节点</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572277219789.png" srcset="/img/loading.gif" alt="1572277219789"></p>
+<p>成为master</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572277280574.png" srcset="/img/loading.gif" alt="1572277280574"></p>
+<p>清除原来主节点的信息</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572277295453.png" srcset="/img/loading.gif" alt="1572277295453"></p>
+<hr>
+<p>7002的日志</p>
+<p>标识原来主节点的状态：failing</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572277350341.png" srcset="/img/loading.gif" alt="1572277350341"></p>
+<p>它包含了原理主节点的状态，这里进行清除</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572277439124.png" srcset="/img/loading.gif" alt="1572277439124"></p>
+<h1 id="集群开发运维常见问题"><a href="#集群开发运维常见问题" class="headerlink" title="集群开发运维常见问题"></a>集群开发运维常见问题</h1><h2 id="集群完整性"><a href="#集群完整性" class="headerlink" title="集群完整性"></a>集群完整性</h2><p>之前介绍的cluster-require-full-coverage默认为yes，是否需要所有集群节点都是在线状态，而且1684个槽都在一个服务的状态，才会认为集群是完整的对外同服务</p>
+<ul>
+<li>集群中16384个槽全部可用：保证集群完整性；</li>
+<li>节点故障或者正在故障转移：（error） CLUSETRDOWN The cluster is down。</li>
+</ul>
+<p>大多数业务无法容忍，cluster-require-full-coverage建议设置为no</p>
+<h2 id="带宽消耗"><a href="#带宽消耗" class="headerlink" title="带宽消耗"></a>带宽消耗</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572352974418.png" srcset="/img/loading.gif" alt="1572352974418"></p>
+<p>Redis Cluster会定期交换Gossip消息以及做一些心跳检测</p>
+<ul>
+<li>官方建议：节点不要超过1000个节点；</li>
+<li>PING/PONG消息：节点之间会交换PING/PONG消息</li>
+<li>不容忽视的宽带消耗：当节点过多的时间就会产生一个问题，带宽消耗，因为它在传输的时候会带一下数据量，例如它有多少槽，还需要带对其他节点的认识的信息<ul>
+<li>消息发送频率：节点发现与其它节点最后通信时间超过cluster-node-timeout/2时会直接发送ping消息，也就是说这个cluster-node-timeout数字也会决定消息发送频率，这个频率就决定了带宽；</li>
+<li>消息数据量：slot槽数组（2kb空间）和整个集群1/10的状态数据（10个节点状态数据约1kb）</li>
+<li>节点部署的集群规模：集群分布的机器越多且每台机器划分的节点数均匀，则集群内整体的可用带宽越高。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<p>举个例子：</p>
+<p>​    现在有一个集群</p>
+<ul>
+<li>规模：节点200个、20台物理机（每台10个节点）；</li>
+<li>cluser-node-timeout=15000，ping/pong带宽为25MB;</li>
+<li>cluster-node-timeout=20000，ping/pong带宽低于15MB，当然cluster-node-timeout还会涉及到故障转移一个时间的问题，所以在设置的时候要去考虑这个问题，不要只考虑带宽的问题，还要考虑故障转移时间的问题；</li>
+</ul>
+<p>以上问题优化：</p>
+<ul>
+<li>避免“大”集群：避免多业务使用一个集群，大业务可以多集群。有些公司有些项目组会使用非常大的集群，然后很多业务去使用这样的集群，首先它的问题就是说，如果业务很多涉及到里面的人水平也不太相同，一旦有人开发不规范会造成P2P、阻塞这种情况，一个业务会影响带另一个业务，及时是一个分布式的，实际上还是每一个Redis节点，每个Redis节点还是一个单线程模式，对于多个业务的时候，可以使用多个集群，甚至一些大业务可以使用多个集群，因为我们公司之前一个推荐服务，它可以按照不同的推荐类型使用对应的集群，实际上不同推荐类型List之间是没有业务数据相关性的，这个时间可以使用多集群，像这种如果真的需要使用非常大数据的时候，建议使用多个集群；</li>
+<li>cluster-node-timeout：带宽和故障转移速度的均衡：这个影响带宽、故障转移的时间，在设置的时候要对这2个方面进行均衡；</li>
+<li>尽量均匀分配到多机器上：使用多台机器，它既保证高可用，机器越多，主从节点分配会更均匀，带宽也会更加均匀，对于这个问题开发人员不需要太关心，但是运维人员需要多关注，当节点上很多规模的时候，建议使用一些：比如自己开发一套分配规则来达到负载均衡。</li>
+</ul>
+<h2 id="Pub-Sub光爆"><a href="#Pub-Sub光爆" class="headerlink" title="Pub/Sub光爆"></a>Pub/Sub光爆</h2><blockquote>
+<p>发布订阅模式在集群会出现什么问题？</p>
+</blockquote>
+<p>问题：public在进群每个节点广播：加重带宽</p>
+<p>对任意一个节点去执行publish（发布消息），它会将这些消息在集群中进行广播，对一个节点进行发布，其他节点都会订阅到对应的消息，这样会有一个问题，节点带宽的开销会很大；</p>
+<p>解决：单独“走”一套Redis Sentinel</p>
+<hr>
+<p>举一个例子来看下对集群节点发布消息会怎么样</p>
+<p>7000对cluster_pubsub_test频道发布hello</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572354891479.png" srcset="/img/loading.gif" alt="1572354891479"></p>
+<p>7001主节点与它的从节点7003订阅cluster_pubsub_test频道</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572354993873.png" srcset="/img/loading.gif" alt="1572354993873"></p>
+<h2 id="集群倾斜"><a href="#集群倾斜" class="headerlink" title="集群倾斜"></a>集群倾斜</h2><blockquote>
+<p>对于分布式数据库来说存在倾斜问题是比较常见的，来看下RedisCluster它的倾斜问题</p>
+</blockquote>
+<h3 id="数据倾斜"><a href="#数据倾斜" class="headerlink" title="数据倾斜"></a>数据倾斜</h3><blockquote>
+<p>内存不均，一个节点比其他节点使用的内存多，例如下面这张图的情况，假如这里是3个主从，这是3个主节点，第2个主节点内存使用是比较高的，但是它的对象数又没有太多，那可能就有一些问题</p>
+</blockquote>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572355147510.png" srcset="/img/loading.gif" alt="1572355147510"></p>
+<p>它是由这4种情况造成的：</p>
+<ul>
+<li>节点和槽分配不均：假如现在有3个节点，16384进行平均分，假如有一个节点分了1W个槽，它的数据量会到大一些，这是比较正常的情况 ；</li>
+<li>不同槽对应的键值数量差异较大：将槽分配比较均匀，但是有一些槽对应的键值数比较大，就会造成数据倾斜；</li>
+<li>包含bigkey：一个非常大的hash，因为Redis中的数据只能以key为单位进行落地到具体的节点，例如一个hash或者list、set，非常非常大，例如有100W，存在这种key的时候就会造成数据倾斜；</li>
+<li>内存相关配置不一致：像hash、set、list、zset内存配置都有优化参数，例如ziplist优化、整数集合优化，这些对于Redis来说会减少一定内存，假如我们项目中使用了那样的集合、哈希的时候，我们做了优化，但是没有在所有节点做优化就会出现不均匀</li>
+<li>还有一些没有提到的情况<ul>
+<li>客户缓冲区：某一个节点的客户端缓冲区非常高，例如它的节点执行了一些大命令，也会出现这种情况；</li>
+<li>Redis的Key和Value是存在哈希表中的，当key比较多的时候，哈希表会做一个扩容，在扩容的时候正好触发某个数字的时候，例如re哈希要大于2的n次方的时候，它会做一个re哈希，这个时候会多出一个哈希表，假如我们一个键值数非常多的时候，这个哈希表可能占用量就很大，会出现短暂不均匀。</li>
+</ul>
+</li>
+</ul>
+<h4 id="节点和槽分配不均"><a href="#节点和槽分配不均" class="headerlink" title="节点和槽分配不均"></a>节点和槽分配不均</h4><ul>
+<li>redis-trib.rb info ip:port查看节点、槽、键值分布，如果你怀疑有这样问题的时候可以去执行；</li>
+<li>redis-trib.rb rebalance ip:port进行均衡（谨慎使用），它有自己内部实现的算法，这个建议谨慎使用，因为这里一旦涉及迁移槽的问题，就会涉及到客户端，虽然知道智能客户端可以对槽进行兼容，但是一旦涉及到槽的迁移的时候建议谨慎操作，而且建议在自己可执行的计划范围内进行操作；</li>
+</ul>
+<h4 id="不同槽对应键值数量差异较大"><a href="#不同槽对应键值数量差异较大" class="headerlink" title="不同槽对应键值数量差异较大"></a>不同槽对应键值数量差异较大</h4><p>在节点槽分配比较均匀的情况下，一般不会出现这种问题，但是有些槽它对应的键值数量比较多</p>
+<ul>
+<li>CRC16正常情况下比较均匀，这里别人测试很多次了，不用去怀疑；</li>
+<li>可能存在hash_tag：这个是通常的主要原因，在这种槽对应数量不是差异比较大的情况下；</li>
+<li>cluster countkeysinslot {slot}获取槽对应键值个数</li>
+</ul>
+<h4 id="包含bigkye"><a href="#包含bigkye" class="headerlink" title="包含bigkye"></a>包含bigkye</h4><ul>
+<li>bigkey：因为一个key只能落在一个槽上以及对应的一个节点上，假如说有一个大的字符串或者几百万人数甚至上万几十万的哈希，或者set、zset、list等等，就会出现数据倾斜</li>
+<li>从节点：redis-cli  –bigkeys，这里建议在从节点上执行；</li>
+<li>优化：优化数据结构，例如对一个大的列表进行拆分，按哈希进行二次哈希拆分</li>
+</ul>
+<h4 id="内存相关配置不一致"><a href="#内存相关配置不一致" class="headerlink" title="内存相关配置不一致"></a>内存相关配置不一致</h4><ul>
+<li>hash-max-ziplist-value、set-max-intset-entries等，hash-max-ziplist-value是对哈希的优化，当一定条件满足的时候哈希会使用ziplist，set-max-intset-entries：整数集合优化，当有些条件满足的时候，set会使用整数集合来实现内存优化，假如我们集群有6个节点，那其中一个节点使用了这种优化，而且我们集群中大量使用了hash、set，如果一个节点没有配置就会造成节点数据不均匀；</li>
+<li>优化：定期“检查”配置一致性，这对于集群管理是非常重要的，集群经量达成统一</li>
+</ul>
+<h3 id="请求倾斜"><a href="#请求倾斜" class="headerlink" title="请求倾斜"></a>请求倾斜</h3><blockquote>
+<p>某一个节点上的key请求量非常高，也就是俗称的热点问题</p>
+</blockquote>
+<ul>
+<li>热点key：重要的key或者bigkey，举个例子：一个重要明星发布了重要消息，例如新浪微博上面的很多大V，在重要的节日、时间点发了一些重要的消息会落到key上面，假如是有这样的问题，就会出现热点问题，还有一个就是bigkey：hash或者list是一个bigkey，这个bigkey在很多业务场景会用到它，也会有热点的问题</li>
+<li>优化：<ul>
+<li>避免使用bigkey；</li>
+<li>热点不要用hash_tag；</li>
+<li>如果真有这样的热点key，但是对一致性要求不是非常高的情况下可以使用本地缓存+MQ。</li>
+</ul>
+</li>
+</ul>
+<h2 id="读写分离"><a href="#读写分离" class="headerlink" title="读写分离"></a>读写分离</h2><ul>
+<li>在集群模式下，从节点是不接受任何读写请求的。<ul>
+<li>假如你对它进行读，它会重定向到负责槽的主节点进行完成；</li>
+<li>有一个命令可以达到读的效果：<code>readonly</code>，它是一个连接级的命令，当连接断了之后你需要再去执行<code>readonly</code>才可以完成这样的工作。</li>
+<li>下面对上述进行演示</li>
+</ul>
+</li>
+</ul>
+<p>首先在7000执行写命令</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572357983112.png" srcset="/img/loading.gif" alt="1572357983112"></p>
+<p>对7003的slave去执行度命令</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572358024669.png" srcset="/img/loading.gif" alt="1572358024669"></p>
+<blockquote>
+<p>这里它不会去执行读的命令</p>
+</blockquote>
+<p>这里先执行readonly，在去读，它就会自己去执行，它可以承担读的工作，但是你需要每次去写readonly</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572358044173.png" srcset="/img/loading.gif" alt="1572358044173"></p>
+<ul>
+<li>如果想完成读写分离是很复杂的<ul>
+<li>首先要面临单机节点的问题 ，单机主从会有问题，例如复制延迟、读取过期数据、从节点故障</li>
+<li>使用Redis Cluster去实现读写分离的时候我们需要知道对应的slave池子，RedisCluster提供了一个命令：cluster slaves {node-id}来获得对应的从节点，所以我们需要实现自己的客户端，这本身是非常复杂的，这里面还涉及到一个问题：它里面会有节点和槽的对应关系，总的来说使用RedisCluster来实现读写分离的成本是非常高的，在真的有这种需求的时候建议去考虑把你的集群规模扩大一些，而不要去考虑使用它的从节点这样的成本非常高，假如你没有这样的成本，你可以去自己实现这样的客户端，虽然整体思路意思说你要维护一个可用的slave池子还要保证槽和节点的关系你能知道，这样就好了，跟之前说的RedisSentinel思路是基本一样的</li>
+</ul>
+</li>
+</ul>
+<h2 id="数据迁移"><a href="#数据迁移" class="headerlink" title="数据迁移"></a>数据迁移</h2><p>官方迁移工具：<code>redis-trib.rb import</code>命令可以将数据迁移到集群，对于我们去升级到集群是非常有帮助的，因为我们之前的数据可能是存在单节点上，但是它有一些问题：</p>
+<ul>
+<li>只能从单机迁移到集群；</li>
+<li>不支持在线迁移：source需要停写，在迁移期间写入的数据是不会被迁移的；</li>
+<li>不支持断点续传：迁移过程中如果有中断它没法记录之前迁移的过程；</li>
+<li>它是一个单线程的，如果你的数据量比较大的话，可能会比较慢。</li>
+</ul>
+<p>在线迁移：</p>
+<ul>
+<li>唯品会：redis-migate-tool</li>
+<li>豌豆荚：redis-port</li>
+</ul>
+<p>这2个工具在很多公司都有使用，它基本原理是单独起一个节点伪装成source节点的slave，这样的话它可以拿到全量数据，而且它还可以得到持续的更新数据，然后它在利用这份更新数据然后再去同步给target节点，在source和target之间做了一层中转站，这个中转站可以拿到source的更新来实现迁移</p>
+<hr>
+<p><strong>演示</strong></p>
+<blockquote>
+<p>这里只演示官方工具：</p>
+</blockquote>
+<p>现在有一个单节点，现在想把这里面的数据迁移到集群上</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572359118991.png" srcset="/img/loading.gif" alt="1572359118991"></p>
+<p>通过<code>redis-trib.rb import</code>进行迁移，</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572359216532.png" srcset="/img/loading.gif" alt="1572359216532"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572359287984.png" srcset="/img/loading.gif" alt="1572359287984"></p>
+<p>，在迁移期间在这个单节点去写数据，等会去对比它是否是一个在线的迁移</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572359258889.png" srcset="/img/loading.gif" alt="1572359258889"></p>
+<p>大小</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572359369595.png" srcset="/img/loading.gif" alt="1572359369595"></p>
+<p>迁移完成之后来看一下集群的信息，这里可以看到它的大小是10002，而之前是100003，因为在这期间迁移数据，此时在原理的单机节点加入数据是不会同步的，为什么是10002呢？因为<code>redis-trib.rb import</code>使用的是一个scan模式，它是对这个原节点使用scan进行扫描，因为在scan期间加入数据正好被它scan到了被加入进来，有的数据过了scan的一个游标所以它没有进行插入，总之不管它在插入期间进行插入但是呢我们现在再去对原节点操作的时候原节点已经收不到对应的信息了，这个对很多场景是无法容忍的，这个时候可以用上面介绍的2款工具</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572359420312.png" srcset="/img/loading.gif" alt="1572359420312"></p>
+<h2 id="集群vs单机"><a href="#集群vs单机" class="headerlink" title="集群vs单机"></a>集群vs单机</h2><h3 id="集群限制"><a href="#集群限制" class="headerlink" title="集群限制"></a>集群限制</h3><ul>
+<li>key批量操作支持有限：例如mget、mset必须在一个slot，在后面介绍缓存优化与设计会使用一些方法来模拟出mget、mset完成这样的效果，在一定程度上去支持这样的命令，但无法达到原子性；</li>
+<li>key事务和Lua支持有限：例如我们使用事务或者Lua必须将这整个过程中使用key必须在一个节点上，当然这里可以使用像hash_tag让它去到一个节点，但是它使用来说还是会受限的；</li>
+<li>key是数据分区的最小粒度：不支持bigkey分区；</li>
+<li>不支持多个数据库的，在集群模式下只有db 0，没有16个数据库，当然在一帮状态下的单机情况下也不建议使用这种多数据库模式；</li>
+<li>复制只支持一层：不支持树形复制结构，在之前的主从复制中介绍过树形结构的优势，但是在集群模式下是不支持的。</li>
+</ul>
+<h3 id="思考-分布式Redis不一定好"><a href="#思考-分布式Redis不一定好" class="headerlink" title="思考-分布式Redis不一定好"></a>思考-分布式Redis不一定好</h3><ol>
+<li>Redis Cluster：满足容量和性能的扩展性，但在很多业务是不需要的，因为很多业务的QPS是达不到这么高的，或者它的容量达不到这么高，所以大家在企业里要考虑一下自己需不需要Redis Cluster，不要一味去追时髦，不要再不了解的情况下去做申请；<ul>
+<li>大多数时客户端性能会“降低”，比如说批量操作你在怎么优化在多个节点进行操作肯定没有在一个节点高，这里指的是一次命令，因为它涉及到多节点去获取；</li>
+<li>命令无法跨节点时候用：mget、keys、scan、flush、sinter等；</li>
+<li>Lua和事务无法跨节点使用；</li>
+<li>客户端维护更复杂：SDK和应用本身消耗（例如更多的连接池）。</li>
+</ul>
+</li>
+<li>很多场景Redis Sentinel已经做够好了，Redis Sentinel本身是高可用了，解决开发中的一个大的问题，虽然它是一个单点，但它能达到万级别的QPS，对于大部分业务场景是足的。</li>
+</ol>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><ul>
+<li>Redis cluster数据分区规则采用虚拟槽方式(16384个槽),每个节点负责一<br>部分槽和相关数据,实现数据和请求的负载均衡。</li>
+<li>搭建集群划分四个步骤:准备节点、节点握手、分配槽、复制。<br>redis- trib.rb工具用于快速搭建集群。</li>
+<li>集群伸缩通过在节点之间移动槽和相关数据实现。<ul>
+<li>扩容时根据槽迁移计划把槽从源节点迂移到新节点。</li>
+<li>收缩时如果下线的节点有负责的槽需要迁移到其它节点,再通过 cluster forgeti命，令让集群内所有节点忘记被下线节点。</li>
+</ul>
+</li>
+<li>使用smar客户端操作集群达到通信效率最大化,客户端內部负责计算维<br>护键-&gt;槽-&gt;节点的映射,用于快速定位到目标节点。</li>
+<li>集群自动故障转移过程分为故障发现和节点恢复。节点下线分为主观下线<br>和客观下线,当超过半数主节点认为故障节点为主观下线时标记它为客观<br>下线状态。从节点负责对客观下线的主节点触发故障恢复流程,保证集群<br>的可用性。</li>
+<li>开发运维常见问题包括：超大规模集群带宽消耗，pub/sub广播问题，集群倾斜问题，单机和集群对比等</li>
+</ul>
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E8%BF%90%E7%BB%B4/Redis/">Redis</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/redis-10.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【 Redis-学习笔记 】 10.缓存设计与优化</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/redis-8.html">
+                        <span class="hidden-mobile">【 Redis-学习笔记 】 8.初识Redis Cluster</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "【 Redis-学习笔记 】 9.深入Redis Cluster&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

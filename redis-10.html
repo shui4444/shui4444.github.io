@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="Shui">
+  <meta name="keywords" content="">
+  <title>【 Redis-学习笔记 】 10.缓存设计与优化 - Shui&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Fluid</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2019-10-17 21:10">
+      2019年10月17日 晚上
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      7k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      71
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <h1 id="缓存的收益与成本"><a href="#缓存的收益与成本" class="headerlink" title="缓存的收益与成本"></a>缓存的收益与成本</h1><blockquote>
+<p>使用缓存能带来哪些收益又会付出什么成本？</p>
+</blockquote>
+<h2 id="收益"><a href="#收益" class="headerlink" title="收益"></a>收益</h2><ol>
+<li>加速读写<ul>
+<li>通过缓存加速读写：CPU  L1/L2/L3 Cache、Linux page Cache加速硬盘读写、浏览器缓存、Ehcache缓存数据库结果；</li>
+</ul>
+</li>
+<li>降低后端负载<ul>
+<li>后端服务器通过前端缓存降低负载：业务端使用Redis降低后端MySQL负载等。</li>
+</ul>
+</li>
+</ol>
+<h2 id="成本"><a href="#成本" class="headerlink" title="成本"></a>成本</h2><ol>
+<li>数据不一致：缓存层和数据层有时间窗口不一致，和更新策略有关：你需要将底层的数据库的数据放到缓存槽进行缓存，它两会有一个不一致，例如数据库更新了，然后缓存怎么去更新呢？这里就有很多更新策略，它不会立刻更新，而是过一会更新；</li>
+<li>代码维护成本：多了一层缓存逻辑；</li>
+<li>运维成本：例如Redis Cluster，这些会增加运维成本，当然这些成本不一定是安装，假如你可以使用一些外面的云，但是会涉及到经济成本。</li>
+</ol>
+<h2 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h2><ol>
+<li>降低后端负载：<ul>
+<li>对高消耗的SQL：join结果集/分组统计结果缓存；</li>
+</ul>
+</li>
+<li>加速请求响应：<ul>
+<li>利用<code>Redis</code>/<code>Memcache</code>优化IO响应时间</li>
+</ul>
+</li>
+<li>大量写合并为批量写：<ul>
+<li>如计数器，假如说我如果只使用DB的话，我不可能每次都<code>update</code>一个值等于一个值加一这样做，对于数据库来说这种操作相当于插入来说它本身就是比较慢的，然后如果你还要做大量的这种操作那它的负载会很高速度会很慢，而且它本身不适合这种场景，但是有的时候真的要将这个数据保存在DB，这里可以先写一个计数器，例如使用<code>Redis</code>的<code>INCR</code> ，在<code>INCR</code>中做累加，因为它<code>INCR</code>是非常快，如果真的需要同步给数据库，可以定期批量的做这样的事情，从而提高效率</li>
+</ul>
+</li>
+</ol>
+<h1 id="缓存更新策略"><a href="#缓存更新策略" class="headerlink" title="缓存更新策略"></a>缓存更新策略</h1><p>缓存的数据都是有声明周期的，需要做定期更新或者删除从而保证空间在一个可控的范围内，而且保证数据定期更新；但是缓存中数据由于某些原因可能和真实的数据有一些不一致，需要在合理的策略、合理的时间进行更新，这里对这个问题说明，这里介绍3种更新策略</p>
+<ol>
+<li>LRU/LFU/FIFO算法剔除：对于Redis来说就是<code>maxmemory-policy</code>最大内存对应的策略，比如说最大内存出现了时候要怎么去做？像有一些策略是说在对应出现<code>maxmemory-policy</code>达到最大值的时候它首先关注过期建议，因为过期建议未来可能会删除的一些键，然后执行<code>LRU</code>，将一些最近没使用的一些key去执行来保证<code>maxmemory-policy</code>的整体的值不会超过，达到保护内存的效果，而且保证尽可能的数据安全，虽然这样已经剔除了一些数据，但是它可能保证一定的安全 ，还有像OKEYCORU就是在所有键里面去执行LRU，这样一个策略，当然它有一个优势是说我们在设置这样功能的时候是非常简单，只需要对缓存配置一个对应的策略，例如以上说的策略，我们不需要关心具体每一个key到底是怎么删的、到底是时候什么策略都不用去关心，它的适用场景是我们在控制最大内存，例如像刚才说的我要对应缓存或者说一个存储设置最大内存，在这种情况下去帮我删除数据，而不是说我的没有几条数据然后你就按这个策略帮我删；</li>
+<li>超时剔除：对于Redis来说就是设置过期时间，例如用户信息将它缓存起来了，然后给它设置一个半小时的过期时间，在这半个小时之内，用户请求都是会去缓存中去拿对应的结果，然后来保证性能来降低后端的负载，但是有一个问题：在这缓存期间如果用户更新了怎么办？这个用户信息很重要，对于这种情况expire就不是很好，可能一些不重要的信息，像视频对应的说明很长的几百个字，然后它改了一个逗号，对于用户来说这一段时间的不一致是可以容忍的，像一些重要信息，涉及到钱方面的金融的信息肯定不能用这样的策略；</li>
+<li>主动更新：控制key更新周期，例如刚才说的还是以刚才的用户信息为例子，用户信息在存储层发生了变化，如果对应的缓存层能知道，我通过你的业务代码或者通过开发一些工具，比如去订阅这个持久层消息的变化，它做了更新它会发一条消息，然后我这里做一个主动的更新把对应的key删掉或者做一次重建，从数据层去读取一遍，然后回写到持久层，来实现数据一致性，当然这种一致性任然不是一个完全一致的强一致性，而是一个需要时间的最终一致性，最终一致性需要的时间是比较短的，因为它是有这样机制来保证；</li>
+</ol>
+<p>策略对比</p>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>一致性</th>
+<th>维护成本</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>LRU/LIRS算法剔除</td>
+<td>最差</td>
+<td>低</td>
+</tr>
+<tr>
+<td>超时剔除</td>
+<td>较差</td>
+<td>第</td>
+</tr>
+<tr>
+<td>主动更新</td>
+<td>强</td>
+<td>高</td>
+</tr>
+</tbody></table>
+<p>建议</p>
+<blockquote>
+<p>在实际开发中要使用哪种策略呢？</p>
+</blockquote>
+<ol>
+<li>低一致性：最大内存和淘汰策略：非常不关心缓存一致性或者缓存和持久层数据不一样都无所谓的，那就使用这种策略，可以使劲往里面扔，然后当出现最大内存的时候，然后就去把对应的数据淘汰，而且淘汰什么我也无所谓，如果没有的话就一下次从持久层落键；</li>
+<li>高一致性：超时剔除和主动更新结合，最大内存和淘汰策略兜底：为什么这里要结合呢？不是是说主动更新更优秀吗？但实际上超时剔除是给主动更新做一个兜底，假如说主动更新的业务逻辑或者业务图或者对应的代码出现了问题，它没有将真正的数据删除掉，那我们可能后期就没法发现这个问题，假如说我给它设置比较长的过期时间，如果遇到类似的问题，它会将数据进行删除，当然所有数据是指有生命周期的，它确实是要在一定时间过期的，假如说我有一些数据不会过期或者需要自己去手动删除的数据，不会给它设置过期时间，当然这里还会使用最大内存和超时策略做一个兜底，因为天有不测风云，你无法保证每天内存突然增上去了，而且你对内存做的不到位，这个时间我需要最大内存淘汰策略进行兜底来保证项目出现问题后缓存就不可用了这样的问题；</li>
+</ol>
+<h1 id="缓存粒度控制"><a href="#缓存粒度控制" class="headerlink" title="缓存粒度控制"></a>缓存粒度控制</h1><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572526081631.png" srcset="/img/loading.gif" alt="1572526081631"></p>
+<p>上面这张图是很多应用的抽象，使用Redis、Memcahe等做为缓存底层使用MySQL做为存储源，对于大部分流量来说，都去光顾到Redis，小流量到MySQL这样的场景；</p>
+<hr>
+<p>缓存粒度控制-三个角度</p>
+<ol>
+<li>通用性：全量属性更好；</li>
+<li>占用空间：部分属性更好；</li>
+<li>代码维护：表面上全量属性更好。</li>
+</ol>
+<h1 id="缓存穿透优化"><a href="#缓存穿透优化" class="headerlink" title="缓存穿透优化"></a>缓存穿透优化</h1><h2 id="大量请求不命中"><a href="#大量请求不命中" class="headerlink" title="大量请求不命中"></a>大量请求不命中</h2><p>对于正常的访问来说，访问到cache它会把结果返回给request，如果它没有命中的话，它就会把流量放下去，也就是存储层，如果存储层正常的话它会返回拿到对应的结果，然后回写cache返回给request，当下次request再访问的时候，cache就已经命中了，就不需要访问到存储层了，但是有一种问题就是存储层也不存在，那会有什么问题？我返回给request是一个空的结果，而且当下次再请求的时候，它任然会返回cache层，cache层还是没有，然后继续把流量导到存储层，所有的流量都会达到存储层，因为cache中没有这样的数据，如果根本不存在的数据你去访问它，比如说它是一个key或者一个id它根本就不存在，你这里的缓存存、存储层都不存在，它就会把流量打到存储层，这就是缓存穿透的基本过程，这样已经失去了缓存的意义，因为缓存的意义就是保护持久层，然后这样会给持久层一个负载带来很大保护，但是现在已经失去了这样的作用，那就会对持久层造成很大隐患</p>
+<h2 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h2><p>以上描述的情况到底是由于什么造成的？</p>
+<ol>
+<li>业务代码自身问题：写的逻辑有问题，比如你去写一个回写，或者你真的拿不到那样的数据，又或者你的持久层是别人的接口，别人的接口出现问题了，那怎么办？那可能拿到就是一个异常或者一个空，你没法做缓存的回写，或者你自身代码有问题；</li>
+<li>恶意攻击、爬虫等等：对于视频网站，虽然说它的URL做了很多加密，实际上这个加密是防止用户恶意的人员去猜到这个视频id的规则，这样的话它在抓取这个视频网页的数据的时候，因为网页上有很多的信息，比如说一个视频网站，它有明星的信息，还有推荐信息，这些信息可能对处于某些目的的人，它可能想去拿到这样的信息，那它通过一些渠道知道了你这个URL规则，或者它根本就不知道，但是它强制访问，它访问的时候可能会触发你这边对应的接口，你接口就触发到缓存，这种数据比如它传给你的id根本就不在存储的范围内，所以说必然会出现穿透问题，可能就会造成上面类似的危害；</li>
+</ol>
+<h2 id="任何发现"><a href="#任何发现" class="headerlink" title="任何发现"></a>任何发现</h2><p>以上描述的问题要如何去发现？</p>
+<ol>
+<li>业务的响应时间：可能有一些或者什么语言，它可能都会有相应的监控系统，平常缓存抗了很大的量，本身缓存抗量了，而且它的响应速度比较快，所以说一般时间是在一个稳定的情况下，它是一个可预期的 ，但如果出现了类似的穿透现象，它可能把所有流量全打到存储层，它必然会在时间上发生问题；</li>
+<li>业务本身问题；</li>
+<li>相关指标：总调用数、缓存层命中数、存储层命中数：这些相关的参数你都是可以采集到，比如说你采集每分钟的变化，然后你就可以知道到底有没有这样的问题；</li>
+</ol>
+<h2 id="解决方法1"><a href="#解决方法1" class="headerlink" title="解决方法1"></a>解决方法1</h2><h3 id="缓存空对象"><a href="#缓存空对象" class="headerlink" title="缓存空对象"></a>缓存空对象</h3><blockquote>
+<p>这是一个简单粗暴的方法</p>
+</blockquote>
+<p>一个请求在cache层、storage层也miss的情况，之前做法是直接返回给request一个空，我们想象一下，我们如果这样做的话任然会将流量打到storage，实际上这就是缓存穿透问题，那如果我们真的认为它确实不存在，就是访问request我认为你确实不存在，那我就把它当做一个结果然后缓存到cache中，这里有很多原因，可能是真的不存在、可能是由于某些原因，比如说storage暂时不可用或者storage它是一个接口，那个接口不可用等等愿意…，那这个时候我们可以将这个cache设置一个过期时间，比如5分钟、半分钟这样的一些指标，这个根据你的场景决定，那对于下次访问来说，在cache中已经有了那个key，但是这个key的值是空的，但是它可能帮助我们减少storage层的压力，从而解决缓存穿透问题带来的一些危害，但是它存在2个问题：</p>
+<ol>
+<li>需要更多的键：前面提到像恶意攻击或者爬虫，它会有很多各种乱七八糟的键，你都无法预测，使用缓存空对象的时候，会把那些传过来的键都进行一个缓存，虽然只存键和它的空值，但是如果这个量很大的时候，从业务上或者从缓存的使用量来说也会有一定影响，所以设置过期时间来降低这样的风险；</li>
+<li>缓存层和存储层数据“短期”不一致：因为存储层在一些情况出现了问题，比如类似一个接口，它当时调用的时候出现比如网络滚动、对方出现异常我拿不到对应的结果是一个空，我把这个空缓存了然后缓存了5分钟过期时间，在这之后它的业务恢复正常了，但是我缓存是一个空的状态，这个时候它们2者是不一致的，实际上这个数据是存在的，但是缓存是一个空的，当然这样的问题可以依赖一些方式来解决，比如说你可以去订阅它的消息，比如它的服务发出正常的消息，我们会把缓存重新上线一遍，将这个key重新发送一遍，可以使用一些消息队列单独订阅到某一个key，或者某一个业务，这些都可以解决不一致的问题，但是它绝对不是一个强一致，因为它两之间永远会存在短期的不一致，这个看你的使用场景来决定</li>
+</ol>
+<h2 id="示例代码"><a href="#示例代码" class="headerlink" title="示例代码"></a>示例代码</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572528561308.png" srcset="/img/loading.gif" alt="1572528561308"></p>
+<h2 id="解决方法2-布隆过滤器拦截"><a href="#解决方法2-布隆过滤器拦截" class="headerlink" title="解决方法2-布隆过滤器拦截"></a>解决方法2-布隆过滤器拦截</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572529784092.png" srcset="/img/loading.gif" alt="1572529784092"></p>
+<p>通过很小的内存来实现对数据的过滤，比如说巨大的一个电话本，例如说有10亿行，我要判断一个电话是否在这个电话本里要怎么去做？一般不可能把电话本全部放到内存里，这样会使内存非常大，布隆过滤器是解决类似的问题的，它可以通过一些算法将电话本大数据放到布隆过滤器热一遍，当你下次访问需要判断某个电话是否在这个电话本里的时候，它可以用很小的内存解决刚才类似的问题。布隆过滤器拦截实际上你可以认为它所有的key或者一份大的离线数据放到布隆过滤器里，也就是说这个布隆过滤器在开始层再去做一层拦截，如果在布隆过滤器里已经被过滤了那就不认为你这个请求是有效的，如果你没有被过滤，那就从开始层去拿，当然这有一个问题：布隆过滤器怎么去生成？是离线生成还是说怎么去做？这个都是有很多问题的，布隆过滤器它的使用场景对于这种比较固定的数据是比较好的，如果是频繁更新的数据，我怎么去构建布隆过滤器，这里就有很多问题，举个例子：比如我之前做的推荐服务，很早的推荐服务，不想现在实时推荐，而是说根据用户前一天执行的日志给出第二天的结果，这个结果一般都是在夜间去算的，然后算完之后它会存储到比如hbase上，然后第二天就这些对应结果给用户，这份数据实际上是一份比较固定的数据，它有每个用户的行为，我们可以把每个用户的key做成一个布隆过滤器，这个布隆过滤器相对是一个可信的，它就是这样一个过程，它的使用场景是有局限的，要么你对布隆过滤器实现实时更新，要么使用一个比较固定的数据体，和刚才说的缓存空对象来说，它们2者的使用场景不太相同，而且使用的维护成本也不太相同，例如会像这样来说：这个代码比较简单，但是它可能会需要一些额外的空间来保存空的key，而且它可能有一些数据不一致，而对于布隆过滤器的问题就更多了，它需要特殊的使用场景，这个布隆过滤器要单独写一些代码，而且它本身虽然可以占用很小内存来实现整个数据的过滤都是需要额外的空间来完成的，虽然在选取对应的方案的时候，或者你发现了一种思路你都要去根据具体的场景来决定使用哪些方法</p>
+<h1 id="无底洞问题优化"><a href="#无底洞问题优化" class="headerlink" title="无底洞问题优化"></a>无底洞问题优化</h1><p>在介绍RedisCluster的时候说过RedisCluster是如何实现批量优化的时候，提到过那样的问题是无底洞问题，下面来看看这个问题的描述：</p>
+<ul>
+<li>2010年，Facebook有了3000个Memcache节点，因为它们业务的量越来越大，而且它们当时用了很多Memcache，Memcache也是缓存的产品</li>
+<li>发现问题：“加”机器性能没能提升，反而下降，这个就是无底洞问题，你加了个更多的投入，但是你没有得到对应的收益，反而去下降了，投入越多下降越明显，这个东西是一个无底洞</li>
+</ul>
+<p>无底洞问题关键点：</p>
+<p>一个批量操作变化，假如原来我们一个cache一个节点只有这么一个，实现一个mget操作只进行一次IO,当节点变成3个的时候，之前介绍过，将客户端将key进行组装，然后按照它对应的节点ip和端口，然后就会出现这种问题，也就是我一次mget操作会随着机器或者节点的个数越来越多，那么网路的次数也会越来越多，会对我的客户端一次命令执行效率带来很大下降，实际上我的一个IO由于扩容，由原来的O：1变成了O:node，我的node节点越多mget理论上来说它的一次批量操作时间会越长，因为它涉及到更多的节点，而且这里有个问题：你在一次mget可能要等最慢的节点完成然后才能将这个操作完成，这还是在并行的情况下，假如说是在一个串行的话它会更晚，当然这里指的是节点非常多，前面提到过了：Facebook那个时候已经达到了3000个节点，对于一般应用来说从一个扩展成3个，一次mget一个损失不会特别明显，所以说大家也不用去过分担心这个问题；</p>
+<ul>
+<li>更多的机器！=更高的性能；</li>
+<li>批量接口需求（mget、mset等）；</li>
+<li>数据增长与水平扩展需求：随着业务量越来越大，肯定需要将我们的缓存进行水平库容，水平扩容无非就是加节点加机器，所以这2者实际上是一个矛盾，我客户端需要更高的性能，但是我服务端又需要更多的数据，或者说服务端性能你的扩容</li>
+</ul>
+<p>对于上的IO问题，这里提供了几种优化方法</p>
+<ol>
+<li>命令本身优化：例如慢查询keys、hgetall bigkey；</li>
+<li>减少网络通信次数：mget由原来的一次的n次网络变成了节点次网络，或者说是到一次网络，怎么去做这件事，当然这里还有一个问题你优化的到底是什么东西，假如说优化的Redis这种命令执行本身，那我可能会考虑网络优化更多一点，假如说像MySQL，可能MySQL本身执行就非常慢，网络可能会稍微忽略一些，而且MySQL对性能要求不会太高，像Redis，我可能会考虑优化很多sql，做不同的数据库优化，它的思路也不太一样；</li>
+<li>降低接入成本：我们在使用客户端的使用，可能会考虑更多使用长连接或者连接池、NIO一些技术来降低成本提高IO优化效率，本次这个无底洞问题主要优化的是读写，不会考虑命令本身IO成本，因为它已经足够优秀了，我们解决主要问题降低通信次数，因为我们机器加的越多通信次数越多</li>
+</ol>
+<h1 id="雪崩问题"><a href="#雪崩问题" class="headerlink" title="雪崩问题"></a>雪崩问题</h1><blockquote>
+<p>正在补充~</p>
+</blockquote>
+<h1 id="热点key重建优化"><a href="#热点key重建优化" class="headerlink" title="热点key重建优化"></a>热点key重建优化</h1><h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572533261311.png" srcset="/img/loading.gif" alt="1572533261311"></p>
+<p>使用缓存首先是从缓存获取，如果获取不到会从数据源获取，如果获取到了会进行一个回写，也就是缓存的重建过程，这个过程可能会出现一个问题</p>
+<p>热点key+较长的重建时间：如果重建的这个key是一个热点key，它的访问量非常大，以微博为例子：某一个大v发了一个重要的消息，然后这个key访问量非常大，重建的过程是比较慢的，例如它执行了一个很复杂的sql或者调了一个很慢的API，那它就会有一个问题：再这个重建过程中有很多线程都会参与重建，会尝试一个问题：首先获取这个过程会比较慢，每个线程都要执行一遍重写过程，还有一个是这个重建过程可能是底层的一个接口或者是数据库，由于现在是热点key，然后会造成对数据库由很大压力，上面这张图中来描述了这个过程：现在已经到了缓存重建的时间，现在获取缓存它没有获取到数据，那就会去查询数据源，然后进行一个缓存的重建，在这个时间过了之后进行输出，与此同时因为它是一个高并发的一个过程，有很多的线程或者很多的访问都在执行获取缓存，那它发现缓存中数据为空的时候那它也会查询数据源再走一遍这个流程，当它发现缓存重建好了，它在去做缓存的正常输出，这个现象的问题就是说有大量线程都会做缓存重建，查询数据源这样的工作，一个是对数据库有很大的压力，另外一个是它的响应时间会很慢；</p>
+<p>以上问题要怎么解决呢？这里涉及到3个目标和2个解决方法</p>
+<ol>
+<li>三个目标：<ul>
+<li>减少重缓存的次数，不要像上面那样那么多重建缓存；</li>
+<li>数据尽可能一致：重建缓存虽然做了很多优化，但是我们要解决的时候要考虑到数据要尽可能一致；</li>
+<li>减少潜在的危险：例如可能会出现死锁或者线程池大量被hang住；</li>
+</ul>
+</li>
+<li>两个解决：<ul>
+<li>互斥锁（mutex key）；</li>
+<li>永远不过期</li>
+</ul>
+</li>
+</ol>
+<h2 id="互斥锁"><a href="#互斥锁" class="headerlink" title="互斥锁"></a>互斥锁</h2><p>互斥锁是比较直观的解决思路：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572533989439.png" srcset="/img/loading.gif" alt="1572533989439"></p>
+<p>首先是获取缓存的时间点，但是我第一个获取缓存它需要做重建的线程如果发现了它已经到了需要重建的时候，那我就会把重建加上查询数据库这个过程加上一把锁，然后当我在这个时间段完成这个工作的时候再把锁解开，再去做一个输出，在这个期间如果有其他线程或者其他访问在做获取缓存的时候它的过程会变成：获取缓存，发现这个重建过程被锁住了，因为只有一个线程可以做这样的事，那我只有去等待，等待完之后再输出，只有到最后一个发现锁解开了的时候我就可以直接获取到输出的结果，这个就是利用互斥锁来解决这个问题，这个思路简单那它可能会有一些问题的，它解决了一些问题，它不需要大量重建过程，但是它还会有等待的过程，会存在大量线程、请求被hang主的问题。</p>
+<p>实例代码：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572533975254.png" srcset="/img/loading.gif" alt="1572533975254"></p>
+<h2 id="永不过期"><a href="#永不过期" class="headerlink" title="永不过期"></a>永不过期</h2><ol>
+<li><p>缓存层面：没有设置过期时间（没有用expire）；</p>
+</li>
+<li><p>功能层面：为每个value添加逻辑过期时间，例如set hello world现在这个world里面要添加一个属性：例如logicTimeOut（逻辑过期时间），在每次获取的时候，去get出来它的逻辑过期时间，我们如果发现它逻辑上已经过期了，那我们就使用单独的一个线程完成缓存的重建，这样就会有一个好处，相比之前的互斥锁的方案它不会有一个等待的过程，而且它也可以保证只有一个线程来完成缓存的重建和数据库的查询，但是它有问题：它会存在数据不一致的情况，因为它没有等到真正缓存重建完然完，可能会拿到老的结果，下面来举个例子：</p>
+</li>
+</ol>
+<p>   首先在T1时间点获取缓存，它发现无需等待，因为我们的缓存永远不会过期，不会存在通过缓存获取不到来完成缓存重建的过程，然后直接就能输出结果，当T2时间点的时候，它发现逻辑过期时间到了，例如它的value包括逻辑过期时间，那么它就需要完成重建缓存，但是它要等T4才能完成，它需要一定时间，这个时候T3去访问的时候依然会输出老的值，由于现在没有缓存过期的情况，虽然现在已经过了逻辑过期时间，但是本身缓存没有过期，那么它就可以输出老的值，当T4完成的时候，我再获取缓存它就会输出新的值，这样就保证了刚才说的2个问题的解决，一个是线程无需等待，另一个是整个缓存的构建、重建只需要一个线程来完成；</p>
+<p>   伪代码：</p>
+<p>   <img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572535701123.png" srcset="/img/loading.gif" alt="1572535701123"></p>
+<h2 id="两种方案对比"><a href="#两种方案对比" class="headerlink" title="两种方案对比"></a>两种方案对比</h2><p>   <img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572535719544.png" srcset="/img/loading.gif" alt="1572535719544"></p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><ul>
+<li>缓存收益：加速读写、降低后端存储负载；</li>
+<li>缓存成本：缓存和存储数据不一致、代码维护成本、运维成本；</li>
+<li>推荐集合剔除、超时、主动更新三种方案共同完成；</li>
+<li>穿透问题：使用缓存空对象和布隆过滤器来解决，注意它们各自的使用场景和局限性；</li>
+<li>无底洞问题：分布式缓存中，有更多的机器不保证有更高的性能。有四种批量操作方式：串行命令、串行IO、并行IO、hash_tag；</li>
+<li>雪崩问题：缓存层高可用、客户端降级、提前演练是解决雪崩问题的重要方法；</li>
+<li>热点key问题：互斥锁、“永远不过期”能够在一定程度上解决热点key问题，开发人员在使用时要了解它们各自的使用成本。</li>
+</ul>
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E8%BF%90%E7%BB%B4/Redis/">Redis</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/redis-11.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【 Redis-学习笔记 】 11.Redis云平台CacheCloud.md</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/redis-9.html">
+                        <span class="hidden-mobile">【 Redis-学习笔记 】 9.深入Redis Cluster</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "【 Redis-学习笔记 】 10.缓存设计与优化&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

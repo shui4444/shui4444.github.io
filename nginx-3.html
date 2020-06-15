@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="Shui">
+  <meta name="keywords" content="">
+  <title>【Nginx】 3.场景实践篇 - Shui&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Fluid</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2020-01-27 14:59">
+      2020年1月27日 下午
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      10.2k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      120
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <h1 id="Nginx作为静态资源web服务"><a href="#Nginx作为静态资源web服务" class="headerlink" title="Nginx作为静态资源web服务"></a>Nginx作为静态资源web服务</h1><h2 id="静态资源类型"><a href="#静态资源类型" class="headerlink" title="静态资源类型"></a>静态资源类型</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200127224411585.png" srcset="/img/loading.gif" alt="image-20200127224411585"></p>
+<p> nginx可以作为静态服务，它能接收客户端静态资源的请求，像html、flv、jpg这些都是可以的，它能返回给客户端相应内容。这种方式经常会用在处理请求、动静分离的场景；</p>
+<p><strong>静态资源类型：</strong></p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>种类</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>浏览器端渲染</td>
+<td>HTML、CSS、JS</td>
+</tr>
+<tr>
+<td>图片</td>
+<td>JPEG、GIF、PNG</td>
+</tr>
+<tr>
+<td>视频</td>
+<td>FLV、MPEG</td>
+</tr>
+<tr>
+<td>文件</td>
+<td>TXT、等任意下载文件</td>
+</tr>
+</tbody></table>
+<h2 id="CDN场景"><a href="#CDN场景" class="headerlink" title="CDN场景"></a>CDN场景</h2><p>CDN：内容分发网络，这里的网络是内容分发的逻辑性网络。</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200127225519660.png" srcset="/img/loading.gif" alt="image-20200127225519660"></p>
+<p><strong>什么是CDN？</strong><br>北京的一个用户想要请求一个文件，这个文件放在新疆的机器上，新疆离北京的距离是非常远的，那么想获取这个文件就需要一定时间了；怎么办？假设这个存储中心在新疆，这里就用到CDN分发网路技术，把那个请求的文件进行分发，发送给不同的地区机器，每个不同地区机器装一个代理，北京用户来说，通过智能DNS技术把它的请求动态定位到背景的代理上进行请求，这样就不用请求之前新疆的节点了，这个地方对于用户来说就节省了很多的时间，对于CDN技术来说我们要求的是这个传输 延时的最小化。静态资源适用于这种场景，所以nginx作为每一个节点，资源存储中心节点以及代理前端节点起了一个非常承上启下的web server作用</p>
+<h2 id="配置语法"><a href="#配置语法" class="headerlink" title="配置语法"></a>配置语法</h2><h3 id="文件读取"><a href="#文件读取" class="headerlink" title="文件读取"></a>文件读取</h3><p>Syntax：sendfile on | off;<br>Default：sendfile off;<br>Context：http，server，location，if in location</p>
+<blockquote>
+<p>引读：——with-file-aio异步文件读取</p>
+</blockquote>
+<h3 id="tcp-nopush"><a href="#tcp-nopush" class="headerlink" title="tcp_nopush"></a>tcp_nopush</h3><p>Syntax：tcp_nopush on | off;<br>Default：tcp_nopush off;<br>Context：http，server，location</p>
+<blockquote>
+<p>作用: sendfile开启的情况下,提高网络包的传输效率。nopush是说不着急把包响应给客户端，举个例子：我们要去发送一个包裹，如果有10个包裹我们一天发一个，这样的话可能要10次快递员来进行发送，这里可以换一种方式，把10个包裹整理的放到一天，一次性给它发送出去，叫一个快递员一次性来接，这样的话对网络传输来说就非常高效了，所以这个<code>tcp_no_push</code>把多个包进行一个整合一次性发送出去给客户端，这个对于大文件是推荐的</p>
+</blockquote>
+<h3 id="tcp-nodelay"><a href="#tcp-nodelay" class="headerlink" title="tcp_nodelay"></a>tcp_nodelay</h3><p>Syntax：tcp_nodelay on | off;<br>Default：tcp_nodelay on;<br>Context：http，server，location</p>
+<blockquote>
+<p>作用：keepalive连接下，提高网络包的传输实时性。这个与上面<code>tcp_nopush</code>相反，数据包尽量不要等待直接发送给客户端，它用于实时性要求高的场景。这里有一个要求：传输的连接必须在keepalive长连接的模式下才能够生效</p>
+</blockquote>
+<h3 id="压缩"><a href="#压缩" class="headerlink" title="压缩"></a>压缩</h3><p><strong>压缩文件</strong></p>
+<p>Syntax：gzip on | off;<br>Default：gzip  off;<br>Context：http，server，location，if in location</p>
+<blockquote>
+<p>作用：压缩传输。对于文件的压缩是非常重要的，因为我们要减小传输的时间，一个大的包如果要经过传输比例达到百分之30以上的压缩比例的话，我们的资源带宽和传输实时性是非常好的，所以我们要对Nginx进行自带资源里面来，这种请求和响应的时候经量要到它的压缩的方式来减少不必要的网络资源消耗</p>
+</blockquote>
+<p><strong>压缩比</strong></p>
+<p>Syntax：gzip_comp_level level;<br>Default：gzip_comp_level 1;<br>Context：http，server，location</p>
+<blockquote>
+<p>对一个文件进行压缩，如果压缩的越高的话，那么它的文件就能压缩的比率更大，所以文件也就压缩的更小那么传输的文件也就更小，这样的话好处是压缩减少的越多但是也会带来一些问题，比如：我压缩本身就要耗服务端的性能，所以在这个地方的选择上面我们需要根据自己实际情况来选择它压缩的级别</p>
+</blockquote>
+<p> <strong>控制http协议版本</strong></p>
+<p>Syntax：gzip_http_version1.01.1;<br>Default：gzip_http_version1.1;<br>Context：http，server，location</p>
+<p><strong>扩展Nginx压缩模块</strong></p>
+<p>http_gzip_static_module：预读gzip功能</p>
+<blockquote>
+<p>比方说，客户端访问<code>1.html</code>文件，它会在它的家目录里面先去找<code>1.html.gz</code>文件看是否存在，因为<code>1.html.gz</code>是gzip的预压缩文件，如果有的话先把<code>1.html.gz</code>文件返回给客户端，所以它去磁盘中找同名的gz文件是否存在，这样能节省压缩时间，但是它对硬盘有要求，因为它要预先压缩好</p>
+</blockquote>
+<p>http_gunzip_module：应用支持gunzip的压缩方式</p>
+<blockquote>
+<p>这个模块用得很少，它是为了解决很少一部分浏览器里面无法支持gzip，如果遇见部分浏览器无法用到gzip压缩的话就可以使用它来解决</p>
+</blockquote>
+<h2 id="演示"><a href="#演示" class="headerlink" title="演示"></a>演示</h2><h3 id="1-图片压缩"><a href="#1-图片压缩" class="headerlink" title="(1)图片压缩"></a>(1)图片压缩</h3><p>在/opt/app/code/images目录中准备了一张图片</p>
+<pre><code class="hljs bash">/opt/app/code/images&gt; ls
+bg.png</code></pre>
+
+<p>nginx.conf#server</p>
+<pre><code class="hljs nginx"><span class="hljs-attribute">sendfile</span> <span class="hljs-literal">on</span>;
+<span class="hljs-attribute">location</span> <span class="hljs-regexp">~ .*\.(jpg|gif|png)$</span> &#123;
+                <span class="hljs-comment">#gzip on;</span>
+                <span class="hljs-attribute">gzip_http_version</span> <span class="hljs-number">1</span>.<span class="hljs-number">1</span>;
+                <span class="hljs-attribute">gzip_comp_level</span> <span class="hljs-number">2</span>;
+                <span class="hljs-attribute">gzip_types</span> text/plain application/javascript applicaiton/x-javascript text/css application/xml text/javascript application/x-httpd-php image/jpeg image/gif image/png;
+                <span class="hljs-attribute">root</span> /opt/app/code/images;
+        &#125;</code></pre>
+
+<p>没开启gzip的图片的响应头</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200128135354132.png" srcset="/img/loading.gif" alt="image-20200128135354132"></p>
+<p>开启之后</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200128135631040.png" srcset="/img/loading.gif" alt="image-20200128135631040"></p>
+<h3 id="2-文件压缩"><a href="#2-文件压缩" class="headerlink" title="(2)文件压缩"></a>(2)文件压缩</h3><p>nginx.conf#server</p>
+<pre><code class="hljs nginx"><span class="hljs-attribute">location</span> <span class="hljs-regexp">~ .*\.(txt|xml)$</span> &#123;
+                <span class="hljs-comment">#gzip on;                               </span>
+               	<span class="hljs-attribute">gzip_http_version</span> <span class="hljs-number">1</span>.<span class="hljs-number">1</span>;
+                <span class="hljs-attribute">gzip_comp_level</span> <span class="hljs-number">1</span>;
+                <span class="hljs-attribute">gzip_types</span> text/plain application/javascript applicaiton/x-javascript text/css application/xml text/javascript application/x-httpd-php image/jpeg image/gif image/png;
+
+                <span class="hljs-attribute">root</span> /opt/app/code/doc;
+&#125;</code></pre>
+
+<p>未使用gzip的文件大小</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200128140435370.png" srcset="/img/loading.gif" alt="image-20200128140435370"></p>
+<p>使用gzip的文件大小</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200128140501065.png" srcset="/img/loading.gif" alt="image-20200128140501065"></p>
+<h3 id="3-预压缩"><a href="#3-预压缩" class="headerlink" title="(3)预压缩"></a>(3)预压缩</h3><pre><code class="hljs bash">/opt/app/code/download&gt; ls
+bg.png
+
+/opt/app/code/download&gt; gzip bg.png
+
+/opt/app/code/download&gt; ls
+bg.png.gz</code></pre>
+
+<p>nginx.conf#server</p>
+<pre><code class="hljs nginx"><span class="hljs-attribute">location</span> <span class="hljs-regexp">~ ^/download</span>&#123;
+                <span class="hljs-comment">#gzip_static on;</span>
+                <span class="hljs-attribute">tcp_nopush</span> <span class="hljs-literal">on</span>;
+                <span class="hljs-attribute">root</span> /opt/app/code;
+&#125;</code></pre>
+
+<ul>
+<li>没有开启gzip_static：访问<code>/download/bg.png</code>会报404错误</li>
+<li>开启gzip_static：能正常访问</li>
+</ul>
+<h2 id="跨站访问"><a href="#跨站访问" class="headerlink" title="跨站访问"></a>跨站访问</h2><h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><p>跨站访问是什么？</p>
+<p>浏览器会禁止网站进行跨站访问，例如：</p>
+<p><a href="http://www.a.com这个网站通过像`AJAX`技术访问http://www.b.com，这样就是所谓的跨站访问，对于浏览器来说是禁止的。" target="_blank" rel="noopener">http://www.a.com这个网站通过像`AJAX`技术访问http://www.b.com，这样就是所谓的跨站访问，对于浏览器来说是禁止的。</a></p>
+<hr>
+<p><strong>为什么浏览器禁止跨域访问？</strong></p>
+<ul>
+<li>(1)不安全，容易出现CSRF攻击！</li>
+</ul>
+<p>跨站攻击形成原理：</p>
+<p>​    一般一个用户去访问一个正规的网站A，网站A会返回对应的cookie信息，cookie信息存放在客户端，当这个用户不小心点到了非法网站，这个时候非法网站就可以给客户端发送一些response带有恶意请求让用户去请求网站A，这样就形成了跨站访问，所以这种跨站访问浏览器进行封闭，为什么阻止了为什么这里还要 学 Nginx跨站访问呢？</p>
+<p>──安全归安全，一些企业的情况、一些历史原因、开发设计、网站设计、业务的形态，往往会需要对一些资源打开跨站，因为有的时候不一定只需要一个域名，有的时候需要用到多个域名，这个时候就需要使用Nginx打开访问设置。</p>
+<p><strong>浏览器设置和Nginx服务端有什么关系？</strong></p>
+<p>浏览器端是指它会判断一个头信息：response的头中有没有<code>Access-Control-Allow-Origin</code>，如果服务端允许跨站访问，那么浏览器端就不会去限制。</p>
+<p><strong>Nginx配置</strong></p>
+<p>Syntax：add_header name value [always];<br>Default：——<br>Context：http，server，location，if in location</p>
+<blockquote>
+<ul>
+<li>name：头的名字。我们要打开跨站的话就是<code>Access-Control-Allow-Origin</code></li>
+<li>value：对应哪一些站点允许对应的值来进行访问，允许全部站点：*</li>
+</ul>
+</blockquote>
+<h3 id="演示-1"><a href="#演示-1" class="headerlink" title="演示"></a>演示</h3><p>nginx.conf#server</p>
+<pre><code class="hljs nginx"><span class="hljs-attribute">location</span> <span class="hljs-regexp">~ .*\.(htm|html)$</span> &#123;
+ <span class="hljs-attribute">add_header</span> Access-Control-Allow-Origin *;
+ <span class="hljs-attribute">add_header</span> Access-Control-Allow-Methods GET,POST,PUT,DELETE,OPTIONS;
+ <span class="hljs-attribute">add_header</span> Access-Control-Allow-Headers <span class="hljs-string">'DNT,X-Mx-ReqToken,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization'</span>;
+  <span class="hljs-attribute">root</span> /opt/app/code/doc;
+&#125;</code></pre>
+
+<h2 id="防盗链"><a href="#防盗链" class="headerlink" title="防盗链"></a>防盗链</h2><h3 id="介绍-1"><a href="#介绍-1" class="headerlink" title="介绍"></a>介绍</h3><p>1）、目的</p>
+<p>防止资源被盗用；</p>
+<p>例如：</p>
+<ul>
+<li>在一些正常服务下面我们希望是一些合法的用户来访问我们网站，我不希望竞争对手来爬取网站的资源，然后把我的资源都放到竞争对手去了</li>
+<li>大部分没用的用户来请求我的网站，是必对我网站的性能对应请求造成了额外的损耗</li>
+</ul>
+<p>防盗链就能解决以上问题。防盗链的机制有很多种，这是一门非常高的技术要求，简单的防盗链技术，Nginx都支持，这个章节就简单的实现</p>
+<hr>
+<p>2）、防盗链设置思路</p>
+<p>首要方式：区别哪些请求是非常正常的用户请求。对于那些不正常的用户进行阻止不让它来访问，对于正常的用户保证一定能请求到不能作为非正常用户处理</p>
+<hr>
+<p>3）、基于http_refer防盗链配置模块</p>
+<p>Syntax:    valid_referers none | blocked | server_names | string …;<br>Default:    —<br>Context:    server, location</p>
+<hr>
+<p>4）、什么是http_refer？</p>
+<p>在nginx.conf中就有使用过它</p>
+<pre><code class="hljs nginx"><span class="hljs-section">http</span> &#123;
+    <span class="hljs-attribute">log_format</span>  main   <span class="hljs-string">'<span class="hljs-variable">$remote_addr</span> - <span class="hljs-variable">$remote_user</span> [<span class="hljs-variable">$time_local</span>] "<span class="hljs-variable">$request</span>" '</span>
+                      <span class="hljs-string">'<span class="hljs-variable">$status</span> <span class="hljs-variable">$body_bytes_sent</span> "<span class="hljs-variable">$http_referer</span>" '</span>
+                      <span class="hljs-string">'"<span class="hljs-variable">$http_user_agent</span>" "<span class="hljs-variable">$http_x_forwarded_for</span>"'</span>;
+                      
+ 	....                     
+&#125;</code></pre>
+
+<p>举个例子</p>
+<pre><code class="hljs html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">"en"</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">"UTF-8"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>Title<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"http://dev001.com/test.png"</span> <span class="hljs-attr">alt</span>=<span class="hljs-string">"test"</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span></code></pre>
+
+<p>这个html加载了一个图片，这个图片则是通过Nginx代理的，配置如下</p>
+<pre><code class="hljs nginx"><span class="hljs-attribute">location</span> <span class="hljs-regexp">~ \.(jpg|gif|png)$</span> &#123;
+                <span class="hljs-attribute">root</span> /opt/app/code/images;
+&#125;</code></pre>
+
+<p>将这个页面也用nginx代理</p>
+<pre><code class="hljs nginx"><span class="hljs-attribute">location</span> = /test.html&#123;
+              <span class="hljs-attribute">root</span> /opt/app/code;
+&#125;</code></pre>
+
+<p>在浏览器中访问/test.html,日志输出为：</p>
+<pre><code class="hljs bash">~&gt; tail -f  /var/<span class="hljs-built_in">log</span>/nginx/access.log
+
+
+192.168.202.1 - - [03/Feb/2020:18:20:21 +0800] <span class="hljs-string">"GET /test.html HTTP/1.1"</span> 200 181 <span class="hljs-string">"-"</span> <span class="hljs-string">"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36"</span> <span class="hljs-string">"-"</span>
+
+192.168.202.1 - - [03/Feb/2020:18:20:21 +0800] <span class="hljs-string">"GET /test.png HTTP/1.1"</span> 200 11164706 <span class="hljs-string">"http://dev001.com/test.html"</span> <span class="hljs-string">"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36"</span> <span class="hljs-string">"-"</span></code></pre>
+
+<p>这里可以看到第一次请求的：test.html,可以看到这里的”-“ 是一个空信息。</p>
+<p>第二个请求的是图片，它这里不是”-“ 而是”<a href="http://dev001.com/test.html&quot;。这个就是对应前面说的日志输出中用到的`http_referer`，它来记录上一次的请求。" target="_blank" rel="noopener">http://dev001.com/test.html&quot;。这个就是对应前面说的日志输出中用到的`http_referer`，它来记录上一次的请求。</a></p>
+<hr>
+<h3 id="简单实现"><a href="#简单实现" class="headerlink" title="简单实现"></a>简单实现</h3><p>通过以上介绍知道了<code>http_referer</code>以后，来说下 对于场景防盗链的限制，我们限制防盗链是为了防止我们的网站被一些动态资源比如图片、视频、文件资源，被别的网站使用，那么我们这里就可以拿上面说的<code>http_referer</code>信息来判断是否是我们网站，不是我们网站的话我们就应该给它阻止掉。</p>
+<p>nginx.conf#server</p>
+<pre><code class="hljs nginx"><span class="hljs-attribute">location</span> <span class="hljs-regexp">~ .*\.(jpg|gif|png)$</span> &#123;
+                <span class="hljs-attribute">valid_referers</span> <span class="hljs-literal">none</span> <span class="hljs-literal">blocked</span> <span class="hljs-number">192.168.202.151</span>;
+                <span class="hljs-attribute">if</span> (<span class="hljs-variable">$invalid_referer</span>)&#123;
+                        <span class="hljs-attribute">return</span> <span class="hljs-number">403</span>;
+                &#125;
+                <span class="hljs-attribute">root</span> /opt/app/code/images;
+&#125;</code></pre>
+
+<blockquote>
+<p>valid_referers：允许一些referer信息访问</p>
+<p>none：允许没有带referer</p>
+<p>blocked：referer信息不是标准的http这种方式，允许一些没有协议信息的这种过来的请求</p>
+<p>192.168.202.151：只允许通过这个IP来访问</p>
+</blockquote>
+<p>在浏览器中访问<a href="http://dev001.com/test.html的结果：" target="_blank" rel="noopener">http://dev001.com/test.html的结果：</a></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200205110046152.png" srcset="/img/loading.gif" alt="image-20200205110046152"></p>
+<p>在浏览器中访问<a href="http://192.168.202.151/test.html的结果" target="_blank" rel="noopener">http://192.168.202.151/test.html的结果</a></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200205110124230.png" srcset="/img/loading.gif" alt="image-20200205110124230"></p>
+<h1 id="Nginx作为代理服务"><a href="#Nginx作为代理服务" class="headerlink" title="Nginx作为代理服务"></a>Nginx作为代理服务</h1><h2 id="介绍-2"><a href="#介绍-2" class="headerlink" title="介绍"></a>介绍</h2><p>1）什么是代理？</p>
+<p>办一些事情无法直接去和对应的人员去联系，这个时候就需要一个第三方的代理服务或者人员来帮我们实现，代理在我们日常生活中必不可少。比如说我们有很多的钱，我们需要去谈金融这一块，往往会找一个第三方的代理公司来代理理财；代理收货，比如说我们在淘宝上买了很多东西，我们不在家的时候，快递员会把物品放到驿站、收货柜里面，等我们回来再去取，这样就是代理收货。</p>
+<hr>
+<p>2）代理应用在互联网</p>
+<p>在互联网的请求里面也是一样的道理，客户端无法向服务端直接发起请求的时候它就需要用到代理，代理就实现了客户端和服务端之间的一个通信，客户端首先会请求代理， 代理会把请求给服务端，服务端再通过代理返回。</p>
+<hr>
+<p>3）Nginx实现代理服务</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200205130951441.png" srcset="/img/loading.gif" alt="image-20200205130951441"></p>
+<p>Nginx来实现代理服务就可以实现很多协议的代理例如图中的：</p>
+<ul>
+<li>HTTP</li>
+<li>ICMP\POP\IMAP：邮件收发、收发信协议</li>
+<li>HTTPS：HTTP加密</li>
+<li>PTMP：流媒体常用格式</li>
+</ul>
+<hr>
+<p>4）正向代理</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200205132746368.png" srcset="/img/loading.gif" alt="image-20200205132746368"></p>
+<p> 客户端请求代理服务，代理服务请求服务端。正向代理会用到哪些场景？比如一个公司所有电脑没法上网，但是只有一台机器可以上网的时候我们往往会在浏览器里面需要配置一个代理的地址，通过这台代理的服务器去向公网，这个是早期公司里面经常会这么去做，另外一个常见的是翻墙了，去通过国外的代理去搜索想要看的网站或者信息等等。Nginx就可以作为正向代理服务。</p>
+<hr>
+<p>5）反向代理</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200205132805413.png" srcset="/img/loading.gif" alt="image-20200205132805413"></p>
+<p>客户端往往去请求网站的时候，那么你不知道它后端有多少个服务器，那么请求的往往是一个代理，这个代理会发给对应的服务器，这个服务器再返回给客户端</p>
+<hr>
+<p>6）代理区别</p>
+<p>正向代理和反向代理的区别：</p>
+<ol>
+<li>区别在于代理的对象不一样；</li>
+<li>正想代理代理的对象是客户端：比如说我们想去返回Google，我们要把代理服务器设到代理服务器地址，之后就能访问了，说白正向代理是为客户端服务的；</li>
+<li>反向代理代理的对象是服务端：是为服务端，我们不需要关心服务端是哪个服务器，我们要请求的具体是哪个服务器；反向代理就放在服务端，它会去帮我们去处理请求。</li>
+</ol>
+<h2 id="反向代理"><a href="#反向代理" class="headerlink" title="反向代理"></a>反向代理</h2><h3 id="配置语法-1"><a href="#配置语法-1" class="headerlink" title="配置语法"></a>配置语法</h3><p>Syntax:    proxy_pass URL;<br>Default:    —<br>Context:    location, if in location,limit_except</p>
+<p><a href="http://www.nginx.cn/doc/standard/httpproxy.html" target="_blank" rel="noopener">文档地址</a></p>
+<h3 id="演示-2"><a href="#演示-2" class="headerlink" title="演示"></a>演示</h3><p>nginx.conf#server</p>
+<pre><code class="hljs nginx"><span class="hljs-attribute">location</span> / &#123;
+                <span class="hljs-attribute">proxy_pass</span> https://www.baidu.com;
+&#125;</code></pre>
+
+<h2 id="正向代理"><a href="#正向代理" class="headerlink" title="正向代理"></a>正向代理</h2><pre><code class="hljs nginx"><span class="hljs-section">server</span> &#123;  
+    <span class="hljs-attribute">resolver</span> <span class="hljs-number">192.168.1.1</span>; <span class="hljs-comment">#指定DNS服务器IP地址  </span>
+    <span class="hljs-attribute">listen</span> <span class="hljs-number">8080</span>;  
+    <span class="hljs-attribute">location</span> / &#123;  
+        <span class="hljs-attribute">proxy_pass</span> http://<span class="hljs-variable">$http_host</span><span class="hljs-variable">$request_uri</span>; <span class="hljs-comment">#设定代理服务器的协议和地址  </span>
+    &#125;  
+&#125;</code></pre>
+
+<h2 id="配置语法补充"><a href="#配置语法补充" class="headerlink" title="配置语法补充"></a>配置语法补充</h2><p>代理模块中提供了很多的配置项，详情请参考<a href="http://www.nginx.cn/doc/standard/httpproxy.html" target="_blank" rel="noopener">文档</a></p>
+<h3 id="缓冲区"><a href="#缓冲区" class="headerlink" title="缓冲区"></a>缓冲区</h3><p>Syntax:    proxy_buffering on | off;<br>Default:<br>proxy_buffering on;<br>Context:    http, server, location</p>
+<blockquote>
+<p>Nginx服务中去转发请求的时候，往往会接受到一部分的是头信息，Nginx如果把以上配置项打开，那么它将尽可能的把所有请求的信息收集完，然后再返回给客户端，这个起到了一个缓冲区的概念，它减少IO损耗，但是这样也有一些问题的，例如：这个打开的话默认是存在内存里面的，当内存不够的情况下它可能会存在硬盘的临时目录中，这里<code>proxy_buffer_size、proxy_buffers、proxy_busy_buffers_size</code>参数是用来控制的。</p>
+</blockquote>
+<h3 id="跳转重定向"><a href="#跳转重定向" class="headerlink" title="跳转重定向"></a>跳转重定向</h3><p>Syntax:    proxy_redirect default;<br>proxy_redirect off;<br>proxy_redirect redirect replacement;<br>Default:    proxy_redirect default;<br>Context:    http, server, location</p>
+<blockquote>
+<p>当我们用Nginx作为代理服务器去代理后端服务返回是一个301的重定向地址的时候，这里的 http 301是一个重定向，它会把我们请求重定向到另外的地址里面返回给客户端，所以如果是这种场景下面用一到这个配置项起到一个什么作用呢？当后端返回这个301地址是我们前端所无法访问到的或者是说需要用到Nginx来把服务端返回给客户端301这个地址需要做重写的时候，我们就用到了这个配置项，一般情况下我们只要把它配置成默认的就可以不会有太大的问题，但是在一些特殊场景里面也会去使用它。</p>
+</blockquote>
+<h3 id="头信息"><a href="#头信息" class="headerlink" title="头信息"></a>头信息</h3><p>Syntax:    proxy_set_header field value;<br>Default:    proxy_set_header Host $proxy_host;<br>proxy_set_header Connection close;<br>Context:    http, server, location</p>
+<blockquote>
+<p>头信息配置用的比较多，常见是在把Nginx作为代理服务器但是后端是需要读取一些头信息，这些头信息是不准确的，在Nginx作为访问控制里面它的remote address这个信息就在后端的服务器里面因为走了代理，所以后端就没法读取对应的消息了。这里可以使用<code>proxy_set_header</code>，这上面的配置意思是说发给后端服务器里面会增加一个对应的头，把对应的信息用新的头携带到后端让后端能读取到。</p>
+<p>扩展：</p>
+<ul>
+<li>proxy_hide_header：隐藏头不给后端访问到，应用在一些需要信息隐藏安全性的考虑；</li>
+<li>proxy_set_body：在body中填加字符串</li>
+</ul>
+</blockquote>
+<h3 id="超时"><a href="#超时" class="headerlink" title="超时"></a>超时</h3><p>Syntax:    proxy_cookie_domain off;<br>proxy_cookie_domain domain replacement;<br>Default:    proxy_cookie_domain off;<br>Context:    http, server, location</p>
+<blockquote>
+<p>TCP请求的连接超时。当TCP请求连接超时，当建立完连接以后就有另外的超时：</p>
+<ul>
+<li>prxy_read_timeout：已经建立后连接的时候，在Nginx在为代理和后端的服务让它会等待多长时间，如果超过这个时间就认为是超时的</li>
+<li>proxy_send_time：服务端请求完了再发送给客户端发送给客户端的超时时间</li>
+</ul>
+</blockquote>
+<h2 id="配置规范"><a href="#配置规范" class="headerlink" title="配置规范"></a>配置规范</h2><pre><code class="hljs nginx"><span class="hljs-attribute">location</span> / &#123;
+                <span class="hljs-attribute">proxy_pass</span>  http://mcr.free.idcfengye.com;
+                <span class="hljs-attribute">proxy_redirect</span> default;
+
+                <span class="hljs-attribute">proxy_set_header</span> Host <span class="hljs-variable">$http_host</span>;
+                <span class="hljs-attribute">proxy_set_header</span> X-Real-IP <span class="hljs-variable">$remote_addr</span>;
+  
+                <span class="hljs-attribute">proxy_connect_timeout</span> <span class="hljs-number">30</span>;
+                <span class="hljs-attribute">proxy_send_timeout</span> <span class="hljs-number">60</span>;
+                <span class="hljs-attribute">proxy_read_timeout</span> <span class="hljs-number">60</span>;
+
+                <span class="hljs-attribute">proxy_buffer_size</span> <span class="hljs-number">32k</span>;
+                <span class="hljs-attribute">proxy_buffering</span> <span class="hljs-literal">on</span>;
+                <span class="hljs-attribute">proxy_buffers</span> <span class="hljs-number">4</span> <span class="hljs-number">128k</span>;
+                <span class="hljs-attribute">proxy_busy_buffers_size</span> <span class="hljs-number">256k</span>;
+                <span class="hljs-attribute">proxy_max_temp_file_size</span> <span class="hljs-number">256k</span>;
+        &#125;</code></pre>
+
+<ul>
+<li>proxy_redirect：通常使用默认的。在后端返回301信息的时候，我们需要做对应的改写的时候需要用到它来对后端返回的信息做调试；</li>
+<li>proxy_set_header：把Nginx代理往后端服务的发送请求的时候添加的头信息，一般会加上<code>Host</code>和<code>X-Real-IP</code>，这里添加X-Real-IP的意义：后端通过代理的方式是无法获取真实的用户IP的，往往做用户访问限制、IP的一些功能定位就需要获取用户的IP信息，这里就需要使用它了；</li>
+<li>proxy_connect_timeout：TCP超时时间；</li>
+<li>proxy_buffer_size：Nginx作为缓冲区的读取头信息的大小，一般不会特别大；</li>
+<li>proxy_buffering：打开，这个时候Nginx会尽可能的去缓冲区里面等待读取后端响应的信息响应给前端，这样做的好处是能减少服务器的IO；</li>
+<li>proxy_buffers：上面这个配置打开了，就要设置对应的大小，因为buffer是放在内存里面的；</li>
+<li>proxy_max_temp_file_size：<code>proxy_buffers</code>和<code>proxy_max_temp_file_size</code>用得差不多的时候，就会存在临时文件里面去，这里是给临时文件限制的大小</li>
+</ul>
+<hr>
+<p>以上的配置项特别的多，在企业中会经常使用它，这里可以将它放在一个通用的文件里面</p>
+<p>nginx.conf#server</p>
+<pre><code class="hljs nginx"><span class="hljs-attribute">location</span> / &#123;
+                <span class="hljs-attribute">proxy_pass</span>  http://mcr.free.idcfengye.com;
+  							<span class="hljs-attribute">include</span>	proxy_params;
+&#125;</code></pre>
+
+<p>在/etc/nginx中创建一个<code>proxy_params</code>文件，内容：</p>
+<pre><code class="hljs nginx"><span class="hljs-attribute">proxy_redirect</span> default;
+
+<span class="hljs-attribute">proxy_set_header</span> Host <span class="hljs-variable">$http_host</span>;
+<span class="hljs-attribute">proxy_set_header</span> X-Real-IP <span class="hljs-variable">$remote_addr</span>;
+
+<span class="hljs-attribute">proxy_connect_timeout</span> <span class="hljs-number">30</span>;
+<span class="hljs-attribute">proxy_send_timeout</span> <span class="hljs-number">60</span>;
+<span class="hljs-attribute">proxy_read_timeout</span> <span class="hljs-number">60</span>;
+
+<span class="hljs-attribute">proxy_buffer_size</span> <span class="hljs-number">32k</span>;
+<span class="hljs-attribute">proxy_buffering</span> <span class="hljs-literal">on</span>;
+<span class="hljs-attribute">proxy_buffers</span> <span class="hljs-number">4</span> <span class="hljs-number">128k</span>;
+<span class="hljs-attribute">proxy_busy_buffers_size</span> <span class="hljs-number">256k</span>;
+<span class="hljs-attribute">proxy_max_temp_file_size</span> <span class="hljs-number">256k</span>;</code></pre>
+
+<h1 id="Nginx作为负载均衡服务"><a href="#Nginx作为负载均衡服务" class="headerlink" title="Nginx作为负载均衡服务"></a>Nginx作为负载均衡服务</h1><h2 id="介绍-3"><a href="#介绍-3" class="headerlink" title="介绍"></a>介绍</h2><p>1）为什么需要负载均衡服务</p>
+<p>再原始的部署模型往往选择最简单的部署模型：点对点服务，随着企业的业务增长以及客户带来的海量请求，给我们服务端造成了海量的并发导致服务响应不能及时，这个时候我们需要不断扩容我们的后端服务，扩容后端服务对于我们前端就需要有一个负载均衡来均分请求来提升后端吞吐量，对于请求而言，负载均衡就能很好的均摊请求。</p>
+<p>对于一个点的服务，如果服务挂掉了那么整体服务就挂掉了，但是有了负载均衡服务我们即使一个点挂了其他的点还可以正常使用，这里挂掉的点把它剔除就可以了，这样的部署方式可以让后端服务很好的实现高可用。</p>
+<hr>
+<p>2）GSLB</p>
+<p>说到负载均衡这里按照范围分为一个类：GSLB与SLB</p>
+<p> <img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200209165634931.png" srcset="/img/loading.gif" alt="image-20200209165634931"></p>
+<p>GSLB是按照影响范围来定的，GSLB是一个全局负载均衡，它的节点比较庞大，地域范围非常广，往往按照国家、省为单位来进行全局负载均衡。举个例子：比如张三这个用户在北京，它不可能都去请求<code>应用服务中心节点</code>，它先去请求调度节点，调度节点返回给张三对应的地址，张三请求对应的应用服务，这里的应用服务也就集中在北京，所以这是一个边缘的应用服务节点，而没有去请求这个<code>应用服务中心节点</code>，这样的话张三既满足了访问请求也没有给服务端造成了很大的压力。</p>
+<p>另外一个新疆的用户也是同样的道理，它只访问对应的应用服务，通过调度的节点来实现整体的负载均衡，调度节点又会有整体的调度节点进行控制，所以全局的负载均衡有了这2套中心的节点，加上边缘的调度节点和应用服务节点就能完成一个<code>GSLB全局负载均衡</code>的实现</p>
+<hr>
+<p>3）SLB</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200209171100105.png" srcset="/img/loading.gif" alt="image-20200209171100105"></p>
+<p>往往接触最多的是<code>SLB</code>，SLB在地域里面区分或者逻辑单元区分它是非常小的，往往这个调度节点和它的服务节点在一个逻辑单元里面或者是说在一个地域里面，那么它的小的逻辑地域决定它对部分服务的实时性、响应性是非常好的；在海量用户的请求过来以后它同样是请求调度节点，调度节点把它的请求转发给后端对应的服务节点，服务节点再转发给调度节点，调度节点再响应给客户，这样也能实现一个均衡的作用，Nginx就是一个典型的<code>SLB</code></p>
+<p>4）分为四层负载均衡和七层负载均衡</p>
+<p>往往企业也不好用到<code>GSLB</code>而会用到一些云服务或者第三方设备，但是对于<code>SLB</code> 来说我们会需要用到。</p>
+<p>对于负载均衡除了地域划分以外还可以按照网络的模型也就是<code>OSI</code>模型可以分为常用的2个概念负载均衡，一个是我们常见的4层负载均衡，所谓4层负载均衡就是在<code>OSI</code>模型里面的传输层，传输层已经能支持到TCP IP协议的控制的，所以它只需要对客户端的请求TCP IP协议的包转发，就可以实现负载均衡，它的好处是性能非常快只需要最顶层进行运用处理，而不需要进行一些复杂的逻辑，只需要进行包的转发就可以了。</p>
+<p>对应的就是7层负载均衡，它是在应用层，所以它可以完成应用方面的协议的请求，比如说http的负载均衡它可以实现http信息的改写、头信息的改写、安全应用规则的控制以及转发Layer等规则， 所以在应用层的服务里面我们可以在里面做的内容就更多。Nginx就是一个典型的7层负载均衡的SLB</p>
+<hr>
+<p>5）Nginx负载均衡</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/asdfzxc-1581257182079.png" srcset="/img/loading.gif" alt="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/asdfzxc.png"></p>
+<p>Nginx在实现负载均衡原理就是用到了<code>proxy_pass</code>，proxy_pass就是上一章讲过的代理模块的和核心配置，它把所有请求代理转发到对应后端服务器上，只这里实现负载均衡是它不是转发到一台而是一组虚拟的服务池，它称为<code>upstream server</code>，<code>upstream server</code>可以定义它所有的服务器的单元，比如这个<code>upstream server</code>组里面有服务1、2、3，它们3个都可以提供类似的服务，所以我们将它们放到一个虚拟的<code>upstream server</code>组里面来，在这个<code>upstream server</code>组里面它实现了对于3台服务器不断的轮询，这样所有用户过来请求的时候就会通过<code>upstream</code>模块分发到不同的服务上实现负载均衡这样的一个概念，所以在proxy_pass和upstream是2个核心的配置语法</p>
+<hr>
+<p>6）配置语法</p>
+<p>Syntax: upstream name {…}<br>Default:—<br>Context：http</p>
+<p><a href="https://nginx.org/en/docs/http/ngx_http_upstream_module.html" target="_blank" rel="noopener">参考文档</a></p>
+<h2 id="演示-负载均衡"><a href="#演示-负载均衡" class="headerlink" title="演示-负载均衡"></a>演示-负载均衡</h2><p>首先通过Nginx准备3个服务，端口分别是：<code>8001、8003、8004</code>，在opt/app目录中对应了<code>code1、code2、code3</code>目录，每个目录都有一个<code>index.html</code>，内容分别是<code>code1、code2、code3</code>；在它们的配置放在<code>/etc/nginx/conf.d</code>目录中</p>
+<pre><code class="hljs bash">/etc/nginx/conf.d &gt; ls
+server1.conf  server2.conf  server3.conf</code></pre>
+
+<p><strong>配置内容：</strong></p>
+<p>server1.conf</p>
+<pre><code class="hljs nginx"><span class="hljs-section">server</span> &#123;
+    <span class="hljs-attribute">listen</span>       <span class="hljs-number">8001</span>;
+    <span class="hljs-attribute">server_name</span>  localhost;
+    <span class="hljs-attribute">root</span>        /opt/app/code1;
+    <span class="hljs-attribute">location</span> / &#123;
+        <span class="hljs-attribute">index</span> index.html;
+    &#125;
+&#125;</code></pre>
+
+<p>server2.conf</p>
+<pre><code class="hljs nginx"><span class="hljs-section">server</span> &#123;
+    <span class="hljs-attribute">listen</span>       <span class="hljs-number">8003</span>;
+    <span class="hljs-attribute">server_name</span>  localhost;
+    <span class="hljs-attribute">root</span>        /opt/app/code2;
+    <span class="hljs-attribute">location</span> / &#123;
+        <span class="hljs-attribute">index</span> index.html;
+    &#125;
+&#125;</code></pre>
+
+<p>server3.conf</p>
+<pre><code class="hljs nginx"><span class="hljs-section">server</span> &#123;
+    <span class="hljs-attribute">listen</span>       <span class="hljs-number">8004</span>;
+    <span class="hljs-attribute">server_name</span>  localhost;
+    <span class="hljs-attribute">root</span>        /opt/app/code3;
+    <span class="hljs-attribute">location</span> / &#123;
+        <span class="hljs-attribute">index</span> index.html;
+    &#125;
+&#125;</code></pre>
+
+<p>upstream_test.conf</p>
+<pre><code class="hljs nginx"><span class="hljs-attribute">upstream</span> mcr&#123;
+    <span class="hljs-attribute">server</span> dev001.com:<span class="hljs-number">8001</span>;
+    <span class="hljs-attribute">server</span> dev001.com:<span class="hljs-number">8003</span>;
+    <span class="hljs-attribute">server</span> dev001.com:<span class="hljs-number">8004</span>;
+&#125;
+
+<span class="hljs-section">server</span> &#123;
+    <span class="hljs-attribute">listen</span>       <span class="hljs-number">80</span> ;
+    <span class="hljs-attribute">server_name</span>  localhost;
+    <span class="hljs-attribute">access_log</span>  /var/log/nginx/test_proxy.access.log  main;
+
+    <span class="hljs-attribute">location</span> / &#123;
+    		<span class="hljs-comment">#这里的http://mcr的mcr是上面的upstream的key</span>
+        <span class="hljs-attribute">proxy_pass</span>  http://mcr;
+        <span class="hljs-attribute">include</span> proxy_params;
+    &#125;
+&#125;</code></pre>
+
+<p>测试</p>
+<pre><code class="hljs bash">~&gt; curl  http://localhost
+code3
+~&gt; curl  http://localhost
+code2
+~&gt; curl  http://localhost
+code1
+~&gt; curl  http://localhost
+code3
+~&gt; curl  http://localhost
+code1</code></pre>
+
+<h2 id="介绍-server参数"><a href="#介绍-server参数" class="headerlink" title="介绍-server参数"></a>介绍-server参数</h2><p>前面的负载均衡通到过<code>upstream</code>，它还有一些配置项，在这个章节中说明。</p>
+<p>1）、upstream举例</p>
+<pre><code class="hljs nginx"><span class="hljs-attribute">upstream</span> mcr&#123;
+    <span class="hljs-attribute">server</span> backend1.example.com weight=<span class="hljs-number">5</span>;
+    <span class="hljs-attribute">server</span> backend2.example.com:<span class="hljs-number">8080</span>;
+    <span class="hljs-attribute">server</span> unix:/temp/backend3;
+
+    <span class="hljs-attribute">server</span> backend1.example.com:<span class="hljs-number">8080</span> backup;
+    <span class="hljs-attribute">server</span> backend2.example.com:<span class="hljs-number">8080</span> backup;
+&#125;</code></pre>
+
+<ul>
+<li>weight：权重，对于轮询而言加入这个词的值越大那么影响它的权重就越大，分配个它的几率就越高；</li>
+<li>backup：备份服务</li>
+</ul>
+<hr>
+<p>2）、后端服务器在负载均衡调度中的状态</p>
+<table>
+<thead>
+<tr>
+<th>词</th>
+<th>介绍</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>down</td>
+<td>当前的server暂时不参与负载均衡</td>
+</tr>
+<tr>
+<td>backup</td>
+<td>预留的备份服务</td>
+</tr>
+<tr>
+<td>max_fails</td>
+<td>允许请求失败的次数</td>
+</tr>
+<tr>
+<td>fail_timeout</td>
+<td>经过max_fails失败后，服务暂停的时间</td>
+</tr>
+<tr>
+<td>max_conns</td>
+<td>限制最大的接收的连接数</td>
+</tr>
+</tbody></table>
+<h2 id="演示-backup状态"><a href="#演示-backup状态" class="headerlink" title="演示-backup状态"></a>演示-backup状态</h2><p>这里在上一次演示的<code>upstream_test.conf</code>文件中加入这些参数,这里列出了修改部分：</p>
+<pre><code class="hljs nginx"><span class="hljs-attribute">upstream</span> mcr&#123;
+    <span class="hljs-attribute">server</span> dev001.com:<span class="hljs-number">8001</span> down; <span class="hljs-comment">#不提供服务</span>
+    <span class="hljs-attribute">server</span> dev001.com:<span class="hljs-number">8003</span> backup; <span class="hljs-comment">#备份节点</span>
+    <span class="hljs-attribute">server</span> dev001.com:<span class="hljs-number">8004</span> max_fails=<span class="hljs-number">1</span> fail_timeout=<span class="hljs-number">10s</span>; <span class="hljs-comment">#失败次数：1次，超时时间：10秒</span>
+&#125;</code></pre>
+
+<p>这里我们会发现，只请求响应全是<code>code3</code></p>
+<pre><code class="hljs nginx">~&gt; curl  http://localhost
+code3
+~&gt; curl  http://localhost
+code3
+~&gt; curl  http://localhost
+code3
+~&gt; curl  http://localhost
+code3</code></pre>
+
+<p>接下来将这个8004端口的服务通过防火墙拦截不对外提供服务</p>
+<pre><code class="hljs bash">~&gt; iptables -I INPUT -p tcp --dport 8004 -j DROP</code></pre>
+
+<p>这里因为8004端口被拦截掉了，所以再10秒种是请求不到的，这里因为失败次数为1，那么Nginx就认为这个服务挂掉了，它会使用8003这个端口的服务，所有响应内容是：code2</p>
+<pre><code class="hljs bash">~&gt; curl  http://localhost
+code2
+~&gt; curl  http://localhost
+code2
+~&gt; curl  http://localhost
+code2
+~&gt; curl  http://localhost
+code2</code></pre>
+
+<h2 id="介绍-轮询策略"><a href="#介绍-轮询策略" class="headerlink" title="介绍-轮询策略"></a>介绍-轮询策略</h2><p>我们都知道Nginx默认的轮询是基于请求的实现的，比如说我第1个请求是在code1上，第2个请求是在code2上，第3个请求是在code3，我们不断的请求它就不断的轮询，这个小的章节里给大家介绍Nginx轮询策略，因为我们光知道Nginx默认的轮询的规则是完全无法满足实际的配置需求的。</p>
+<p>1）、调度算法</p>
+<table>
+<thead>
+<tr>
+<th>调度名</th>
+<th>介绍</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>轮询</td>
+<td>按时间顺序逐一分配到不同的后端服务器</td>
+</tr>
+<tr>
+<td>加权轮询</td>
+<td>weight值越大，分配到的访问几率越高</td>
+</tr>
+<tr>
+<td>ip_hash</td>
+<td>每个请求按访问IP的hash结果分配，这样来自同哪个一个IP的固定访问一个后端服务器</td>
+</tr>
+<tr>
+<td>url_hash</td>
+<td>按照访问的URL的hash结果来分配请求，是每个URL定向到一个后端服务器</td>
+</tr>
+<tr>
+<td>least_conn</td>
+<td>最少链接数，哪个机器连接数少就分发</td>
+</tr>
+<tr>
+<td>hash关键数值</td>
+<td>hash自定义的key</td>
+</tr>
+</tbody></table>
+<h2 id="演示-加权轮询"><a href="#演示-加权轮询" class="headerlink" title="演示-加权轮询"></a>演示-加权轮询</h2><p>演示之前将前面的防火墙拦截的8004端口放开    </p>
+<pre><code class="hljs bash">~&gt; iptables  -F</code></pre>
+
+<p>upstream_test.conf</p>
+<pre><code class="hljs nginx"><span class="hljs-attribute">upstream</span> mcr&#123;
+    <span class="hljs-attribute">server</span> dev001.com:<span class="hljs-number">8001</span>;
+    <span class="hljs-attribute">server</span> dev001.com:<span class="hljs-number">8003</span> ;
+    <span class="hljs-attribute">server</span> dev001.com:<span class="hljs-number">8004</span> weight=<span class="hljs-number">5</span>;
+&#125;</code></pre>
+
+<p>下面的测试可以看的响应内容大部分都来自于8004端口的服务</p>
+<pre><code class="hljs bash">~&gt; curl  http://localhost
+code3
+~&gt; curl  http://localhost
+code3
+~&gt; curl  http://localhost
+code3
+~&gt; curl  http://localhost
+code3
+~&gt; curl  http://localhost
+code3
+~&gt; curl  http://localhost
+code1
+~&gt; curl  http://localhost
+code2</code></pre>
+
+<h2 id="演示-ip-bash方式"><a href="#演示-ip-bash方式" class="headerlink" title="演示-ip_bash方式"></a>演示-ip_bash方式</h2><p><code>加权轮询和轮询</code>的方式都是通过请求来进行分配的，我们如果不想依赖请求想保证对与一些<code>Cookie、Session</code>一致，也就是每一次用户请求如果基于请求来那么可以就会打到不同的服务器上，导致用户登录的<code>Cookie</code>信息验证出现一些问题容易出现掉线，这样的话就需要用另外的方式，不基于请求来做轮询而是基于ip_hash的方式，ip_hash这种方式就能够基于用户的IP来计算它的hash值，然后把每一个固定的IP都打到同一台服务器上去，这样就解决了对于不同的请求然后打到不同的服务器上的问题。</p>
+<p>配置的内容写在<code>upstream_test.conf</code>文件中</p>
+<pre><code class="hljs nginx"><span class="hljs-attribute">upstream</span> mcr&#123;
+    ip_hash;
+    <span class="hljs-attribute">server</span> dev001.com:<span class="hljs-number">8001</span>;
+    <span class="hljs-attribute">server</span> dev001.com:<span class="hljs-number">8003</span> ;
+    <span class="hljs-attribute">server</span> dev001.com:<span class="hljs-number">8004</span>;
+&#125;</code></pre>
+
+<p>下面测试中可以看到，它的响应内容都是一样的</p>
+<pre><code class="hljs bash">~&gt; curl  http://localhost
+code3
+~&gt; curl  http://localhost
+code3
+~&gt; curl  http://localhost
+code3</code></pre>
+
+<p><strong>问题</strong></p>
+<blockquote>
+<p>这里有个问题，不管你是怎么请求，它都是轮询一台服务器上，所以这个是因为ip_hash的策略它会基于客户的<code>remote address</code>来做hash，如果是同一个<code>remote address</code>过来的话它就会定位一台服务器上去，但是这种方式也存在缺陷，如果<code>remote address</code>是走代理方式的话然后前端再走一层代理，那Nginx取到的<code>remote address</code>不是用户真实的IP，这样的话就无法基于用户真实的IP来做对应的轮询，用户过来请求始终会定位一台机器上，所以在这一块的缺陷我们在后续的版本里面就出来了新的方式基于url的hash</p>
+</blockquote>
+<h2 id="url-hash和hash的方式"><a href="#url-hash和hash的方式" class="headerlink" title="url_hash和hash的方式"></a>url_hash和hash的方式</h2><h3 id="介绍-4"><a href="#介绍-4" class="headerlink" title="介绍"></a>介绍</h3><p>在前面介绍的轮询中无论是轮询、加权轮询还是ip_hash方式它们都无法解决一些问题，比如说我想要固定的IP请求固定的内容让固定的IP按照IP来分配。</p>
+<p>另外一个问题：我们在缓存的场景里面服务器1缓存了一部分资源，服务器2缓存了一部分资源，当一个用户来先访问服务器1以后它会先缓存住它缓存的内容，再一次请求的时候假设它跳到了服务器2，这样的话它看到的是另外一部分内容，那么它看到的第1部分内容和第2部分内容是不一致的，想要固定用户每一次过来请求或者是说它请求的内容都能看到是一致的，这个怎么办呢？所以它需要用到另外一些hash的策略。</p>
+<p>在Nginx后续的版本里面就推出来了hash关键数值自定义hash key的方式。</p>
+<hr>
+<h3 id="url-hash配置语法"><a href="#url-hash配置语法" class="headerlink" title="url_hash配置语法"></a>url_hash配置语法</h3><p>Syntax：hash key [consistent];<br>Default：—<br>Context：upstream </p>
+<p>This directive appeared in versoin 1.7.2</p>
+<hr>
+<h3 id="演示url-hash"><a href="#演示url-hash" class="headerlink" title="演示url_hash"></a>演示url_hash</h3><p>准备工作：在<code>/opt/app/code{1-3}</code>中分别创建<code>url{1~3}.html</code></p>
+<p>这些<code>urlx.html</code>的内容为：</p>
+<pre><code class="hljs txt">Server:$&#123;这里是机器的编号&#125;  Url:$&#123;文件的1~3&#125;</code></pre>
+
+<p>检验是否能正常访问能响应内容就OK了</p>
+<pre><code class="hljs bash">~&gt; curl http://dev001.com/url1.html
+Server:1  Url:1</code></pre>
+
+<p>upstream_test.conf</p>
+<pre><code class="hljs nginx"><span class="hljs-attribute">upstream</span> mcr&#123;
+    <span class="hljs-attribute">hash</span> <span class="hljs-variable">$request_uri</span>;
+    <span class="hljs-attribute">server</span> dev001.com:<span class="hljs-number">8001</span>;
+    <span class="hljs-attribute">server</span> dev001.com:<span class="hljs-number">8003</span> ;
+    <span class="hljs-attribute">server</span> dev001.com:<span class="hljs-number">8004</span>;
+&#125;</code></pre>
+
+<p>测试不太明显，这里就不测试了</p>
+<hr>
+<h3 id="hash说明"><a href="#hash说明" class="headerlink" title="hash说明"></a>hash说明</h3><p>前面演示了url_hash的方式，但是在实际场景里面这里的url会有很大一长串，不然说这个地址：<a href="http://dev001.com/url1.html?testId=1&amp;userId=23" target="_blank" rel="noopener">http://dev001.com/url1.html?testId=1&amp;userId=23</a>,   这里我想针对URL中的某一个值，例如这个里面的testId的值，这里就用到了hash的轮询方式，首先说下它的一个配置语法：</p>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th><code>**hash** *key* [consistent];</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>—</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>upstream</code></td>
+</tr>
+</tbody></table>
+<p>注意：This directive appeared in version 1.7.2.</p>
+<p>想实现这个场景，我们需要在服务端加一个判断语句把对应的值用正则表达式提取出来，然后把自定义的进行hash就可以了</p>
+<h1 id="Nginx作为缓存服务"><a href="#Nginx作为缓存服务" class="headerlink" title="Nginx作为缓存服务"></a>Nginx作为缓存服务</h1><h2 id="介绍-5"><a href="#介绍-5" class="headerlink" title="介绍"></a>介绍</h2><h3 id="缓存类型"><a href="#缓存类型" class="headerlink" title="缓存类型"></a>缓存类型</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200211221403716.png" srcset="/img/loading.gif" alt="image-20200211221403716"></p>
+<p>如果缓存放在服务端称呼它为<code>服务端缓存</code> ，服务端缓存最常用的就是<code>Redis、Memcached</code>来存储<code>key-value</code>类型数据。</p>
+<p>当缓存放到代理、中间件上面就称呼为代理缓存，它的内容是同服务端获取到的，然后在缓存到本地直接给客户端使用，这样的话缓存是放在Nginx这一端。</p>
+<p>客户端缓存是缓存再浏览器上面，浏览器上面的缓存是从服务端过来的，只是说给前端缓存了一份，让用户自己就能访问自己，所以我们称呼为客户端缓存。</p>
+<hr>
+<h3 id="代理缓存"><a href="#代理缓存" class="headerlink" title="代理缓存"></a>代理缓存</h3><p>Nginx代理缓存的流程是什么样子的呢？请看下图：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200211221904322.png" srcset="/img/loading.gif" alt="image-20200211221904322"></p>
+<p>首先客户端先去请求Nginx，第一次请求的时候如果Nginx中没有缓存，那么它会向服务器发起请求服务器返回对应的数据，Nginx对服务器返回的这个数据进行缓存，然后再返回给客户端，这是在没有缓存的情况下，当用户再一次发起同一个url的请求的时候，那么请求这个数据a，Nginx已经缓存过这个数据了，所以它就直接可以返回给客户端，而不需要去服务端进行请求了，这个就是代理缓存的模式。</p>
+<h3 id="配置语法-2"><a href="#配置语法-2" class="headerlink" title="配置语法"></a>配置语法</h3><h4 id="proxy-cache"><a href="#proxy-cache" class="headerlink" title="proxy_cache"></a>proxy_cache</h4><p>在定义<code>proxy_cache</code>之前先要定义<code>proxy_cache_path</code></p>
+<p>| Syntax:  | <code>**proxy_cache_path** *path* [levels=*levels*] [use_temp_path=on|off] keys_zone=*name*:*size* [inactive=*time*] [max_size=*size*] [manager_files=*number*] [manager_sleep=*time*] [manager_threshold=*time*] [loader_files=*number*] [loader_sleep=*time*] [loader_threshold=*time*] [purger=on|off] [purger_files=*number*] [purger_sleep=*time*] [purger_threshold=*time*];</code> |<br>| :——- | ———————————————————— |<br>| Default: | —                                                            |<br>| Context: | <code>http</code>                                                       |</p>
+<p>它用来设置目录空间大小以及名字，用来存放对应的缓存文件的，所以我们先要定义好对应的路径，这里有很多的配置项，后面介绍一些常用的配置项。</p>
+<p>| Syntax:  | <code>**proxy_cache** *zone* | off;</code> |<br>| :——- | ——————————- |<br>| Default: | <code>proxy_cache off;</code>              |<br>| Context: | <code>http</code>, <code>server</code>, <code>location</code>    |</p>
+<p>这里的<code>zone</code>是<code>proxy_cache_path</code>那个key，表示它调用哪个path</p>
+<h4 id="缓存过期周期"><a href="#缓存过期周期" class="headerlink" title="缓存过期周期"></a>缓存过期周期</h4><table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th><code>**proxy_cache_valid** [*code* ...] *time*;</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>—</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<h4 id="缓存的维度"><a href="#缓存的维度" class="headerlink" title="### 缓存的维度"></a>### 缓存的维度</h4><table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th><code>**proxy_cache_key** *string*;</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td><code>proxy_cache_key $scheme$proxy_host$request_uri;</code></td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<h2 id="场景配置演示"><a href="#场景配置演示" class="headerlink" title="场景配置演示"></a>场景配置演示</h2><p>准备工作：</p>
+<p>这里的配置联和上次负载均衡的配置使用的<code>8001、8003、8004</code>端口</p>
+<pre><code class="hljs bash">~&gt; netstat  -anp | grep 800*
+tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      2179/nginx: master  
+tcp        0      0 0.0.0.0:8001            0.0.0.0:*               LISTEN      2179/nginx: master  
+tcp        0      0 0.0.0.0:8003            0.0.0.0:*               LISTEN      2179/nginx: master  
+tcp        0      0 0.0.0.0:8004            0.0.0.0:*               LISTEN      2179/nginx: master</code></pre>
+
+<p> 配置文件：</p>
+<p>cache_test.conf</p>
+<pre><code class="hljs nginx"><span class="hljs-attribute">upstream</span> mcr&#123;
+    <span class="hljs-attribute">server</span> dev001.com:<span class="hljs-number">8001</span>;
+    <span class="hljs-attribute">server</span> dev001.com:<span class="hljs-number">8003</span> ;
+    <span class="hljs-attribute">server</span> dev001.com:<span class="hljs-number">8004</span>;
+&#125;
+<span class="hljs-attribute">proxy_cache_path</span> /opt/app/cache levels=<span class="hljs-number">1</span>:<span class="hljs-number">2</span> keys_zone=mcr_cache:<span class="hljs-number">10m</span> max_size=<span class="hljs-number">10g</span> inactive=<span class="hljs-number">60m</span> use_temp_path=<span class="hljs-literal">off</span>;
+
+<span class="hljs-section">server</span> &#123;
+    <span class="hljs-attribute">listen</span>       <span class="hljs-number">80</span> ;
+    <span class="hljs-attribute">server_name</span>  localhost;
+    <span class="hljs-attribute">access_log</span>  /var/log/nginx/test_proxy.access.log  main;
+
+    <span class="hljs-attribute">location</span> / &#123;
+        <span class="hljs-attribute">proxy_cache</span> mcr_cache;
+        <span class="hljs-attribute">proxy_pass</span>  http://mcr;
+        <span class="hljs-attribute">proxy_cache_valid</span> <span class="hljs-number">200</span> <span class="hljs-number">304</span> <span class="hljs-number">12h</span>;
+        <span class="hljs-attribute">proxy_cache_valid</span> any <span class="hljs-number">10m</span>;
+        <span class="hljs-attribute">proxy_cache_key</span> <span class="hljs-variable">$host</span><span class="hljs-variable">$uri</span><span class="hljs-variable">$is_args</span><span class="hljs-variable">$args</span>;
+        <span class="hljs-attribute">add_header</span> Nginx-Cache <span class="hljs-variable">$upstream_cache_status</span>;
+
+        <span class="hljs-attribute">proxy_next_upstream</span> <span class="hljs-literal">error</span> timeout invalid_header http_500 http_502 http_503 http_504;
+        <span class="hljs-attribute">include</span> proxy_params;
+    &#125;
+&#125;</code></pre>
+
+<p>proxy_cache_path</p>
+<ul>
+<li>levels：我们的这些缓存文件不会总放在一个目录，需要做分级，这里一般都是使用<code>1：2</code>做一个2级目录的分级；</li>
+<li>keys_zone：定义的zone空间的名字，在<code>location</code>中的<code>proxy_cache</code>调用的就是这个名字。后面的<code>10m</code>表示大小，表示开辟空间的这个key的大小，一般<code>1m</code>可以存放8k个key，这里10m=80k</li>
+<li>max_size：这个目录控制它最大是多大。当目录空间用满以后Nginx会触发淘汰规则把一些不常用的淘汰掉</li>
+<li>inactive：表示不活跃的，后面的<code>60m</code>不是兆是时间单位它这里表示60分钟，在60分钟之内如果这个缓存文件没有被访问过就会把它清理掉</li>
+<li>use_temp_path：存放临时文件，一般建议给它关闭，如果你把它打开的话它会另外建立一个目录和cache目录2个目录在更新缓存的时候容易出现性能上的损耗</li>
+</ul>
+<p>location</p>
+<ul>
+<li>proxy_cache：调用上面说的这个zone</li>
+<li>proxy_cache_valid 200 304 12h：表示对于200返回的头信息或者304头信息它是会12个小时过期</li>
+<li>proxy_cache_valid any 10m：除了200、203以外的10分钟过期</li>
+<li><code>proxy_cache_key $host$uri$is_args$args</code>：重新把<code>proxy_cache_key</code>进行了重新定义，把默认改为了以host维度+url+is_args+args对应的参数给它加入进来作为缓存的key</li>
+<li>add_header Nginx-Cache $upstream_cache_status：增加一个头信息，一会在演示的时候能很明显的看出来，返回客户端的response里面会告诉客户端是否命中，通过这个头信息就能清楚的看出来</li>
+<li>proxy_next_upstream error timeout invalid_header http_500 http_502 http_503 http_504：如果当我们的后端其中的一台服务器出现500、502、503、504、不正常的头返回、超时、有错误的时候我们就让它跳过这一台去访问下一台，避免我们因为单台服务器如果是有这个问题对于前端的产生影响，所以这个参数我们在缓存里面给大家一起配上这个参数</li>
+</ul>
+<hr>
+<p>测试：</p>
+<pre><code class="hljs bash">~&gt; curl http://localhost
+code1
+~&gt; curl http://localhost
+code1
+~&gt; curl http://localhost
+code1</code></pre>
+
+<p>这里可以看到它的响应内容一直都是code1，看上去好像没有负载均衡啊，其实这里因为它把这些响应内容缓存起来了，当下一次访问的时候就是直接从缓存中去取</p>
+<pre><code class="hljs bash">/opt/app/cache&gt; rm -rf *
+~&gt; curl http://localhost
+code2</code></pre>
+
+<p>这里将缓存文件删除掉，响应内容变成为了code2，因为没有缓存，所以是从服务器去取的。</p>
+<p>这里将<code>location</code>中的<code>proxy_cache</code>的值改为<code>off</code>，再去请求来看下没有缓存的情况下：</p>
+<pre><code class="hljs bash">~&gt; curl http://localhost
+code1
+~&gt; curl http://localhost
+code2
+~&gt; curl http://localhost
+code3</code></pre>
+
+<h2 id="场景配置补充说明"><a href="#场景配置补充说明" class="headerlink" title="场景配置补充说明"></a>场景配置补充说明</h2><h3 id="如何清除指定缓存？"><a href="#如何清除指定缓存？" class="headerlink" title="如何清除指定缓存？"></a>如何清除指定缓存？</h3><ul>
+<li>rm -rm 缓存目录内容</li>
+<li>第三方扩展模块<code>ngx_cache_purge</code></li>
+</ul>
+<h3 id="如何让部分页面不缓存？"><a href="#如何让部分页面不缓存？" class="headerlink" title="如何让部分页面不缓存？"></a>如何让部分页面不缓存？</h3><blockquote>
+<p>在一些场景中比如登录页面，或者是用户不能缓存的页面，那么我们是不是需要让部分页面不缓存呢？以下配置就能够实现</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th><code>**proxy_no_cache** *string* ...;</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>—</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<p>这个配置能让哪一些url是不会去缓存的。</p>
+<p>这里举个例子，这里根据前面的配置文件<code>cache_test.conf</code>加入以下内容：</p>
+<pre><code class="hljs nginx"><span class="hljs-section">server</span> &#123;
+    <span class="hljs-comment">#...</span>
+    <span class="hljs-attribute">if</span> (<span class="hljs-variable">$request_uri</span> <span class="hljs-regexp">~ ^/(url3|login|register|password\/reset))</span>&#123;
+        <span class="hljs-attribute">set</span> <span class="hljs-variable">$cookie_nocache</span> <span class="hljs-number">1</span>;
+    &#125;
+
+    <span class="hljs-attribute">location</span> / &#123;
+        <span class="hljs-comment">#...</span>
+        <span class="hljs-attribute">proxy_no_cache</span> <span class="hljs-variable">$cookie_nocache</span> <span class="hljs-variable">$arg_nocache</span> <span class="hljs-variable">$arg_comment</span>;
+        <span class="hljs-attribute">proxy_no_cache</span> <span class="hljs-variable">$http_pragma</span> <span class="hljs-variable">$http_authorization</span>;
+
+    &#125;
+&#125;</code></pre>
+
+<p>这里的server部分中的if，如果请求是url3，那么这里的cookie_nocache变量的值设为1，在<code>location</code>中的第1个proxy_no_cache就能够生效就不去缓存当前这个url3的请求了</p>
+<pre><code class="hljs bash"><span class="hljs-comment">#被缓存的情况</span>
+~&gt; curl localhost
+code1
+~&gt; curl localhost
+code1
+~&gt; curl localhost
+
+<span class="hljs-comment">#不被缓存的情况</span>
+~&gt; curl localhost/url3.html
+Server:2  Url:3
+~&gt; curl localhost/url3.html
+Server:3  Url:3
+~&gt; curl localhost/url3.html
+Server:2  Url:3
+~&gt; curl localhost/url3.html
+Server:2  Url:3
+~&gt; curl localhost/url3.html
+Server:1  Url:3</code></pre>
+
+<h2 id="分片请求"><a href="#分片请求" class="headerlink" title="分片请求"></a>分片请求</h2><p>早期版本的Nginx对于缓存功能不是特别全，对于稍大的文件分片请求是不能支持的，在<code>1.9版本</code>以后提供的<code>slice模块</code>就实现了大文件的分片请求，它的配置语法如下：</p>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th><code>**slice** *size*;</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td><code>slice 0;</code></td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<p>slice size：表示我对一个大文件请求的时候我要切割成多大小的碎片去均匀的请求后端。</p>
+<p>请求图示如下：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200212125648461.png" srcset="/img/loading.gif" alt="image-20200212125648461"></p>
+<p>前端请求过来，它会把这个文件第一次请求后端去获取到这个文件的大小，然后根据这个大小以及我们定义<code>size</code>大小然后进行切片以分割成不同小的请求同时去请求后端，这样的话就形成了一个一个小的请求形成到前端的话就是一个个独立的缓存文件。</p>
+<p>优势：</p>
+<p>每个子请求收到的数据都会形成一个独立文件，一个请求断了，其它请求不受影响</p>
+<p>缺点：</p>
+<p>当文件很大或者<code>slice</code>很小的时候就会形成很多个小的请求，我们都知道一次请求就会造成操作系统的一个文件距离和建立一次连接而导致操作系统建立很多个文件距离和多个连接，可能出现损耗过多的情况</p>
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E8%BF%90%E7%BB%B4/Nginx/">Nginx</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/linux-2.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【Linux】 Linux中的常见问题</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/nginx-2.html">
+                        <span class="hidden-mobile">【Nginx】 2.基础篇</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "【Nginx】 3.场景实践篇&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

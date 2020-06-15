@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="Shui">
+  <meta name="keywords" content="">
+  <title>【 六、RBAC 】 2.Spring Security授权源码解析 - Shui&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Fluid</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2019-10-16 18:02">
+      2019年10月16日 晚上
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.3k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      27
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <h1 id="Spring-Security授权源码解析"><a href="#Spring-Security授权源码解析" class="headerlink" title="Spring Security授权源码解析"></a>Spring Security授权源码解析</h1><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568551319566.png" srcset="/img/loading.gif" alt="1568551319566"></p>
+<blockquote>
+<p>FilterSecurityInterceptor负责最终决定当前的请求是否能通过过滤器来访问最后的api，如果不能会根据不同的原因抛出异常，然后由ExceptionTranslationFilter来处理， </p>
+</blockquote>
+<p>上面的过滤器链我就不在重复说一遍了，这里要介绍的AnonymousAuthenticationFilter，这个过滤器中文意思：匿名过滤器，它在图中过滤器链，绿色过滤器中的最后一个，看来一下它的doFilter方法：</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">doFilter</span><span class="hljs-params">(ServletRequest req, ServletResponse res, FilterChain chain)</span></span>
+<span class="hljs-function">			<span class="hljs-keyword">throws</span> IOException, ServletException </span>&#123;
+		
+		<span class="hljs-keyword">if</span> (SecurityContextHolder.getContext().getAuthentication() == <span class="hljs-keyword">null</span>) &#123;
+			SecurityContextHolder.getContext().setAuthentication(
+					createAuthentication((HttpServletRequest) req));
+
+			<span class="hljs-comment">//....</span>
+    &#125;<span class="hljs-keyword">else</span>&#123;<span class="hljs-comment">//...&#125;</span>
+
+		chain.doFilter(req, res);
+	&#125;</code></pre>
+
+<p>这里的逻辑很简单，就是判断SecurityContext里面是否有Authentication,如果是空的，它会执行createAuthentication方法来创建一个Authentication放到SecurityContext里，来看一下这个方法</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">protected</span> Authentication <span class="hljs-title">createAuthentication</span><span class="hljs-params">(HttpServletRequest request)</span> </span>&#123;
+		AnonymousAuthenticationToken auth = <span class="hljs-keyword">new</span> AnonymousAuthenticationToken(key,
+				principal, authorities);
+		auth.setDetails(authenticationDetailsSource.buildDetails(request));
+
+		<span class="hljs-keyword">return</span> auth;
+	&#125;</code></pre>
+
+<p>在这里的AnonymousAuthenticationToken创建可以看一下代码中，看出来这里的用户信息是一个字符串:“anonymousUser”，不和之前的Token一样是UserDetails接口的实现，</p>
+<pre><code class="hljs java">	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">AnonymousAuthenticationFilter</span><span class="hljs-params">(String key)</span> </span>&#123;
+		<span class="hljs-keyword">this</span>(key, <span class="hljs-string">"anonymousUser"</span>, AuthorityUtils.createAuthorityList(<span class="hljs-string">"ROLE_ANONYMOUS"</span>));
+	&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">AnonymousAuthenticationFilter</span><span class="hljs-params">(String key, Object principal,</span></span>
+<span class="hljs-function"><span class="hljs-params">			List&lt;GrantedAuthority&gt; authorities)</span> </span>&#123;
+		Assert.hasLength(key, <span class="hljs-string">"key cannot be null or empty"</span>);
+		Assert.notNull(principal, <span class="hljs-string">"Anonymous authentication principal must be set"</span>);
+		Assert.notNull(authorities, <span class="hljs-string">"Anonymous authorities must be set"</span>);
+		<span class="hljs-keyword">this</span>.key = key;
+		<span class="hljs-keyword">this</span>.principal = principal;
+		<span class="hljs-keyword">this</span>.authorities = authorities;
+	&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">AnonymousAuthenticationFilter</span><span class="hljs-params">(String key, Object principal,</span></span>
+<span class="hljs-function"><span class="hljs-params">			List&lt;GrantedAuthority&gt; authorities)</span> </span>&#123;
+		Assert.hasLength(key, <span class="hljs-string">"key cannot be null or empty"</span>);
+		Assert.notNull(principal, <span class="hljs-string">"Anonymous authentication principal must be set"</span>);
+		Assert.notNull(authorities, <span class="hljs-string">"Anonymous authorities must be set"</span>);
+		<span class="hljs-keyword">this</span>.key = key;
+		<span class="hljs-keyword">this</span>.principal = principal;
+		<span class="hljs-keyword">this</span>.authorities = authorities;
+	&#125;</code></pre>
+
+<p>也就是说不过前面的过滤器验证过没过，如果都没过，在这个过滤器中还是会创建一个Authentication，</p>
+<p>这个Authentication会传递给FilterSecurityInterceptor由它来决定当前的Authentication所包含的信息是否可以访问当前请求的URL</p>
+<hr>
+<p>接下来看一下FilterSecurityInterceptor和ExceptionTranslationFilter的代码，在这之前来看一张图：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568552428831.png" srcset="/img/loading.gif" alt="1568552428831"></p>
+<ul>
+<li>FilterSecurityInterceptor：主入口</li>
+<li>AccessDecisionManager：访问管理者，它是一个接口，拥有1一个抽象实现，3个具体实现，负责管理一组AccessDecisionVoter，AccessDecisionVoter：投票人，在spring Security3之前，AccessDecisionManager是一组AccessDecisionVoter接口的实现， 不同的实现处理不同的逻辑，比如判断当前Authentication里面是否里面包含某种角色，有的投票中判断当前Authentication是否经过身份认证，有各种各样的判断，每种判断逻辑都是投票者的实现，在这个管理者里面维护了一组头投票者，当它收到请求以后，每一个投票者会根据自己的逻辑去投出自己的一票，说这个请求投过还是不过</li>
+<li>AbstractAccessDecisionManager：AccessDecisionManager接口的抽象实现，在它的这个实现里面，它会综合所有投票者的投票结果来给出最终的结果，过还是不过，判断最终的逻辑有3套不同的逻辑，分别在它3个子类里面：<ul>
+<li>AffirmativeBased：只要Voter投过，整个请求就是通过，可以访问</li>
+<li>ConsensusBased：只要有一个Voter投不过，整个请求就拒接吊</li>
+<li>UnanimousBased：根据Voter投通过和不通过的个数，来比较过和不过的个数多，选择多的一方</li>
+</ul>
+</li>
+</ul>
+<p>在spring Security中默认使用的是AffirmativeBased</p>
+<p>SecurityConfig</p>
+<p>需要判断一个请求是否能过，需要2放数据，首先是系统的配置信息，A URL访问需要什么权限，B URL需要什么请求，也就是之前写的BrowserSecurityConfig的代码：</p>
+<pre><code class="hljs java">.authorizeRequests()
+              .antMatchers(
+                      <span class="hljs-string">"/session/invalid"</span>,
+                      browser.getRegistUrl(),
+                      browser.getLoginUrl(),
+                      browser.getSignUpUrl(),
+                      SecurityConstants.DEFAULT_UNAUTHENTICATED_URL,
+                      SecurityConstants.DEFAULT_VALIDATE_CODE_URL_PREFIX + <span class="hljs-string">"/*"</span>
+              )
+              .permitAll()
+              .antMatchers(<span class="hljs-string">"/user/**"</span>).hasRole(<span class="hljs-string">"ADMIN"</span>)
+              .anyRequest()
+              .authenticated()</code></pre>
+
+<p>FilterSecurityInterceptor会根据安全配置里面把上面的信息读出来封装成ConfigAttribute一组对象，这组对象每一个ConfigAttribute对应URL需要的权限，</p>
+<p>SecurityContextHolder：</p>
+<p>当前用户所拥有的权限信息，用户有哪些权限，这些信息就是封装在Authentication里面的</p>
+<hr>
+<p>FilterSecurityInterceptor通过SecurityConfig和SecurityContextHolder再加上和FilterSecurityInterceptor封装的当前请求信息传给AccessDecisionManager，AccessDecisionManager把这些信息给投票者，由投票者来投票是过还是不过，然后汇总投票结果过出一个最终结果。</p>
+<hr>
+<p>以上说的一组投票者是spring3以前，在3之后提供了一种新的特性，叫spring表达式，基于上面的特性，spring3新增了一个WebExpressionVoter，这个投票者包办了所有Voter工作，在spring 3以后，在web环境下，所有的投票工作由这一个投票过滤器包办了</p>
+<hr>
+<p>前面图介绍完了，来debug来看一下</p>
+<p>debug位置：</p>
+<ul>
+<li>FilterSecurityInterceptor：90行</li>
+<li>AbstractSecurityInterceptor：235行</li>
+<li>ExceptionTranslationFilter：123行</li>
+</ul>
+<p>访问拒绝流程：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568554446330.png" srcset="/img/loading.gif" alt="1568554446330"></p>
+<p>首先会进入doFilter方法，这里调用了invoke方法</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568554473190.png" srcset="/img/loading.gif" alt="1568554473190"></p>
+<p>这里的invoke会做一个判断，你当前的请求之前是否经过这个过滤器，如果之前这个请求经过这个过滤器，那么这里就就直接往下走，它判断的依据：</p>
+<pre><code class="hljs java">fi.getRequest().getAttribute(FILTER_APPLIED) != <span class="hljs-keyword">null</span></code></pre>
+
+<p>判断请求的FILTER_APPLIED是不是有值，如果不为空有值，就按之前走过这个过滤器处理，这里我是第一次访问这个应用，所以走的是else</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568554732440.png" srcset="/img/loading.gif" alt="1568554732440"></p>
+<p>首先它会给请求中的FILTER_APPLIED属性设置上，下次又经过这个过滤器就不会走else了，最关键的代码：</p>
+<pre><code class="hljs java">InterceptorStatusToken token = <span class="hljs-keyword">super</span>.beforeInvocation(fi);</code></pre>
+
+<p>如果在这里出了问题它就抛异常，整个就中断了，如果不抛异常没问题，就会再往下调用过滤器链，。</p>
+<p>下面来看下beforeInvocation这个方法做了什么：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568554968267.png" srcset="/img/loading.gif" alt="1568554968267"></p>
+<pre><code class="hljs java">Collection&lt;ConfigAttribute&gt; attributes = <span class="hljs-keyword">this</span>.obtainSecurityMetadataSource()
+				.getAttributes(object);</code></pre>
+
+<p>这里获取了前面介绍的ConfigAttribute，这里是根据BrowserSecurityConfig配置信息封装的。</p>
+<p>obtainSecurityMetadataSource方法是ConfigAttribute集合的封装逻辑：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568555168543.png" srcset="/img/loading.gif" alt="1568555168543"></p>
+<p>这里对requestMap进行循环，可以看到requestMap的内容就是BrowserSecurityConfig配置的内容，这里会根据当前请求的URL去在这个requestMap中去找所需要的权限，这里我访问的是/user这样的地址，返回内容：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568555438147.png" srcset="/img/loading.gif" alt="1568555438147"></p>
+<p>这里要求用户hasRole(‘ROLE_ADMIN’)返回为true，也就是用户需要是ROLE_ADMIN角色</p>
+<hr>
+<p>往下走到这里：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568555618786.png" srcset="/img/loading.gif" alt="1568555618786"></p>
+<p>这里判断SecurityContext中的Authentication是不是空，之前介绍过，及时前面过滤器都没通过，还是有在最后一个过滤器中设置Authentication，所以不可能是空，这里不会抛出异常</p>
+<p>在往下：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568555956517.png" srcset="/img/loading.gif" alt="1568555956517"></p>
+<pre><code class="hljs java">Authentication authenticated = authenticateIfRequired();</code></pre>
+
+<p>这里会到Authentication做一些判断然后返回，然后执行：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">this</span>.accessDecisionManager.decide(authenticated, object, attributes);</code></pre>
+
+<p>这里就是前面介绍的访问管理者了，这里的object就是请求信息，这里会使用AffirmativeBased#decide，它是默认的</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568556156687.png" srcset="/img/loading.gif" alt="1568556156687"></p>
+<p>这个只要有一个投不过，那么请求就不过，首先它会循环所有投票者</p>
+<p>在web环境下就只剩下这一个投票者了，它是一个根据表达式的投票器</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568556239210.png" srcset="/img/loading.gif" alt="1568556239210"></p>
+<pre><code class="hljs java"><span class="hljs-keyword">int</span> result = voter.vote(authentication, object, configAttributes);</code></pre>
+
+<p>这里会将前面的信息交给投票器，让它去投票，最终结果为“-1”，就是不过意思，因为我当前访问的表达式需要权限：hasRole(‘ROLE_ADMIN’)，而我这里的权限：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568556466007.png" srcset="/img/loading.gif" alt="1568556466007"></p>
+<p>它是一个匿名的，所以最终结果为不过，这里如果有一个不过就会对deny变量进行累加，如果有任何投票器投了不过，就会抛异常</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568556560419.png" srcset="/img/loading.gif" alt="1568556560419"></p>
+<p>这里抛出的异常会在AccessDecisionManager中进行抛出，它会抛给调用它的FilterSecurityInterceptor，那么捕获到这个访问拒绝异常以后，会执行以下代码：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">catch</span> (AccessDeniedException accessDeniedException) &#123;
+			publishEvent(<span class="hljs-keyword">new</span> AuthorizationFailureEvent(object, attributes, authenticated,
+					accessDeniedException));
+
+			<span class="hljs-keyword">throw</span> accessDeniedException;
+		&#125;</code></pre>
+
+<p>首先在spring容器里发一个事件，然后再继续抛出这个异常，再抛出这个异常会跑到ExceptionTranslationFilter过滤器上</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568557057727.png" srcset="/img/loading.gif" alt="1568557057727"></p>
+<p>先来说下这2段代码：</p>
+<pre><code class="hljs java">RuntimeException ase = (AuthenticationException) throwableAnalyzer
+				.getFirstThrowableOfType(AuthenticationException<span class="hljs-class">.<span class="hljs-keyword">class</span>, <span class="hljs-title">causeChain</span>)</span>;
+
+		<span class="hljs-keyword">if</span> (ase == <span class="hljs-keyword">null</span>) &#123;
+			ase = (AccessDeniedException) throwableAnalyzer.getFirstThrowableOfType(
+					AccessDeniedException<span class="hljs-class">.<span class="hljs-keyword">class</span>, <span class="hljs-title">causeChain</span>)</span>;
+		&#125;</code></pre>
+
+<p>首先它会去根据异常来看一下是不是AuthenticationException，前面抛出的是一个AccessDeniedException所以，会返回空，那么就会进到这个if中这里是判断是否是AccessDeniedException异常，这里就有值了</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568557191088.png" srcset="/img/loading.gif" alt="1568557191088"></p>
+<p>有值以后，执行handleSpringSecurityException方法来处理异常，</p>
+<pre><code class="hljs java"><span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (exception <span class="hljs-keyword">instanceof</span> AccessDeniedException) &#123;
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			<span class="hljs-keyword">if</span> (authenticationTrustResolver.isAnonymous(authentication) || authenticationTrustResolver.isRememberMe(authentication)) &#123;
+				logger.debug(
+						<span class="hljs-string">"Access is denied (user is "</span> + (authenticationTrustResolver.isAnonymous(authentication) ? <span class="hljs-string">"anonymous"</span> : <span class="hljs-string">"not fully authenticated"</span>) + <span class="hljs-string">"); redirecting to authentication entry point"</span>,
+						exception);
+
+				sendStartAuthentication(
+						request,
+						response,
+						chain,
+						<span class="hljs-keyword">new</span> InsufficientAuthenticationException(
+								<span class="hljs-string">"Full authentication is required to access this resource"</span>));
+			&#125;
+			<span class="hljs-keyword">else</span> &#123;
+				logger.debug(
+						<span class="hljs-string">"Access is denied (user is not anonymous); delegating to AccessDeniedHandler"</span>,
+						exception);
+
+				accessDeniedHandler.handle(request, response,
+						(AccessDeniedException) exception);
+			&#125;
+		&#125;</code></pre>
+
+<p>这里判断是否是匿名的身份那就是因为没有登录（身份认证）所以访问被拒接了，这里会调用sendStartAuthentication把你发送出去，让你开始i进行身份认证，如果不是以为匿名身份访问被拒绝了，会执行来处理</p>
+<pre><code class="hljs java">accessDeniedHandler.handle(request, response,
+						(AccessDeniedException) exception);</code></pre>
+
+<p>org.springframework.security.web.access.AccessDeniedHandlerImpl#handle</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568557636405.png" srcset="/img/loading.gif" alt="1568557636405"></p>
+<p>这个处理器会响应403，我们现在是因为被匿名这个身份被拒绝的，所以会进到这里</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">sendStartAuthentication</span><span class="hljs-params">(HttpServletRequest request,</span></span>
+<span class="hljs-function"><span class="hljs-params">			HttpServletResponse response, FilterChain chain,</span></span>
+<span class="hljs-function"><span class="hljs-params">			AuthenticationException reason)</span> <span class="hljs-keyword">throws</span> ServletException, IOException </span>&#123;
+		<span class="hljs-comment">// SEC-112: Clear the SecurityContextHolder's Authentication, as the</span>
+		<span class="hljs-comment">// existing Authentication is no longer considered valid</span>
+		SecurityContextHolder.getContext().setAuthentication(<span class="hljs-keyword">null</span>);
+		requestCache.saveRequest(request, response);
+		logger.debug(<span class="hljs-string">"Calling Authentication entry point."</span>);
+		authenticationEntryPoint.commence(request, response, reason);
+	&#125;</code></pre>
+
+<p>这里就会把用户发出去进行身份认证，实际上就是调到登录页面上去</p>
+<hr>
+<p>访问通过流程：</p>
+<blockquote>
+<p>….</p>
+</blockquote>
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/SpringSecurity/">SpringSecurity</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/spring-security-6.3.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【 六、RBAC 】 3.权限表达式</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/spring-security-6.1.html">
+                        <span class="hidden-mobile">【 六、RBAC 】 1.Spring Security授权简介</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "【 六、RBAC 】 2.Spring Security授权源码解析&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

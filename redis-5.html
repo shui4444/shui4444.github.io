@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="Shui">
+  <meta name="keywords" content="">
+  <title>【 Redis-学习笔记 】 5.常见的持久化开发运维问题 - Shui&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Fluid</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2019-10-17 21:05">
+      2019年10月17日 晚上
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.6k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      17
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <h1 id="fork操作"><a href="#fork操作" class="headerlink" title="fork操作"></a>fork操作</h1><h2 id="同步操作"><a href="#同步操作" class="headerlink" title="同步操作"></a>同步操作</h2><ul>
+<li>提交<code>bgsave</code>、<code>bgrewriteaof</code>命令时会执<code>fork</code>操作，<code>fork</code>操作只是做一个内存页的拷贝，而不是做一个内存的拷贝，所以在大部分情况下速度是非常快的，但是如果本身这个<code>fork</code>操作比较慢，或者说卡在某一个地方，那么它会卡在<code>Redis</code>的主线程；</li>
+<li><code>fork</code>操作的执行时间和内存的量有关系，内存量越大内存页的数据也会较大，而且和机型有关，虚机、物理机还有略有不同，虚机就会慢一些，这里如果执行时间需要1秒，对于<code>Redis</code>来说就会卡住一秒，对于每秒执行QPS上万的应用，那么它就会卡一秒，如果你的超时时间设置过下就会造成客户端超时；</li>
+<li>info：<code>latest_fork_user</code>查看上一次执行fork的微妙数，如果这个数比较大可能会阻塞<code>Redis</code>，需要做一些重点关注可以做一些监控；</li>
+</ul>
+<h2 id="改善fork"><a href="#改善fork" class="headerlink" title="改善fork"></a>改善fork</h2><ul>
+<li>优先使用物理机或者高效支持<code>fork</code>操作的虚拟化技术；</li>
+<li>控制<code>Redis</code>实例最大可用内存：<code>maxmemory</code>；</li>
+<li>合理配置Linux内存分配策略：<code>vm.overcommit_memory=1</code>；<a href="https://blog.csdn.net/houjixin/article/details/46412557" target="_blank" rel="noopener">（介绍）</a>，在Linux中默认是0，当它发现没有足够内存去做内存分配的时候，它就不去分配，对于<code>fork</code>来说，它会造成<code>fork</code>的阻塞，如果希望<code>fork</code>不会阻塞将它设置为1；</li>
+<li>降低<code>fork</code>频率：例如放宽<code>AOF</code>重写自动触发机制，不必要的全量复制；</li>
+</ul>
+<h1 id="子进程开销和优化"><a href="#子进程开销和优化" class="headerlink" title="子进程开销和优化"></a>子进程开销和优化</h1><h2 id="CPU"><a href="#CPU" class="headerlink" title="CPU"></a>CPU</h2><h3 id="开销"><a href="#开销" class="headerlink" title="开销"></a>开销</h3><p>CPU的开销体现来文件的重写，在<code>Redis</code>执行<code>bgsave</code>、<code>bgrewriteaof</code>都会将内存的数据写到硬盘，实际上硬盘上的开销之外，它本身是一个CPU机密的操作，因为它的写入是一个非常集中的过程，所以通常这个子进程一个CPU的开销会大于90以上；</p>
+<h3 id="优化"><a href="#优化" class="headerlink" title="优化"></a>优化</h3><ul>
+<li>不做CPU绑定，不让<code>Redis</code>进程绑定到一个CPU上，这样的话如果发生了这样的子进程的话，它会和父进程集中的去消耗CPU，会对主进程造成很大的资源影响；</li>
+<li>不要和CPU密集型的一些应用部署在一起，这样就能保证不会产生CPU内的过渡竞争；</li>
+<li>在单机多部署的时候，要保证不要发生大量的 AOF重写、RDB的<code>bgsave</code>的过程，这样可以节省一定的CPU；</li>
+</ul>
+<h2 id="内存"><a href="#内存" class="headerlink" title="内存"></a>内存</h2><h3 id="开销-1"><a href="#开销-1" class="headerlink" title="开销"></a>开销</h3><p>因为Redis在fork的时候会生成一个子进程，它理论上的占用内存等于父进程的，但是Linux有一个写时复制的机制：<code>copy-on-write</code><a href="https://juejin.im/post/5bd96bcaf265da396b72f855" target="_blank" rel="noopener">（介绍）</a>，父子进程共享物理进程页，但是当父进程要写请求的时候会创建一个副本，它这个时候才会消耗内存，而在整个期间子进程会共享<code>fork</code>时父进程一个内存的快早，就是说你在<code>AOF重写</code>或者bgsave产生子进程的过程中，如果你的父进程的内存页会大量的写入，就会证明你的一个子进程的内存开销比较大，因为它要做一个 副本，如果你没什么写入的话，实际上它也开销不了多少内存；</p>
+<h3 id="优化-1"><a href="#优化-1" class="headerlink" title="优化"></a>优化</h3><ul>
+<li>不允许单机多部署的时候产生大量的重写，这样你内存开销也会比较小；</li>
+<li>在主进程写入量比较少的时候去做一个AOF重写或bgsave，这样会节省一定内存；</li>
+<li>我们可以在<code>Linux</code>上做一些优化的工作，<code>Linux</code>在<code>6.38版本</code>中增加了一个叫<code>tph</code>特性，它的意思说，它支持大的内存页的分配，但是这个对于我们刚才说的<code>copy-on-write</code>是有一定问题的，我们写入量大的时候，那么它每次的内存页由原来的<code>4k</code>变成了<code>2m</code>，这样会极大增加内存副本产生概率以及它的大小，这是为了增加<code>fork</code>的速度,但实际上对于我们<code>Redis</code>来说不是好的解决方案，通常会禁止掉：<code>echo never &gt;/sys/kernel/mm/transparent_hugepage/enabled</code></li>
+</ul>
+<h2 id="硬盘"><a href="#硬盘" class="headerlink" title="硬盘"></a>硬盘</h2><h3 id="开销-2"><a href="#开销-2" class="headerlink" title="开销"></a>开销</h3><p>AOF和RDB文件写入量是比较大的话会对硬盘造成一定开销，我们可以去结合iostat，iotop这样的工具分析</p>
+<h3 id="优化-2"><a href="#优化-2" class="headerlink" title="优化"></a>优化</h3><ul>
+<li>不要和高硬盘负载服务部署一起：存储服务、消息队列服务等；</li>
+<li>Redis配置文件中<code>no-appendfsync-on-rewrite=yes</code>，在AOF重写期间，不要进行正常的AOF去追加一个操作，这样可能会减少我们硬盘的开销；</li>
+<li>根据写入量决定硬盘类型：例如ssd；</li>
+<li>单机多实例持久化文件目录可以考虑分盘、资源限制的操作；</li>
+</ul>
+<h1 id="AOF阻塞"><a href="#AOF阻塞" class="headerlink" title="AOF阻塞"></a>AOF阻塞</h1><h2 id="AOF追加阻塞"><a href="#AOF追加阻塞" class="headerlink" title="AOF追加阻塞"></a>AOF追加阻塞</h2><p>如果我们使用<code>AOF</code>的策略，我们通常使用每秒刷盘的策略，刷盘策略流程图如下，首先主线程写入<code>AOF</code>缓冲区，同时它有一个<code>AOF</code>同步线程负责每秒去同步刷盘的动作，它还会记录最近一次的同步时间，主线程还会负责对你上次AOF同步的时间，如果距离上次同步时间在2秒之内，主线程就会返回，如果距离上次同步时间超过2秒，那么主线程会阻塞，直到同步完成，实际上也是为了保证AOF安全性的一种策略，主线程为了达到每秒刷盘的效果，它会阻塞直到同步完成，这里会产生2个问题：</p>
+<p>（1）主线程不能阻塞，因为它要负责我们的日常命令的处理，它是非常宝贵的资源；</p>
+<p>（2）每秒刷盘的策略不会真正只丢1秒的数据，它可能会丢2秒的东西。</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571475697141.png" srcset="/img/loading.gif" alt="1571475697141"></p>
+<h2 id="AOF阻塞定位"><a href="#AOF阻塞定位" class="headerlink" title="AOF阻塞定位"></a>AOF阻塞定位</h2><p>Redis日志：</p>
+<pre><code class="hljs vim">Asynchronous aoF fsync <span class="hljs-keyword">is</span> taking too long(disk <span class="hljs-keyword">is</span> busy
+Writing the aof <span class="hljs-keyword">buffer</span> without waiting <span class="hljs-keyword">for</span> fsync <span class="hljs-keyword">to</span> <span class="hljs-built_in">complete</span>,
+this may slow down redis</code></pre>
+
+<hr>
+<p><code>info persistence</code>选项中的aof delayed fsync，它会记录你上诉过程的数量，每发生一次加1，但是这个累计过程无法看到，例如某段时间发生的次数，这里需要你单独做一个收集</p>
+<pre><code class="hljs bash">info persistence
+127.0.0.1: 6379&gt; info persistence
+aof delayed fsync: 100</code></pre>
+
+<hr>
+<p>通过硬盘观察，执行Linux的top命令，是否有发生IO资源比较紧张的时候</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571477131262.png" srcset="/img/loading.gif" alt="1571477131262"></p>
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E8%BF%90%E7%BB%B4/Redis/">Redis</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/redis-6.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【 Redis-学习笔记 】 6.Redis复制原理和优化</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/redis-4.html">
+                        <span class="hidden-mobile">【 Redis-学习笔记 】 4.持久化</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "【 Redis-学习笔记 】 5.常见的持久化开发运维问题&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

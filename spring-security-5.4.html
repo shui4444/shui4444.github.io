@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="Shui">
+  <meta name="keywords" content="">
+  <title>【 五、OAuth 】 4.重构用户密码登录 - Shui&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Fluid</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2019-10-15 18:04">
+      2019年10月15日 晚上
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.2k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      14
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1234345624623dsafasfd.png" srcset="/img/loading.gif" alt="1234345624623dsafasfd"></p>
+<p>在我们的业务场景，自己写的登录流程，需要借助图中的代码的话，首先从TokenEndpoint到TokenGranter，这些代码是我们不能用的，这是发获取令牌的请求，而我们要发登录的请求，我们要用自己的过滤器去处理登录请求，一直到4种授权模式生成令牌这些逻辑我们都是不能用的。</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/adsfasdfweroiqwyeuryqowe.png" srcset="/img/loading.gif" alt="adsfasdfweroiqwyeuryqowe"></p>
+<p>我们要用的是什么？我们要用的是是AuthorizationServerTokenServices，它来产生令牌，在哪里用它？在我们自己写到AuthenticationSuccessHandler实现类里，不管你的登录请求是什么，不管被哪个过滤器来拦截，不管经历了什么登录逻辑的处理，最终当用户登录成功以后，它都会交到一个AuthenticationSuccessHandler接口的实现里面去做一个处理，我们要做的事情是什么？要做的就是在这个接口的实现里面去调AuthorizationServerTokenServices，然后去产生令牌响应出去。之前我们在做这个浏览器模块中写过一个McrAuthenticationSuccessHandler，返回给前端一个json数据</p>
+<p>，这里要改成使用AuthorizationServerTokenServices来生成令牌，上一章里说过，要通过它生成令牌，需要传的参数是OAuth2Authentication，要想生成OAuth2Authentication，还需要OAuth2Request、Authentication，我们之前在spring security oauth里面它是通过不同的授权模式然后根据授权模式传的参数，来构建出Authentication来的，在我们的场景，经过前面的登录逻辑处理，最后进到AuthenticationSuccessHandler的时候，它的onAuthenticationSuccess方法参数中就有一个组装好的Authentication，所以在我们代码里面是不需要处理Authentication它的一个创建过程的，因为它在之前登录的过程已经创建好了，最终就变成需要处理OAuth2Request，如果能把这个东西构建出来，那么那这2个对象就能构建出OAuth2Authentication，有了OAuth2Authentication就能通过AuthorizationServerTokenServices构建出OAuth2AccessToken来。</p>
+<p>OAuth2Request如何构建？</p>
+<p>通过ClientDetails：第三方客户端的信息，还有一个TokenRequest：当前拿token请求里面一些参数的信息，通过2两个类拼成一个OAuth2Request</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567685551563.png" srcset="/img/loading.gif" alt="1567685551563"></p>
+<p>ClientDetails从来哪来的呢？</p>
+<p>是从ClientDetailsService读出来的，这个ClientDetailsService接受一个ClientId，然后返回一个ClientDetails，那么ClientId从哪来？——从请求参数里来，第三方发请求的时候，要把ClientId和ClientSecret做一个Base64编码放到请求头里面</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567685682407.png" srcset="/img/loading.gif" alt="1567685682407"></p>
+<p>然后通过解析这个Base64的串来拿到ClientId，有ClientId以后就能拿到ClientDetails</p>
+<p>TokenRequest怎么来的？</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567685847409.png" srcset="/img/loading.gif" alt="1567685847409"></p>
+<p>它是实例化出来的，通过ClientDetails一些属性，和请求参数中的一些属性直接实例化出来的</p>
+<hr>
+<ol>
+<li>写代码的位置在McrAuthenticationSuccessHandler里</li>
+<li>最终的目标是获取一个AccessToken，那么就需要先获取到ClientDetails和TokenRequest，所以要先从ClientId入手，整个思路</li>
+</ol>
+<p>下面来开始写代码</p>
+<p>首先要获取ClientId，就要从请求头的Authorization中的Base64字节码进行解析，这里的解析逻辑在BasicAuthenticationFilter中有现成的</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567686175081.png" srcset="/img/loading.gif" alt="1567686175081"></p>
+<p>，这里获取的username就是</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567686228018.png" srcset="/img/loading.gif" alt="1567686228018"></p>
+<hr>
+<p>成功处理器：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.app.authentication;
+<span class="hljs-meta">@Component</span>
+<span class="hljs-meta">@AllArgsConstructor</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">McrAuthenticationSuccessHandler</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">SavedRequestAwareAuthenticationSuccessHandler</span> </span>&#123;
+    <span class="hljs-keyword">private</span> ObjectMapper objectMapper;
+    <span class="hljs-keyword">private</span> ClientDetailsService clientDetailsService;
+    <span class="hljs-keyword">private</span> AuthorizationServerTokenServices authorizationServerTokenServices;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">onAuthenticationSuccess</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response, Authentication authentication)</span> <span class="hljs-keyword">throws</span> IOException, ServletException </span>&#123;
+
+        String header = request.getHeader(<span class="hljs-string">"Authorization"</span>);
+
+        <span class="hljs-keyword">if</span> (header == <span class="hljs-keyword">null</span> || !header.startsWith(<span class="hljs-string">"Basic "</span>)) &#123;
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> UnapprovedClientAuthenticationException(<span class="hljs-string">"请求头无Client信息"</span>);
+        &#125;
+
+        String[] tokens = extractAndDecodeHeader(header);
+        <span class="hljs-keyword">assert</span> tokens.length == <span class="hljs-number">2</span>;
+
+        String clientId = tokens[<span class="hljs-number">0</span>];
+
+        String clientSecret = tokens[<span class="hljs-number">1</span>];
+        ClientDetails clientDetails = clientDetailsService.loadClientByClientId(clientId);
+        <span class="hljs-keyword">if</span> (clientDetails == <span class="hljs-keyword">null</span>) &#123;
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> UnapprovedClientAuthenticationException(<span class="hljs-string">"clientId对应的配置信息不存在"</span> + clientId);
+        &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (!StringUtils.equals(clientDetails.getClientSecret(), clientSecret)) &#123;
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> UnapprovedClientAuthenticationException(<span class="hljs-string">"clientSecret不匹配"</span> + clientId);
+        &#125;
+        TokenRequest tokenRequest = <span class="hljs-keyword">new</span> TokenRequest(MapUtils.EMPTY_MAP, clientId, clientDetails.getScope(), <span class="hljs-string">"custom"</span>);
+        OAuth2Request oAuth2Request = tokenRequest.createOAuth2Request(clientDetails);
+        OAuth2Authentication oAuth2Authentication = <span class="hljs-keyword">new</span> OAuth2Authentication(oAuth2Request, authentication);
+        OAuth2AccessToken accessToken = authorizationServerTokenServices.createAccessToken(oAuth2Authentication);
+        response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+        response.getWriter().write(objectMapper.writeValueAsString(accessToken));
+    &#125;
+
+    <span class="hljs-keyword">private</span> String[] extractAndDecodeHeader(String header)
+            <span class="hljs-keyword">throws</span> IOException &#123;
+
+        <span class="hljs-keyword">byte</span>[] base64Token = header.substring(<span class="hljs-number">6</span>).getBytes(StandardCharsets.UTF_8);
+        <span class="hljs-keyword">byte</span>[] decoded;
+        <span class="hljs-keyword">try</span> &#123;
+            decoded = Base64.decode(base64Token);
+        &#125; <span class="hljs-keyword">catch</span> (IllegalArgumentException e) &#123;
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> BadCredentialsException(
+                    <span class="hljs-string">"Failed to decode basic authentication token"</span>);
+        &#125;
+        <span class="hljs-comment">//用户名+“：”+密码组成的</span>
+        String token = <span class="hljs-keyword">new</span> String(decoded, StandardCharsets.UTF_8);
+        <span class="hljs-comment">//拿到以后它会找上面字符串“:”的位置</span>
+        <span class="hljs-keyword">int</span> delim = token.indexOf(<span class="hljs-string">":"</span>);
+        <span class="hljs-comment">//如果没找到就抛出异常</span>
+        <span class="hljs-keyword">if</span> (delim == -<span class="hljs-number">1</span>) &#123;
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> BadCredentialsException(<span class="hljs-string">"Invalid basic authentication token"</span>);
+        &#125;
+        <span class="hljs-comment">//从开始，到冒号的位置，也就是获取了用户名，从冒号往后也就是密码，把这2段放到spring数组返回</span>
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> String[]&#123;token.substring(<span class="hljs-number">0</span>, delim), token.substring(delim + <span class="hljs-number">1</span>)&#125;;
+    &#125;
+&#125;</code></pre>
+
+<p>McrResourceServerConfig</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.app;
+<span class="hljs-meta">@Configuration</span>
+<span class="hljs-meta">@EnableResourceServer</span>
+<span class="hljs-meta">@AllArgsConstructor</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">McrResourceServerConfig</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">ResourceServerConfigurerAdapter</span> </span>&#123;
+    <span class="hljs-keyword">private</span> AuthenticationFailureHandler authenticationFailureHandler;
+    <span class="hljs-keyword">private</span> AuthenticationSuccessHandler authenticationSuccessHandler;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(HttpSecurity http)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+        http
+                .formLogin()
+                .successHandler(authenticationSuccessHandler)
+                .failureHandler(authenticationFailureHandler)
+                .loginPage(SecurityConstants.DEFAULT_UNAUTHENTICATED_URL)
+                .loginProcessingUrl(SecurityConstants.DEFAULT_LOGIN_PROCESSING_URL_FORM)
+                .and()
+                .authorizeRequests()
+                .antMatchers(
+                        SecurityConstants.DEFAULT_UNAUTHENTICATED_URL,
+                        SecurityConstants.DEFAULT_VALIDATE_CODE_URL_PREFIX + <span class="hljs-string">"/*"</span>
+                ).permitAll()
+                .anyRequest()
+                .authenticated()
+                .and()
+                .csrf()
+                .disable();
+    &#125;
+&#125;</code></pre>
+
+<p>现在来访问<code>/authentication/form</code></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567691286732.png" srcset="/img/loading.gif" alt="1567691286732"></p>
+<p>这里和表单登录的差别在于请求头上需要带上<code>Authorization</code></p>
+<hr>
+<p>访问受保护的<code>rest api</code></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567691505306.png" srcset="/img/loading.gif" alt="1567691505306"></p>
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/SpringSecurity/">SpringSecurity</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/spring-security-5.5.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【 五、OAuth 】 5.重构短信登录</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/spring-security-5.3.html">
+                        <span class="hidden-mobile">【 五、OAuth 】 3.Spring Security OAuth核心源码解析</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "【 五、OAuth 】 4.重构用户密码登录&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

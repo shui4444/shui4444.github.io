@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="Shui">
+  <meta name="keywords" content="">
+  <title>【 五、OAuth 】 5.重构短信登录 - Shui&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Fluid</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2019-10-15 18:05">
+      2019年10月15日 晚上
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      17
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567834291046.png" srcset="/img/loading.gif" alt="1567834291046"></p>
+<p>app的短信验证码登录和browser的有所不同，就是现在在app模块中是不能使用session，那么就以为着生成的实际验证码无法存储起来，这里我们进行重构，将之前的session改为使用redis来进行存储，而在browser下面还是使用session存储。</p>
+<hr>
+<p>加入之前写好的过滤器和验证码配置， McrResourceServerConfig</p>
+<pre><code class="hljs java"><span class="hljs-keyword">private</span> SmsCodeAuthenticationSecurityConfig smsCodeAuthenticationSecurityConfig;
+<span class="hljs-keyword">private</span> ValidateCodeFilter validateCodeFilter;
+
+<span class="hljs-meta">@Override</span>
+<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(HttpSecurity http)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+    http
+            .addFilterBefore(validateCodeFilter, UsernamePasswordAuthenticationFilter<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>
+<span class="hljs-class">            .<span class="hljs-title">apply</span>(<span class="hljs-title">smsCodeAuthenticationSecurityConfig</span>)</span>
+<span class="hljs-class">            .<span class="hljs-title">and</span>()</span></code></pre>
+
+<p>定义一个接口，来负责管理验证码的存储</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.validate.code;
+
+<span class="hljs-keyword">import</span> com.b4.mcr.auth.core.model.dto.ValidateCodeDTO;
+<span class="hljs-keyword">import</span> org.springframework.web.context.request.ServletWebRequest;
+
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * 验证码存储接口</span>
+<span class="hljs-comment"> * (适配浏览器和app)</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">ValidateCodeRepository</span> </span>&#123;
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 保存验证码</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">save</span><span class="hljs-params">(ServletWebRequest request, ValidateCodeDTO code, ValidateCodeType validateCodeType)</span></span>;
+
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 获取验证码</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-function">ValidateCodeDTO <span class="hljs-title">get</span><span class="hljs-params">(ServletWebRequest request, ValidateCodeType validateCodeType)</span></span>;
+
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 移除验证码</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">remove</span><span class="hljs-params">(ServletWebRequest request, ValidateCodeType validateCodeType)</span></span>;
+
+&#125;</code></pre>
+
+<p>在app模块下面，通过redis进行管理</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.app.validate.code;
+
+
+<span class="hljs-keyword">import</span> com.b4.mcr.auth.core.model.dto.ValidateCodeDTO;
+<span class="hljs-keyword">import</span> com.b4.mcr.auth.core.validate.code.ValidateCodeException;
+<span class="hljs-keyword">import</span> com.b4.mcr.auth.core.validate.code.ValidateCodeRepository;
+<span class="hljs-keyword">import</span> com.b4.mcr.auth.core.validate.code.ValidateCodeType;
+<span class="hljs-keyword">import</span> org.apache.commons.lang.StringUtils;
+<span class="hljs-keyword">import</span> org.springframework.data.redis.core.RedisTemplate;
+<span class="hljs-keyword">import</span> org.springframework.stereotype.Component;
+<span class="hljs-keyword">import</span> org.springframework.web.context.request.ServletWebRequest;
+
+<span class="hljs-keyword">import</span> javax.annotation.Resource;
+<span class="hljs-keyword">import</span> java.util.concurrent.TimeUnit;
+
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * redis存储验证码</span>
+<span class="hljs-comment"> *</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-meta">@Component</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">RedisValidateCodeRepository</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">ValidateCodeRepository</span> </span>&#123;
+    <span class="hljs-meta">@Resource</span>
+    <span class="hljs-keyword">private</span> RedisTemplate&lt;Object, Object&gt; redisTemplate;
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 验证码放入redis规则模式：CODE_&#123;TYPE&#125;_&#123;DEVICEId&#125;</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">static</span> String CODE_KEY_PATTERN = <span class="hljs-string">"CODE_%s_%s"</span>;
+
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">save</span><span class="hljs-params">(ServletWebRequest request, ValidateCodeDTO code, ValidateCodeType validateCodeType)</span> </span>&#123;
+        redisTemplate.opsForValue().set(buildKey(request, validateCodeType), code, <span class="hljs-number">180</span>, TimeUnit.MINUTES);
+    &#125;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> ValidateCodeDTO <span class="hljs-title">get</span><span class="hljs-params">(ServletWebRequest request, ValidateCodeType validateCodeType)</span> </span>&#123;
+        String key = buildKey(request, validateCodeType);
+        <span class="hljs-comment">// 拿到创建 create() 存储到session的code验证码对象</span>
+        <span class="hljs-keyword">return</span> (ValidateCodeDTO) redisTemplate.opsForValue().get(key);
+
+    &#125;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">remove</span><span class="hljs-params">(ServletWebRequest request, ValidateCodeType validateCodeType)</span> </span>&#123;
+        String key = buildKey(request, validateCodeType);
+        redisTemplate.delete(key);
+    &#125;
+
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 构建验证码放入redis时的key; 在保存的时候也使用该key</span>
+<span class="hljs-comment">     *</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-function"><span class="hljs-keyword">private</span> String <span class="hljs-title">buildKey</span><span class="hljs-params">(ServletWebRequest request, ValidateCodeType validateCodeType)</span> </span>&#123;
+        String deviceId = request.getHeader(<span class="hljs-string">"deviceId"</span>);
+        <span class="hljs-keyword">if</span> (StringUtils.isBlank(deviceId)) &#123;
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> ValidateCodeException(<span class="hljs-string">"请在请求头中携带deviceId参数"</span>);
+        &#125;
+        <span class="hljs-keyword">return</span> String.format(CODE_KEY_PATTERN, validateCodeType, deviceId);
+    &#125;
+
+&#125;</code></pre>
+
+<p>在browser中则使用sessin管理</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.browser.validate.code;
+
+
+<span class="hljs-keyword">import</span> com.b4.mcr.auth.core.model.dto.ValidateCodeDTO;
+<span class="hljs-keyword">import</span> com.b4.mcr.auth.core.validate.code.ValidateCodeRepository;
+<span class="hljs-keyword">import</span> com.b4.mcr.auth.core.validate.code.ValidateCodeType;
+<span class="hljs-keyword">import</span> org.springframework.social.connect.web.HttpSessionSessionStrategy;
+<span class="hljs-keyword">import</span> org.springframework.social.connect.web.SessionStrategy;
+<span class="hljs-keyword">import</span> org.springframework.stereotype.Component;
+<span class="hljs-keyword">import</span> org.springframework.web.context.request.ServletWebRequest;
+
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * session存储实现</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-meta">@Component</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SessionValidateCodeRepository</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">ValidateCodeRepository</span> </span>&#123;
+
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 操作session的工具类</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-keyword">private</span> SessionStrategy sessionStrategy = <span class="hljs-keyword">new</span> HttpSessionSessionStrategy();
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 验证码放入session的时候前缀</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">static</span> String SESSION_KEY_PREFIX = <span class="hljs-string">"SESSION_KEY_FOR_CODE"</span>;
+
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 保存验证码</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">save</span><span class="hljs-params">(ServletWebRequest request, ValidateCodeDTO code, ValidateCodeType validateCodeType)</span> </span>&#123;
+        sessionStrategy.setAttribute(request, getSessionKey(validateCodeType), code);
+    &#125;
+
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 获取验证码</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> ValidateCodeDTO <span class="hljs-title">get</span><span class="hljs-params">(ServletWebRequest request, ValidateCodeType validateCodeType)</span> </span>&#123;
+        String sessionKey = getSessionKey(validateCodeType);
+        <span class="hljs-comment">// 拿到创建 create() 存储到session的code验证码对象</span>
+        <span class="hljs-keyword">return</span> (ValidateCodeDTO) sessionStrategy.getAttribute(request, sessionKey);
+
+    &#125;
+
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 移除验证码</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">remove</span><span class="hljs-params">(ServletWebRequest request, ValidateCodeType validateCodeType)</span> </span>&#123;
+        sessionStrategy.removeAttribute(request, getSessionKey(validateCodeType));
+    &#125;
+
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 构建验证码放入session时的key; 在保存的时候也使用该key</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-function"><span class="hljs-keyword">private</span> String <span class="hljs-title">getSessionKey</span><span class="hljs-params">(ValidateCodeType validateCodeType)</span> </span>&#123;
+        <span class="hljs-keyword">return</span> SESSION_KEY_PREFIX + validateCodeType.toString().toUpperCase();
+    &#125;
+
+&#125;</code></pre>
+
+<p>AbstractValidateCodeProcessor</p>
+<pre><code class="hljs java">
+<span class="hljs-keyword">package</span> com.b4.mcr.auth.core.validate.code.impl;
+
+<span class="hljs-keyword">import</span> java.util.Map;
+
+<span class="hljs-keyword">import</span> com.b4.mcr.auth.core.model.dto.ImageCodeDTO;
+<span class="hljs-keyword">import</span> com.b4.mcr.auth.core.model.dto.ValidateCodeDTO;
+<span class="hljs-keyword">import</span> com.b4.mcr.auth.core.validate.code.*;
+<span class="hljs-keyword">import</span> org.apache.commons.lang.StringUtils;
+<span class="hljs-keyword">import</span> org.springframework.beans.factory.annotation.Autowired;
+<span class="hljs-keyword">import</span> org.springframework.social.connect.web.HttpSessionSessionStrategy;
+<span class="hljs-keyword">import</span> org.springframework.social.connect.web.SessionStrategy;
+<span class="hljs-keyword">import</span> org.springframework.web.bind.ServletRequestBindingException;
+<span class="hljs-keyword">import</span> org.springframework.web.bind.ServletRequestUtils;
+<span class="hljs-keyword">import</span> org.springframework.web.context.request.ServletWebRequest;
+
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">abstract</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AbstractValidateCodeProcessor</span>&lt;<span class="hljs-title">C</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">ValidateCodeDTO</span>&gt; <span class="hljs-keyword">implements</span> <span class="hljs-title">ValidateCodeProcessor</span> </span>&#123;
+
+  
+  
+   <span class="hljs-keyword">private</span> ValidateCodeRepository validateCodeRepository;
+ 
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">create</span><span class="hljs-params">(ServletWebRequest request)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+      	...
+    &#125;
+
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 生成校验码</span>
+<span class="hljs-comment">     *</span>
+<span class="hljs-comment">     * <span class="hljs-doctag">@param</span> request</span>
+<span class="hljs-comment">     * <span class="hljs-doctag">@return</span></span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-function"><span class="hljs-keyword">private</span> C <span class="hljs-title">generate</span><span class="hljs-params">(ServletWebRequest request)</span> </span>&#123;
+      <span class="hljs-comment">//...</span>
+        <span class="hljs-keyword">return</span> (C) validateCodeGenerator.generate(request);
+    &#125;
+
+   
+
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 保存校验码</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">save</span><span class="hljs-params">(ServletWebRequest request, C validateCode)</span> </span>&#123;
+        ValidateCodeDTO validateCodeDTO = <span class="hljs-keyword">new</span> ValidateCodeDTO(validateCode.getCode(), validateCode.getExpireTime());
+        validateCodeRepository.save(request, validateCodeDTO, getValidateCodeType());
+    &#125;
+
+
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 发送校验码，由子类实现</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">abstract</span> <span class="hljs-keyword">void</span> <span class="hljs-title">send</span><span class="hljs-params">(ServletWebRequest request, C validateCode)</span> <span class="hljs-keyword">throws</span> Exception</span>;
+
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">validate</span><span class="hljs-params">(ServletWebRequest request)</span> </span>&#123;
+
+        ValidateCodeType processorType = getValidateCodeType();
+        String sessionKey = getSessionKey();
+
+<span class="hljs-comment">//        C codeInSession = (C) sessionStrategy.getAttribute(request, sessionKey);</span>
+      
+      
+       	<span class="hljs-keyword">if</span> ...
+			 <span class="hljs-keyword">if</span> (codeInSession.isExpired()) &#123;
+            validateCodeRepository.remove(request, getValidateCodeType());
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> ValidateCodeException(processorType + <span class="hljs-string">"验证码已过期"</span>);
+        &#125;
+<span class="hljs-comment">//        sessionStrategy.removeAttribute(request, sessionKey);</span>
+        validateCodeRepository.remove(request, getValidateCodeType());
+    &#125;
+
+
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 构建验证码放入session时的key</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-function"><span class="hljs-keyword">private</span> String <span class="hljs-title">getSessionKey</span><span class="hljs-params">()</span> </span>&#123;
+        <span class="hljs-keyword">return</span> SESSION_KEY_PREFIX + getValidateCodeType().toString().toUpperCase();
+    &#125;
+
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 根据请求的url获取校验码的类型</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-function"><span class="hljs-keyword">private</span> ValidateCodeType <span class="hljs-title">getValidateCodeType</span><span class="hljs-params">()</span> </span>&#123;
+        String type = StringUtils.substringBefore(getClass().getSimpleName(), <span class="hljs-string">"CodeProcessor"</span>);
+        <span class="hljs-keyword">return</span> ValidateCodeType.valueOf(type.toUpperCase());
+    &#125;
+
+&#125;</code></pre>
+
+<p>现在来通过工具获取短信验证码：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567838325205.png" srcset="/img/loading.gif" alt="1567838325205"></p>
+<p>这里需要加入deviceId头信息</p>
+<hr>
+<p>发送短信登录请求：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567838526854.png" srcset="/img/loading.gif" alt="1567838526854"></p>
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/SpringSecurity/">SpringSecurity</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/spring-security-5.6.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【 五、OAuth 】 6.重构社交登录</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/spring-security-5.4.html">
+                        <span class="hidden-mobile">【 五、OAuth 】 4.重构用户密码登录</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "【 五、OAuth 】 5.重构短信登录&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

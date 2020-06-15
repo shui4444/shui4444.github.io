@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="Shui">
+  <meta name="keywords" content="">
+  <title>【 Redis-学习笔记 】 14.内存管理 - Shui&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Fluid</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2019-10-17 21:14">
+      2019年10月17日 晚上
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      10.5k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      112
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <h1 id="Redis内存优化介绍"><a href="#Redis内存优化介绍" class="headerlink" title="Redis内存优化介绍"></a>Redis内存优化介绍</h1><p>Redis是一个存内存的缓存/存储，这也是它非常快的原因，但是我们同时知道其实内存相对来说还是比较昂贵的，当然它比CPU要便宜很多，当时相对于其他硬件来说它的总体价格要高很多，虽然说使用Redis非常快，但是当我们去使用Redis的量非常大的时候，我们也希望能节省更多的内存，当然节省内存也是要有限度的，不能因为节省内存而让我们Redis的使用效益下降，这章来介绍Redis内存优化的一些技巧</p>
+<h1 id="内存消耗"><a href="#内存消耗" class="headerlink" title="内存消耗"></a>内存消耗</h1><h2 id="内存使用统计"><a href="#内存使用统计" class="headerlink" title="内存使用统计"></a>内存使用统计</h2><blockquote>
+<p>Redis作为非常好的kv缓存、存储它给我们提供这样的信息，通过<code>info memory</code>来查看Redis使用状况</p>
+</blockquote>
+<p>内存使用统计：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191106193830684.png" srcset="/img/loading.gif" alt="image-20191106193830684"></p>
+<p>假如现在<code>redis-cli</code>执行了一个<code>info memory</code></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191106194219160.png" srcset="/img/loading.gif" alt="image-20191106194219160"></p>
+<h2 id="内存消耗划分"><a href="#内存消耗划分" class="headerlink" title="内存消耗划分"></a>内存消耗划分</h2><blockquote>
+<p>对Redis做一个更加细分的一个分析，上面这种方式只是能获取全局的内存使用，但是对于每一个细节的地方它做的还不够细，在新的Redis 4.0版本里已经提供了这样的功能，但是我们这里主要还是讲线上、公司用的比较多的版本：3.2版本，这里为什么不讲最新的？其实是这样，对于Redis这种存储来说，假如我们公司有几万个节点，那我能不能一下从Redis3升级成Redis4呢？其实这是非常难的，为什么？因为我们做的是数据，这里面的数据会涉及到迁移，迁移的话可以会影响其他的业务甚至在迁移的时候会发生很多问题，所有在你当前这个版本能够满足你大部分功能的前提下你做不做升级其实不是很重要，比如说可能新的版本的特性能解决一个痛点或者能极大提升效率这种情况下可以考虑做升级，当然新的版本肯定是最好的，我们这里主要还是介绍用的比较多的主流版本：Redis3</p>
+</blockquote>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191106194241995-1573041430182.png" srcset="/img/loading.gif" alt="image-20191106194241995"></p>
+<p>对于used_memory来说它分为4个部分，自身一个内存：你启动以一个Redis它肯定会有一些自身的内存的开销，因为它本来有一些共享变量这样的一些东西，当然这些占用内存非常低，一般也就几百KB根据不同版本可能不太一样，这里的部分内存基本不用你去担心；</p>
+<p>这里的重头戏就是2个部分：</p>
+<ul>
+<li><p>对象内存： 我们存的key-value比如hash、set那些东西；</p>
+</li>
+<li><p>缓冲内存：缓存内存会稍微复杂一些，包括对外缓冲区、复制缓冲区、客户端缓冲区，当然这些东西如果你使用不是很好的话也可能会出现一些很奇怪的问题；</p>
+</li>
+<li><p>Lua内存：当你使用lua的时候，这个时候可能会有一个lua的内存；</p>
+</li>
+<li><p>内存碎片：系统分配给你的内存和你用的内存的一个差值，这个差值就是一个碎片，假如我们使用的是一个字符串类型，我们用了一个 <code>set hello word</code>，比如说hello和word就是5个字节，那就分配给你5个字符串，但是当你在<code>set hello</code>是一个长的情况下它就为了保证Redis SDS的数据结构，它认为你可能还会用到更多内存的情况下，它会给你预留一部分，当你再<code>set hello word</code>回来之后它并不会把内存做一个回收，这个时候可能会产生碎片的情况，有兴趣的读者可以去看下Redis源码中SDS的部分，这里只需要知道我们用了很多内存，这个部分是用的，但是你申请的可能会比用的多一些这个时候就会产生内存碎片</p>
+</li>
+</ul>
+<hr>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191106200207592-1573041728497.png" srcset="/img/loading.gif" alt="image-20191106200207592"></p>
+<p>这里来看一个更加详细的内存消耗，第一部分自身内存，前面提到过了，也就几百K或者更多一点根据不同版本，这里相对来说是固定的，这里比较主要的就是缓冲内存它是比较复杂的，它包括3个部分：</p>
+<ul>
+<li>客户端缓冲区：Redis客户端执行get、set一些命令的时候甚至像memory这样的命令的时候它都会有一个缓冲区，Redis无论是客户端发送命令还是返回结果它都会有一个缓冲区来缓冲这部分内存；</li>
+<li>复制缓冲区：前面介绍的复制，会有复制缓冲区，为了防止全量复制这样的问题；</li>
+<li>AOF缓冲区：它有2个部分，AOF写入的缓冲区、AOF重写期间的缓冲区，后面会对它进行详细说明。</li>
+</ul>
+<p>这里重头戏就是对象内存，就是你存的那些key和value，当然不仅仅value很重要，你的key也很重要，假如说你的key非常大或者很长这对整体内存使用量也会有一定影响，这和具体的规模有关系</p>
+<hr>
+<p>现在进入Redis来执行一个info命令</p>
+<pre><code class="hljs bash">127.0.0.1:6379&gt; info 
+<span class="hljs-comment"># Server</span>
+redis_version:3.0.7
+redis_git_sha1:00000000
+redis_git_dirty:0
+redis_build_id:fee2042acc931bb1
+redis_mode:standalone
+os:Linux 3.10.0-1062.1.2.el7.x86_64 x86_64
+arch_bits:64
+multiplexing_api:epoll
+gcc_version:4.8.5
+process_id:2061
+run_id:82774a23e6d19c005a1c79a396e953e309efc3f1
+tcp_port:6379
+uptime_in_seconds:25
+uptime_in_days:0
+hz:10
+lru_clock:12790371
+config_file:/usr/src/redis/config/redis-6379.conf
+
+<span class="hljs-comment"># Clients 客户端</span>
+connected_clients:1
+client_longest_output_list:0
+client_biggest_input_buf:0	<span class="hljs-comment">#客户端缓冲区</span>
+blocked_clients:0
+
+<span class="hljs-comment"># Memory	内存相关</span>
+used_memory:816544	
+used_memory_human:797.41K
+used_memory_rss:7647232
+used_memory_peak:816544
+used_memory_peak_human:797.41K
+used_memory_lua:36864
+mem_fragmentation_ratio:9.37
+mem_allocator:jemalloc-3.6.0
+<span class="hljs-comment">#...</span></code></pre>
+
+<p>这里会发现它有很多选项，假如你想看内存的使用量你可以执行<code>info memory</code>，用前面介绍的几点进行分析</p>
+<pre><code class="hljs bash">127.0.0.1:6379&gt; info memory
+<span class="hljs-comment"># Memory</span>
+used_memory:815704	<span class="hljs-comment">#Redis内存使用量</span>
+used_memory_human:796.59K	
+used_memory_rss:7647232	<span class="hljs-comment">#操作系统使用量，它申请的内存</span>
+used_memory_peak:816544	
+used_memory_peak_human:797.41K
+used_memory_lua:36864
+mem_fragmentation_ratio:9.38	<span class="hljs-comment">#比值碎片率</span>
+mem_allocator:jemalloc-3.6.0</code></pre>
+
+<h1 id="客户端缓冲区"><a href="#客户端缓冲区" class="headerlink" title="客户端缓冲区"></a>客户端缓冲区</h1><h2 id="客户端缓冲区分为3类"><a href="#客户端缓冲区分为3类" class="headerlink" title="客户端缓冲区分为3类"></a>客户端缓冲区分为3类</h2><p>普通客户端：你可以认为它就是正常的我们执行命令比如get、set一些正常的命令，你无论使用什么客户端去连接都是普通客户端缓冲；</p>
+<p>slave客户端：我们现在有一对主从，主和从之间要同步数据，这里的客户端是一个从，它有一个伪装的客户端去接受这个master同步过来命令；</p>
+<p>pubsub客户端：pubsub发布订阅模式比较特殊，它会有一个单独的缓冲区</p>
+<h2 id="输入缓冲区"><a href="#输入缓冲区" class="headerlink" title="输入缓冲区"></a>输入缓冲区</h2><p>在介绍上面3种缓冲区之前，来看一下输入缓冲区。</p>
+<p>刚才说的那3种都是输出缓冲区，那么输入缓冲区是什么意思？就是我现在有很多客户端去发送给Redis命令，无论是get、set这些东西，从图中看到有3个客户端分别执行了很多命令，这些命令发送给Redis之前它会放到各自客户端的缓冲区当中，可以简单的认为就是一个对列的东西去发送到Redis中瞬间去执行，这个是非常快的，你放到缓冲区中可能就会立刻被Redis执行，但有一个问题如果Redis非常忙，这个时候你发送的字节数非常非常大，比如set一个hello它的value有几百兆，我们知道Redis预期是512兆，你设置非常大可能它的缓冲区就会被暂时阻塞掉，所以大部分情况下你看到的输入缓冲区可能都是0，但是可能你设置非常大的值的时候可能会被卡主或者Redis忙的时候可能发生变动，但一般说还好，其实Redis允许的一个最大的客户端缓冲区是1G，如果你超过1G的情况下会有什么问题？你的客户端会直接被服务端干掉，对于客户端来说这个连接就已经断了，所以这个也是一个问题，通常来说输入缓冲区也没有太多问题，当然你出现类似这种问题的时候你可以用刚才我们info命令中的统计可以看到这些信息，稍后会给读者们去看一下。</p>
+<hr>
+<p>我们重点去看输出缓冲区，输出缓冲区主要是针对命令返回，刚才是把命令发送了，现在是把命令返回，因为我们知道有3类：普通客户端、从节点的slave客户端、pubsub客户端，它针对这3种类型可以灵活的配置，它和上一类输入缓冲区不一样一点就是它可以进行配置，上一个必须要求你不能超过个1G，这里就可以进行配置</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191106205416410.png" srcset="/img/loading.gif" alt="image-20191106205416410"></p>
+<p>这里的<code>hard limit</code>可以设置为0，表示无论多大都不会关闭，这样可以保证客户端不会被关闭，但是可能会产生一个问题：它会占额外内存，因为我们知道used_memory里面它是有一项客户端缓冲区的，<code>soft limit</code>和<code>soft seconds</code>是一个组合选项，这个是什么意思？它会发现你的客户端在这个<code>soft limit</code>值中，比如我们设置了64M，我们超过64M达到了60秒，这个时候我们可能就会将客户端进行关闭，它是和<code>hard limit</code>相对应的东西，2方面进行限制，一个是软限制另一个是硬限制。</p>
+<h2 id="普通客户端缓冲区"><a href="#普通客户端缓冲区" class="headerlink" title="普通客户端缓冲区"></a>普通客户端缓冲区</h2><p>这里是根据输出缓冲区进行的设置：</p>
+<ol>
+<li><p>默认：<code>client-output-buffer-limit normal 0 0 0</code></p>
+</li>
+<li><p>上面的配置意思是默认没有对客户端输出缓冲区进行限制</p>
+</li>
+<li><p>这里有2个问题其实前面已经提到了，这样设置的目的是什么？其实就是Redis为了保证客户端连接不会被干掉，但是这样做有一个坏处：当执行非常大的命令，比如一次<code>hgetall</code>，然后在一个几百万的哈希这样的key-value去执行这样的命令或者执行很频繁的时候我们必然会发现我们普通客户端的输入缓冲区会被阻塞，因为它的每次返回结果非常大，还有一种情况像monitor这样的命令，所有客户端执行的命令在monitor端都可以监控到，它是有一个非常好的地方它可以监控Redis当前到底执行了什么命令然后是哪些客户端执行的？它的坏处也很明显，当你的Redis客户端非常多而且每个客户端它执行的并发量非常大，就是说所有的命令都会打到monitor客户端上，然后就会出现一个问题：monitor的输入缓冲区会很大，因为它无法及时消费所有的命令的结构</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191106210724039.png" srcset="/img/loading.gif" alt="image-20191106210724039"><br>，它是一个非常有帮助的命令，但是如果你使用不当，比如你不是在当前Redis上使用的而是在其他机器远程连接，这样会降低消费速度，在使用这样的命令会比较危险，它会让你输入缓冲区瞬间可能出现暴增的情况，我们后面会做一个例子来模拟这样的问题，这里还关于monitor设置的问题，后面也会进行说明</p>
+</li>
+</ol>
+<h2 id="slave客户端缓冲区"><a href="#slave客户端缓冲区" class="headerlink" title="slave客户端缓冲区"></a>slave客户端缓冲区</h2><p>slave缓冲区就是同步主节点的写命令来实现一个主从同步</p>
+<ol>
+<li>默认：<code>client-output-buffer-limit slave 256mb 64mb 60</code>，</li>
+<li>这里建议这部分值调大一些，这是因为什么？比如说主从延迟比较高或者从节点比较多的时候，可能会出现客户端缓冲区会被膨胀，超过你这个limit限制，在出现这种情况下，会出现全量复制的情况，但是你的主节点分片比较大，这个时候也会出现你的客户端缓冲区被打满，当然这和写入量也有关系，也会造成客户端缓冲区被打满的情况</li>
+<li>建议从节点不要过多，你的分片不要过大，这里为什么要把这些值调大一些呢？这部分客户端是相对独立的，它就只有1个，我们可以将它调大一些，来牺牲一点内存而防止客户端直接被干掉slave客户端产生新的全量复制的问题，所以一定要注意要适当调大一些，比如512mb，这样的话能防止slave客户端缓冲区被干掉的情况。</li>
+</ol>
+<h2 id="pubsub客户端缓冲区"><a href="#pubsub客户端缓冲区" class="headerlink" title="pubsub客户端缓冲区"></a>pubsub客户端缓冲区</h2><p>pubsub客户端缓冲区是针对发布订阅命令来单独设置的客户端的输出缓冲区</p>
+<ol>
+<li>默认：<code>client-output-buffer-limit pubsub 32mb 8mb 60</code>，pubsub不是一个很主流的方法，它的使用场景并不是很多，因为它不是一个专业的发布订阅、消息队列系统，如果你要使用的话来根据自己的使用量来进行一个合理的调整，如果你发现你的pubsub缓冲区出现了比较大的情况，比如你发现你代码中你的客户端被断开了，是因为pubsub缓冲区过大造成的；</li>
+<li>它的阻塞原因：生产速度大于消费速度，它的一个查询方法也是需要在info进行查询或者使用client list这样的命令进行查询，稍后会结合之前介绍的内存进行统一的演示；</li>
+<li>注意：根据自己的使用场景来进行调试，你的并发量、你的生产和消费速度比 类似这样的东西进行调试</li>
+</ol>
+<h2 id="客户端缓冲区演示"><a href="#客户端缓冲区演示" class="headerlink" title="客户端缓冲区演示"></a>客户端缓冲区演示</h2><pre><code class="hljs bash">127.0.0.1:6379&gt; info clients 
+<span class="hljs-comment"># Clients</span>
+
+<span class="hljs-comment">#客户端连接数</span>
+connected_clients:1	
+<span class="hljs-comment">#你所以的缓冲区是一个list，它由2部分组成，一个是buffer加上list，这个buffer比较小也就是剩下的缓冲区对象是通过这样一个list进行存储的，这项统计中统计的是所有客户端中这个list最大的，当前是0，因为这是一个测试环境，但是如果你发现这个是非常大的，比如它超过了1K,那这个时候可能就会有些缓冲区阻塞，这个时候它要有多大你也看不到，后面会介绍命令进行查询</span>
+client_longest_output_list:0	
+<span class="hljs-comment">#客户端输入缓冲区最大的buffer，上面的是个数，这个是字节</span>
+client_biggest_input_buf:0
+blocked_clients:0</code></pre>
+
+<p>那我们想了解所有客户端的一个呢？</p>
+<pre><code class="hljs bash">127.0.0.1:6379&gt; client list
+id=2 addr=127.0.0.1:54212 fd=6 name= age=5937 idle=0 flags=N db=0 sub=0 psub=0 multi=-1 qbuf=0 qbuf-free=32768 obl=0 oll=0 omem=0 events=r cmd=client</code></pre>
+
+<p>这里可以看到所有客户端的基本信息，age是说这个连接连接了多久？idle是闲置时间等等一些东西，其中有几个比较重要的和输出缓冲区相关的：</p>
+<ul>
+<li><p>qbuf：缓冲区有多大</p>
+</li>
+<li><p>qbuf-free：缓冲区有多少空余的</p>
+</li>
+<li><p>obl、oll：缓冲区的list有多大</p>
+</li>
+<li><p>omem：缓冲区是不是很大，将上面2个进行计算然后算一些它的内存有多大，如果发现这个比较大的时候可能就是一个有问题的连接，这个可以根据实际应用场景进行查询，可以通过以下命令</p>
+<pre><code class="hljs bash">[root@mcr2 config] redis-cli -a abcdef client list | grep -v <span class="hljs-string">"omem=0"</span>1</code></pre>
+
+<p>omem为0的过滤掉进行查询，可能就能查询到出现有问题的，然后进行问题的查询</p>
+</li>
+</ul>
+<h1 id="缓冲内存"><a href="#缓冲内存" class="headerlink" title="缓冲内存"></a>缓冲内存</h1><h2 id="复制缓冲区"><a href="#复制缓冲区" class="headerlink" title="复制缓冲区"></a>复制缓冲区</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191107202202656.png" srcset="/img/loading.gif" alt="image-20191107202202656"></p>
+<p>在学习之前的章节，会讲到一部分关于复制的内容，其实复制缓冲区就是<code>repl_back_buffer</code>这个配置，这个配置主要是用来设置复制缓冲区的大小，它主要是将这个缓冲区master节点的一些命令写入到缓冲区内，为了防止slave节点和master节点出现临时的网络抖动而造成不必要的全量复制，主要是做这部分内容的；这里不会多说它的详细配置因为在之前课程中已经介绍过了，这里再次强调一点，它的默认值是<code>1MB</code>，下面我们应该给它设置比较大的值，比如设置为<code>100MB</code>，注意一下这部分内存实际上也是一个独立的，就相当于一个master节点有buffer这个东西，然后我们可以适当给它调大然后牺牲一部分内存来减少不必要的全量复制；上面这张图是全量复制的演示图；</p>
+<h2 id="AOF缓冲区"><a href="#AOF缓冲区" class="headerlink" title="AOF缓冲区"></a>AOF缓冲区</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191107202434669.png" srcset="/img/loading.gif" alt="image-20191107202434669"></p>
+<p>如果你开启了AOF,AOF这种持久化方式无论你是使用哪种刷盘策略，它都是将命令写到一个buffer当中，然后再做一个刷盘的动作，所以这个buffer就是AOF的缓冲区；我们在做AOF重写的时候如果你对上面这张图还有印象的话，它就是做重写的内容，AOF在的重写的时候这期间产生的<code>aof buffer</code> 是不是要做一个单独的记录，如果进行一个单独的记录的话就会有一个额外的aof重写的buffer，它也是aof的buffer，这个也是需要注意的，这个值是没有固定的限制的，它也没有容量的限制，在这一块的话需要注意一下，但是一般来说这块也不会有太大问题，只需要知道这个内存也会由这部分来组成就好了，不必须过渡去关系，除非写量非常大，刷盘刷的有问题这个时候就会放到buffer里。</p>
+<h1 id="内存消耗-1"><a href="#内存消耗-1" class="headerlink" title="内存消耗"></a>内存消耗</h1><h2 id="对象内存"><a href="#对象内存" class="headerlink" title="对象内存"></a>对象内存</h2><p>对象内存是由2部分组成：</p>
+<ol>
+<li>key：不要过长，量大不容忽视（redis3：embstr 39字节）</li>
+<li>value：ziplist、intset等优化方式</li>
+</ol>
+<h2 id="内存碎片"><a href="#内存碎片" class="headerlink" title="内存碎片"></a>内存碎片</h2><p>内存碎片是必然产生的，因为我们的Redis使用的是jemalloc，jemalloc它的分配策略是按块，也不能说是按照块是按照段，比如这么个意思：以4k、8k、16k这样一个内存分配来为单位当然还有更大的一个递增内存块，其实一个内存块不能认为是一个内存单位，其实是这样的，它比如会产生一个内存碎片就是说我的一个对象可能会有举个例子可能只有15k，但它只有8k、12k、16k，这个时候我们可能会分配16k，这个时候就换产生内存碎片，当然前面这个具体是8k、12k还是16k我没有细研究过，而是我举了一个例子，你大概能懂这个意思就好了，比如说它是8k和16k、12k两种，那现在来个 15k它必然是有一个内存碎片的，这个需要注意一下，其实内存碎片主要是因为频繁的比如说做append、setrange、过期这种情况产生的比较多，其实内存碎片没有太好的解决办法，Redis官方的一个说明说如果你的内存碎片大于1.4倍，这个时候你可以考虑做一些内存碎片的处理，比如说最明显的方法就是重启，但是大部分情况下是不允许重启的，但是在<code>redis sentinel</code>、<code>redis cluster</code>这样的架构是允许把slave节点重启，重启之后然后它会做一个重新的内存分配，这样的话可以将碎片进行一个清理，对于主节点来说也可以，如果你真的想做那样的事情的话可以做一个主从切换，然后再把它当做从节点再进行重启，这样就可以完成碎片的整理；目前Redis3来说没有太好的解决办法，对于Redis4、Redis5这些版本这种情况有一个内存碎片管理的选项的，但是这个东西没有在线上或者云服务、一些公司大规模去使用，所以暂时还不建议去用，你可以去了解一下相关的内容</p>
+<h2 id="子进程内存内存消耗"><a href="#子进程内存内存消耗" class="headerlink" title="子进程内存内存消耗"></a>子进程内存内存消耗</h2><p>你对aof、rdb比较了解的情况下你应该知道Redis是使用fork来实现bgsave和bgrewriteaof；它是一个必须存在的，假如我们执行了fork，必然会产生一个子进程，那肯定会有额外的内存开销，这里说的必然存在是因为即使你关了aof当然它是没有aof重写了，你关了自动save还是无法避免全量复制，它也是用rgsave生成一个rdb全量的文件，它必然会产生fork，fork是无法避免的；</p>
+<p>它的优化方式有几种：</p>
+<ul>
+<li>去掉THP特性：它是在Linux内核的2.6.38增加的，它可以加快fork的速度，但是它有一个问题，它在写时复制的时候它的内存页会比原来扩大512倍，原理的4KB现在变成2MB，如果写量非常大的时候它会产生不必要的阻塞、内存的暴增，这里的内核优化会在后面进行说明；</li>
+<li>观察写入量：copy-on-write的写入量；</li>
+<li>overcommit_memory=1，这个在后介绍Linux内核的时候会说，它的作用是可以用fork顺利的完成</li>
+</ul>
+<h1 id="内存管理"><a href="#内存管理" class="headerlink" title="内存管理"></a>内存管理</h1><h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>内存管理比较简单，但是它很重要，它的简单是因为它就2个参数：</p>
+<ul>
+<li>你要给Redis设置一个内存上限，这个对于内存管理是非常有帮助的；</li>
+<li>动态调整内存上限，这个内容和上面是相关的；</li>
+<li>内存回收策略，这个和最大内存也是相关的，当你的Redis设置了4GB内存，但是你已经使用或者超过4GB内存的时候，之后你写入的时候要采用什么策略，是把原来的数据踢掉，还是是单纯的写进去还是使用其他的什么策略，至于踢掉哪些数据也有相关不同的策略</li>
+</ul>
+<h2 id="设置内存上限"><a href="#设置内存上限" class="headerlink" title="设置内存上限"></a>设置内存上限</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191107211253752.png" srcset="/img/loading.gif" alt="image-20191107211253752"></p>
+<p>现在上面这张图中是一个Linux，我们有24GB，它有4个Redis进程，Redis1-4，每个是4GB，我们要给这个机器空闲一些内存去做AOF重写、BGSAVE这样产生的fork内存，当然对于Linux自身也要预留一部分内存，对于配置来说就是一个<code>max-memory</code>一个选项来给Redis设置一个最大内存，这样的好处在于我们可以对每个Redis使用内存进行限制，当限制之后我们可以对机器内存的使用进行合理的管理，假如我们现在启动了很多Redis，但是没有对它们设置最大内存，如果无法控制Redis内存的使用量可能会超过单机就会影响其他的实例，这东西对于Redis管理来说是一个很致命的问题，这里还要提到一点：我们要预留百分30，这个是需要根据你公司的实际情况来决定，可能你们机器比较多，而且使用上比较宽长一些，可能会预留多一些，当然预留的越多你产生的危险就越小，因为我们都知道，它可能会产生一些额外的开销，比如像客户端缓冲区的暴增，客户端缓冲区是无法通过<code>max-memory</code>限制的，<code>max-memory</code>是说当你的<code>used-memory</code>超过<code>max-memory</code>是对于<code>key-value</code>的管理，对于这种客户端缓冲区的暴增它是无法限制的，针对于这类问题甚至一些fork产生的内存这些额外内存以外的问题你预留的内存越多可能这种产生内存溢出的可能就会越小，如果你们公司当前机器比较紧张一些可能预留的会少一些，如果你把内存监控做的足够好，可能产生内存溢出的可能性就越小；</p>
+<h2 id="设置内存上限-1"><a href="#设置内存上限-1" class="headerlink" title="设置内存上限"></a>设置内存上限</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191107211801815.png" srcset="/img/loading.gif" alt="image-20191107211801815"></p>
+<pre><code class="hljs bash">redis&gt; config <span class="hljs-built_in">set</span> maxmemory 6GB
+redis&gt; config <span class="hljs-built_in">set</span> maxmemory 2GB
+redis&gt; config rewrite</code></pre>
+
+<p>例如刚才哪个Redis1到Redis4，每个4GB的，这个时候我Redis2其实用不了这么多，我们上限之后发现它用不了这么多，我们可能就会给它进行一个缩容，将原来的4GB变成了2GB，但是注意你的原来的4GB使用最好不要超过2GB，这个时候如果超过2GB就可能产生一个数据的回收问题，对于Redis1来说原来4GB，现在变成了6GB，那么就应该在Redis1中去执行<code>config set maxmemory 6GB</code>，在Redis2中执行<code>config set maxmemory 2GB</code> ，对于这2个操作我们都要进行 <code>config rewrite</code>，进行一个配置重启，给它回到磁盘当中</p>
+<h2 id="内存回收策略"><a href="#内存回收策略" class="headerlink" title="内存回收策略"></a>内存回收策略</h2><p>上一部分内容非常简单就是一个内存管理，但是建议在你的Redis使用过程中都要进行一个设置，一个问题：当你的 key-value或者说内存已经超过了 <code>maxmemory</code>设置的时候那它比如会有一些事情发生，我们这个时候写数据会将过期键删除；</p>
+<h2 id="内存溢出控制策略"><a href="#内存溢出控制策略" class="headerlink" title="内存溢出控制策略"></a>内存溢出控制策略</h2><p>Redis内存超过了<code>maxmemory</code>的时候，这个时候肯定要做很多事情，比如是不是要将原理的数据剔除？还是说现在根本就写不进去啊？类似于这样的事情；</p>
+<h3 id="删除过期件"><a href="#删除过期件" class="headerlink" title="删除过期件"></a>删除过期件</h3><p>过期件删除有2种策略：</p>
+<ol>
+<li><p>惰性删除：在说惰性删除之前可以说一些Redis内核源码它对于key-value的一个管理它是这样的：对于多个key-value它会单独用一个hashtable进行一个存储，过期的key它也会使用一个单独的hashtable进行存储，也就是说我们get一个hello的时候它首先会去过期hashtable或者字典里面去查一下看这个key有没有过期，如果过期了它会将这个key删除，而且它还会做一件事情：把这个key返回一个空；如果在过期表里没有，它会从原生的hashtable里面去获取；</p>
+</li>
+<li><p>定时删除：为什么要做定时删除？有种可能我的key过期了，但是我下次没有去访问它，它会造成这个过期这个表会不断的扩大，我们可以想到的策略就是我定期对这个过期hashtable进行一个扫描，对于Redis来说它有一个定时删除的策略，它每秒运行10次来进行采样删除，它的删除策略是这样：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191107212905506.png" srcset="/img/loading.gif" alt="image-20191107212905506"></p>
+<p>对每个数据库随机选举20个键，它发现如果超过了百分25都是要过期的，它就会进行新的循环，进入更快的策略，进行一个删除，就是说它不会退出当前循环，而是进入二次的采样删除；如果它发现过期的比较少，那它就直接退出进入下一次循环</p>
+</li>
+</ol>
+<h2 id="策略介绍"><a href="#策略介绍" class="headerlink" title="策略介绍"></a>策略介绍</h2><p>对于Redis内存的一个回收还有第二种：当你的使用内存超过了maxmemory，有一个配置来进行一个定义就是maxmemory-policy这样的内存策略，它的策略非常多，大概有5种，但是有很多是相似的：</p>
+<ul>
+<li>Noevication:它不会进行数据删除，比如说你现在有4GB，现在<code>used memory</code>超过了4GB，这个时候我在进行数据写入的时候我会返回给你一个错误：“(error) OOM command not allowed when used memory”，告诉你现在内存已经满了，不要去写入数据了；</li>
+<li>Volatile-lru：根据LRU算法根据你最近使用比较少的一些key进行删除，这些key是相对来说不重要的，未来保证新的命令写入是成功的它采取这样的策略，这里它认为不重要的数据是过期表中的数据，哪些数据不重要呢?就是LRU算法，最近使用比较少的而且它是即将过期的，这样的话进行一个数据删除会比较稳妥，当然这样也可能删除一个重要的数据；</li>
+<li>Allkeys-lru：在所有键中使用LRU算法进行删除；</li>
+<li>Allkkeys-random：随机删除所有键，直到腾出足够空间为止；</li>
+<li>volatile-random：随机删除过期键，直到腾出足够空间为止；</li>
+<li>volatile-ttl：根据键值对象的ttl属性，删除最近将要过期的数据。如果没有，回退到noeviction策略。</li>
+</ul>
+<blockquote>
+<p>在实际使用中要根据使用场景进行决定，假如我们真的不在乎所有数据是否丢失，那我们可以使用Allkeys-lru这样的策略，假如希望只在过期的数据集进行数据的删除可以使用volatile相关的策略，这里不太推荐使用默认的策略。当然默认的策略是可以的，它可以保证我的老数据不会丢失，新数据写入失败，对于大的互联网来说这个不是一个很通用的事</p>
+</blockquote>
+<h1 id="内存优化"><a href="#内存优化" class="headerlink" title="内存优化"></a>内存优化</h1><h2 id="内存分布"><a href="#内存分布" class="headerlink" title="内存分布"></a>内存分布</h2><blockquote>
+<p>为什么要介绍内存分布？因为我们要做内存优化要优化哪些部分</p>
+</blockquote>
+<h3 id="内存消耗-2"><a href="#内存消耗-2" class="headerlink" title="内存消耗"></a>内存消耗</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191106200207592-1573041728497-1573135246853.png" srcset="/img/loading.gif" alt="image-20191106200207592"></p>
+<p>回顾一下内存消耗，used_memory来说它有</p>
+<ul>
+<li>自身内存消耗，大概是800kb，</li>
+<li>缓冲区内存包括客户端缓冲区包括客户端输入输出缓冲区有三种类型：普通客户端、slave、pubsub，输出缓冲区、输入缓冲区相对独立的；</li>
+<li>对象内存：Redis中存了很多key-value，这个也是节省内存或者说内存优化的重头戏</li>
+</ul>
+<h2 id="合理选择优化数据结构"><a href="#合理选择优化数据结构" class="headerlink" title="合理选择优化数据结构"></a>合理选择优化数据结构</h2><p>前面提到了很多像客户端缓冲区，像aof缓冲区或者说复制缓冲区优化的余地不是特别多，它其实主要体现在普通客户端，你的命令的使用、合理的API使用，假如你使用不合理，假如说hgetall、monitor导致输出缓冲区比较大，这和你的QPS有关；</p>
+<p>对于key-value的东西，我们最重要的是优化它的值对象，优化值对象就是说我们选择一个合理的数据结构，现在有一个简单的例子：现在有一个需求：要计算每天的独立用户数，实际上有很多方式，正确的方式比如说使用hadoop的一套东西设置日志，然后做每天的计算，现在假如说我当前这个需求不是这么大规模的，而是让你用Redis实现来达到比较快的目的，那你怎么去做呢？这里就有很多方式了：<br><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191107221431230.png" srcset="/img/loading.gif" alt="image-20191107221431230"></p>
+<ul>
+<li>集合：这个很好理解，现在要记录每天独立用户数，那我们就用一个集合然后在加上一个时间标签把我们所以的ID放到这个集合当中，最终求出集合的总数，它会自动帮我们过滤掉有可能产生的独立用户数；</li>
+<li>BitMaps：位图的话可以将每个用户去对应到位图中的位，如果这个位是1，就证明它出现过，然后它没有出现就是0，最后统计一下所有为1的个数就可以算出它的用户数；</li>
+<li>HyperLogLog：通过这个来实现计数的方式，但是它有一个问题：它的最终结果可能不是准的。</li>
+</ul>
+<p>这里要根据用户场景来进行选择，这里举个例子：我们当前用户量非常大，每天有几个亿，但是我们统计大概有多少就可以了，而且我们要求内存使用非常低，那这个时候HyperLogLog是可以满足的，假如我们每天的用户数非常少，而且我希望保存下来所有的userId，这个时候HyperLogLog是不合理的它没法保存ID，这里完全可以使用集合或者BitMaps，BitMaps会节省很多内存，当然也有一个问题就是你BitMaps要跟你的userId做一个对应，这个时候可能会增加复杂度，甚至是说你BitMaps比较松散，BitMaps可能比较长，在你的userId比较松散的时候这个时候可能来说集合会用的小一些内存，这个也要做一个权衡，这是什么意思？假如你这个网站有10亿用户，每天就有10万人访问的话，显然用集合比BitMaps要好，因为你要给10亿人去做一个位图其实也是非常废内存的；</p>
+<h2 id="合理选择优化数据结构-内部编码"><a href="#合理选择优化数据结构-内部编码" class="headerlink" title="合理选择优化数据结构-内部编码"></a>合理选择优化数据结构-内部编码</h2><h3 id="介绍-1"><a href="#介绍-1" class="headerlink" title="介绍"></a>介绍</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191107222103645.png" srcset="/img/loading.gif" alt="image-20191107222103645"></p>
+<p>选择合理数据结构的另一种方式就是要做一个内部编码，这样我们选择的是一个合理的数据结构，下一个其实要选择编码，以哈希为例子，它有hashtable、ziplist两种模式，ziplist是压缩列表它就是用一个连续存储的列表来模拟hashtable的使用方式，当然其实我们可以想象出来用一个列表去模拟hash的方式它肯定会在存储速度上会比较慢，比如我们去做一个随机的获取或者插入，这种使用ziplist它必然需要做一个内存重写分配、指针位移类似这些东西，但是它要使用连续存储而且他要自身要做很多优化，这个时候可能它的内存开销上会有一些优势</p>
+<hr>
+<h3 id="一个例子、三种方案"><a href="#一个例子、三种方案" class="headerlink" title="一个例子、三种方案"></a>一个例子、三种方案</h3><p>需求：现在有很多图片id和用户id，大概有10亿个，我希望通过picId可以得到userId</p>
+<p>方案：</p>
+<ul>
+<li>全部string：set picId userId；</li>
+<li>一个hahs：hset allPics picId userId：把10亿个数据存储在一个hahs里面，这样做是有问题的，可能这是一个bigkey的问题，对于运维来说这个东西是一个很让人头疼的的东西；</li>
+<li>若干个小hash：hset picId/100 picId%100 userId：对上面这种大的hahs进行拆分，给它拆分成若干个小的的hash，每一个小的hash里存100个field和value，这样的话我们就可以实现若干的小的hash，后面这种小的hahs我们会介绍，对于这种小的hahs，它就会使用ziplist这种存储方式，然后可以大量的节省内存</li>
+</ul>
+<p>现在看一下例子：假如现在只有100W张图片</p>
+<h3 id="方案1："><a href="#方案1：" class="headerlink" title="方案1："></a>方案1：</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191107223019036.png" srcset="/img/loading.gif" alt="image-20191107223019036"></p>
+<p>picId和userId一一对应，它的使用内存为115.59M</p>
+<h3 id="方案2："><a href="#方案2：" class="headerlink" title="方案2："></a>方案2：</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191107223117730.png" srcset="/img/loading.gif" alt="image-20191107223117730"></p>
+<p>内存开销129M</p>
+<h3 id="方案3："><a href="#方案3：" class="headerlink" title="方案3："></a>方案3：</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191107223141889.png" srcset="/img/loading.gif" alt="image-20191107223141889"></p>
+<p>内存开销：26M</p>
+<h3 id="3种方案对比"><a href="#3种方案对比" class="headerlink" title="3种方案对比"></a>3种方案对比</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191107223241833.png" srcset="/img/loading.gif" alt="image-20191107223241833"></p>
+<h3 id="消耗内存分析"><a href="#消耗内存分析" class="headerlink" title="消耗内存分析"></a>消耗内存分析</h3><p>将所有元素存在在一个连续的存储单元，减少了指针的使用，做了一些压缩的处理，这里不详细介绍ziplist的详细处理，有兴趣的读者可以去看ziplist的源码</p>
+<p>（1）配置：</p>
+<ul>
+<li>hash-max-ziplist-entries 512</li>
+<li>hash-max-ziplist-value 64</li>
+</ul>
+<blockquote>
+<p>当hash数据结构小于512元素，也就是它的hlen小于512，而且这个元素中没有超过64字节的filed和value这个使用就会使用压缩列表ziplist来存储这个hash</p>
+</blockquote>
+<p>（2）ziplist（小和长度有限对象）</p>
+<ul>
+<li>连续内存</li>
+<li>读写有指针偏移，最坏0(n的2次方)</li>
+<li>新增删除有内存重分配</li>
+</ul>
+<p>使用连续存储，它在管理hash这样的方式必然会比较慢，这就是为什么它要限制个数的原因了，这是为了防止ziplist过大然后对性能产生影响，也就说最终是在性能和内存节省上做了一个权衡，这种还是比较好的一种方式，这里的配置建议不要设置过大，如果为了使用ziplist设置过大那可能你使用Redis速度快的目的就无法达到了</p>
+<h3 id="三种方案优点对比"><a href="#三种方案优点对比" class="headerlink" title="三种方案优点对比"></a>三种方案优点对比</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191107224230584.png" srcset="/img/loading.gif" alt="image-20191107224230584"></p>
+<h2 id="客户端内存优化"><a href="#客户端内存优化" class="headerlink" title="客户端内存优化"></a>客户端内存优化</h2><h3 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h3><p>来看一下客户端缓冲区的优化，前面已经详细介绍了客户端缓冲区，我们已经清楚了它的结构，在这里我们只需要介绍一个例子，介绍一下客户端缓冲区在使用中可能出现的问题；</p>
+<p>这里在来回顾一下客户端缓冲区：</p>
+<ul>
+<li>输入缓冲区：当输入缓冲区超过1GB的时候它会把你的连接直接干掉；</li>
+<li>输出缓冲区有很多种类型：<ul>
+<li>普通客户端缓冲区，它可以做一些限制</li>
+<li>发布订阅缓冲区客户端缓冲区，它可以做一些限制；</li>
+<li>复制缓冲区，它可以做一些限制；</li>
+</ul>
+</li>
+</ul>
+<h3 id="一次内存暴增"><a href="#一次内存暴增" class="headerlink" title="一次内存暴增"></a>一次内存暴增</h3><blockquote>
+<p>这是以前遇见的问题</p>
+</blockquote>
+<p>我们当时用的是Redis Sentinel的架构，一主一从，然后有几个Sentinel节点，我们在使用过程做做了很多监控，例如我们在某一个节点发现这一对主从出现一个很奇怪的问题：主节点它的使用内存使用了4GB，已经超过了maxmemory，当时给maxmemory设置的是4GB，然后我们从节点是正常的，从节点是2GB，这种情况是怎么造成的？我们遇到这种问题的时候不要去着急，而是去想一下当前内存的组成，就是Redis的内存组成是什么？你可以脑子里去想，Redis内存有什么呢？</p>
+<p>自身消耗：这个很小没有任何区别、缓冲消耗、数据消耗，这个时候会想一个问题就是说是不是因为我现在master的数据没有复制到从节点上，因为这样的情况可能会出现主节点的内存写进去了，但是从节点没有收到造成主从不一致，</p>
+<p>这个时候要考虑到；还有一点就是缓冲：第一个缓冲“复制缓冲区”，这个我们是应该进行设置的，比如说100MB，这个它不会超过100MB，比如AOF缓冲区那我们可以检测硬盘是不是正常的，正常的情况下AOF不会被写满，当然这里就可能涉及到客户端的缓冲区，可能会涉及到客户端的输入，当然这里没有输入的问题，因为我们知道如果超过1GB的时候它会将你干掉，当然也不存在这种可能，</p>
+<p>还有一个就是输出缓冲区：我们读主节点的时候，我们输出缓冲区发生了阻塞，</p>
+<p>这些情况考虑了之后我们来看一下相关的数据</p>
+<ol>
+<li>批量写入：看看是不是有大批量的写入，当然我们看的时候没有看到有大批量的写入，所以可以排除数据的不一致造成内存的暴增<br><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191107230034782.png" srcset="/img/loading.gif" alt="image-20191107230034782"></li>
+<li>主从不一致？在主从节点上都执行DBSIZE，2个都是一样的<br><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191107230112099.png" srcset="/img/loading.gif" alt="image-20191107230112099"></li>
+<li>大部分情况都是客户端的溢出，我们系统比较好的是对所有Redis核心参数进行了监控，比如我们前面提到的<code>client_longst_output_list</code>，它的最大输出缓冲区的对列，我们给它设置的阈值是1000，这个时候发现，某某节点已经道到了23W<br><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191107230447499.png" srcset="/img/loading.gif" alt="image-20191107230447499">，很明显客户端的输出缓冲区过大，这个值给我们提供了一个依据，我们可以使用之前我们介绍的<code>redis-cli list | grep -v “omem=0”</code>命令，<br><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191107230455740.png" srcset="/img/loading.gif" alt="image-20191107230455740"><br>有这么一个客户端它的oll是20W，当然它和23W不一样是因为这是一个实时的状态，发现它内存的使用量是非常大的，我们可以看到它当时执行的命令是“monitor”，很明显它就是有一个人或者一个程序去执行了monitor去拉所有Redis执行的命令，然后它本身又消费不了，而且当时看到它当时在本机执行的，任然是消费不了，这个时候我们可以对这个monitor命令执行删除，让内存进行一个回收，当然其实这里有 一个问题就是说你现在主节点已经超过了最大内存，可能会产生<code>maxmemory-policy</code>内存溢出的情况</li>
+</ol>
+<p>我们来回顾一下Monitor模型</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191107231052717.png" srcset="/img/loading.gif" alt="image-20191107231052717"></p>
+<p>现在对Redis进行写入或者查找很多一些命令，它会将那些命令全部和到monitor的客户端，然后就就造成monitor这个客户端如果消费不了就会造成monitor客户端缓冲区非常大，对于Redis总体内存造成很的干扰；</p>
+<h3 id="预防策略"><a href="#预防策略" class="headerlink" title="预防策略"></a>预防策略</h3><ol>
+<li>找到对应的业务放直接干掉；</li>
+<li>预防：<ul>
+<li>运维层面：线上Redis禁用monitor（rename-command）；</li>
+<li>运维层面：适度限制缓冲区大小，它是一个普通客户端缓冲区，默认是0 0 0 ，我们如果希望能不出现这样的情况，我们可以给它设置比如最大10M、100M这样的的东西</li>
+<li>开发层面：理解monitor的原理，也可以短暂寻找热点key（本地执行）</li>
+<li>开发层面：使用CacheCloud可以直接监控到。</li>
+</ul>
+</li>
+</ol>
+<h3 id="其他方法"><a href="#其他方法" class="headerlink" title="其他方法"></a>其他方法</h3><ol>
+<li>不要忽视key长度：1亿个键，1个字节也是节省（键名：简短明了）<pre><code>user：friends：notify：{id}     ——&gt; u：f：n：{id}</code></pre></li>
+<li>序列化和压缩方法：解决java原生，采用protobuf、kryo、snappy等。</li>
+</ol>
+<h3 id="需不需要Redis？"><a href="#需不需要Redis？" class="headerlink" title="需不需要Redis？"></a>需不需要Redis？</h3><ol>
+<li>数据：大数据、冷数据：这类数据不适合放Redis中；</li>
+<li>功能性：关系型查询、消息队列：不建议用Redis进行处理，因为Redis本身不是关系型数据库</li>
+</ol>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ol>
+<li>内存是宝贵资源；</li>
+<li>结合场景选择和优化数据结构；</li>
+<li>序列化是有成本的；</li>
+<li>不要忽视键长度。</li>
+</ol>
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E8%BF%90%E7%BB%B4/Redis/">Redis</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/redis-15.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【 Redis-学习笔记 】 15.开发运维常见坑</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/redis-13.html">
+                        <span class="hidden-mobile">【 Redis-学习笔记 】 13.Redis开发范式</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "【 Redis-学习笔记 】 14.内存管理&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

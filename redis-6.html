@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="Shui">
+  <meta name="keywords" content="">
+  <title>【 Redis-学习笔记 】 6.Redis复制原理和优化 - Shui&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Fluid</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2019-10-17 21:06">
+      2019年10月17日 晚上
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      5.1k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      54
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <h1 id="什么是主从复制"><a href="#什么是主从复制" class="headerlink" title="什么是主从复制"></a>什么是主从复制</h1><h2 id="单机有什么问题？"><a href="#单机有什么问题？" class="headerlink" title="单机有什么问题？"></a>单机有什么问题？</h2><ul>
+<li>在一台机器去部署一个<code>Redis</code>节点，如果我们机器发生故障，例如机器磁盘、CPU、主板坏了，那我们客户端怎么连接<code>Redis</code>？</li>
+<li>Redis节点宕掉了，需要进行重启，这里重启期间，客户端是连接不上<code>Redis</code>的,而且你也不能在第一时间发现<code>Redis</code>宕掉了；</li>
+<li>假如机器有<code>16G</code>内存，而Redis用了<code>12G</code>内存，现在有一个需求：我真的需要64G内存，那么单机是满足不了的，那这样是不是需要买个更好的机器，例如买个<code>128G</code>的内存；</li>
+<li><code>Redis</code>号称可以达到10W的QPS，我的业务需要100W的QPS，那我怎么去做呢？</li>
+</ul>
+<hr>
+<h2 id="主从复制的作用"><a href="#主从复制的作用" class="headerlink" title="主从复制的作用"></a>主从复制的作用</h2><blockquote>
+<p>以上提到的QPS瓶颈是分布式来解决的问题，而故障是高可用问题，下面来讲高可用问题</p>
+</blockquote>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571484445203.png" srcset="/img/loading.gif" alt="1571484445203"></p>
+<p>图中<code>master</code>节点是主节点，<code>slave</code>节点是一个从节点，它一开始本身也是一个主节点，它也可以对外提供正常的服务，当然从节点也可以提供正常服务的。假如左边是一个有数据的Redis，右边是没有数据的Redis，此时它就会进行一个复制的操作，那么右边的数据会将左边的数据同步过来，然后左边的数据不断的去写数据，右边的数据会做一个同步的更新，这里就能起到一个备份的效果，这样的话就可以为我们更才主机宕机的情况提供类似的支援。</p>
+<h2 id="一主多从"><a href="#一主多从" class="headerlink" title="一主多从"></a>一主多从</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571484530557.png" srcset="/img/loading.gif" alt="1571484530557"></p>
+<p>以上提到的是一主义从模式，Redis还提供了一主多从的模式，这样就可以做出更多高可用的选择，例如<code>master</code>和一个<code>slave</code>同时挂掉了，那么还可以有多个备份，同时还可以提供另外的功能，做一个刚才提到的读写分离，相当于<code>Redis</code>的<code>master</code>节点可能有多读写，已经达到了极限，这个时候我们可以有多份从，这样可以把读的流量进行分流来实现负载均衡</p>
+<h2 id="主从复制的作用-1"><a href="#主从复制的作用-1" class="headerlink" title="主从复制的作用"></a>主从复制的作用</h2><ol>
+<li>它为一个数据提供了多个副本，这个副本可以成为我们高可用、分布式的基础；</li>
+<li>扩展了读的性能。</li>
+</ol>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
+<li>一个<code>master</code>可以有多个<code>slave</code>，每个slave还可以有slave；</li>
+<li>一个<code>slave</code>只能有一个<code>master</code>；</li>
+<li>数据流向是单向的，必须从master流向<code>slave</code></li>
+</ol>
+<h1 id="复制的配置"><a href="#复制的配置" class="headerlink" title="复制的配置"></a>复制的配置</h1><h2 id="两种实现方式"><a href="#两种实现方式" class="headerlink" title="两种实现方式"></a>两种实现方式</h2><h3 id="命令实现"><a href="#命令实现" class="headerlink" title="命令实现"></a>命令实现</h3><p>希望6380成为6379的从节点，在6380执行<code>slaveof 127.0.0.1:6379</code>，当它执行这条命令之后，然后就实现了复制的流程，这个复制是非常复杂的，它包括了全量复制、前面的建立连接、各种机制的确认都会有很多的过程；</p>
+<pre><code class="hljs bash">redis-6380&gt;slaveof 127.0.0.1:6379
+OK</code></pre>
+
+<blockquote>
+<p>上面代码是一个异步过程，它会立即返回OK，它实际上是需要很多步骤和时间的</p>
+</blockquote>
+<p>取消复制：</p>
+<pre><code class="hljs bash">redis-6380&gt; slaveof on none
+OK</code></pre>
+
+<blockquote>
+<p>这里取消之后，它之前从主节点获取的数据并不会被清除，而是说我们6379新写入的数据不会同步到6380，至于6380要做什么处理，比如我想去<code>slaveof</code>新的主，这里要注意：新的主的数据同步给从节点数据，它的首先第一步会将从节点的数据清除掉</p>
+</blockquote>
+<h3 id="修改配置"><a href="#修改配置" class="headerlink" title="修改配置"></a>修改配置</h3><pre><code class="hljs nginx"><span class="hljs-attribute">slaveof</span> ip port		<span class="hljs-comment"># port	主节点</span>
+slave-read-only <span class="hljs-literal">yes</span>	<span class="hljs-comment"># 希望从节点只做读的操作设置为yes</span></code></pre>
+
+<h2 id="演示"><a href="#演示" class="headerlink" title="演示"></a>演示</h2><p>master配置：</p>
+<pre><code class="hljs nginx"><span class="hljs-attribute">daemonize</span> <span class="hljs-literal">yes</span>
+pidfile /var/run/redis-<span class="hljs-number">6379</span>.pid
+port <span class="hljs-number">6379</span>
+logfile <span class="hljs-string">"6379.conf"</span>
+<span class="hljs-comment">#save 900 1</span>
+<span class="hljs-comment">#save 300 10</span>
+<span class="hljs-comment">#save 60 10000</span>
+dbfilename dump-<span class="hljs-number">6379</span>.rdb
+dir /usr/src/redis/data</code></pre>
+
+<p>slave配置：</p>
+<pre><code class="hljs nginx"><span class="hljs-attribute">daemonize</span> <span class="hljs-literal">yes</span>
+pidfile /var/run/redis-<span class="hljs-number">6380</span>.pid
+port <span class="hljs-number">6380</span>
+logfile <span class="hljs-string">"6380.conf"</span>
+<span class="hljs-comment">#save 900 1</span>
+<span class="hljs-comment">#save 300 10</span>
+<span class="hljs-comment">#save 60 10000</span>
+dbfilename dump-<span class="hljs-number">6380</span>.rdb
+dir /usr/src/redis/data
+slaveof <span class="hljs-number">127.0.0.1</span> <span class="hljs-number">6379</span></code></pre>
+
+<p>数据同步：</p>
+<pre><code class="hljs bash">127.0.0.1:6379&gt; <span class="hljs-built_in">set</span> k1 v1
+OK
+127.0.0.1:6379&gt;
+
+127.0.0.1:6380&gt; get k1
+<span class="hljs-string">"v1"</span>
+127.0.0.1:6380&gt;</code></pre>
+
+<p>查看节点信息：</p>
+<pre><code class="hljs bash">127.0.0.1:6379&gt; info replication
+<span class="hljs-comment"># Replication</span>
+role:master	<span class="hljs-comment"># 角色,master代表主</span>
+connected_slaves:1	<span class="hljs-comment"># 子节点数量</span>
+slave0:ip=127.0.0.1,port=6380,state=online,offset=646,lag=0	<span class="hljs-comment"># 子节点信息</span>
+...
+
+
+127.0.0.1:6380&gt; info replication
+<span class="hljs-comment"># Replication</span>
+role:slave	<span class="hljs-comment"># 角色,slave代表从  </span>
+master_host:127.0.0.1	<span class="hljs-comment"># 从的端口号</span>
+master_port:6379	<span class="hljs-comment"># 从的端口</span>
+master_link_status:up <span class="hljs-comment"># 连接主的状态</span>
+...</code></pre>
+
+<h1 id="全量复制和部分复制"><a href="#全量复制和部分复制" class="headerlink" title="全量复制和部分复制"></a>全量复制和部分复制</h1><h2 id="runid"><a href="#runid" class="headerlink" title="runid"></a>runid</h2><blockquote>
+<p>在介绍全量复制之前，来看一下什么是<code>runid</code></p>
+</blockquote>
+<p>查看<code>runid</code></p>
+<pre><code class="hljs bash">[root@mcr2 /] redis-cli  -p 6379 info server | grep run
+run_id:eed56e3b451472234709f80d43cccaecc1010555
+[root@mcr2 /] redis-cli  -p 6380 info server | grep run
+run_id:7ef316df1ae60b0d57510542ff3a5d8734c752ac</code></pre>
+
+<p><code>runid</code>的作用是做一个标识，假如说<code>6380</code>去复制<code>6379</code>，然后就知道6379对应的<code>runid</code>，在<code>6380</code>这做一个标识，当突然之间<code>6379</code>的<code>runid</code>发生了变化，可能它做了一个重启或者重大变化，这个时候我<code>6380</code>就感觉到它应该是做了很多变化需要把他数据同步过来，在6380第一次启动的时候它压根不知道<code>6379</code>这个端口对应的runid，对它来说是一个全新的数据，这个时候它会进行一个全量复制</p>
+<h2 id="偏移量"><a href="#偏移量" class="headerlink" title="偏移量"></a>偏移量</h2><blockquote>
+<p>数据写入量的字节，记录写了多少数据，对于6379去执行<code>set hello</code>，它会把这个命令同步给6380，它也会记录这个偏移量，就相对于写偏移量，当这2个偏移量达到一致的时候，这就是主从数据同步的过程。有一种情况：6379比6380偏移量大，就可能出现主从不一致</p>
+</blockquote>
+<p>查看偏移量</p>
+<pre><code class="hljs bash">127.0.0.1:6379&gt; info replication 
+...
+master_repl_offset:1597
+...
+127.0.0.1:6379&gt; <span class="hljs-built_in">set</span> k1 v1
+OK
+127.0.0.1:6379&gt; info replication 
+slave0:ip=127.0.0.1,port=6380,state=online,offset=2111,lag=1 <span class="hljs-comment">#从节点信息,这里偏移量是一致的</span>
+master_repl_offset:2111</code></pre>
+
+<h2 id="全量复制分析"><a href="#全量复制分析" class="headerlink" title="全量复制分析"></a>全量复制分析</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571539767138.png" srcset="/img/loading.gif" alt="1571539767138"></p>
+<p>对组从复制做一个简单的分析，如果对一个存了很多数据的master节点，这里一个slave节点去做一个复制，我们最想要一个把<code>master</code>先前的数据或者当前的数同步过来的，同时还希望这个<code>master</code>在同步过程期间写的数据也同步过来，这样就可以达到数据的完全同步的效果。在<code>Redis</code>提供了全量复制一个功能，就是完成上述的过程，它首先将本身<code>RDB</code>文件也就是当前状态去同步给<code>slave</code>，在此期间它写入的命令会单独去记录起来，然后当这个<code>RDB</code>文件加载完之后它会通过偏移量的对比，将这个期间产生的写入的值同步给<code>slave</code>。图中表示了复制的一个过程，它内部有一个<code>psync</code>命令是用来做同步的，实际上它在<code>Redis2.8</code>之前它是叫<code>sync</code>，在这之后就叫<code>psync</code>了，它可以完成全量复制和部分复制功能，首先先不管部分复制，来说下全量复制，它有2个参数，<code>runid、偏移量</code>，通过这条命令报告给主节点自己的偏移量是多少，然后主节点可能会把对应偏移量之后的数据同步给它，对于我们第一次复制来说的问题就说主的runid是多少，而且也不知道偏移量是多少，在这里参数传递为：<code>? -1</code>，master收到这个命令能感觉出来，你是要做全量复制的，因为你根本不知道我是谁，而且没有传偏移量，现在master就告诉从节点，我的runid是多少和偏移量是多少，slave这个时候会保存master的基本信息，在这之后master会做一个RDB的生成，使用前面介绍的<code>bgsave</code>，因为它是一个快照，这个快照有一个优点就是说生成越快越好，传输越快越好，master要将全量数据同步给slave，然后还要将部分数据也就是RDB开始生成到RDB传输这个过程中一个新增命令进行一个保存，然后在RDB删了之后将这些命令给它传输过去，在<code>Redis</code>中有一个复制缓冲区<code>repl-back-buffer</code>，它可以记录最新写入的命令，这样就能实现上述的效果，在删了RDB之后会做一个<code>send buffer</code>,<code>send buffer</code>之后它会清除老的数据，然后将RDB进行加载同时将buffer中的数据也加载进来，这样就保证<code>master</code>和<code>slave</code>完全同步，这样就使用了数据副本的功能。</p>
+<h2 id="全量复制开销"><a href="#全量复制开销" class="headerlink" title="全量复制开销"></a>全量复制开销</h2><ol>
+<li>因为需要传递一个RDB，它要做bgsave，它本身是一个fork操作生成一个子进程，对CPU、内存、硬盘都会有一定开销；</li>
+<li>生成RDB之后还要进行网络传输时间；</li>
+<li>从节点清空数据时间，如果从节点之前有很多数据，清空也是需要时间的；</li>
+<li>从节点加载RDB的时间；</li>
+<li>如果在做主从全量复制最后一步加载RDB成功之后，如果我们AOF开启的话，它会执行AOF重写，这样保证AOF是最新的状态。</li>
+</ol>
+<h2 id="部分复制"><a href="#部分复制" class="headerlink" title="部分复制"></a>部分复制</h2><p>分析一下全量复制有什么问题，上面描述的开销以外，它会有一个问题就是说，假如master和slave的网络发生了走动，一段时间内这些数据就会进行丢失，对于slave来说这段时间master更新数据它不知道，最简单的解决办法就是在做一次全量复制，在<code>Redis2.8</code> 之前是这么做的，很显然前面分析了全量复制的一个开销，其实它有各种问题，因为本身在做一个生成子进程、传输RDB，但在单机多部署的话，你做的资源隔离在好，很多资源是无法做到隔离的，所以在<code>Redis2.8</code>中提供了部分复制功能，希望如果发生类似抖动的时候，可以有一种机制将这个损失降低到最低，图中描述了它是如何实现的：</p>
+<p>如果它们之间发生了抖动，相对于连接断开了，但是在master写命令的时候，它会写一份复制缓冲区的命令，当slave在去连接master的时候也就这网络抖动结束之后，它会进行一条<code>pysnc {offset} {runid}</code>命令，就是把自己当前的偏移量传输给master还要给一个<code>runid</code>，就相对于slave想对master去执行一个<code>psync</code>命令，告诉master当前自己的offset是多少，如果master发现你传输的偏移量是在它buffer范围内的，它这个buffer相对于一个对列有一个最开始和最后一名的<code>offset</code>，如果slave的<code>offset</code>不在这个期间内就证明slave错过了很多数据，毕竟它的buffer是有限的，它的buffer默认是<code>1M</code>，通常为了保证全量 复制的成功，如果我们把它配置很大，这样它可以在一个很大的范围内进行保存，这样<code>offset</code>的命中率会很高，就可以进行一个全量复制，当它发生你的offset在它的范围内它会返回<code>continue</code>,它会从buffer对列中从offset开始到结尾一个数据全部给<code>slave</code>，这样的话<code>master</code>和<code>slave</code>就达到了一个一致，后面的写命令也会全部同步过来达到一个数据副本而有效降低了全量复制的开销</p>
+<h1 id="开发运维常见问题"><a href="#开发运维常见问题" class="headerlink" title="开发运维常见问题"></a>开发运维常见问题</h1><h2 id="读写分离"><a href="#读写分离" class="headerlink" title="读写分离"></a>读写分离</h2><ol>
+<li>读写分离：读流量分摊到从节点；</li>
+<li>可能遇到问题：<ul>
+<li>复制数据延迟：对于大多情况下去写一个master，它会做一个异步同步，将这个数据复制给slave，这本身会有一个时间差，而且当master发生阻塞的时候，它会延迟接受这条写的命令，然后可能会发生一些读写不一致的情况，对于大多数情况下，还是不用考虑读写 分离数据不一致的问题的，如果为了防止这样的问题，你可以对偏移量做监控，当监控到有问题的时候做一些处理，例如切换到master上；</li>
+<li>读到过期数据：Redis删除过期数据有2种策略：<ul>
+<li>它去操作key的时候，它才去看key有没有过期，如果过期了就将它删除，然后再返回给客户端空的操作；</li>
+<li>它会有一个定时任务，每次去采集一些key，看它有没有过期，这就会照成一种情况，当过期数量非常多，而且采集速度根本比不上过期数据的产生速度的时候就会造成很多过期数据没有删除，但是Redis中master和slave是达成这样一个约定的：slave节点是不能处理数据的，就会造成slave可能会读到脏的数据，例如client没有及时将过期数据找到然后把这个删除命令同步给slave的时候，因为slave没有删除数据的权限所以不会将过期数据删除，就会造成slave去读到过期数据，但在<code>Redis3.2</code>中已经解决了这样的问题。</li>
+</ul>
+</li>
+<li>从节点故障：如果从节点发生故障的时候，怎么将从节点的客户端进行一个迁移，它的成本是非常高的，你可以用一些手段来解决。你在考虑使用读写分离之前首先要考虑如何去优化主节点，因为Redis的性能是非常高的，大部分场景基本上是可以满足的，你可以优化一些内存的参数、AOF的策略这些东西，然后当我们实在不行的话可以考虑读写分离；这个时候你可以去使用<code>Redis</code>官方的一些分布式<code>Redis Cluster</code>包括其他开源的分布式方案来解决类似的问题；</li>
+</ul>
+</li>
+</ol>
+<h2 id="配置不一致"><a href="#配置不一致" class="headerlink" title="配置不一致"></a>配置不一致</h2><ol>
+<li>例如maxmemory不一致：丢失数据，例如主节点配置<code>4G</code>，从节点配置<code>2G</code>，这样做主从复制是可以正常进行的，全量复制可以进行，<code>master</code>传输RDB给<code>slave</code>，然后加载之后发现它过大，然后它就会触发它自己的<code>maxmemory policy</code>也就是最大内存的触发策略，将数据进行淘汰，这个过程中有可能会产生OAM那样的问题，假如这里过期数据比较多就是设置TTL的数据比较多，那么<code>maxmemory policy</code>的一个过期策略以剔除这个过期数据为优先的策略，那么过期数据就会被剔除，这里对于数据来说它已经不是一个实现数据副本的功能了，但是它也不会报任何错误。当我们在做一些类似于高可用的时候，需要将从节点变成主节点的时候，就会发现数据已经丢失了，而且已经无法挽回了，这里避免这种情况可以使用一些标准的工具进行安装并且做一个监控；</li>
+<li>例如数据结构优化参数（例如hash-max-ziplist-entries）：内存不一致；</li>
+</ol>
+<h2 id="规避全量复制"><a href="#规避全量复制" class="headerlink" title="规避全量复制"></a>规避全量复制</h2><blockquote>
+<p>前面已经提到全量复制的开销是非常大的，下面来分析一下如何去避免这样的问题。</p>
+</blockquote>
+<ol>
+<li>第一次全量复制<ul>
+<li>第一次不可避免；</li>
+<li>小主节点、低峰：<code>maxmemory</code>不要设置过大，这样我们一个bgsave、传输、加载都会很快， 而且开销也能减小，还有一种处理方式，在夜间访问量低的时候整个Redis集群或者Redis对应的机器负载比较低的时候我们来做这样的操作来避免问题。</li>
+</ul>
+</li>
+<li>节点运行ID不匹配<ul>
+<li>主节点重启（运行ID变化）：对于slave来说，它会保存之前主节点的<code>runid</code>，如果它发现<code>runid</code>发生变化，它就会认为这个数据可能是不安全的，它认为当前master是不安全的，因为slave无法知道master是谁，最简单的方式就是做一次全量复制，这个暂时是无法避免的，在<code>Redis4.0</code>中它提供了<code>PSYNC  2</code>规则可以有效解决这类问题，就是说如果runid发生变化，它做一个故障转移的时候可以有效避免全量复制；</li>
+<li>故障转移，例如哨兵或集群。</li>
+</ul>
+</li>
+<li>复制积压缓冲区不足<ul>
+<li>网路中断，部分复制无法满足：将最新的写入命令写入到缓冲区，它是一个对列，它的一个默认值是<code>1M</code>，如果发生网络抖动的情况下就可以使用部分复制，如果你的slave偏移量是在缓冲区的范围内那么就可以完成部分复制，有效避免全量复制的问题，当然如果slave的offset是在这个之外，那么就没办法，只能做一次全量复制了，当然比较简单的方法就是你可以把这个缓冲区去调大一点；</li>
+<li>增大复制缓冲区设置<code>rel-backlog-size</code>，网络“增强”，例如设置为10M来降低全量复制可能产生的情况，有一种比较科学的方法你可以这么去算，假设一般的网络的一个断开时间或者产生故障时间可能是分钟级别的，那我们可以根据我们当前的QPS写的数量，统计每分钟有多少字节，然后再乘以你对应的发生故障的分钟，这个就是复制缓冲区理想的值。</li>
+</ul>
+</li>
+</ol>
+<h2 id="避免-复制风暴"><a href="#避免-复制风暴" class="headerlink" title="避免 复制风暴"></a>避免 复制风暴</h2><h3 id="单主节点复制风暴"><a href="#单主节点复制风暴" class="headerlink" title="单主节点复制风暴"></a>单主节点复制风暴</h3><ul>
+<li>问题：主节点重启，多从节点复制：假如说一个master节点挂了很多从节点，那么master节点挂了之后重启，这个时候所有slave节点都要做一个主从复制，因为它的runid已经发生了变化，这里的开销是非常大的，首先要将RDB生成，然后进行传输，当然对于Redis来说它有效去优化了这个东西，它可以只生成一份RDB文件，但是它要做多次传输，整个过程是对CPU、内存、网络、硬盘都会有一定开销；</li>
+<li>解决：更换复制措施<img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571544297928.png" srcset="/img/loading.gif" alt="1571544297928" style="zoom: 33%;" />，相对于master挂一个slave，slave还挂slave，这样master来说，它能减轻压力，这样把所有问题都控制在slave1节点上，这样有效减少master节点一个负载，但是这种架构还是有问题的，这种架构可以称为树形架构，它有一个问：假如你在做读写分离的时候，slave1出现了问题，你怎么去处理，还有在高可用分布式环境下怎么去进行一个故障转移这些都是一些问题，这个要根据业务场景来进行判断；</li>
+</ul>
+<h3 id="单机器复制风暴"><a href="#单机器复制风暴" class="headerlink" title="单机器复制风暴"></a>单机器复制风暴</h3><p>如果你只想做一个高可用，而不做一个读写分离的话，一个节点就够了，这个时候如果出现问题就将它去晋升，然后给它自动加一个slave就好了</p>
+<ul>
+<li><p>问题：如右图：机器宕机后，大量全量复制<img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571544649954.png" srcset="/img/loading.gif" alt="1571544649954" style="zoom: 33%;" />，假如我们机器上全都是master，然后机器发生了重启，这个时候就是一个灾难，相当于所有slave都去拉这台机器的全量复制，那样的开销是非常大的，因为这个时候所有节点都要做<code>bgsave</code>，然后所以节点都要传输一份<code>RDB</code>到相应的机器，无论是CPU、带宽都是巨大的开销，可能会造成内存池满的情况；</p>
+</li>
+<li><p>解决：主节点分散多机器：在部署的时候我们自己去写一些部署程序的时候会刻意将master分布到不同机器上，这样有效去避免问题；还要一种好的方法：如果出现类似问题我们完全可以采用高可用的架构，master挂掉之后slave晋升成master，这样的话它就不会有类似的问题了。</p>
+</li>
+</ul>
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E8%BF%90%E7%BB%B4/Redis/">Redis</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/redis-7.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【 Redis-学习笔记 】 7.RedisSentinel</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/redis-5.html">
+                        <span class="hidden-mobile">【 Redis-学习笔记 】 5.常见的持久化开发运维问题</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "【 Redis-学习笔记 】 6.Redis复制原理和优化&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

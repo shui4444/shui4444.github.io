@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="Shui">
+  <meta name="keywords" content="">
+  <title>【Nginx】 2.基础篇 - Shui&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Fluid</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2020-01-21 19:23">
+      2020年1月21日 晚上
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      4.9k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      68
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><pre><code class="hljs bash">~&gt; yum install  -y nginx
+~&gt; nginx -v
+~&gt; nginx version: nginx/1.16.1</code></pre>
+
+<h1 id="基本命令"><a href="#基本命令" class="headerlink" title="基本命令"></a>基本命令</h1><pre><code class="hljs bash">nginx -tc /etc/nginx/nginx.conf	<span class="hljs-comment">#检查配置是否正常</span>
+nginx -s reload -c /etc/nginx/nginx.conf <span class="hljs-comment">#重新加载并加载指定配置文件</span></code></pre>
+
+<h1 id="目录和配置语法"><a href="#目录和配置语法" class="headerlink" title="目录和配置语法"></a>目录和配置语法</h1><p><strong>安装目录介绍</strong></p>
+<pre><code class="hljs bash">~&gt; rpm -ql nginx
+/etc/logrotate.d/nginx
+/etc/nginx/fastcgi.conf
+/etc/nginx/fastcgi.conf.default
+/etc/nginx/fastcgi_params
+/etc/nginx/fastcgi_params.default
+/etc/nginx/koi-utf
+...</code></pre>
+
+<blockquote>
+<p>通过上面的命令来查看它安装之后放的位置,下面介绍一下一些重要的文件</p>
+</blockquote>
+<p>/etc/logrotate.d/nginx</p>
+<blockquote>
+<p>日志轮转，用于logrote服务的日志切割</p>
+</blockquote>
+<p>/etc/nginx/nginx.conf</p>
+<blockquote>
+<p>主要配置，启动的时候，主要读它</p>
+</blockquote>
+<p>/etc/nginx/conf.d/default.conf</p>
+<blockquote>
+<p>默认加载的配置</p>
+</blockquote>
+<p>/etc/nginx/fastcgi_params</p>
+<blockquote>
+<p>再用PHP这种fastcgi模式的时候，就需要加载fastcgi这个文件</p>
+</blockquote>
+<p>/etc/nginx/fastcgi_params</p>
+<p>/etc/nginx/uwsgi_params</p>
+<p>/etc/nginx/uwsgi_params</p>
+<blockquote>
+<p>cig配置相关、fastcgi配置</p>
+</blockquote>
+<p>/etc/nginx/koi-utf</p>
+<p>/etc/nginx/koi-win</p>
+<p>/etc/nginx/win-utf</p>
+<blockquote>
+<p>编码转换映射文件</p>
+</blockquote>
+<p>/etc/nginx/mime.types</p>
+<blockquote>
+<p>配置http协议的Content-Type与扩展对应关系。在HttpResponse中会有一个Content-Type，它描述数据的类型，比如是图片的话Content-Type会是一个JPG、GIF。Nginx要把Content-Type和它对应的扩展名建立一个对应关系就在这个配置文件，当Nginx要处理一些它不能识别的类型时，我们可以在这里去添加</p>
+</blockquote>
+<p>/usr/lib/systemd/system/nginx-debug.service</p>
+<p>/usr/lib/systemd/system/nginx.service.d</p>
+<p>/etc/sysconfig/nginx</p>
+<p>/etc/sysconfig/nginx-debug</p>
+<blockquote>
+<p>用于配置出系统守护进程管理器管理方式</p>
+</blockquote>
+<p>/usr/lib64/nginx/modules</p>
+<p>/etc/nginx/modules</p>
+<blockquote>
+<p>Nginx模块目录</p>
+</blockquote>
+<p>/usr/sbin/nginx</p>
+<p>/usr/sbin/nginx-debug</p>
+<blockquote>
+<p>Nginx服务的启动管理的终端命令</p>
+</blockquote>
+<p>/usr/share/doc/nginx-1.16.1</p>
+<p>/usr/share/doc/nginx-1.16.1/README</p>
+<p>/usr/share/man/man8/nginx.8.gz</p>
+<blockquote>
+<p>Nginx的手册和帮助文件</p>
+</blockquote>
+<p>/var/cache/nginx</p>
+<blockquote>
+<p>Nginx的缓存目录</p>
+</blockquote>
+<p>/var/log/nginx</p>
+<blockquote>
+<p>Nginx的日志目录    </p>
+</blockquote>
+<h1 id="编译配置参数"><a href="#编译配置参数" class="headerlink" title="编译配置参数"></a>编译配置参数</h1><p><strong>安装编译参数</strong></p>
+<p>prefix=/etc/nginx            主目录<br>–sbin-path =/usr/sbin/nginx        执行命令<br>-modules-path =/usr/lib64/nginx/modules        模块<br>-conf-path =/etc/nginx/nginx.conf        配置文件<br>–error-log-path=/var/log/nginx/error.log        错误日志目录<br>http-log-path=/var/log/nginx/access.log        访问日志<br>–pid -path =/var/run/nginx.pid        pid文件<br>-lock-path=/var/run/nginx.lock        锁</p>
+<p>–http-client-body-temp-path=/var/cache/nginx/client_temp        </p>
+<p>http-proxy-temp-path=/var/cache/nginx/proxy_temp        </p>
+<p>http-fastcgi-temp-path=/var/cache/nginx/fastcgi_temp</p>
+<p>http-uwsgi-temp-path=/var/cache/nginx/uwsgi_temp</p>
+<p>http-scgi-temp-path=/var/cache/nginx/scgi_temp</p>
+<hr>
+<p>–user=nginx、–group=nginx        设定Nginx进程启动的用户和用户组</p>
+<p>–with-cc-opt=parameters        设置额外的参数将被添加到CFLAGS变量</p>
+<p> –with-ld-opt=parameters        设置附加的参数，链接系统库</p>
+<h1 id="默认配置语法"><a href="#默认配置语法" class="headerlink" title="默认配置语法"></a>默认配置语法</h1><h2 id="全局"><a href="#全局" class="headerlink" title="全局"></a>全局</h2><table>
+  <tr>
+    <td>user</td>
+    <td>设置nginx服务的系统使用用户</td>
+  </tr>
+  <tr>
+    <td>worker_processes</td>
+    <td>工作进程数，一般与CPU保持一致</td>
+  </tr>
+  <tr>
+    <td>error_log</td>
+    <td>nginx的错误日志</td>
+  </tr>
+  <tr>
+    <td>pid</td>
+    <td>nginx服务启动时候pid</td>
+  </tr>
+</table>
+
+<p><strong>events</strong></p>
+<table>
+  <tr>
+    <td>worker_connections</td>
+    <td>每个进程允许最大连接数</td>
+  </tr>
+  <tr>
+    <td>use</td>
+    <td>工作进程数</td>
+  </tr>
+</table>
+
+<h2 id="http"><a href="#http" class="headerlink" title="http"></a>http</h2><pre><code class="hljs nginx">http&#123;
+  
+  <span class="hljs-attribute">include</span>             /etc/nginx/mime.types;
+  
+  <span class="hljs-comment">#日志类型</span>
+  <span class="hljs-attribute">log_format</span>  main  <span class="hljs-string">'<span class="hljs-variable">$remote_addr</span> - <span class="hljs-variable">$remote_user</span> [<span class="hljs-variable">$time_local</span>] "<span class="hljs-variable">$request</span>" '</span>
+                      <span class="hljs-string">'<span class="hljs-variable">$status</span> <span class="hljs-variable">$body_bytes_sent</span> "<span class="hljs-variable">$http_referer</span>" '</span>
+                      <span class="hljs-string">'"<span class="hljs-variable">$http_user_agent</span>" "<span class="hljs-variable">$http_x_forwarded_for</span>"'</span>;
+
+  <span class="hljs-comment">#日志路径</span>
+  <span class="hljs-attribute">access_log</span>  /var/log/nginx/access.log  main;
+
+  <span class="hljs-attribute">sendfile</span>            <span class="hljs-literal">on</span>;
+
+  <span class="hljs-comment">#客户端与服务端的超时时间</span>
+  <span class="hljs-attribute">keepalive_timeout</span>   <span class="hljs-number">65</span>;
+
+  <span class="hljs-attribute">include</span> /etc/nginx/conf.d/ <span class="hljs-regexp">*.conf</span>;
+
+  
+	<span class="hljs-section">server</span> &#123;
+        <span class="hljs-attribute">listen</span>       <span class="hljs-number">80</span> default_server;
+        <span class="hljs-attribute">listen</span>       [::]:<span class="hljs-number">80</span> default_server;
+    
+    		<span class="hljs-comment">#IP地址、域名</span>
+        <span class="hljs-attribute">server_name</span>  _;
+        <span class="hljs-attribute">root</span>         /usr/share/nginx/html;
+
+        <span class="hljs-comment">#加载默认服务器块的配置文件。</span>
+        <span class="hljs-attribute">include</span> /etc/nginx/default.d/ <span class="hljs-regexp">*.conf</span>;
+				
+    		<span class="hljs-comment">#location可以有多个，这里说如果访问的是'/'，就会定向到'/usr/share/nginx/html/index.html'</span>
+        <span class="hljs-attribute">location</span> / &#123;
+      		<span class="hljs-comment">#root	/usr/share/nginx/html;</span>
+      		<span class="hljs-comment">#如果没有找到index.html，就会使用index.htm</span>
+      		<span class="hljs-comment">#index	index.html	index.htm;</span>
+        &#125;
+    	
+        <span class="hljs-attribute">error_page</span> <span class="hljs-number">404</span> /<span class="hljs-number">404</span>.html;
+    		<span class="hljs-attribute">location</span> = /40x.html &#123;
+        &#125;
+				 
+        <span class="hljs-attribute">error_page</span> <span class="hljs-number">500</span> <span class="hljs-number">502</span> <span class="hljs-number">503</span> <span class="hljs-number">504</span> /50x.html;
+    		<span class="hljs-attribute">location</span> = /50x.html &#123;
+      		<span class="hljs-comment">#root	/usr/share/nginx/html;</span>
+        &#125;
+    &#125;
+&#125;</code></pre>
+
+<h1 id="日志log-format"><a href="#日志log-format" class="headerlink" title="日志log_format"></a>日志log_format</h1><h2 id="日志类型"><a href="#日志类型" class="headerlink" title="日志类型"></a>日志类型</h2><ul>
+<li>error.log：记录处理请求错误的状态和Nginx本身服务的错误状态</li>
+<li>access_log：记录http请求的访问状态，主要用于分析每一次请求和客户的交互和对行为的分析</li>
+</ul>
+<p>Nginx是如何实现这些日志的呢？</p>
+<p>主要依赖于log_format配置，nginx的log中记录了很的信息，每一个信息可以理解成都是Nginx里面的对应的变量，log_format就是把这些变量组织到一起 ，记录到access_log中去</p>
+<p>log_format的配置语法</p>
+<ul>
+<li>Syntax: log_format name [escape=default l json] string    ……;</li>
+<li>Default: log_format combined    “…”;</li>
+<li>Context:http</li>
+</ul>
+<h2 id="nginx-conf中配置"><a href="#nginx-conf中配置" class="headerlink" title="nginx.conf中配置"></a>nginx.conf中配置</h2><pre><code class="hljs nginx"><span class="hljs-attribute">error_log</span> /var/log/nginx/error.log [level];
+
+
+http&#123;
+    <span class="hljs-attribute">access_log</span>  /var/log/nginx/access.log  main;  
+&#125;</code></pre>
+
+<h2 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h2><p>对于log_format来说，它有很多的变量，例如：</p>
+<pre><code class="hljs nginx"><span class="hljs-section">http</span> &#123;
+    <span class="hljs-attribute">log_format</span>  main  <span class="hljs-string">'<span class="hljs-variable">$remote_addr</span> - <span class="hljs-variable">$remote_user</span> [<span class="hljs-variable">$time_local</span>] "<span class="hljs-variable">$request</span>" '</span>
+                      <span class="hljs-string">'<span class="hljs-variable">$status</span> <span class="hljs-variable">$body_bytes_sent</span> "<span class="hljs-variable">$http_referer</span>" '</span>
+                      <span class="hljs-string">'"<span class="hljs-variable">$http_user_agent</span>" "<span class="hljs-variable">$http_x_forwarded_for</span>"'</span>;
+&#125;</code></pre>
+
+<p>这里做了一个分类</p>
+<ul>
+<li>HTTP请求变量 ：arg_PARAMETER、http_HEADER、sent_http_HEADER<ul>
+<li>http_HEADER：request的Header输出</li>
+<li>sent_http_HEADER：response的Header处理</li>
+</ul>
+</li>
+<li>内置变量：Nginx内置的，这里由于变量很多，需要了解可以去看<a href="http://nginx.org/en/docs/http/ngx_http_core_module.html#var_status" target="_blank" rel="noopener">文档</a></li>
+<li>自定义变量：自己定义</li>
+</ul>
+<hr>
+<p>这里以<code>http_HEADER</code>做个例子：在日志中打印用户代理，在Request中会有一个User-Agent，它就是用户代理的信息，我希望能在日志中输出它，修改配置文件：</p>
+<pre><code class="hljs nginx"><span class="hljs-section">http</span> &#123;
+    <span class="hljs-attribute">log_format</span>  main  <span class="hljs-string">'<span class="hljs-variable">$http_user_agent</span>'</span> ...
+&#125;</code></pre>
+
+<p>效果：</p>
+<pre><code class="hljs bash"><span class="hljs-comment">#修改了配置文件之后需要重载</span>
+~&gt; nginx -s reload -c /etc/nginx/nginx.conf 	
+
+~&gt; curl localhost
+
+~&gt; tail -f /var/<span class="hljs-built_in">log</span>/nginx/access.log
+curl/7.29.0curl/7.29.0::1 ...</code></pre>
+
+<p>关于Nginx变量有很多种类型，这里给它进行分类：</p>
+<ul>
+<li>HTTP请求变量：arg_PAPARMTER、http_HEADER、set_http_HEADER</li>
+<li>内置变量：Nginx内置变量<a href="http://nginx.org/en/docs/http/ngx_http_core_module.html#var_status" target="_blank" rel="noopener">文档</a></li>
+<li>自定义变量：自己定义。这个会在lua章节中提到</li>
+</ul>
+<p>这里来介绍一下nginx.conf中默认使用的一些变量</p>
+<pre><code class="hljs nginx"><span class="hljs-attribute">log_format</span>  main  <span class="hljs-string">'<span class="hljs-variable">$http_user_agent</span>'</span> <span class="hljs-string">'<span class="hljs-variable">$http_user_agent</span>'</span> <span class="hljs-string">'<span class="hljs-variable">$remote_addr</span> - <span class="hljs-variable">$remote_user</span> [<span class="hljs-variable">$time_local</span>] "<span class="hljs-variable">$request</span>" '</span>
+                      <span class="hljs-string">'<span class="hljs-variable">$status</span> <span class="hljs-variable">$body_bytes_sent</span> "<span class="hljs-variable">$http_referer</span>" '</span>
+                      <span class="hljs-string">'"<span class="hljs-variable">$http_user_agent</span>" "<span class="hljs-variable">$http_x_forwarded_for</span>"'</span>;</code></pre>
+
+<ul>
+<li>remote_addr：客户端地址</li>
+<li>remote_user：http客户端请求认证的用户名，默认没有开启认证模块的话是不会有效的</li>
+<li>time_local：时间</li>
+<li>request：request头的请求行。比如请求方式：get、post，http的协议版本</li>
+<li>status：response返回的状态</li>
+<li>body_bytes_sent：从服务端响应给客户端body的大小</li>
+<li>http_referer：标准http头信息。重要的记录信息，在防盗链里面对用户进行行为分析的时候这个会经常使用。它表示上一级页面是哪一个，我们访问当前这级页面那么它的上一级页面这个URL地址就会做为http_referer做记录</li>
+<li>http_user_agent：标准http头信息。表示客户端的内容，我们用的IE那么它就打印对应的IE的agent，如果是chrome就会是chrome的agent</li>
+<li>http_x_forwarded_for：标准http头信息。它会记录每一级用户通过http请求里面对应的所携带的http信息</li>
+</ul>
+<h1 id="模块"><a href="#模块" class="headerlink" title="模块"></a>模块</h1><h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p><strong>模块分类</strong></p>
+<ul>
+<li>Nginx官方模块：下载源码包中所默认携带的模块，以及在官方里面明写所支持的模块</li>
+<li>第三方模块：没有得到官方默认支持的模块属于第三方模块，例如其它公司对Nginx做的一些模块开发开源出来可以使用或者自己开发的模块。这个会在lua章节中提到</li>
+</ul>
+<hr>
+<p>通过<code>nginx -V</code>命令就能查看到Nginx编译的模块，它会以<code>–with</code>开头</p>
+<pre><code class="hljs bash">~&gt; nginx -V
+--with-file-aio --with-ipv6 --with-http_ssl_module --with-http_v2_module --with-http_realip_module --with-stream_ssl_preread_module --with-http_addition_module --with-http_xslt_module=dynamic --with-http_image_filter_module=dynamic --with-http_sub_module --with-http_dav_module --with-http_flv_module --with-http_mp4_module --with-http_gunzip_module --with-http_gzip_static_module --with-http_random_index_module --with-http_secure_link_module --with-http_degradation_module --with-http_slice_module --with-http_stub_status_module --with-http_perl_module=dynamic --with-http_auth_request_module --with-mail=dynamic --with-mail_ssl_module --with-pcre --with-pcre-jit --with-stream=dynamic --with-stream_ssl_module --with-google_perftools_module --with-debug --with-cc-opt=<span class="hljs-string">'-O2</span></code></pre>
+
+<p>这章不会介绍全部，只介绍一些大部分所用到的模块以及它对应的配置</p>
+<h2 id="stub-status"><a href="#stub-status" class="headerlink" title="stub_status"></a>stub_status</h2><p>这个模块主要用于展示Nginx当前处理连接的状态，用于我们监控Nginx当前的连接信息，配置语法如下：</p>
+<ul>
+<li>Syntax: stub status；</li>
+<li>Default：——</li>
+<li>Context：server，location</li>
+</ul>
+<hr>
+<p>nginx.conf加入内容</p>
+<pre><code class="hljs nginx"><span class="hljs-comment">#内容</span>
+server&#123;
+				<span class="hljs-attribute">location</span> /mystatus &#123;
+                stub_status;
+        &#125;
+&#125;</code></pre>
+
+<p> 然后重载</p>
+<pre><code class="hljs bash">~&gt; nginx -tc /etc/nginx/nginx.conf &amp;&amp; nginx -s reload -c /etc/nginx/nginx.conf
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf <span class="hljs-built_in">test</span> is successful</code></pre>
+
+<p>测试</p>
+<pre><code class="hljs bash">~&gt; curl localhost/mystatus
+Active connections: 3	<span class="hljs-comment">#连接状态数 		</span>
+server accepts handled requests	<span class="hljs-comment">#展示了3个数，1：Nginx握手的总次数，2：Nginx连接数，3：总请求数。在正常情况连接数和握手数是一致的，这样表示它没有丢失</span>
+ 6 6 3 
+Reading: 0 Writing: 1 Waiting: 2 	<span class="hljs-comment">#表示当前状态，Reading：读的个数，Writing：写的个数，Waiting：在Nginx开启了keeplive长连接的情况下，表示客户端和服务端正在空闲的等待，既没有读也没有写，一个建立连接的数量</span></code></pre>
+
+<h2 id="random-index"><a href="#random-index" class="headerlink" title="random_index"></a>random_index</h2><p><strong>编译选项</strong></p>
+<p>–with-http_random_index_module：目录中选择一个随机主页    </p>
+<p><strong>配置语法random_index_module</strong></p>
+<p>Syntax：random_index on | off;<br>Default：random index off;<br>Context：location</p>
+<hr>
+<p><strong>演示</strong></p>
+<p><code>/opt/app/code</code>下面有3个html</p>
+<pre><code class="hljs bash">/opt/app/code&gt; <span class="hljs-built_in">echo</span> 1 &gt; 1.html
+/opt/app/code&gt; <span class="hljs-built_in">echo</span> 2 &gt; 2.html
+/opt/app/code&gt; <span class="hljs-built_in">echo</span> 3 &gt; 3.html</code></pre>
+
+<p>nginx.conf</p>
+<pre><code class="hljs lua">server&#123;
+		location / &#123;
+    	root /opt/app/code;
+    	random_index on;
+  	&#125;
+&#125;</code></pre>
+
+<p>测试</p>
+<pre><code class="hljs bash">~&gt; nginx -tc /etc/nginx/nginx.conf &amp;&amp; nginx -s reload -c /etc/nginx/nginx.conf
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf <span class="hljs-built_in">test</span> is successful
+
+~&gt; curl localhost
+1
+~&gt; curl localhost
+2
+~&gt; curl localhost
+1
+~&gt; curl localhost
+2
+~&gt; curl localhost
+2</code></pre>
+
+<blockquote>
+<p>这里注意：Nginx不会随机隐藏文件，只要文件开头是以.xxx就不会被随机</p>
+</blockquote>
+<h2 id="sub-module"><a href="#sub-module" class="headerlink" title="sub_module"></a>sub_module</h2><p><strong>编译选项</strong></p>
+<p>–with-http_sub_module：用于Nginx服务端在给客户端response http的内容时候，给http的内容进行替换</p>
+<p><strong>语法</strong></p>
+<p>Syntax:：sub_filter string replacement;<br>Default：——<br>Context：http，server，location</p>
+<p>Syntax：sub_filter_last_modified on | off；<br>Default：sub_filter_last modified off；<br>Context：http，server，location</p>
+<blockquote>
+<p>作用：http头信息的last-modified用于Nginx服务端来完成和客户端进行每一次请求校验服务端的内容是否有发生过变更，其目的是否有更新，如果发生更新返回给用户最新的内容，如果没有更新就不需要再一次返回html内容代码来减少不必要的消耗，这个主要用于缓存的场景里面，这个会在缓存章节中进行说明</p>
+</blockquote>
+<p>Syntax：sub_filter_once on off;<br>Default：sub_filter_once on;<br>Context：http，server，location</p>
+<blockquote>
+<p>作用：匹配所有html代码的第一个还是匹配所有指定的字符串，如果是on的话就只匹配第一个，如果是off的话会把所有html里面指定的内容都进行一次匹配</p>
+</blockquote>
+<p><strong>演示</strong></p>
+<p>创建一个<code>submodule.html</code></p>
+<pre><code class="hljs bash">/opt/app/code&gt; cat submodule.html
+&lt;a&gt;jeson&lt;/a&gt;
+&lt;a&gt;at&lt;/a&gt;
+&lt;a&gt;mcr&lt;/a&gt;
+&lt;a&gt;jeson&lt;/a&gt;
+&lt;a&gt;mcr&lt;/a&gt;</code></pre>
+
+<p>nginx.conf修改</p>
+<pre><code class="hljs nginx"><span class="hljs-attribute">location</span> / &#123;
+		<span class="hljs-attribute">root</span> /opt/app/code;
+  	<span class="hljs-attribute">index</span> submodule.html;
+  	<span class="hljs-attribute">sub_filter</span> <span class="hljs-string">'&lt;a&gt;mcr&lt;/a&gt;'</span> <span class="hljs-string">'&lt;h1&gt;MCR&lt;/h1&gt;'</span>;
+&#125;</code></pre>
+
+<p>测试</p>
+<pre><code class="hljs bash">~&gt; nginx -tc /etc/nginx/nginx.conf &amp;&amp; nginx -s reload -c /etc/nginx/nginx.conf
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf <span class="hljs-built_in">test</span> is successful
+
+~&gt;  curl localhost
+&lt;a&gt;jeson&lt;/a&gt;
+&lt;a&gt;at&lt;/a&gt;
+&lt;a&gt;MCR&lt;/a&gt;
+&lt;a&gt;jeson&lt;/a&gt;
+&lt;a&gt;mcr&lt;/a&gt;</code></pre>
+
+<p>这里可以看到，只有一个mcr做了替换，怎么办呢？这里需要将sub_filter_once关闭</p>
+<pre><code class="hljs nginx"><span class="hljs-attribute">location</span> / &#123;
+            <span class="hljs-attribute">root</span> /opt/app/code;
+            <span class="hljs-attribute">index</span> submodule.html;
+            <span class="hljs-attribute">sub_filter</span> <span class="hljs-string">'&lt;a&gt;mcr'</span> <span class="hljs-string">'&lt;a&gt;MCR'</span>;
+            <span class="hljs-attribute">sub_filter_once</span> <span class="hljs-literal">off</span>;
+        &#125;</code></pre>
+
+<p>测试</p>
+<pre><code class="hljs bash">~&gt; nginx -tc /etc/nginx/nginx.conf &amp;&amp; nginx -s reload -c /etc/nginx/nginx.conf
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf <span class="hljs-built_in">test</span> is successful
+
+~&gt; curl localhost
+&lt;a&gt;jeson&lt;/a&gt;
+&lt;a&gt;at&lt;/a&gt;
+&lt;a&gt;MCR&lt;/a&gt;
+&lt;a&gt;jeson&lt;/a&gt;
+&lt;a&gt;MCR&lt;/a&gt;</code></pre>
+
+<h1 id="请求限制"><a href="#请求限制" class="headerlink" title="请求限制"></a>请求限制</h1><h2 id="介绍-1"><a href="#介绍-1" class="headerlink" title="介绍"></a>介绍</h2><ul>
+<li>连接频率限制：limit_conn_module</li>
+<li>请求频率限制：limit_req_module</li>
+</ul>
+<p>以上2个module都是可以实现Nginx的请求限制，但是它们的实现原来是不一样的，连接和请求是有区别的，关于连接和请求的区别介绍：</p>
+<p>http请求建立在tcp协议上，要完成一次http请求先要进行tcp的3次握手，下面这张图描述了tcp3次握手：</p>
+<img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200123111840894.png" srcset="/img/loading.gif" alt="image-20200123111840894" style="zoom:50%;" />
+
+<p>在当今的http协议的时代，可以在一个连接的基础上建立多次请求，如上面这个图，先进行完tcp连接之后然后进行http的请求-响应，最后用客户端向服务端不断的发送FIN、ACK包来保持连接状态，也就是所谓的长连接。通过这个图可以知道连接是用在http请求的基础之上。</p>
+<hr>
+<p>在http不同版本的时候连接和 请求它有对应的限制</p>
+<ul>
+<li>http1.0：TCP不能否用。客户端向服务端发送请求以后，服务端在对应的时间后断开，一次连接对应一次请求</li>
+<li>http1.1：顺序性TCP复用。一个连接可以顺序性被复用而发送多次http请求</li>
+<li>http2.0：多路复用TCP复用。</li>
+</ul>
+<p>通过以上得出结论：</p>
+<ul>
+<li>http请求建立在一次TCP连接基础上</li>
+<li>一次TCP请求至少产生一次HTTP请求，也可以产生多次HTTP请求</li>
+</ul>
+<hr>
+<p><strong>连接限制</strong></p>
+<p><strong>语法</strong></p>
+<p>（1）</p>
+<p>Syntax：limit_conn_zone key zone=name:size；<br>Default：—<br>Context：http</p>
+<blockquote>
+<p>这里的配置语法这么理解：既然要对连接进行限制那么就需要存储连接的状态，通过IP为空间进行存储，这里的limit_conn_zone就是它的空间，这里通过每个作为key，比如说：我想对客户端的IP作为key，我限制的就是客户端的ip，那么我就会把nginx对应remote_addr内置变量作为key，如果我们想以别的内置变量来作为限制的时候同样可以写到key下面。</p>
+<p>这里的zone加了一个名字，这个是申请一块空间的zone的名字，这个名字是为了真正实现限制的时候来调用这个空间；size表示申请空间的大小</p>
+</blockquote>
+<p>（2）</p>
+<p>Syntax：limit_conn_zone number;<br>Default：—<br>Context：http，server，location</p>
+<blockquote>
+<p>这里的语法需要结合上面的，先定义好zone才能使用这里的配置，这里后面直接加的zone，这个zone就是上面的zone的name，number表示限制并发数，比如是1，就允许期间有1个</p>
+</blockquote>
+<p><strong>请求限制</strong></p>
+<p><strong>语法</strong></p>
+<p>(1)</p>
+<p>Syntax: limit_reg_zone key zone =name:size rate=rate;<br>Default：——<br>Context：http</p>
+<blockquote>
+<p>这里和连接限制的语法意思是一样的，rate是唯一的区别，这个地方是先定义好的，我对于这个请求我的限制是多大，通常是以秒为单位，然后请求限制是多少个，这里的意思是单位</p>
+</blockquote>
+<p>(2)</p>
+<p>Syntax: limit_req zone=name [burst=number] [nodelay];<br>Default：——</p>
+<p>Context：http，server，location</p>
+<h2 id="案例"><a href="#案例" class="headerlink" title="案例"></a>案例</h2><h3 id="请求限制-1"><a href="#请求限制-1" class="headerlink" title="请求限制"></a>请求限制</h3><p>nginx.conf#http</p>
+<pre><code class="hljs nginx"><span class="hljs-attribute">limit_conn_zone</span> <span class="hljs-variable">$binary_remote_addr</span> zone=conn_zone:<span class="hljs-number">1m</span>;
+
+<span class="hljs-comment">#这里的binary_remote_addr和remote_addr是一个意思，但是我们在这个地方是需要定义它的zone里面，我们知道这个zone大小设置的是1MB,对于1MB空间要存储remote_addr会比binary_remote_addr会要多10个字节</span>
+
+
+<span class="hljs-comment">#限制同一个IP地址，所有的请求限制在1秒的时候内发起一个</span>
+<span class="hljs-attribute">limit_req_zone</span>  <span class="hljs-variable">$binary_remote_addr</span> zone=req_zone:<span class="hljs-number">1m</span> rate=1r/s;</code></pre>
+
+<p>测试</p>
+<pre><code class="hljs bash"><span class="hljs-comment">#-n xx :总共发起请求数，-c xx：并发数</span>
+~&gt; ab -n 40 -c 20 http://localhost/index.html
+并发级别:20
+检测时间:0.002秒
+完成要求:40
+失败的请求:0
+写错误:0
+传输总量:202720字节
+传输的HTML: 193320字节
+每秒请求数:16508.46[<span class="hljs-comment">#/秒](平均)</span>
+每次请求所需时间:1.211 [ms](平均值)
+每个请求的时间:0.061 [ms](所有并发请求的平均时间)
+传输速率:81703.98 [Kbytes/sec]接收</code></pre>
+
+<p>nginx.conf#server</p>
+<pre><code class="hljs nginx"><span class="hljs-attribute">location</span> / &#123;
+	<span class="hljs-attribute">limit_req</span> zone=req_zone;
+&#125;</code></pre>
+
+<pre><code class="hljs bash">~&gt; ab -n 40 -c 20 http://localhost/index.html
+并发级别:20
+检测时间:0.002秒
+完成要求:40
+失败的请求:39
+(Connect: 0, Receive: 0, Length: 39, Exceptions: 0)
+写错误:0
+Non-2xx反应:39
+传输总量:156700字节
+HTML传输:148860字节
+每秒请求数:18674.14[<span class="hljs-comment">#/秒](平均)</span>
+每个请求的时间:1.071 [ms](平均值)
+每个请求的时间:0.054 [ms](所有并发请求的平均时间)
+传输速率:71441.34 [Kbytes/sec]接收
+
+<span class="hljs-comment">#请求失败的都会可以在日志中查到</span>
+~&gt; tail -f /var/<span class="hljs-built_in">log</span>/nginx/error.log 
+020/01/23 16:02:32 [notice] 2651<span class="hljs-comment">#0: signal process started</span>
+2020/01/23 16:02:51 [error] 2654<span class="hljs-comment">#0: *648 limiting connections by zone "conn_zone", client: ::1, server: _, request: "GET /index.html HTTP/1.0", host: "localhost"</span>
+2020/01/23 16:02:51 [error] 2652<span class="hljs-comment">#0: *653 limiting connections by zone "conn_zone", client: ::1, server: _, request: "GET /index.html HTTP/1.0", host: "localhost"</span>
+...</code></pre>
+
+<p>nginx.conf#server</p>
+<pre><code class="hljs nginx"><span class="hljs-attribute">location</span> / &#123;
+  <span class="hljs-comment">#limit_conn conn_zone;</span>
+  <span class="hljs-comment">#burst=3：客户端在超过指定的数据以后，遗留的3个会放到下一秒执行，保证这3个在后一秒执行，对客户端起到访问限速的作用也就是延迟响应，在超过3个时候会nodelay，直接返回503</span>
+  <span class="hljs-attribute">limit_req</span> zone=req_zone burst=<span class="hljs-number">3</span> nodelay;
+&#125;</code></pre>
+
+<p>测试</p>
+<pre><code class="hljs bash">~&gt; ab -n 40 -c 20 http://localhost/index.html
+并发级别:20
+检测时间:0.003秒
+完成要求:40
+失败的请求:36
+(Connect: 0, Receive: 0, Length: 36, Exceptions: 0)
+写错误:0
+Non-2xx反应:36
+传输总量:160240字节
+传输的HTML: 152280字节
+每秒请求数:12418.50[<span class="hljs-comment">#/秒](平均)</span>
+每次请求所需时间:1.611 [ms](平均值)
+每个请求的时间:0.081 [ms](所有并发请求的平均时间)
+传输速率:48582.54 [Kbytes/sec]接收</code></pre>
+
+<h3 id="连接限制"><a href="#连接限制" class="headerlink" title="连接限制"></a>连接限制</h3><p>nginx.conf#server</p>
+<pre><code class="hljs bash">location / &#123;
+	<span class="hljs-comment">#limit_req zone=req_zone;</span>
+	limit_conn conn_zone 1;
+&#125;</code></pre>
+
+<blockquote>
+<p>连接的限制是指服务端同一时刻只允许一个IP的连接过来</p>
+</blockquote>
+<p>测试</p>
+<pre><code class="hljs bash">~&gt; ab -n 20 -c 20 http://localhost/index.html
+并发级别:20
+检测时间:0.002秒
+完成要求:20
+失败的请求:6
+(Connect: 0, Receive: 0, Length: 6, Exceptions: 0)
+写错误:0
+Non-2xx反应:6
+传输总量:94280字节
+HTML传输:89820字节
+每秒请求数:9237.88[<span class="hljs-comment">#/秒](平均)</span>
+每次请求所需时间:2.165 [ms](平均值)
+每个请求的时间:0.108 [ms](所有并发请求的平均时间)
+传输速率:42526.70 [Kbytes/sec]接收
+
+
+<span class="hljs-comment">#这里可以看下日志，上面说区域限制连接“conn_zone”，就表示前面的配置生效了</span>
+2020/01/23 16:24:35 [error] 2732<span class="hljs-comment">#0: *831 limiting connections by zone "conn_zone", client: ::1, server: _, request: "GET /index.html HTTP/1.0", host: "localhost"</span>
+2020/01/23 16:24:35 [error] 2732<span class="hljs-comment">#0: *838 limiting connections by zone "conn_zone", client: ::1, server: _, request: "GET /index.html HTTP/1.0", host: "localhost"</span>
+2020/01/23 16:24:35 [error] 2733<span class="hljs-comment">#0: *830 limiting connections by zone "conn_zone", client: ::1, server: _, request: "GET /index.html HTTP/1.0", host: "localhost"</span>
+2020/01/23 16:24:35 [error] 2733<span class="hljs-comment">#0: *832 limiting connections by zone "conn_zone", client: ::1, server: _, request: "GET /index.html HTTP/1.0", host: "localhost"</span>
+2020/01/23 16:24:35 [error] 2733<span class="hljs-comment">#0: *833 limiting connections by zone "conn_zone", client: ::1, server: _, request: "GET /index.html HTTP/1.0", host: "localhost"</span>
+2020/01/23 16:24:35 [error] 2734<span class="hljs-comment">#0: *843 limiting connections by zone "conn_zone", client: ::1, server: _, request: "GET /index.html HTTP/1.0", host: "localhost"</span></code></pre>
+
+<h1 id="访问控制"><a href="#访问控制" class="headerlink" title="访问控制"></a>访问控制</h1><h2 id="介绍-2"><a href="#介绍-2" class="headerlink" title="介绍"></a>介绍</h2><p>关于http访问控制，在Nginx中提供了以下模块：</p>
+<ul>
+<li>基于IP的访问控制：http_access_module</li>
+<li>基于用户的信任登录：http_auth_basic_module</li>
+</ul>
+<h2 id="access-module"><a href="#access-module" class="headerlink" title="access_module"></a>access_module</h2><p><strong>语法</strong></p>
+<p>(1)</p>
+<p>Syntax：allow address | CIDR | unix: | all；</p>
+<p>Default：——</p>
+<p>Context：http，server，location，limit_except</p>
+<ul>
+<li>allow address：允许某个地址</li>
+<li>CIDR ：网段方式进行配置。例如：192.168.1.0/24，允许这一个网段进行访问</li>
+<li>unix：在Nginx的limit上socket方式访问</li>
+<li>all：允许所有的</li>
+</ul>
+<p>(2)</p>
+<p>Syntax： deny address | CIDR | unix: | all；</p>
+<p>Default：——</p>
+<p>Context：http，server，location，limit_except</p>
+<ul>
+<li>deny address ：不允许哪些IP访问  </li>
+</ul>
+<p><strong>演示</strong></p>
+<p>nginx.conf#server</p>
+<pre><code class="hljs nginx"><span class="hljs-attribute">location</span> <span class="hljs-regexp">~ ^/admin.html</span>&#123;
+                <span class="hljs-attribute">root</span> /opt/app/code;
+                <span class="hljs-attribute">deny</span> all;
+&#125;</code></pre>
+
+<p>测试</p>
+<pre><code class="hljs bash">~&gt; curl localhost/admin.html
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;403 Forbidden&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;center&gt;&lt;h1&gt;403 Forbidden&lt;/h1&gt;&lt;/center&gt;
+&lt;hr&gt;&lt;center&gt;nginx/1.16.1&lt;/center&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+<p><strong>局限性</strong></p>
+<blockquote>
+<p>暂无</p>
+</blockquote>
+<h2 id="http-auth-basic-module"><a href="#http-auth-basic-module" class="headerlink" title="http_auth_basic_module"></a>http_auth_basic_module</h2><p><strong>语法</strong></p>
+<p>(1)</p>
+<p>Syntax：auth_basic string | off;<br>Default：auth_basic off;<br>Context：http，server，location，limit_except</p>
+<blockquote>
+<p>string：登录提示；</p>
+<p>这个配置默认是关闭的“off”，如果需要 开启它，将off改为字符串即可</p>
+</blockquote>
+<p>(2)</p>
+<p>Syntax：auth_basic_user_file file;<br>Default：——<br>Context：http，server，location，limit_except</p>
+<blockquote>
+<p>file：文件配置路径，这个路径的文件要来存储用户名和密码信息</p>
+</blockquote>
+<p>详细的介绍：<a href="https://nginx.org/en/docs/http/ngx_http_auth_basic_module.html" target="_blank" rel="noopener">文档</a></p>
+<p><strong>演示</strong></p>
+<p>官方要求文件的密码需要通过<code>crypt</code>函数加密，这里可以在你的服务器中使用<code>htpasswd</code> ，这里先下载一下</p>
+<pre><code class="hljs bash">~&gt; yum install  -y httpd-tools -y</code></pre>
+
+<p>通过<code>htpasswd</code> 来生成文件</p>
+<pre><code class="hljs bash">/etc/nginx&gt; htpasswd  -c ./auth_conf shui
+New password: 123456 
+Re-type new password: 123456 
+Adding password <span class="hljs-keyword">for</span> user shui</code></pre>
+
+<p>nginx.conf#server</p>
+<pre><code class="hljs nginx"><span class="hljs-attribute">location</span> <span class="hljs-regexp">~ ^/admin.html</span>&#123;
+                <span class="hljs-attribute">root</span> /opt/app/code;
+                <span class="hljs-attribute">auth_basic</span> <span class="hljs-string">"Please enter your account password!"</span>;
+                <span class="hljs-attribute">auth_basic_user_file</span> /etc/nginx/auth_conf;
+&#125;</code></pre>
+
+<p><strong>局限性</strong></p>
+<blockquote>
+<p>暂无</p>
+</blockquote>
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E8%BF%90%E7%BB%B4/Nginx/">Nginx</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/nginx-3.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【Nginx】 3.场景实践篇</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/nginx-1.html">
+                        <span class="hidden-mobile">【Nginx】 1.环境准备</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "【Nginx】 2.基础篇&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

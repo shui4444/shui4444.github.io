@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="Shui">
+  <meta name="keywords" content="">
+  <title>【 六、RBAC 】 3.权限表达式 - Shui&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Fluid</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2019-10-16 18:03">
+      2019年10月16日 晚上
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      15
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <h1 id="权限表达式"><a href="#权限表达式" class="headerlink" title="权限表达式"></a>权限表达式</h1><p>通过源码分析可知，最终的配置都会转成<strong>ExpressionUrlAuthorizationConfigurer.AuthorizedUrl</strong>并进行投票决定。</p>
+<p>常见表达式如下：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568559383045.png" srcset="/img/loading.gif" alt="1568559383045"></p>
+<p>如何写联合表达式呢？就是既满足A条件，也满足B条件</p>
+<pre><code class="hljs java">.antMatchers(<span class="hljs-string">"xx"</span>).access(<span class="hljs-string">"hasRole('ROLE_USER') and hasRole('ROLE_SUPER')"</span>)</code></pre>
+
+<p> 这个都是spring自己的权限表达式，那么我们是否可以自定义实现自己的权限规则呢？可以的！这个我们下一章再看怎么实现。</p>
+<h1 id="权限业务配置分离"><a href="#权限业务配置分离" class="headerlink" title="权限业务配置分离"></a>权限业务配置分离</h1><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568559938142.png" srcset="/img/loading.gif" alt="1568559938142"></p>
+<p>这里的代码不应该是写在browser中的，这里的代码应该由demo模块也就是使用者来编写，那么如何将权限模块配置和业务模块配置想分离呢？下面就来满足这个业务场景</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568560039993.png" srcset="/img/loading.gif" alt="1568560039993"></p>
+<p>实现思路如下：</p>
+<p>提供AuthorizeConfigProvider接口，提供权限设置<br>权限模块的通用配置实现该接口，然后进行配置，业务模块按需也实现该接口进行配置<br>最后使用 AuthorizeConfigManager类来管理所有的AuthorizeConfigProvider实现<br>拿到所有的配置后，进行统一设置</p>
+<hr>
+<p>代码实现如下：</p>
+<p>权限控制接口及实现 </p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.authorize;
+ 
+<span class="hljs-keyword">import</span> org.springframework.security.config.annotation.web.builders.HttpSecurity;
+<span class="hljs-keyword">import</span> org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
+ 
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * 自定义权限控制接口</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">AuthorizeConfigProvider</span> </span>&#123;
+ 
+	<span class="hljs-comment">/**</span>
+<span class="hljs-comment">	 * <span class="hljs-doctag">@param</span> config</span>
+<span class="hljs-comment">	 * <span class="hljs-doctag">@return</span> 返回的boolean表示配置中是否有针对anyRequest的配置。在整个授权配置中，</span>
+<span class="hljs-comment">	 * 应该有且仅有一个针对anyRequest的配置，如果所有的实现都没有针对anyRequest的配置，</span>
+<span class="hljs-comment">	 * 系统会自动增加一个anyRequest().authenticated()的配置。如果有多个针对anyRequest</span>
+<span class="hljs-comment">	 * 的配置，则会抛出异常。</span>
+<span class="hljs-comment">	 */</span>
+	<span class="hljs-function"><span class="hljs-keyword">boolean</span> <span class="hljs-title">config</span><span class="hljs-params">(ExpressionUrlAuthorizationConfigurer&lt;HttpSecurity&gt;.ExpressionInterceptUrlRegistry config)</span></span>;
+&#125;</code></pre>
+
+<p>通用权限设置</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.authorize;
+
+
+<span class="hljs-keyword">import</span> com.b4.mcr.auth.core.properties.SecurityConstants;
+<span class="hljs-keyword">import</span> com.b4.mcr.auth.core.properties.SecurityProperties;
+<span class="hljs-keyword">import</span> lombok.extern.slf4j.Slf4j;
+<span class="hljs-keyword">import</span> org.springframework.beans.factory.annotation.Autowired;
+<span class="hljs-keyword">import</span> org.springframework.core.annotation.Order;
+<span class="hljs-keyword">import</span> org.springframework.security.config.annotation.web.builders.HttpSecurity;
+<span class="hljs-keyword">import</span> org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
+<span class="hljs-keyword">import</span> org.springframework.stereotype.Component;
+
+<span class="hljs-keyword">import</span> javax.annotation.Resource;
+
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * 通用权限接口配置管理</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-meta">@Component</span>
+<span class="hljs-meta">@Slf</span>4j
+<span class="hljs-meta">@Order</span>(Integer.MIN_VALUE)
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CommonAuthorizeConfigProvider</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">AuthorizeConfigProvider</span> </span>&#123;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> SecurityProperties securityProperties;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">config</span><span class="hljs-params">(ExpressionUrlAuthorizationConfigurer&lt;HttpSecurity&gt;.ExpressionInterceptUrlRegistry config)</span> </span>&#123;
+
+        config.antMatchers(
+                SecurityConstants.DEFAULT_UNAUTHENTICATED_URL,<span class="hljs-comment">//权限认证</span>
+                SecurityConstants.DEFAULT_LOGIN_PROCESSING_URL_MOBILE,<span class="hljs-comment">//手机</span>
+                SecurityConstants.DEFAULT_LOGIN_PROCESSING_URL_OPENID,<span class="hljs-comment">//openId</span>
+                securityProperties.getBrowser().getLoginUrl(),<span class="hljs-comment">//登录页面</span>
+                SecurityConstants.DEFAULT_VALIDATE_CODE_URL_PREFIX + <span class="hljs-string">"/*"</span>,
+                securityProperties.getBrowser().getSignUpUrl(),
+<span class="hljs-comment">//                securityProperties.getBrowser().getSignOutUrl(),</span>
+                securityProperties.getBrowser().getSession().getSessionInvalidUrl()
+        ).permitAll();<span class="hljs-comment">//放行</span>
+
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+    &#125;
+&#125;</code></pre>
+
+<p>业务模块权限设置</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.security;
+
+<span class="hljs-keyword">import</span> com.b4.mcr.auth.core.authorize.AuthorizeConfigProvider;
+<span class="hljs-keyword">import</span> org.springframework.core.annotation.Order;
+<span class="hljs-keyword">import</span> org.springframework.security.config.annotation.web.builders.HttpSecurity;
+<span class="hljs-keyword">import</span> org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
+<span class="hljs-keyword">import</span> org.springframework.stereotype.Component;
+
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * 业务模块权限配置实现</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-meta">@Component</span>
+<span class="hljs-meta">@Order</span>(Integer.MAX_VALUE)
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">DemoAuthorizeConfigProvider</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">AuthorizeConfigProvider</span> </span>&#123;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">config</span><span class="hljs-params">(ExpressionUrlAuthorizationConfigurer&lt;HttpSecurity&gt;.ExpressionInterceptUrlRegistry config)</span> </span>&#123;
+        config.antMatchers(
+                <span class="hljs-string">"/user/regist"</span>, <span class="hljs-comment">// 注册请求</span>
+                <span class="hljs-string">"/error"</span>,
+                <span class="hljs-string">"/connect/*"</span>,
+                <span class="hljs-string">"/auth/*"</span>,
+                <span class="hljs-string">"/signin"</span>,
+                <span class="hljs-string">"/social/signUp"</span>,  <span class="hljs-comment">// app注册跳转服务</span>
+                <span class="hljs-string">"/swagger-ui.html"</span>,
+                <span class="hljs-string">"/swagger-ui.html/**"</span>,
+                <span class="hljs-string">"/webjars/**"</span>,
+                <span class="hljs-string">"/swagger-resources/**"</span>,
+                <span class="hljs-string">"/v2/**"</span>
+        ).permitAll();
+
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;
+    &#125;
+&#125;</code></pre>
+
+<p>权限接口管理器及实现</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.authorize;
+ 
+<span class="hljs-keyword">import</span> org.springframework.security.config.annotation.web.builders.HttpSecurity;
+<span class="hljs-keyword">import</span> org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
+ 
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * 权限控制接口持有管理者</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">AuthorizeConfigManager</span> </span>&#123;
+ 
+	<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">config</span><span class="hljs-params">(ExpressionUrlAuthorizationConfigurer&lt;HttpSecurity&gt;.ExpressionInterceptUrlRegistry config)</span></span>;
+&#125;</code></pre>
+
+<p>权限接口管理器及实现默认实现</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.authorize;
+
+<span class="hljs-keyword">import</span> org.springframework.beans.factory.annotation.Autowired;
+<span class="hljs-keyword">import</span> org.springframework.security.config.annotation.web.builders.HttpSecurity;
+<span class="hljs-keyword">import</span> org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
+<span class="hljs-keyword">import</span> org.springframework.stereotype.Component;
+
+<span class="hljs-keyword">import</span> java.util.List;
+<span class="hljs-keyword">import</span> java.util.Set;
+
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> *</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-meta">@Component</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">DefaultAuthorizeConfigManager</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">AuthorizeConfigManager</span> </span>&#123;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> List&lt;AuthorizeConfigProvider&gt; providers;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">config</span><span class="hljs-params">(ExpressionUrlAuthorizationConfigurer&lt;HttpSecurity&gt;.ExpressionInterceptUrlRegistry config)</span> </span>&#123;
+
+        <span class="hljs-keyword">boolean</span> existAnyRequestConfig = <span class="hljs-keyword">false</span>;
+        String existAnyRequestConfigName = <span class="hljs-keyword">null</span>;
+
+        <span class="hljs-keyword">for</span> (AuthorizeConfigProvider authorizeConfigProvider : providers) &#123;
+            <span class="hljs-keyword">boolean</span> currentIsAnyRequestConfig = authorizeConfigProvider.config(config);
+            <span class="hljs-keyword">if</span> (!existAnyRequestConfig &amp;&amp; !currentIsAnyRequestConfig) &#123;
+                <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> RuntimeException(<span class="hljs-string">"重复的anyRequest配置:"</span> + existAnyRequestConfigName + <span class="hljs-string">","</span>
+                        + authorizeConfigProvider.getClass().getSimpleName());
+            &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (currentIsAnyRequestConfig) &#123;
+                existAnyRequestConfig = <span class="hljs-keyword">true</span>;
+                existAnyRequestConfigName = authorizeConfigProvider.getClass().getSimpleName();
+            &#125;
+        &#125;
+
+        <span class="hljs-keyword">if</span> (existAnyRequestConfig) &#123;
+            config.anyRequest().authenticated();
+        &#125;
+    &#125;
+&#125;</code></pre>
+
+<p>浏览器模块配置进行调整（app模块同理），就是将原来的配置抽离出去。</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.browser;
+    <span class="hljs-keyword">private</span> AuthorizeConfigManager authorizeConfigManager;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(HttpSecurity http)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+        BrowserSecurityProperties browser = security.getBrowser();
+
+
+        http
+                .rememberMe()
+                .tokenRepository(repository())
+                .tokenValiditySeconds(browser.getRememberMeSeconds())
+                .userDetailsService(userDetailsService)
+
+                .and()
+
+
+                .logout()
+<span class="hljs-comment">//                .logoutSuccessUrl("/mcr-logout.html")</span>
+                .logoutSuccessHandler(logoutSuccessHandler)
+                .deleteCookies(<span class="hljs-string">"JSESSIONID"</span>)
+
+                .logoutUrl(<span class="hljs-string">"/signOut"</span>)
+                .and()
+
+                .sessionManagement()
+                .invalidSessionStrategy(invalidSessionStrategy)
+                .maximumSessions(browser.getSession().getMaximumSessions()).maxSessionsPreventsLogin(browser.getSession().isMaxSessionsPreventsLogin())
+                .expiredSessionStrategy(sessionInformationExpiredStrategy)
+
+
+                .and()
+                .and()
+
+                .apply(smsCodeAuthenticationSecurityConfig)
+
+                .and()
+
+                .apply(mcrSpringSocialConfigurer)
+
+                .and()
+
+                .addFilterBefore(validateCodeFilter, UsernamePasswordAuthenticationFilter<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>
+<span class="hljs-class"></span>
+<span class="hljs-class">                .<span class="hljs-title">formLogin</span>()</span>
+<span class="hljs-class">                .<span class="hljs-title">successHandler</span>(<span class="hljs-title">authenticationSuccessHandler</span>)</span>
+<span class="hljs-class">                .<span class="hljs-title">failureHandler</span>(<span class="hljs-title">authenticationFailureHandler</span>)</span>
+<span class="hljs-class">                .<span class="hljs-title">loginPage</span>(<span class="hljs-title">SecurityConstants</span>.<span class="hljs-title">DEFAULT_UNAUTHENTICATED_URL</span>)</span>
+<span class="hljs-class">                .<span class="hljs-title">loginProcessingUrl</span>(<span class="hljs-title">SecurityConstants</span>.<span class="hljs-title">DEFAULT_LOGIN_PROCESSING_URL_FORM</span>)</span>
+<span class="hljs-class">                .<span class="hljs-title">and</span>()</span>
+<span class="hljs-class">                .<span class="hljs-title">csrf</span>()</span>
+<span class="hljs-class">                .<span class="hljs-title">disable</span>()</span>;
+        authorizeConfigManager.config(http.authorizeRequests());
+    &#125;
+&#125;</code></pre>
+
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/SpringSecurity/">SpringSecurity</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/spring-security-6.4.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【 六、RBAC 】 4.基于数据库Rbac数据模型控制权限</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/spring-security-6.2.html">
+                        <span class="hidden-mobile">【 六、RBAC 】 2.Spring Security授权源码解析</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "【 六、RBAC 】 3.权限表达式&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

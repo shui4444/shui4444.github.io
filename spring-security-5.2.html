@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="Shui">
+  <meta name="keywords" content="">
+  <title>【 五、OAuth 】 2.实现标准到OAuth服务器提供商 - Shui&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Fluid</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2019-10-15 18:02">
+      2019年10月15日 晚上
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.5k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      30
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <p>因为这里是针对APP进行开发，所以代码大部分是放到App模块中的</p>
+<p>首先将demo模块中pom.xml修改成依赖app模块</p>
+<pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span>
+     <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>com.b4<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span>
+     <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>mcr-auth-app<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span>
+     <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>1.0<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span>
+ <span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span></code></pre>
+
+<p>，然后它会默认依赖成功、失败处理器，所以先将在会去browser模块中写的处理器复制到这个模块里面，现在暂时先这样，后面再根据业务逻辑进行修改</p>
+<p>成功处理器</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.browser.authentication;
+<span class="hljs-meta">@Component</span>
+<span class="hljs-meta">@AllArgsConstructor</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">McrAuthenticationSuccessHandler</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">SavedRequestAwareAuthenticationSuccessHandler</span> </span>&#123;
+    <span class="hljs-keyword">private</span> ObjectMapper objectMapper;
+    <span class="hljs-keyword">private</span> SecurityProperties security;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">onAuthenticationSuccess</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response, Authentication authentication)</span> <span class="hljs-keyword">throws</span> IOException, ServletException </span>&#123;
+        <span class="hljs-keyword">if</span> (security.getBrowser().getLoginType().equals(LoginType.JSON)) &#123;
+            response.setContentType(<span class="hljs-string">"application/json;charset=utf-8"</span>);
+            response.getWriter().write(objectMapper.writeValueAsString(<span class="hljs-keyword">new</span> McrSecurityVO(authentication)));
+        &#125; <span class="hljs-keyword">else</span> &#123;
+            <span class="hljs-keyword">super</span>.onAuthenticationSuccess(request, response, authentication);
+        &#125;
+    &#125;
+&#125;</code></pre>
+
+<p>失败处理器</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.app.authentication;
+<span class="hljs-meta">@Component</span>
+<span class="hljs-meta">@AllArgsConstructor</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">McrAuthenticationFailureHandler</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">ExceptionMappingAuthenticationFailureHandler</span> </span>&#123;
+    <span class="hljs-keyword">private</span> ObjectMapper objectMapper;
+    <span class="hljs-keyword">private</span> SecurityProperties security;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">onAuthenticationFailure</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception)</span> <span class="hljs-keyword">throws</span> IOException, ServletException </span>&#123;
+        <span class="hljs-keyword">if</span> (security.getBrowser().getLoginType().equals(LoginType.JSON)) &#123;
+            response.setContentType(<span class="hljs-string">"application/json;charset=utf-8"</span>);
+            response.getWriter().write(objectMapper.writeValueAsString(<span class="hljs-keyword">new</span> McrSecurityVO(exception.getMessage())));
+        &#125; <span class="hljs-keyword">else</span> &#123;
+            <span class="hljs-keyword">super</span>.onAuthenticationFailure(request, response, exception);
+        &#125;
+    &#125;
+&#125;</code></pre>
+
+<p>认证服务器</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.app;
+
+
+<span class="hljs-keyword">import</span> org.springframework.context.annotation.Configuration;
+<span class="hljs-keyword">import</span> org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
+
+<span class="hljs-meta">@Configuration</span>
+<span class="hljs-meta">@EnableAuthorizationServer</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">McrAuthorizationServerConfig</span> </span>&#123;
+        
+&#125;</code></pre>
+
+<p>在启动中，控制台上会多出/oauth/xx的地址</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567518323763.png" srcset="/img/loading.gif" alt="1567518323763"></p>
+<p>现在来访问/oauth/authorize路径，这个方法它是需要一些参数的，这里笔者来<a href="https://oauth.net/2/" target="_blank" rel="noopener">OAuth2官方网</a>中看一下参数的介绍，在网站中的第4章。现在根据官方网来填写参数，来访问现在来访问<a href="http://localhost:8080/oauth/authorize?response_type=code&amp;client_id=b4c44489-0061-437f-b2c6-5a156251269a&amp;redirect_uri=http://example.com&amp;scope=all，这里的client_id再控制台上打印了" target="_blank" rel="noopener">http://localhost:8080/oauth/authorize?response_type=code&amp;client_id=b4c44489-0061-437f-b2c6-5a156251269a&amp;redirect_uri=http://example.com&amp;scope=all，这里的client_id再控制台上打印了</a></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567518956135.png" srcset="/img/loading.gif" alt="1567518956135"></p>
+<p>现在浏览器中会出现这个弹框：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567519655298.png" srcset="/img/loading.gif" alt="1567519655298"></p>
+<p>现在我这里扮演了一个服务提供商的角色，这里的client_id是提供给给第三方让它去引导用户来授权的，作为我来说我需要知道三件事：</p>
+<ul>
+<li>哪个应用在请求授权，这里的client_id就是来区分的，每个应用在我这来注册时，我都分一个不同的client_id给他们</li>
+<li>你在请求我的哪个用户给你授权，这里请求上面的地址会弹出一个basic对话框，在这个框中的用户名就是来告诉我你是我系统中的哪个用户在授权</li>
+<li>给第三方什么授权，通过地址上面的scope参数来区分，这个参数是服务商自己定义了，可以定义任意的字符串，然后第三方请求的时候，根据这个服务提供商的规则带着字符串来告诉服务提供商我需要什么样的权限</li>
+</ul>
+<p>在这里的对话框填写的用户名、密码最终会交给UserDetailsService，用它去校验，这里我们之前就写过了</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.security.service;
+<span class="hljs-meta">@Service</span>
+<span class="hljs-meta">@Slf</span>4j
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">McrUserDetailsService</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">UserDetailsService</span>, <span class="hljs-title">SocialUserDetailsService</span> </span>&#123;
+    <span class="hljs-meta">@Resource</span>
+    <span class="hljs-keyword">private</span> PasswordEncoder passwordEncoder;
+
+    <span class="hljs-function"><span class="hljs-keyword">private</span> SocialUser <span class="hljs-title">buildUser</span><span class="hljs-params">(String username)</span> </span>&#123;
+        String password = passwordEncoder.encode(<span class="hljs-string">"123"</span>);
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> SocialUser(username, password, AuthorityUtils.commaSeparatedStringToAuthorityList(<span class="hljs-string">"admin"</span>));
+    &#125;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> UserDetails <span class="hljs-title">loadUserByUsername</span><span class="hljs-params">(String username)</span> <span class="hljs-keyword">throws</span> UsernameNotFoundException </span>&#123;
+        log.info(<span class="hljs-string">"表单登录用户-&gt;&#123;&#125;进行效验"</span>, username);
+        <span class="hljs-keyword">return</span> buildUser(username);
+    &#125;
+
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> SocialUserDetails <span class="hljs-title">loadUserByUserId</span><span class="hljs-params">(String userId)</span> <span class="hljs-keyword">throws</span> UsernameNotFoundException </span>&#123;
+        log.info(<span class="hljs-string">"社交登录用户id-&gt;&#123;&#125;进行效验"</span>, userId);
+        <span class="hljs-keyword">return</span> buildUser(userId);
+    &#125;
+
+&#125;</code></pre>
+
+<p>上面代码中，密码一定要是123，账号是随便填的，在对话框中按照这个来填，然后浏览器想显示的内容：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567519813050.png" srcset="/img/loading.gif" alt="1567519813050"></p>
+<p>在默认情况下，在UserDetailsService中返回的UserDetails需要有user这样的角色才行，这里在McrUserDetailsService中修改一下</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">private</span> SocialUser <span class="hljs-title">buildUser</span><span class="hljs-params">(String username)</span> </span>&#123;
+     String password = passwordEncoder.encode(<span class="hljs-string">"123"</span>);
+     <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> SocialUser(username, password, AuthorityUtils.commaSeparatedStringToAuthorityList(<span class="hljs-string">"admin,ROLE_USER"</span>));
+ &#125;</code></pre>
+
+<hr>
+<p>然后重启一下，但是这里的client_id是在控制台出现的，而重启之后又会变，这里配置一下yum，让它变成一个固定的</p>
+<pre><code class="hljs yml"><span class="hljs-attr">security:</span>
+  <span class="hljs-attr">oauth2:</span>
+    <span class="hljs-attr">client:</span>
+      <span class="hljs-attr">client-id:</span> <span class="hljs-string">mcr</span>
+      <span class="hljs-attr">client-secret:</span> <span class="hljs-string">mcr</span></code></pre>
+
+<p>现在访问<a href="http://localhost:8080/oauth/authorize?response_type=code&amp;client_id=mcr&amp;redirect_uri=http://example.com&amp;scope=all，浏览器显示：" target="_blank" rel="noopener">http://localhost:8080/oauth/authorize?response_type=code&amp;client_id=mcr&amp;redirect_uri=http://example.com&amp;scope=all，浏览器显示：</a></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567520336913.png" srcset="/img/loading.gif" alt="1567520336913"></p>
+<p>这只是Oauth授权的页面，这相对于我们之前用QQ授权看到的那个QQ的页面，在这里可以决定同意授权和拒绝授权，在这里它问mcr请求你给它all这样的权限，这里选择第一个单选按钮同意，点击Authorize按钮确认，在这里就会跳转到redirect_uri的页面上去并且在url上带了授权码，这个页面可以理解为第三方的页面，它拿到了授权码以后，它应该去拿这个授权码来换accessToken</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567521410778.png" srcset="/img/loading.gif" alt="1567521410778"></p>
+<p>换取认证码需要通过post请求方式访问<code>/oauth/token</code>地址并带上授权码参数，这里使用之前介绍的 工具或使用post man来访问这个地址，在这里的请求头中需要给Authorization填写以下内容：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567521606320.png" srcset="/img/loading.gif" alt="1567521606320"></p>
+<p>然弹出这个，Username根据在yml中配置的client-id配置，密码根据client-secret的配置，我在yml中这2个都配的是mcr，所以就都填mcr</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567521634226.png" srcset="/img/loading.gif" alt="1567521634226"></p>
+<p>然后根据之前说的OAuth2官方文章填写相关的参数</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567521749036.png" srcset="/img/loading.gif" alt="1567521749036"></p>
+<p>在这里面填写</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567521766712.png" srcset="/img/loading.gif" alt="1567521766712"></p>
+<p>然后点击Send提交，响应出这么一段json</p>
+<pre><code class="hljs json">&#123;
+<span class="hljs-attr">"access_token"</span>: <span class="hljs-string">"f776ca27-ee02-4b90-b7ad-0fc2b0d9d539"</span>,
+<span class="hljs-attr">"token_type"</span>: <span class="hljs-string">"bearer"</span>,
+<span class="hljs-attr">"refresh_token"</span>: <span class="hljs-string">"df5415e9-5251-43ec-a2cc-74fd3c02d26c"</span>,
+<span class="hljs-attr">"expires_in"</span>: <span class="hljs-number">43199</span>,
+<span class="hljs-attr">"scope"</span>: <span class="hljs-string">"all"</span>
+&#125;</code></pre>
+
+<p>这样的授权码模式授权的流程就走完了，下面来介绍密码授权模式，它访问的地址后前面访问的地址是一样的，也是<code>/oauth/token</code>，这里的请求头中也要带上Authorization信息，但是它这里的参数是不一样的：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567522099570.png" srcset="/img/loading.gif" alt="1567522099570"></p>
+<p>在密码模式中，用户是把服务提供商上的用户名和密码告诉第三方，然后第三方拿着用户名密码告诉他的用户名密码去到服务提供商那说用户给了我授权了，那么这里服务提供商是没法判断，这用户名密码是用户真正给你的还是自己偷的，在一个互联网的场景下，比如说我和QQ之间，那么使用这种模式是有问题的，因为QQ不能判断你的用户名密码到底是怎么来的，但是在我们这个场景里，这种授权方式是可用的，因为在我这个场景里，我是扮演服务提供商的角色，而扮演第三方的角色是自己公司的App，我们之间是一伙的，我是可以让用户把用户名密码告诉App，然后他们拿着用户名密码换token，所以这个授权模式在自己公司的app和自己公司的服务器之间采用这种授权模式换token是可行的，现在会到工具里，发送请求的响应：</p>
+<pre><code class="hljs json">&#123;
+<span class="hljs-attr">"access_token"</span>: <span class="hljs-string">"f776ca27-ee02-4b90-b7ad-0fc2b0d9d539"</span>,
+<span class="hljs-attr">"token_type"</span>: <span class="hljs-string">"bearer"</span>,
+<span class="hljs-attr">"refresh_token"</span>: <span class="hljs-string">"df5415e9-5251-43ec-a2cc-74fd3c02d26c"</span>,
+<span class="hljs-attr">"expires_in"</span>: <span class="hljs-number">42570</span>,
+<span class="hljs-attr">"scope"</span>: <span class="hljs-string">"all"</span>
+&#125;</code></pre>
+
+<p>这里的access_token和之前的授权码模式拿到的access_token是一样的，包括<code>df5415e9-5251-43ec-a2cc-74fd3c02d26c</code>这些，虽然用的授权模式不同，但是我用的是同一个用户，同一个用户反复去请求的时候<code>spring security oauth</code>会判断当前用户是不是发过<code>access_token</code>，这里因为在授权码模式中使用root账号发过一个<code>/oauth/token</code>，然后在密码模式中再来请求<code>/oauth/token</code>，它任然会把一样的token发给它，只要这个<code>token</code>还没过期，同一个用户来请求令牌时候，<code>spring security oauth</code>种会发同一个令牌下去</p>
+<hr>
+<p>现在笔者演示了2种授权码模式，剩下的2种就不演示了，这里实际上已经实现了4种授权码模式，那么我们写的代码应该还有印象，就在一个类上加了一个注解，就完成了这些功能，后面的案例会将怎么来做定制化的东西，在这里就先用<code>spring security oauth</code>的标准实现</p>
+<hr>
+<p>现在认证服务器已经实现了，接下来实现资源服务器</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.app;
+
+<span class="hljs-keyword">import</span> org.springframework.context.annotation.Configuration;
+<span class="hljs-keyword">import</span> org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
+
+<span class="hljs-meta">@Configuration</span>
+<span class="hljs-meta">@EnableResourceServer</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">McrResourceServerConfig</span> </span>&#123;
+&#125;</code></pre>
+
+<blockquote>
+<p>先来来访问之前写的rest api：<a href="http://localhost:8080/user/me，响应内容：" target="_blank" rel="noopener">http://localhost:8080/user/me，响应内容：</a></p>
+</blockquote>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567523445358.png" srcset="/img/loading.gif" alt="1567523445358"></p>
+<p>在这里的状态码是401，意思是没有做身份认证，那么要做身份认证的话就要把刚才的token带上就行了，但是现在不能用之前拿到的token，因为现在没有配token的存储模式，实际上默认情况下它是存在内存里的，刚刚因为加了一个类，我重启了服务器，内存中的信息都已经清掉了，所以要重新在请求一下<code>/oauth/token</code>来获取新的<code>access_token</code>，将这个信息填写到要访问的<code>rest api</code>的header中，key为:Authorization，值的话光是一个<code>access_token</code>还不行，前面还要加上获取的<code>token_type</code>的值</p>
+<p>就像这样：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567523833496.png" srcset="/img/loading.gif" alt="1567523833496"></p>
+<p>然后再去发送，就能正常的拿到信息了</p>
+<hr>
+<p>oauth的流程发token，然后用token来效验身份，访问服务，这样一个流程就已经走通了，现在虽然流程走通了，但是我们是按照oauth协议标准的规范和spring security的默认实现来走的，这里面存在很多问题，首先我的认证方式只能是oauth协议规定的这4种授权模式，比如我现在想通过手机号码+短信验证码来登录，输入这些之后，在我们服务器中进行验证，验证成功以后，发他一个access_token，这个在默认设置和实现里面我是实现不了的，其他的比如说现在access_token是存在内存里的，服务器已重启就没了，服务器发出去的token它的这个样子是随机生成的串，那么能不能去定制它，比如用现在流行的jwt来做我们这里的token，等等一系列问题，在后面的章节去 介绍给大家</p>
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/SpringSecurity/">SpringSecurity</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/spring-security-5.3.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【 五、OAuth 】 3.Spring Security OAuth核心源码解析</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/spring-security-5.1.html">
+                        <span class="hidden-mobile">【 五、OAuth 】 1.Spring Security OAuth简介</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "【 五、OAuth 】 2.实现标准到OAuth服务器提供商&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

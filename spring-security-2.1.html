@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="Shui">
+  <meta name="keywords" content="">
+  <title>【 二、Form 】  1.Spring Secrutiy基本原理 - Shui&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Fluid</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2019-10-12 18:01">
+      2019年10月12日 晚上
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.2k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      13
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <p>请将<code>yml</code>中的这段代码删除，接下来开始学习<code>Spring Security</code>,这段配置是用来关闭/开启它的功能的</p>
+<pre><code class="hljs yaml"><span class="hljs-attr">security:</span>
+  <span class="hljs-attr">basic:</span>
+    <span class="hljs-attr">enabled:</span> <span class="hljs-literal">false</span></code></pre>
+
+<p>现在在浏览器中访问，会出现以下弹框</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566728660810.png" srcset="/img/loading.gif" alt="1566728660810"></p>
+<p>这个是<code>spring security</code>的默认配置，这些配置写在<code>WebSecurityConfigurerAdapter</code>中</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(HttpSecurity http)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+		logger.debug(<span class="hljs-string">"Using default configure(HttpSecurity). If subclassed this will potentially override subclass configure(HttpSecurity)."</span>);
+
+		http
+			.authorizeRequests()
+				.anyRequest().authenticated()
+				.and()
+			.formLogin().and()
+			.httpBasic();
+	&#125;</code></pre>
+
+<p>我们来登录一下，这里的密码可以在控制台中找到，账号是固定user，密码就是控制台上看见的这个</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566729135804.png" srcset="/img/loading.gif" alt="1566729135804"></p>
+<p>表单登录：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.browser;
+
+<span class="hljs-keyword">import</span> org.springframework.context.annotation.Configuration;
+<span class="hljs-keyword">import</span> org.springframework.security.config.annotation.web.builders.HttpSecurity;
+<span class="hljs-keyword">import</span> org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+
+<span class="hljs-meta">@Configuration</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">BrowserSecurityConfig</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">WebSecurityConfigurerAdapter</span> </span>&#123;
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(HttpSecurity http)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+        http
+                .formLogin().and()
+                .authorizeRequests()
+                .anyRequest().authenticated();
+
+    &#125;
+&#125;</code></pre>
+
+<blockquote>
+<p>这里的代码是针对浏览器来的配置，所以是编写在browser模块中的</p>
+</blockquote>
+<p>现在访问接口时会是这样子：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566729509366.png" srcset="/img/loading.gif" alt="1566729509366"></p>
+<p>原理：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566723514793.png" srcset="/img/loading.gif" alt="1566723514793"></p>
+<p><code>spring secrutiy</code>中最核心是一组过滤器链，之前通过过滤器来拦截<code>rest api</code>，<code>spring security</code>也是通过这种方式来做的，这些过滤器在系统启动的时候<code>spring boot</code>会自动把它都配进去，首先来详细介绍最主要的几个过滤器,最核心的就是图上的绿色过滤器：</p>
+<ul>
+<li>UsernamePasswordAuthenticationFilter：处理表单登录</li>
+<li>BasicAuthenticationFilter：处理http basic登录</li>
+</ul>
+<p>绿色的过滤器用来检查请求中是否有它需要的信息，比如<code>UsernamePasswordAuthenticationFilter</code>这个过滤器来说它会检查你的请求是不是一个登录请求，然后在这个登录请求中看带没带用户名和密码，如果带了这个过滤器就会尝试用用户名和密码去做用户的登录，如果没有带，它就会放过去，交给下一个过滤器，下一个过滤器比如说是<code>BasicAuthenticationFilter</code>，它会检查请求的请求头里面是否有<code>Basic Authorization</code>的信息，如果有，尝试拿出来做<code>base64</code>字节码取出用户名密码来登录，如果还有其他的认证方式（在spring security）它还提供了很多其他的认证方式，按照这个原理它会一个个往下走，任何一个过滤器，它成功完成了用户登录以后，它会在请求上做一个标记：当前这个用户认证成功了，请求经过这些绿色的过滤器之后，会到<code>FilterSecurityInterceptor</code>拦截器中，这个过拦截器是整个<code>spring security</code>过滤器链上的最后一个，它是最终的守门人，它门后就是我们编写的<code>rest api</code>，在个拦截器中它会决定当前请求能不能去访问后面的<code>rest api</code>。它会依据你编写的配置（<code>BrowserSecurityConfig</code>）进行判断，判断当前请求是不是经过前面某一个过滤器的身份认证，判断的结果是过，就能访问到<code>rest api</code>，如果不过，它会根据不过的原因来抛出不同的异常，在它的前面的<code>ExceptionTranslationFilter</code>,这个过滤器会来捕获<code>FilterSecurityInterceptor</code>抛出来的异常，然后根据不同的异常做相应的处理，比如是没有登录不能访问，它会根据前面的配置引导用户去登录，例如你配置的是<code>formLogin</code>就会自动跳转到登录页面，配置的是<code>basicLogin</code>，就是弹框。在这里绿色的过滤器，你是可以控制的，其他过滤器你是不能控制的，它一定会在<code>spring security</code>规定的位置执行。</p>
+<hr>
+<p>下面debug来到这几个过滤器上加断点</p>
+<p>这个是等会我访问的接口</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566729706574.png" srcset="/img/loading.gif" alt="1566729706574"></p>
+<hr>
+<p>断点位置：</p>
+<ul>
+<li><code>FilterSecurityInterceptor#invoke</code>-&gt;124行</li>
+<li><code>ExceptionTranslationFilter#doFilter</code>-&gt;123行</li>
+<li><code>ExceptionTranslationFilter#doFilter</code>-&gt;123行</li>
+<li><code>UsernamePasswordAuthenticationFilter</code>-&gt;61行</li>
+</ul>
+<p>访问<a href="http://localhost:8080/user" target="_blank" rel="noopener">http://localhost:8080/user</a></p>
+<p>现在它来到了：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566730453087.png" srcset="/img/loading.gif" alt="1566730453087"></p>
+<p>因为访问这个<code>/user</code>，没带登录信息，所以前面的过滤器都不起作用，一直跑到<code>FilterSecurityInterceptor</code>里面，由这个断点位置的代码做判断：能不能访问<code>/user</code>接口</p>
+<p>然后接着执行完这里的代码，它抛出了一个异常，这个异常会抛到<code>ExceptionTranslationFilter</code>过滤器中</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566730671953.png" srcset="/img/loading.gif" alt="1566730671953"></p>
+<p>然后根据异常做处理，因为没登录，所以会重定向到登录页面上去，我这里填写正确的账号和密码进行登录，这个时候会停在<code>UsernamePasswordAuthenticationFilter</code>，它获取用户填写的信息进行登录</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566730843749.png" srcset="/img/loading.gif" alt="1566730843749"></p>
+<p>接着往下走</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566731054715.png" srcset="/img/loading.gif" alt="1566731054715"></p>
+<p>它在这里又来验证请求是否能访问，再往下</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566731095879.png" srcset="/img/loading.gif" alt="1566731095879"></p>
+<p>这回它没抛异常了，来执行了<code>fi.getChain().doFilter(fi.getRequest(), fi.getResponse());</code>代码，这里实际上也就是调用<code>/user</code></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566731157388.png" srcset="/img/loading.gif" alt="1566731157388"></p>
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/SpringSecurity/">SpringSecurity</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/spring-security-2.2.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【 二、Form 】  2.自定义用户认证逻辑</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/spring-security-1.3.html">
+                        <span class="hidden-mobile">【 一、Restful Api 】  3.Restful Api</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "【 二、Form 】  1.Spring Secrutiy基本原理&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

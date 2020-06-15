@@ -1,0 +1,1935 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="Shui">
+  <meta name="keywords" content="">
+  <title>【 三、Social 】 3.QQ登录 - Shui&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Fluid</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2019-10-13 18:03">
+      2019年10月13日 晚上
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      13k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      175
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <h1 id="开发流程"><a href="#开发流程" class="headerlink" title="开发流程"></a>开发流程</h1><p>以下内容中获取QQ用户信息以及QQ中的一些参数，请参考<a href="https://connect.qq.com/" target="_blank" rel="noopener">QQ互联文档</a>。</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567224896676.png" srcset="/img/loading.gif" alt=""></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567227175116.png" srcset="/img/loading.gif" alt=""></p>
+<p>要实现类似QQ登录这种第三方登录，前面说了，需要走一个<code>OAuth</code>流程拿到服务提供商的的用户信息，那么之前将SpringSocial基本概念的时候，服务提供商的信息是封装在Connection里的，所有现在要解决的第一个问题就是需要拿到一个Connection，那么我要拿到一个Connection，我就需要有一个<code>ConnectionFactory</code>工厂，那么我要构建<code>ConnectionFactory</code>我需要2个东西：<code>ServiceProvider</code>、<code>ApiAdapter</code>；</p>
+<p>那么这个<code>ServiceProvider</code>服务提供商的实现，它也需要2个东西：</p>
+<ol>
+<li><code>OAuth2Operations</code>接口的实现</li>
+<li><code>Api</code>接口的实现，它是用来读取用户的信息的，这个东西是和服务提供商紧密相关的，每个服务商都不一样，等会就先从这里入手</li>
+</ol>
+<p>整个开发的流程：先从<code>Api</code>开始 ，获取用户信息的实现，然后有了<code>Api</code>我用它默认的<code>OAuth2Template</code>做为<code>OAuth2Operations</code>的实现，用这2个东西构建出<code>ServiceProvider</code>来，然后实现这个<code>ApiAdapter</code>,<code>ServiceProvider</code>和<code>ApiAdapter</code>有了，就可以构建出一个<code>ConnectionFactory</code>，有了这个东西我就可以通过，有了<code>ConnectionFactory</code>就可以拿到我的用户信息了，有了用户信息以后，我们会在数据库里建一张<code>UserConnection</code>表，然后这个<code>JdbcUsersConnectionRepository</code>，这个东西<code>SpringSocial</code>已经提供了，只需要配置一下告诉它数据库在哪就可以了，那么这些有了之后，就可以通过<code>ConnectionFactory</code>拿到我们的服务提供商用户信息，那么整个流程就可以转起来了，转起来以后根据问题一步步逐渐去细化</p>
+<h1 id="Api"><a href="#Api" class="headerlink" title="Api"></a>Api</h1><p>首先来到文档<a href="https://wiki.connect.qq.com/get_user_info" target="_blank" rel="noopener">https://wiki.connect.qq.com/get_user_info</a></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567246322516.png" srcset="/img/loading.gif" alt="1567246322516"></p>
+<p>根据文章上的josn封装成一个类，这里主要需要多加一个<code>openId</code>字段</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.social.qq.api;
+
+<span class="hljs-keyword">import</span> lombok.Data;
+
+<span class="hljs-meta">@Data</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">QQUserInfo</span> </span>&#123;
+
+
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> ret;
+    <span class="hljs-keyword">private</span> String msg;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> is_lost;
+    <span class="hljs-keyword">private</span> String nickname;
+    <span class="hljs-keyword">private</span> String gender;
+    <span class="hljs-keyword">private</span> String province;
+    <span class="hljs-keyword">private</span> String city;
+    <span class="hljs-keyword">private</span> String year;
+    <span class="hljs-keyword">private</span> String constellation;
+    <span class="hljs-keyword">private</span> String figureurl;
+    <span class="hljs-keyword">private</span> String figureurl_1;
+    <span class="hljs-keyword">private</span> String figureurl_2;
+    <span class="hljs-keyword">private</span> String figureurl_qq_1;
+    <span class="hljs-keyword">private</span> String figureurl_qq_2;
+    <span class="hljs-keyword">private</span> String figureurl_qq;
+    <span class="hljs-keyword">private</span> String figureurl_type;
+    <span class="hljs-keyword">private</span> String is_yellow_vip;
+    <span class="hljs-keyword">private</span> String vip;
+    <span class="hljs-keyword">private</span> String yellow_vip_level;
+    <span class="hljs-keyword">private</span> String level;
+    <span class="hljs-keyword">private</span> String is_yellow_year_vip;
+    <span class="hljs-keyword">private</span> String openId;
+&#125;</code></pre>
+
+<p>定义一个获取QQ信息的接口</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.social.qq.api;
+
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">QQ</span> </span>&#123;
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 获取QQ信息</span>
+<span class="hljs-comment">     *</span>
+<span class="hljs-comment">     * <span class="hljs-doctag">@return</span>   QQ信息</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-function">QQUserInfo <span class="hljs-title">getUserInfo</span><span class="hljs-params">()</span></span>;
+&#125;</code></pre>
+
+<p>之前说所有的<code>Api</code>都要继承<code>AbstractOAuth2ApiBinding</code>，先来看下它长什么样子</p>
+<pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">abstract</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AbstractOAuth2ApiBinding</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">ApiBinding</span>, <span class="hljs-title">InitializingBean</span> </span>&#123;
+
+	<span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String accessToken;
+
+	<span class="hljs-keyword">private</span> RestTemplate restTemplate;
+
+	
+	<span class="hljs-comment">//...</span>
+&#125;</code></pre>
+
+<p>在这个抽象类里面它提供了2个属性：</p>
+<ol>
+<li><code>accessToken</code>：我们现在的<code>api</code>在整个流程里是执行第6步获取用户信息的，执行第6步需要第5步最后最后收到的令牌，拿这个令牌才能获取用户信息，这里注意：每一个人走这个流程它获取到的令牌都是不一样的，这个数据它是类的成员变量，那么意外着，这个类的实现类它不是一个单例对象，针对每一个用户它走完自己的这个<code>OAuth</code>流程，都会对用户单独创建一个实现，在里面存这个用户他自己特有的<code>accessToken</code>，这是一个多实现的对象；</li>
+<li><code>restTemplate</code>：因为第6步获取用户信息需要往服务提供商发送http请求，这个<code>restTemplate</code>就是http请求工具。</li>
+</ol>
+<p>来创建一个类继承<code>AbstractOAuth2ApiBinding</code>，实现QQ接口</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.social.qq.api;
+
+<span class="hljs-keyword">import</span> org.springframework.social.oauth2.AbstractOAuth2ApiBinding;
+
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">QQImpl</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">AbstractOAuth2ApiBinding</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">QQ</span> </span>&#123;
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> QQUserInfo <span class="hljs-title">getUserInfo</span><span class="hljs-params">()</span> </span>&#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">null</span>;
+    &#125;
+&#125;</code></pre>
+
+<p>下面来看一下QQ文档，要发一个什么请求，传递什么参数,文档地址：<a href="https://wiki.connect.qq.com/openapi调用说明_oauth2-0" target="_blank" rel="noopener">https://wiki.connect.qq.com/openapi%E8%B0%83%E7%94%A8%E8%AF%B4%E6%98%8E_oauth2-0</a></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567248607175.png" srcset="/img/loading.gif" alt=""></p>
+<p>想调用这个请求，有3个参数：</p>
+<ol>
+<li>access_token：走完图1 前5步拿到的令牌，这里的<code>access_token</code>就在<code>AbstractOAuth2ApiBinding</code>里面</li>
+<li>oauth_consumer_key：你要用QQ、微信登录首先要到QQ互联、微信开放平台上去注册，注册完了 以后，它会分配给你一个<code>appId</code></li>
+<li>openid：用户的ID，与QQ号码一一对应。 “可通过调用<a href="https://graph.qq.com/oauth2.0/me?access_token=YOUR_ACCESS_TOKEN" target="_blank" rel="noopener">https://graph.qq.com/oauth2.0/me?access_token=YOUR_ACCESS_TOKEN</a> 来获取。”</li>
+</ol>
+<p>首先将说这3个参数，其中的<code>access_token</code>已经处理了，这里要把另外2个写一下</p>
+<pre><code class="hljs java"><span class="hljs-comment">//注册qq互联分配的appid</span>
+<span class="hljs-keyword">private</span> String appId;
+<span class="hljs-comment">//qq用户的Id</span>
+<span class="hljs-keyword">private</span> String openId;</code></pre>
+
+<p>然后还有2个http路径：</p>
+<ol>
+<li>通过<code>access_token</code>去拿<code>openId</code>发的请求地址</li>
+<li>获取用户信息的请求地址</li>
+</ol>
+<p>这里将2个请求路径声明成常量</p>
+<pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> String URL_GET_OPENID = <span class="hljs-string">"https://graph.qq.com/oauth2.0/me?access_token=%s"</span>;
+
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> String URL_GET_USERINFO = <span class="hljs-string">"https://graph.qq.com/user/get_user_info?oauth_consumer_key=%s&amp;openid=%s"</span>;</code></pre>
+
+<blockquote>
+<p>从QQ互联文档里，可以看到获取用户信息是需要<code>access_token</code>参数的，但在我们这里不需要写，因为这一步交给我们父类来处理了，它会自动得将<code>access_token</code>替我们挂上去</p>
+</blockquote>
+<p>构造器：</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">QQImpl</span><span class="hljs-params">(String accessToken, String appId)</span> </span>&#123;
+     <span class="hljs-keyword">super</span>(accessToken, TokenStrategy.ACCESS_TOKEN_PARAMETER);
+     <span class="hljs-keyword">this</span>.appId = appId;
+ &#125;</code></pre>
+
+<p>上面代码调用了父类的2个参数的构造器，第2个参数使用了<code>TokenStrategy.ACCESS_TOKEN_PARAMETER</code>策略，来看一下父类的一个参数的构造器，它会调用自己2个参数的构造器，同时用一个默认的<code>token</code>策略去调，</p>
+<p><code>TokenStrategy.AUTHORIZATION_HEADER</code>：在发请求的时候，默认把<code>accessToken</code>放到请求头里面，但是在QQ文档上要求<code>accessToken</code>应该要放到查询参数里面去：<a href="https://graph.qq.com/user/get_user_info?access_token=YOUR_ACCESS_TOKEN&oauth_consumer_key=YOUR_APP_ID&openid=YOUR_OPENID" target="_blank" rel="noopener">https://graph.qq.com/user/get_user_info?access_token=YOUR_ACCESS_TOKEN&amp;oauth_consumer_key=YOUR_APP_ID&amp;openid=YOUR_OPENID</a>，<code>AbstractOAuth2ApiBinding</code>的一个参数的构造器会将参数放到<code>Authorization请求头</code>里面，所以默认的代码行为不符合做QQ登录的要求，所以这里应该调用2个参数的构造器，使用<code>AUTHORIZATION_HEADER</code>策略</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-title">AbstractOAuth2ApiBinding</span><span class="hljs-params">(String accessToken)</span> </span>&#123;
+		<span class="hljs-keyword">this</span>(accessToken, TokenStrategy.AUTHORIZATION_HEADER);
+	&#125;</code></pre>
+
+<p>通过上面这个构造器，你在使用它里面的<code>restTemplate</code>发请求的时候，它会自动把<code>accessToken</code>作为查询参数，把它挂上去</p>
+<hr>
+<p>QQ互联文档上，要求先要获取<code>openId</code>，获取<code>openId</code>代码：</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">QQImpl</span><span class="hljs-params">(String accessToken, String appId)</span> </span>&#123;
+      <span class="hljs-comment">//...</span>
+       String url = String.format(URL_GET_OPENID, accessToken);
+       String result = getRestTemplate().getForObject(url, String<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>;
+       log.info(result);
+       <span class="hljs-keyword">this</span>.openId = StringUtils.substringBetween(result, <span class="hljs-string">"\"openid\":\""</span>, <span class="hljs-string">"\"&#125;"</span>);
+       log.info(<span class="hljs-string">"openId-&gt;&#123;&#125;"</span>, <span class="hljs-keyword">this</span>.openId);
+   &#125;</code></pre>
+
+<p>这里要通过截取来获取<code>openId</code>，文档说它是长这个样子的：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567250832980.png" srcset="/img/loading.gif" alt="1567250832980"></p>
+<p>实现QQ接口方法：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">private</span> ObjectMapper objectMapper=<span class="hljs-keyword">new</span> ObjectMapper();
+ <span class="hljs-meta">@Override</span>
+ <span class="hljs-function"><span class="hljs-keyword">public</span> QQUserInfo <span class="hljs-title">getUserInfo</span><span class="hljs-params">()</span> </span>&#123;
+
+     String url = String.format(URL_GET_USERINFO, appId, openId);
+     String result = getRestTemplate().getForObject(url, String<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>;
+     log.info(result);
+
+     <span class="hljs-keyword">try</span> &#123;
+         QQUserInfo qqUserInfo = objectMapper.readValue(result, QQUserInfo<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>;
+         qqUserInfo.setOpenId(openId);
+         <span class="hljs-keyword">return</span> qqUserInfo;
+     &#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;
+         e.printStackTrace();
+         <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> RuntimeException(<span class="hljs-string">"获取用户失败"</span>, e);
+     &#125;
+ &#125;</code></pre>
+
+<p>完整代码：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.social.qq.api;
+
+<span class="hljs-keyword">import</span> com.fasterxml.jackson.databind.ObjectMapper;
+<span class="hljs-keyword">import</span> lombok.extern.slf4j.Slf4j;
+<span class="hljs-keyword">import</span> org.apache.commons.lang.StringUtils;
+<span class="hljs-keyword">import</span> org.springframework.social.oauth2.AbstractOAuth2ApiBinding;
+<span class="hljs-keyword">import</span> org.springframework.social.oauth2.TokenStrategy;
+<span class="hljs-meta">@Slf</span>4j
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">QQImpl</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">AbstractOAuth2ApiBinding</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">QQ</span> </span>&#123;
+
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> String URL_GET_OPENID = <span class="hljs-string">"https://graph.qq.com/oauth2.0/me?access_token=%s"</span>;
+
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> String URL_GET_USERINFO = <span class="hljs-string">"https://graph.qq.com/user/get_user_info?oauth_consumer_key=%s&amp;openid=%s"</span>;
+    <span class="hljs-comment">//注册qq互联分配的appid</span>
+    <span class="hljs-keyword">private</span> String appId;
+    <span class="hljs-comment">//qq用户的Id</span>
+    <span class="hljs-keyword">private</span> String openId;
+
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">QQImpl</span><span class="hljs-params">(String accessToken, String appId)</span> </span>&#123;
+        <span class="hljs-keyword">super</span>(accessToken, TokenStrategy.ACCESS_TOKEN_PARAMETER);
+        <span class="hljs-keyword">this</span>.appId = appId;
+        String url = String.format(URL_GET_OPENID, accessToken);
+        String result = getRestTemplate().getForObject(url, String<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>;
+        log.info(result);
+        <span class="hljs-keyword">this</span>.openId = StringUtils.substringBetween(result, <span class="hljs-string">"\"openid\":\""</span>, <span class="hljs-string">"\"&#125;"</span>);
+        log.info(<span class="hljs-string">"openId-&gt;&#123;&#125;"</span>, <span class="hljs-keyword">this</span>.openId);
+    &#125;
+
+
+    <span class="hljs-keyword">private</span> ObjectMapper objectMapper=<span class="hljs-keyword">new</span> ObjectMapper();
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> QQUserInfo <span class="hljs-title">getUserInfo</span><span class="hljs-params">()</span> </span>&#123;
+
+        String url = String.format(URL_GET_USERINFO, appId, openId);
+        String result = getRestTemplate().getForObject(url, String<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>;
+        log.info(result);
+
+        <span class="hljs-keyword">try</span> &#123;
+            QQUserInfo qqUserInfo = objectMapper.readValue(result, QQUserInfo<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>;
+            qqUserInfo.setOpenId(openId);
+            <span class="hljs-keyword">return</span> qqUserInfo;
+        &#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;
+            e.printStackTrace();
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> RuntimeException(<span class="hljs-string">"获取用户失败"</span>, e);
+        &#125;
+    &#125;
+&#125;</code></pre>
+
+<h1 id="ServiceProvider"><a href="#ServiceProvider" class="headerlink" title="ServiceProvider"></a>ServiceProvider</h1><p>现在<code>api</code>有了，这里看图2它还需要一个<code>OAuth2Operations</code>实现类，这里就先暂时使用它默认提供的<code>OAuth2Template</code>，现在就可以来写<code>ServiceProvider</code>了</p>
+<p>完整代码：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.social.qq.connect;
+
+<span class="hljs-keyword">import</span> com.b4.mcr.auth.core.social.qq.api.QQ;
+<span class="hljs-keyword">import</span> com.b4.mcr.auth.core.social.qq.api.QQImpl;
+<span class="hljs-keyword">import</span> org.springframework.social.oauth2.AbstractOAuth2ServiceProvider;
+<span class="hljs-keyword">import</span> org.springframework.social.oauth2.OAuth2Operations;
+<span class="hljs-keyword">import</span> org.springframework.social.oauth2.OAuth2ServiceProvider;
+<span class="hljs-keyword">import</span> org.springframework.social.oauth2.OAuth2Template;
+
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * QQServiceProvider</span>
+<span class="hljs-comment"> * appId：注册qq互联分配的id</span>
+<span class="hljs-comment"> * appSecret：注册qq互联的分配密码</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">QQServiceProvider</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">AbstractOAuth2ServiceProvider</span>&lt;<span class="hljs-title">QQ</span>&gt; </span>&#123;
+
+    <span class="hljs-keyword">private</span> String appId;
+
+    <span class="hljs-comment">//将用户导向的认证服务器的地址</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> String URL_AUTHORIZE = <span class="hljs-string">"https://graph.qq.com/oauth2.0/authorize"</span>;
+    <span class="hljs-comment">//第三方拿着授权码获取Token的地址</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> String URL_ACCESS_TOKEN = <span class="hljs-string">"https://graph.qq.com/oauth2.0/token"</span>;
+
+    <span class="hljs-comment">//提供OAuth2Operations</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">QQServiceProvider</span><span class="hljs-params">(String appId, String appSecret)</span> </span>&#123;
+        <span class="hljs-keyword">super</span>(<span class="hljs-keyword">new</span> OAuth2Template(appId, appSecret, URL_AUTHORIZE, URL_ACCESS_TOKEN));
+        <span class="hljs-keyword">this</span>.appId = appId;
+    &#125;
+
+    <span class="hljs-comment">//提供Api</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> QQ <span class="hljs-title">getApi</span><span class="hljs-params">(String accessToken)</span> </span>&#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> QQImpl(accessToken, appId);
+    &#125;
+&#125;</code></pre>
+
+<p>编写<code>QQServiceProvider</code>，继承<code>AbstractOAuth2ServiceProvider</code>，它这里有一个抽象方法：<code>getApi</code>，需要我们来实现，它会将前5步流程中得到的令牌交给之前写的<code>QQImpl</code>，所以这里的<code>getApi</code>实例化的时候通过构造器传给<code>QQImpl</code>，这里的<code>appId</code>是固定唯一的，它不会变。</p>
+<pre><code class="hljs java"><span class="hljs-comment">//提供Api</span>
+  <span class="hljs-meta">@Override</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> QQ <span class="hljs-title">getApi</span><span class="hljs-params">(String accessToken)</span> </span>&#123;
+      <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> QQImpl(accessToken, appId);
+  &#125;</code></pre>
+
+<p>然后说下构造器</p>
+<pre><code class="hljs java"><span class="hljs-comment">//提供OAuth2Operations</span>
+   <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">QQServiceProvider</span><span class="hljs-params">(String appId, String appSecret)</span> </span>&#123;
+       <span class="hljs-keyword">super</span>(<span class="hljs-keyword">new</span> OAuth2Template(appId, appSecret, URL_AUTHORIZE, URL_ACCESS_TOKEN));
+       <span class="hljs-comment">//...</span>
+   &#125;</code></pre>
+
+<p>这里调用了父类的构造方器，这里需要传递一个<code>OAuth2Operations</code>接口的实现类，之前说过暂时使用它默认提供的<code>OAuth2Template</code></p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">AbstractOAuth2ServiceProvider</span><span class="hljs-params">(OAuth2Operations oauth2Operations)</span> </span>&#123;
+		<span class="hljs-keyword">this</span>.oauth2Operations = oauth2Operations;
+	&#125;</code></pre>
+
+<p>这里使用了<code>OAuth2Template</code>4个参数的构造器</p>
+<pre><code class="hljs java"><span class="hljs-comment">/**</span>
+<span class="hljs-comment">	 * Constructs an OAuth2Template for a given set of client credentials. </span>
+<span class="hljs-comment">	 * Assumes that the authorization URL is the same as the authentication URL.</span>
+<span class="hljs-comment">	 * <span class="hljs-doctag">@param</span> clientId the client ID</span>
+<span class="hljs-comment">	 * <span class="hljs-doctag">@param</span> clientSecret the client secret</span>
+<span class="hljs-comment">	 * <span class="hljs-doctag">@param</span> authorizeUrl the base URL to redirect to when doing authorization code or implicit grant authorization</span>
+<span class="hljs-comment">	 * <span class="hljs-doctag">@param</span> accessTokenUrl the URL at which an authorization code, refresh token, or user credentials may be exchanged for an access token.</span>
+<span class="hljs-comment">	 */</span>
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">OAuth2Template</span><span class="hljs-params">(String clientId, String clientSecret, String authorizeUrl, String accessTokenUrl)</span> </span>&#123;
+		<span class="hljs-keyword">this</span>(clientId, clientSecret, authorizeUrl, <span class="hljs-keyword">null</span>, accessTokenUrl);
+	&#125;</code></pre>
+
+<ol>
+<li>clientId：它就是<code>appId</code>,QQ上注册的时候会分配给你一个<code>appId</code></li>
+<li>clientSecret：QQ互联网上注册时候，它会分配给你一个App Secret</li>
+<li>authorizeUrl：图1的第1步，将用户导向认证服务器的时候，导向的URL地址</li>
+<li>accessTokenUrl：图1的第4步，用户同意授权的时候，用户服务器返回一个授权码，拿着授权码去申请令牌的地址</li>
+</ol>
+<p>这里我们写的<code>QQServiceProvider</code>为什么会有<code>appId</code>、<code>appSecret</code>2个参数，因为使用者A，在使用我们的代码的时候，它的<code>appId</code>、<code>appSecret2</code>与使用者B是不一样的，每个人申请拿到的<code>appId</code>、<code>appSecret</code>都不一样</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">QQServiceProvider</span><span class="hljs-params">(String appId, String appSecret)</span> </span>&#123;
+          <span class="hljs-comment">//...</span>
+&#125;</code></pre>
+
+<h1 id="ApiAdapter"><a href="#ApiAdapter" class="headerlink" title="ApiAdapter"></a>ApiAdapter</h1><p>之前将图2右边部分的代码完成了，现在来实现左边的代码，图中表示<code>ConnectionFactory</code>中需要<code>ServiceProvider</code>，已经实现了，现在还需要<code>ApiAdapter</code>，<code>ApiAdapter</code>的作用：将之前写的<code>Api</code>所获取到的个性化服务提供商用户数据和<code>SpringSocial</code>标准的数据结构之间做一个适配</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.social.qq.connect;
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * QQAdapter</span>
+<span class="hljs-comment"> * 将服务提供商用户信息进行统一的适配</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">QQAdapter</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">ApiAdapter</span>&lt;<span class="hljs-title">QQ</span>&gt; </span>&#123;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-comment">//用来测试当前API是否可用</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">test</span><span class="hljs-params">(QQ api)</span> </span>&#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;
+    &#125;
+
+    <span class="hljs-comment">//设置创建Connection的时候需要的一些配置项ConnectionValues</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setConnectionValues</span><span class="hljs-params">(QQ api, ConnectionValues values)</span> </span>&#123;
+        QQUserInfo userInfo = api.getUserInfo();
+
+        values.setDisplayName(userInfo.getNickname());
+        values.setImageUrl(userInfo.getFigureurl_qq_1());
+        values.setProfileUrl(<span class="hljs-keyword">null</span>);<span class="hljs-comment">//主页</span>
+        values.setProviderUserId(userInfo.getOpenId());<span class="hljs-comment">//用户在服务提供商的唯一标示，openID</span>
+    &#125;
+
+    <span class="hljs-comment">//绑定解绑的时候</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> UserProfile <span class="hljs-title">fetchUserProfile</span><span class="hljs-params">(QQ api)</span> </span>&#123;
+        <span class="hljs-comment">// TODO Auto-generated method stub</span>
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">null</span>;
+    &#125;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">updateStatus</span><span class="hljs-params">(QQ api, String message)</span> </span>&#123;
+        <span class="hljs-comment">//do noting</span>
+    &#125;
+&#125;</code></pre>
+
+<h1 id="ConnectionFactory"><a href="#ConnectionFactory" class="headerlink" title="ConnectionFactory"></a>ConnectionFactory</h1><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.xdc.mcr.core.social.qq.connect;
+
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * 将之前写的</span>
+<span class="hljs-comment"> * QQServiceProvider和QQAdapter传递进来创建</span>
+<span class="hljs-comment"> * QQConnectionFactory</span>
+<span class="hljs-comment"> * providerId：用户在服务商的唯一标示openId</span>
+<span class="hljs-comment"> *</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">QQConnectionFactory</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">OAuth2ConnectionFactory</span>&lt;<span class="hljs-title">QQ</span>&gt; </span>&#123;
+ 
+   <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">QQConnectionFactory</span><span class="hljs-params">(String providerId, String appId, String appSecret)</span> </span>&#123;
+      <span class="hljs-keyword">super</span>(providerId, <span class="hljs-keyword">new</span> QQServiceProvider(appId, appSecret), <span class="hljs-keyword">new</span> QQAdapter());
+   &#125;
+&#125;</code></pre>
+
+<p>来看一下它 父类<code>OAuth2ConnectionFactory</code>的构造器</p>
+<pre><code class="hljs java"><span class="hljs-comment">/**</span>
+<span class="hljs-comment">	 * Create a &#123;<span class="hljs-doctag">@link</span> OAuth2ConnectionFactory&#125;.</span>
+<span class="hljs-comment">	 * <span class="hljs-doctag">@param</span> providerId the provider id e.g. "facebook"</span>
+<span class="hljs-comment">	 * <span class="hljs-doctag">@param</span> serviceProvider the ServiceProvider model for conducting the authorization flow and obtaining a native service API instance.</span>
+<span class="hljs-comment">	 * <span class="hljs-doctag">@param</span> apiAdapter the ApiAdapter for mapping the provider-specific service API model to the uniform &#123;<span class="hljs-doctag">@link</span> Connection&#125; interface.</span>
+<span class="hljs-comment">	 */</span>
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">OAuth2ConnectionFactory</span><span class="hljs-params">(String providerId, OAuth2ServiceProvider&lt;S&gt; serviceProvider, ApiAdapter&lt;S&gt; apiAdapter)</span> </span>&#123;
+		<span class="hljs-keyword">super</span>(providerId, serviceProvider, apiAdapter);
+	&#125;</code></pre>
+
+<p>这里有3个参数：</p>
+<ol>
+<li><code>ProviderId</code>提供商的唯一标识，这个因为每个使用者的都不一样，等会通过配置文件配进来</li>
+<li>ServiceProvider：它类型是<code>OAuth2ServiceProvider</code>，之前我们写的<code>QQServiceProvider</code>就是这个类型的子类，这里把<code>QQServiceProvider</code>的实例传递进去</li>
+<li>ApiAdapter：这里要求是实现<code>ApiAdapter</code>接口的，也就是前面写的<code>QQAdapter</code>，传递进去</li>
+</ol>
+<h1 id="SpringSocial配置"><a href="#SpringSocial配置" class="headerlink" title="SpringSocial配置"></a>SpringSocial配置</h1><p>图2中的Connection不需要实现，现在只差<code>UsersConnectionRepository</code>了，这个实际上<code>SpringSocial</code>已经为我们提供好了，只需要配一下</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.social;
+
+<span class="hljs-meta">@Configuration</span>
+<span class="hljs-meta">@EnableSocial</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SocialConfig</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">SocialConfigurerAdapter</span> </span>&#123;
+
+    <span class="hljs-meta">@Resource</span>
+    <span class="hljs-keyword">private</span> DataSource dataSource;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> UsersConnectionRepository <span class="hljs-title">getUsersConnectionRepository</span><span class="hljs-params">(ConnectionFactoryLocator connectionFactoryLocator)</span> </span>&#123;
+        <span class="hljs-comment">//Encryptors.noOpText()不做加解密</span>
+        JdbcUsersConnectionRepository repository = <span class="hljs-keyword">new</span> JdbcUsersConnectionRepository(dataSource, connectionFactoryLocator, Encryptors.noOpText());
+        <span class="hljs-comment">//建表的前缀</span>
+        <span class="hljs-comment">//repository.setTablePrefix("t_");</span>
+        <span class="hljs-keyword">return</span> repository;
+    &#125;
+
+    <span class="hljs-comment">//将SpringSocialFilter添加到安全配置的Bean</span>
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> SpringSocialConfigurer <span class="hljs-title">socialSecurityConfig</span><span class="hljs-params">()</span> </span>&#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> SpringSocialConfigurer();
+    &#125;
+&#125;</code></pre>
+
+<p>说下这行代码</p>
+<pre><code class="hljs java">JdbcUsersConnectionRepository repository = <span class="hljs-keyword">new</span> JdbcUsersConnectionRepository(dataSource, connectionFactoryLocator, Encryptors.noOpText());</code></pre>
+
+<p>这里<code>JdbcUsersConnectionRepository</code>的构造器有3个参数：</p>
+<ol>
+<li><p><code>dataSource</code>：告诉它数据源的位置</p>
+</li>
+<li><p><code>connectionFactoryLocator</code>：负责去查找<code>ConnectionFactory</code>，因为在系统里，可能会有很多个<code>ConnectionFactory</code>，比如我刚刚写了一个QQ的<code>ConnectionFactory</code>，后面写微信的时候还要再写一个微信的<code>ConnectionFactory</code>，这个东西它会根据条件去查找你当前应该用哪个<code>ConnectionFactory</code>来构建<code>Connection</code>数据</p>
+</li>
+<li><p><code>textEncryptor</code>：帮你把插到数据库里的数据做一个加解密，因为插入到数据库里的是一些比较敏感的数据，用户的<code>accessToken</code>这些东西，那么为了保证它的安全，就需要通过这个工具</p>
+<p><code>Encryptors</code>类中提供了一些默认的工具，这里我就选择使用里面的<code>noOpText</code>，不做任何操作，读者在实际开发中，可别这么干</p>
+</li>
+</ol>
+<p>这里需要在数据库中建立一个<code>UserConnection</code>的表，这个建表的脚本和<code>JdbcUsersConnectionRepository</code>在一个包下，将这个脚本在你的数据库中执行一下</p>
+<pre><code class="hljs mysql">create table UserConnection (userId varchar(255) not null,
+	providerId varchar(255) not null,
+	providerUserId varchar(255),
+	rank int not null,
+	displayName varchar(255),
+	profileUrl varchar(512),
+	imageUrl varchar(512),
+	accessToken varchar(512) not null,
+	secret varchar(512),
+	refreshToken varchar(512),
+	expireTime bigint,
+	primary key (userId, providerId, providerUserId));
+create unique index UserConnectionRank on UserConnection(userId, providerId, rank);</code></pre>
+
+<p>介绍一下这里的字段：</p>
+<ul>
+<li>userId：这个是业务系统中的用户id</li>
+<li>providerId：服务提供商的id，是QQ、微信还是其他的服务提供商</li>
+<li>providerUserId：之前提到的<code>openId</code></li>
+<li>rank：等级</li>
+<li>displayName：昵称</li>
+<li>profileUrl： 主页地址</li>
+<li>imageUrl：头像地址</li>
+<li>accessToken、<code>secret</code>、<code>refreshToken</code>、<code>expireTime</code>：这些是跟<code>OAuth协议</code>相关的</li>
+</ul>
+<p>这里最重要的是前3个字段，这里的<code>userId</code>是我们业务系统的<code>userId</code>，<code>providerId</code>是服务提供商的用户id，和我们业务系统之间的一个对应关系，在我们社交登录的过程中，我们实际上是拿到了社交用户的信息，也就是<code>providerId</code>和<code>providerUserId</code>可以拿到<code>userId</code>，那么拿到<code>userId</code>以后我最终登录成功以后放到<code>session</code>里面应该是一个完整的用户信息，而不是一个<code>userId</code>，那么如何从这个<code>userId</code>转换成一个完整的用户信息呢？我们下面接着来说：</p>
+<p>之前说的<code>UserDetailsService</code>它的作用就是根据用户登录表单上填的这个用户名去读取用户的信息，跟用户信息会封装到一个<code>UserDetails</code>接口中，然后拿这个用户信息去校验，如果校验成功了这个信息就会被放到<code>session</code>里，与这个机制类似，<code>SpringSocial</code>提供了一个叫做<code>SocialUserDetailsService</code>的接口：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> org.springframework.social.security;
+
+<span class="hljs-keyword">import</span> org.springframework.security.core.userdetails.UserDetailsService;
+<span class="hljs-keyword">import</span> org.springframework.security.core.userdetails.UsernameNotFoundException;
+
+
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * similar to &#123;<span class="hljs-doctag">@link</span> UserDetailsService&#125; but loads details by user id, not username</span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@author</span> Stefan Fussennegger</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">SocialUserDetailsService</span> </span>&#123;
+	
+	<span class="hljs-comment">/**</span>
+<span class="hljs-comment">	 * <span class="hljs-doctag">@see</span> UserDetailsService#loadUserByUsername(String)</span>
+<span class="hljs-comment">	 * <span class="hljs-doctag">@param</span> userId the user ID used to lookup the user details</span>
+<span class="hljs-comment">	 * <span class="hljs-doctag">@return</span> the SocialUserDetails requested</span>
+<span class="hljs-comment">	 */</span>
+	<span class="hljs-function">SocialUserDetails <span class="hljs-title">loadUserByUserId</span><span class="hljs-params">(String userId)</span> <span class="hljs-keyword">throws</span> UsernameNotFoundException</span>;
+&#125;</code></pre>
+
+<p>这个方法是在社交登录的时候用的，这里传进来的是<code>SpringSocial</code>根据根据社交网站的openId查出来的用户的<code>userId</code>，你要做的就是根据这个<code>userId</code>去构建一个<code>SocialUserDetails</code>实例，来看一下<code>SocialUserDetails</code></p>
+<pre><code class="hljs java">tations under the License.
+ */
+<span class="hljs-keyword">package</span> org.springframework.social.security;
+
+<span class="hljs-keyword">import</span> org.springframework.security.core.userdetails.UserDetails;
+
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@author</span> Stefan Fussennegger</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">SocialUserDetails</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">UserDetails</span> </span>&#123;
+
+	<span class="hljs-comment">/**</span>
+<span class="hljs-comment">	 * The user's identity at the provider.</span>
+<span class="hljs-comment">	 * Might be same as &#123;<span class="hljs-doctag">@link</span> #getUsername()&#125; if users are identified by username</span>
+<span class="hljs-comment">	 * <span class="hljs-doctag">@return</span> user's id used to assign connections</span>
+<span class="hljs-comment">	 */</span>
+	<span class="hljs-function">String <span class="hljs-title">getUserId</span><span class="hljs-params">()</span></span>;
+	
+&#125;</code></pre>
+
+<p>这里的<code>SocialUserDetails</code>继承了<code>UserDetails</code>接口，它这里多了一个<code>userId</code>字段</p>
+<hr>
+<p>McrUserDetailsService：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.security.service;
+<span class="hljs-meta">@Service</span>
+<span class="hljs-meta">@Slf</span>4j
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">McrUserDetailsService</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">UserDetailsService</span>, <span class="hljs-title">SocialUserDetailsService</span> </span>&#123;
+    <span class="hljs-meta">@Resource</span>
+    <span class="hljs-keyword">private</span> PasswordEncoder passwordEncoder;
+
+    <span class="hljs-function"><span class="hljs-keyword">private</span> SocialUser <span class="hljs-title">buildUser</span><span class="hljs-params">(String username)</span> </span>&#123;
+        String password = passwordEncoder.encode(<span class="hljs-string">"123"</span>);
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> SocialUser(username, password, AuthorityUtils.commaSeparatedStringToAuthorityList(<span class="hljs-string">"admin"</span>));
+    &#125;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> UserDetails <span class="hljs-title">loadUserByUsername</span><span class="hljs-params">(String username)</span> <span class="hljs-keyword">throws</span> UsernameNotFoundException </span>&#123;
+        log.info(<span class="hljs-string">"表单登录用户-&gt;&#123;&#125;进行效验"</span>, username);
+        <span class="hljs-keyword">return</span> buildUser(username);
+    &#125;
+
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> SocialUserDetails <span class="hljs-title">loadUserByUserId</span><span class="hljs-params">(String userId)</span> <span class="hljs-keyword">throws</span> UsernameNotFoundException </span>&#123;
+        log.info(<span class="hljs-string">"社交登录用户id-&gt;&#123;&#125;进行效验"</span>, userId);
+        <span class="hljs-keyword">return</span> buildUser(userId);
+    &#125;
+
+&#125;</code></pre>
+
+<h1 id="配置QQ登录"><a href="#配置QQ登录" class="headerlink" title="配置QQ登录"></a>配置QQ登录</h1><p>现在离完成还差2件事</p>
+<ol>
+<li>一些配置：QQ登录需要的<code>appId</code>、<code>appSecret</code>，这些还没配，把这些配置加上</li>
+<li>在页面上加一个QQ登录的入口</li>
+</ol>
+<p>QQProperties：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.properties;
+<span class="hljs-keyword">import</span> lombok.Data;
+<span class="hljs-keyword">import</span> org.springframework.boot.autoconfigure.social.SocialProperties;
+<span class="hljs-meta">@Data</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">QQProperties</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">SocialProperties</span> </span>&#123;
+	
+	<span class="hljs-keyword">private</span> String providerId = <span class="hljs-string">"qq"</span>;<span class="hljs-comment">//默认的providerId</span>
+ 
+&#125;</code></pre>
+
+<p>这里继承了<code>SpringSocial</code>提供的<code>SocialProperties</code></p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> org.springframework.boot.autoconfigure.social;
+
+<span class="hljs-keyword">import</span> org.springframework.boot.context.properties.ConfigurationProperties;
+
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * Base &#123;<span class="hljs-doctag">@link</span> ConfigurationProperties properties&#125; for spring social.</span>
+<span class="hljs-comment"> *</span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@author</span> Stephane Nicoll</span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@since</span> 1.4.0</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">abstract</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SocialProperties</span> </span>&#123;
+
+	<span class="hljs-comment">/**</span>
+<span class="hljs-comment">	 * Application id.</span>
+<span class="hljs-comment">	 */</span>
+	<span class="hljs-keyword">private</span> String appId;
+
+	<span class="hljs-comment">/**</span>
+<span class="hljs-comment">	 * Application secret.</span>
+<span class="hljs-comment">	 */</span>
+	<span class="hljs-keyword">private</span> String appSecret;
+
+	<span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">getAppId</span><span class="hljs-params">()</span> </span>&#123;
+		<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.appId;
+	&#125;
+
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setAppId</span><span class="hljs-params">(String appId)</span> </span>&#123;
+		<span class="hljs-keyword">this</span>.appId = appId;
+	&#125;
+
+	<span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">getAppSecret</span><span class="hljs-params">()</span> </span>&#123;
+		<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.appSecret;
+	&#125;
+
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setAppSecret</span><span class="hljs-params">(String appSecret)</span> </span>&#123;
+		<span class="hljs-keyword">this</span>.appSecret = appSecret;
+	&#125;
+
+&#125;</code></pre>
+
+<p>这里提供了我们需要的<code>appId</code>和<code>appSecret</code></p>
+<hr>
+<p>现在需要把这个配置加到<code>SecurityProperties</code>里面，但是不能直接加，需要加一层<code>SocialProperties</code></p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.properties;
+
+<span class="hljs-keyword">import</span> lombok.Data;
+
+<span class="hljs-meta">@Data</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SocialProperties</span> </span>&#123;
+    <span class="hljs-keyword">private</span> QQProperties qq = <span class="hljs-keyword">new</span> QQProperties();
+&#125;</code></pre>
+
+<p>SecurityProperties：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">private</span> SocialProperties social = <span class="hljs-keyword">new</span> SocialProperties();</code></pre>
+
+<p>QQAutoConfig：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.social.qq.config;
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * QQAutoConfig配置类</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-meta">@Configuration</span>
+<span class="hljs-comment">//当配置了mcr.security.social.qq.app-id时才生效</span>
+<span class="hljs-meta">@ConditionalOnProperty</span>(prefix = <span class="hljs-string">"mcr.b4.security.social.qq"</span>, name = <span class="hljs-string">"app-id"</span>)
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">QQAutoConfig</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">SocialAutoConfigurerAdapter</span> </span>&#123;
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> SecurityProperties securityProperties;
+
+    <span class="hljs-comment">//将配置文件中的ProviderId，AppId，AppSecret读取出来，给QQConnectionFactory</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">protected</span> ConnectionFactory&lt;?&gt; createConnectionFactory() &#123;
+        QQProperties qqConfig = securityProperties.getSocial().getQq();
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> QQConnectionFactory(qqConfig.getProviderId(), qqConfig.getAppId(), qqConfig.getAppSecret());
+    &#125;
+
+&#125;</code></pre>
+
+<p>yml：</p>
+<pre><code class="hljs java">mcr:
+  b4:
+    security:
+      social:
+        qq:
+          app-id: xxxx 
+          app-secret: xxxx</code></pre>
+
+<p>BrowserSecurityConfig:</p>
+<pre><code class="hljs java">  <span class="hljs-keyword">private</span> SpringSocialConfigurer socialSecurityConfig;
+  <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(HttpSecurity http)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+	http.
+		                .apply(socialSecurityConfig)
+					<span class="hljs-comment">//...</span>
+&#125;</code></pre>
+
+<p>mcr-login.html：</p>
+<pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">h3</span>&gt;</span>社交登录<span class="hljs-tag">&lt;/<span class="hljs-name">h3</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"/auth/qq"</span>&gt;</span>QQ登录<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span></code></pre>
+
+<p>解释一下这个路径，这个路径由两段组成，</p>
+<p>auth：之前<code>SpringSocial</code>基本原理说的过滤器<code>SocialAuthenticationFilter</code>拦截，在363行</p>
+<pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> String DEFAULT_FILTER_PROCESSES_URL = <span class="hljs-string">"/auth"</span>;</code></pre>
+
+<p>qq：这个qq是我们之前写的QQAutoConfig#createConnectionFactory传递的getProviderId，也就是qq</p>
+<pre><code class="hljs java"><span class="hljs-meta">@Override</span>
+  <span class="hljs-keyword">protected</span> ConnectionFactory&lt;?&gt; createConnectionFactory() &#123;
+      QQProperties qqConfig = securityProperties.getSocial().getQq();
+      <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> QQConnectionFactory(qqConfig.getProviderId(), qqConfig.getAppId(), qqConfig.getAppSecret());
+  &#125;</code></pre>
+
+<h1 id="解决问题"><a href="#解决问题" class="headerlink" title="解决问题"></a>解决问题</h1><p>现在点击QQ登录的A链接，会出现以下情况：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567265942100.png" srcset="/img/loading.gif" alt="1567265942100"></p>
+<p>它说重定向的URL是非法的，在之前将流程的时候，第3步用户同意授权以后服务提供商会携带授权码，跳回到第三方应用上，在调回去的时候跳的地址就是现在浏览器上url的query参数<code>redirect_uri</code>，这个地址是如何来确定的呢？我们在QQ互联上去注册我们应用的时候，我们要填写一个网站的回调域，我这的回调域是：<a href="http://www.pinzhi365.com/qqLogin/callback.do，而现在的是：http://localhost:8080/auth/qq&amp;state=831e84cf-c5a3-4e24-ada5-aaae4d425613，所以会出现这个问题" target="_blank" rel="noopener">http://www.pinzhi365.com/qqLogin/callback.do，而现在的是：http://localhost:8080/auth/qq&amp;state=831e84cf-c5a3-4e24-ada5-aaae4d425613，所以会出现这个问题</a></p>
+<pre><code class="hljs http">https://graph.qq.com/oauth2.0/show?which=error&amp;display=pc&amp;error=100010&amp;client_id=101547043&amp;response_type=code&amp;redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fauth%2Fqq&amp;state=831e84cf-c5a3-4e24-ada5-aaae4d425613</code></pre>
+
+<p>这里要注意：在<code>SpringSocial</code>里面，第1步将用户导向认证服务器，要触发这个，我们所访问的地址<code>/auth/qq</code>跟最终用户同意授权跳转回来的地址是同一个地址，都是页面上写的<code>/auth/qq</code></p>
+<hr>
+<p>将<code>redirect_uri</code>参数的值与QQ互联上配置的回调域保持一致</p>
+<p>这里使用<code>SwitchHosts</code>工具改一下host文件，这样当访问 <a href="http://www.pinzhi365.com时就会访问自己的机器" target="_blank" rel="noopener">www.pinzhi365.com时就会访问自己的机器</a></p>
+<pre><code class="hljs accesslog"><span class="hljs-number">127.0.0.1</span> www.pinzhi365.com</code></pre>
+
+<p>它现在访问的是80，所以还需要改一下<code>yml</code></p>
+<pre><code class="hljs yml"><span class="hljs-attr">server:</span>
+  <span class="hljs-attr">port:</span> <span class="hljs-number">80</span></code></pre>
+
+<p>现在<code>SocialAuthenticationFilter</code>它会处理<code>/auth</code>开头的请求，要怎么改变它呢？来看之前写的<code>SocialConfig#socialSecurityConfig</code>的配置，来看一下<code>SpringSocialConfigurer</code>的<code>configure</code>方法：</p>
+<pre><code class="hljs java"><span class="hljs-meta">@Override</span>
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(HttpSecurity http)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;		
+		ApplicationContext applicationContext = http.getSharedObject(ApplicationContext<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>;
+		UsersConnectionRepository usersConnectionRepository = getDependency(applicationContext, UsersConnectionRepository<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>;
+		SocialAuthenticationServiceLocator authServiceLocator = getDependency(applicationContext, SocialAuthenticationServiceLocator<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>;
+		SocialUserDetailsService socialUsersDetailsService = getDependency(applicationContext, SocialUserDetailsService<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>;
+		
+		SocialAuthenticationFilter filter = <span class="hljs-keyword">new</span> SocialAuthenticationFilter(
+				http.getSharedObject(AuthenticationManager<span class="hljs-class">.<span class="hljs-keyword">class</span>), </span>
+<span class="hljs-class">				<span class="hljs-title">userIdSource</span> !</span>= <span class="hljs-keyword">null</span> ? userIdSource : <span class="hljs-keyword">new</span> AuthenticationNameUserIdSource(), 
+				usersConnectionRepository, 
+				authServiceLocator);
+		
+		RememberMeServices rememberMe = http.getSharedObject(RememberMeServices<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>;
+		<span class="hljs-keyword">if</span> (rememberMe != <span class="hljs-keyword">null</span>) &#123;
+			filter.setRememberMeServices(rememberMe);
+		&#125;
+		
+		<span class="hljs-keyword">if</span> (postLoginUrl != <span class="hljs-keyword">null</span>) &#123;
+			filter.setPostLoginUrl(postLoginUrl);
+			filter.setAlwaysUsePostLoginUrl(alwaysUsePostLoginUrl);
+		&#125;
+		
+		<span class="hljs-keyword">if</span> (postFailureUrl != <span class="hljs-keyword">null</span>) &#123;
+			filter.setPostFailureUrl(postFailureUrl);
+		&#125;
+
+		<span class="hljs-keyword">if</span> (signupUrl != <span class="hljs-keyword">null</span>) &#123;
+			filter.setSignupUrl(signupUrl);
+		&#125;
+
+		<span class="hljs-keyword">if</span> (connectionAddedRedirectUrl != <span class="hljs-keyword">null</span>) &#123;
+			filter.setConnectionAddedRedirectUrl(connectionAddedRedirectUrl);
+		&#125;
+
+		<span class="hljs-keyword">if</span> (defaultFailureUrl != <span class="hljs-keyword">null</span>) &#123;
+			filter.setDefaultFailureUrl(defaultFailureUrl);
+		&#125;
+		
+		http.authenticationProvider(
+				<span class="hljs-keyword">new</span> SocialAuthenticationProvider(usersConnectionRepository, socialUsersDetailsService))
+			.addFilterBefore(postProcess(filter), AbstractPreAuthenticatedProcessingFilter<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>;
+	&#125;</code></pre>
+
+<p>它在这里实例化了一个<code>SocialAuthenticationFilter</code>，然后实例化这个过滤器以后，它在下面做了一些处理，最终它把这个过滤器加到了<code>SpringSecurity</code>的过滤器链上，它在加入之前调用了一个<code>postProcess</code>方法</p>
+<pre><code class="hljs java">.addFilterBefore(postProcess(filter), AbstractPreAuthenticatedProcessingFilter<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>;</code></pre>
+
+<p>我们现在要做的是自己写一个类去继承<code>SpringSocialConfigurer</code>，然后把它的<code>postProcess</code>方法覆盖掉，实现我们需要的逻辑</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.social;
+
+<span class="hljs-keyword">import</span> org.springframework.social.security.SocialAuthenticationFilter;
+<span class="hljs-keyword">import</span> org.springframework.social.security.SpringSocialConfigurer;
+
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * 自己创建McrSpringSocialConfigurer继承SpringSocialConfigurer，重写</span>
+<span class="hljs-comment"> * postProcess，将自己配置的filterProcessesUrl设置进去。</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">McrSpringSocialConfigurer</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">SpringSocialConfigurer</span> </span>&#123;
+	
+	<span class="hljs-keyword">private</span> String filterProcessesUrl;
+	
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">McrSpringSocialConfigurer</span><span class="hljs-params">(String filterProcessesUrl)</span> </span>&#123;
+		<span class="hljs-keyword">this</span>.filterProcessesUrl = filterProcessesUrl;
+	&#125;
+	
+	<span class="hljs-meta">@Override</span>
+	<span class="hljs-keyword">protected</span> &lt;T&gt; <span class="hljs-function">T <span class="hljs-title">postProcess</span><span class="hljs-params">(T object)</span> </span>&#123;
+		SocialAuthenticationFilter filter = (SocialAuthenticationFilter) <span class="hljs-keyword">super</span>.postProcess(object);
+		filter.setFilterProcessesUrl(filterProcessesUrl);
+		<span class="hljs-keyword">return</span> (T) filter;
+	&#125;
+&#125;</code></pre>
+
+<p>上面代码中的<code>postProcess</code>方法中的参数object实际上就是要放到过滤器链上的<code>SocialAuthenticationFilter</code>，在这里使用它的<code>setFilterProcessesUrl</code>方法改变默认的<code>/auth</code>，这里不直接写死在这里，要做成可配置的，所以这里使用构造器来给<code>filterProcessesUrl</code>赋值</p>
+<p>SocialProperties：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">private</span> String filterProcessesUrl=<span class="hljs-string">"/auth"</span>;</code></pre>
+
+<p>SocialConfig：</p>
+<pre><code class="hljs java"> <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> SecurityProperties securityProperties;
+  
+<span class="hljs-comment">//将SpringSocialFilter添加到安全配置的Bean  </span>
+<span class="hljs-meta">@Bean</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> SpringSocialConfigurer <span class="hljs-title">socialSecurityConfig</span><span class="hljs-params">()</span> </span>&#123;
+        McrSpringSocialConfigurer mcrSpringSocialConfigurer = <span class="hljs-keyword">new</span> McrSpringSocialConfigurer(securityProperties.getSocial().getFilterProcessesUrl());
+        <span class="hljs-keyword">return</span> mcrSpringSocialConfigurer;
+    &#125;</code></pre>
+
+<p>yml：</p>
+<pre><code class="hljs yml"><span class="hljs-attr">mcr:</span>
+  <span class="hljs-attr">b4:</span>
+    <span class="hljs-attr">security:</span>
+      <span class="hljs-attr">social:</span>
+        <span class="hljs-attr">filterProcessesUrl:</span> <span class="hljs-string">/qqLogin</span>
+        <span class="hljs-attr">qq:</span>
+          <span class="hljs-attr">providerId:</span> <span class="hljs-string">callback.do</span></code></pre>
+
+<p><code>mcr-login.html</code>，修改a标签跳转的地址</p>
+<pre><code class="hljs java">&lt;a href="/qqLogin/callback.do"&gt;QQ登录&lt;/a&gt;</code></pre>
+
+<p>现在访问：<a href="http://www.pinzhi365.com/mcr-login.html，扫码登录，页面响应内容：" target="_blank" rel="noopener">http://www.pinzhi365.com/mcr-login.html，扫码登录，页面响应内容：</a></p>
+<pre><code class="hljs json">&#123;
+<span class="hljs-attr">"content"</span>: <span class="hljs-string">"请引导用户跳转到登录页面"</span>
+&#125;</code></pre>
+
+<p>控制台内容：</p>
+<pre><code class="hljs angelscript"><span class="hljs-number">2019</span><span class="hljs-number">-09</span><span class="hljs-number">-01</span> <span class="hljs-number">00</span>:<span class="hljs-number">48</span>:<span class="hljs-number">27.204</span>  INFO <span class="hljs-number">51488</span> --- [p-nio<span class="hljs-number">-80</span>-exec<span class="hljs-number">-7</span>] c.b.m.a.b.BrowserSecurityController      : 引发跳转的请求-&gt;http:<span class="hljs-comment">//www.pinzhi365.com/signin</span></code></pre>
+
+<p>由于<code>/signin</code>这个请求没做授权，所以页面上就会响应这个内容，为什么会跳转到<code>/signin</code>地址呢？这里要跟到<code>SpringSocial</code>中的代码里面去看一下到底发生了什么，在根之前，先介绍一下<code>SpringSocial</code>对整个流程的处理</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567270429093.png" srcset="/img/loading.gif" alt="1567270429093"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567227175116-1567271294474.png" srcset="/img/loading.gif" alt=""></p>
+<p>这张图就是<code>SpringSocial</code>三方登录的时候涉及到的一个接口和实现类以及它们之间的调用顺序，和之前的用户名密码登录和手机验证码登录的流程它的核心是一致的，通过过滤器去拦截某一个特定的请求，拿到这个请求以后，把它里面的身份认证所需要的信息包装到一个<code>Authentication</code>实现里面，然后把把<code>Authentication</code>交给<code>AuthenticationManager</code>，根据传递进来的<code>Authentication</code>类型不同从它所管理的<code>AuthenticationProvider</code>接口实现里面挑一个<code>Provider</code>来处理传进去的校验信息，在处理的过程中它会去调我们自己写的<code>UserDetailsService</code>接口的实现，来获取业务系统中用户的信息，然后把业务系统的信息封装在一个<code>UserDetails</code>接口的实现里面，然后进一系列的检查和校验，如果都通过了，它会把用户信息放到我们之前封装的<code>Authentication</code>里，然后把<code>Authentication</code>标记成经过认证的然后放到<code>SecurityContext</code>里面完成登录，这个核心流程是永远不变的，读者一定要深刻的理解它，然后把它记住，这个是Spring Security最关键的知识，你把它理解了，其实所有登录方式都是一样的，只不过在<code>SpringSocial</code>提供的第三方登录里面涉及到了一些特殊的东西，比如它在这个过滤器在封装<code>Authentication</code>给这个<code>AuthenticationManager</code>的时候用到了一个接口叫做<code>SocialAuthenticationService</code>，图上蓝色的部分是<code>SpringSocial</code>内部封装好的不需要去动的，橘色的是我们自己写的，蓝色的这些在执行的过程中它会调用一些我们自己写的代码，例如这里的<code>OAuth2AuthenticationService</code>,它的作用是执行整个OAuth流程，在执行的过程中，它会去掉我们自己写的<code>ConnectionFactory</code> ，通过<code>ConnectionFactory</code> 会拿到<code>ServiceProvider</code>，<code>ServiceProvider</code>里有一个<code>OAuth2Operations</code>，这个<code>OAuth2Operations</code>会帮助<code>SpringSocial</code>完成整个流程，完成流程以后它会拿到服务提供商的用户信息，服务提供商的用户信息会被封装到<code>Connection</code>里面，然后<code>Connection</code>会被 封装成一个<code>SocialAuthenticationToken</code>，它包含了<code>Connection</code>信息，整个<code>Authentication</code>会交给<code>AuthenticationManager</code>，然后它拿到这个<code>token</code>里面，它会挑<code>SocialAuthenticationProvider</code>出处理这个<code>token</code>，<code>SocialAuthenticationProvider</code>在处理的时候，它会根据传入的<code>Connection</code>也就是服务提供商的用户信息使用<code>JdbcUsersConnectionRepository</code>这个类到数据库里去查一个<code>userId</code>出来，查出来的用户id以后拿这个id去调用我们自己写的<code>SocialUserDetailsService</code>实现，这个服务它去业务系统里把真正你要放到<code>session</code>里的用户信息查询出来，也就是<code>SocialUserDetails</code>，把这个信息放到<code>SocialAuthenticationToken</code>里面，然后标记成已经过认证，放入<code>SecurityContext</code>里，最终放到<code>session</code>中</p>
+<hr>
+<p>回到刚刚之前出错的地方，回想一下，是已经调到了QQ上，手机扫完二维码，进行了授权这个确认，授权确认以后它实际上是跳回我们的demo项目上，在调回我们的<code>demo项目</code>上的时候并没有想象的那样，而是调到了<code>/signin</code> URL上去，实际上我们出问题的点任然是在走我们的<code>OAuth流程</code>中出现的问题，也就说最终我还没有获取一个正确的<code>SocialAuthentication</code>交给<code>AuthenticationManager</code>去验证，而是在这<code>OAuth2AuthenticationService</code>在它去走<code>OAuth</code>流程的中间出了问题，现在来跟踪一下：</p>
+<hr>
+<p><code>OAuth2AuthenticationService</code>里面最重要的方法<code>getAuthToken</code>，它是来拿取认证令牌的，这就是在走<code>OAuth流程</code></p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> SocialAuthenticationToken <span class="hljs-title">getAuthToken</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="hljs-keyword">throws</span> SocialAuthenticationRedirectException </span>&#123;
+		String code = request.getParameter(<span class="hljs-string">"code"</span>);
+		<span class="hljs-keyword">if</span> (!StringUtils.hasText(code)) &#123;
+			OAuth2Parameters params =  <span class="hljs-keyword">new</span> OAuth2Parameters();
+			params.setRedirectUri(buildReturnToUrl(request));
+			setScope(request, params);
+			params.add(<span class="hljs-string">"state"</span>, generateState(connectionFactory, request));
+			addCustomParameters(params);
+			<span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> SocialAuthenticationRedirectException(getConnectionFactory().getOAuthOperations().buildAuthenticateUrl(params));
+		&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (StringUtils.hasText(code)) &#123;
+			<span class="hljs-keyword">try</span> &#123;
+				String returnToUrl = buildReturnToUrl(request);
+				AccessGrant accessGrant = getConnectionFactory().getOAuthOperations().exchangeForAccess(code, returnToUrl, <span class="hljs-keyword">null</span>);
+				<span class="hljs-comment">// TODO avoid API call if possible (auth using token would be fine)</span>
+				Connection&lt;S&gt; connection = getConnectionFactory().createConnection(accessGrant);
+				<span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> SocialAuthenticationToken(connection, <span class="hljs-keyword">null</span>);
+			&#125; <span class="hljs-keyword">catch</span> (RestClientException e) &#123;
+				logger.debug(<span class="hljs-string">"failed to exchange for access"</span>, e);
+				<span class="hljs-keyword">return</span> <span class="hljs-keyword">null</span>;
+			&#125;
+		&#125; <span class="hljs-keyword">else</span> &#123;
+			<span class="hljs-keyword">return</span> <span class="hljs-keyword">null</span>;
+		&#125;
+	&#125;</code></pre>
+
+<p>首先它从请求中获取<code>code</code>的参数，拿他做判断 这个<code>code</code>是不是有值，为什么会有这么一个判断，因为之前说过在<code>SpringSocial</code>里面第一步就是用户点QQ登录的时候，将用户导向认证服务器，用户点的这个请求和认证服务器，用户同意完授权以后认证服务器调回以后带着授权码这2个地址是一样的，都是代码中写的<code>/qqLogin/callback.do</code>,那么也就意味着，这个<code>SocialAuthenticationFilter</code>它要处理2个请求，</p>
+<p>用户点QQ登录的时候，它要来处理，把页面导向QQ登录的网站上去，然后用户在QQ网站授权完，扫完码同意以后，从QQ跳回来也是由<code>SocialAuthenticationFilter</code>来处理，所以第一行判断请求中有没有code（授权码），如果有，就认为是第3步从服务器上跳回来的，如果没有授权码，就认为是第1步，它会抛出一个<code>SocialAuthenticationRedirectException</code>的异常，<code>SpringSocial</code>捕获到这个异常以后就会把用户重定向到QQ的网站上去</p>
+<p>如果传进来的请求有<code>code参数</code>那么说明是服务器跳转回来的，那么它要做的事情就是拿到连接工厂的<code>OAuthOperations</code>然后调研它的<code>exchangeForAccess</code>，这里就是拿返回的授权码去换令牌，也就是流程图中的第4步和第5步，我们现在遇到的问题就是在网站授权之后，跳回来行为并不是我们期望的</p>
+<hr>
+<p>现在在<code>OAuth2AuthenticationService</code>的98行和103行、267行，</p>
+<p><code>AbstractAuthenticationProcessingFilter</code>的230行打一个断点</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567272856158.png" srcset="/img/loading.gif" alt="1567272856158"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567273669776.png" srcset="/img/loading.gif" alt="1567273669776"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567273839249.png" srcset="/img/loading.gif" alt="1567273839249"></p>
+<p>然后再来扫码进行登录：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567272963991.png" srcset="/img/loading.gif" alt="1567272963991"></p>
+<p>当它执行了98行之后，会出现异常，它的异常信息：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567273032467.png" srcset="/img/loading.gif" alt="1567273032467"></p>
+<pre><code class="hljs routeros">Could <span class="hljs-keyword">not</span> extract response: <span class="hljs-literal">no</span> suitable HttpMessageConverter found <span class="hljs-keyword">for</span> response<span class="hljs-built_in"> type </span>[interface java.util.Map] <span class="hljs-keyword">and</span> content<span class="hljs-built_in"> type </span>[text/html]</code></pre>
+
+<p>不能抽取<code>response</code>的信息，没有合适的<code>HttpMessageConverter</code> 为我们的响应类型，<code>Map</code>和<code>content type text/html</code>这是QQ响应回来的<code>content type</code>，那么报这个异常就是因为在<code>exchangeForAccess</code>是有问题的</p>
+<pre><code class="hljs java">AccessGrant accessGrant = getConnectionFactory().getOAuthOperations().exchangeForAccess(code, returnToUrl, <span class="hljs-keyword">null</span>);</code></pre>
+
+<hr>
+<p>来看一下<code>OAuth2Template#exchangeForAccess</code>，它去交换<code>accessToken</code>做了什么</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> AccessGrant <span class="hljs-title">exchangeForAccess</span><span class="hljs-params">(String authorizationCode, String redirectUri, MultiValueMap&lt;String, String&gt; additionalParameters)</span> </span>&#123;
+		MultiValueMap&lt;String, String&gt; params = <span class="hljs-keyword">new</span> LinkedMultiValueMap&lt;String, String&gt;();
+		<span class="hljs-keyword">if</span> (useParametersForClientAuthentication) &#123;
+			params.set(<span class="hljs-string">"client_id"</span>, clientId);
+			params.set(<span class="hljs-string">"client_secret"</span>, clientSecret);
+		&#125;
+		params.set(<span class="hljs-string">"code"</span>, authorizationCode);
+		params.set(<span class="hljs-string">"redirect_uri"</span>, redirectUri);
+		params.set(<span class="hljs-string">"grant_type"</span>, <span class="hljs-string">"authorization_code"</span>);
+		<span class="hljs-keyword">if</span> (additionalParameters != <span class="hljs-keyword">null</span>) &#123;
+			params.putAll(additionalParameters);
+		&#125;
+		<span class="hljs-keyword">return</span> postForAccessGrant(accessTokenUrl, params);
+	&#125;</code></pre>
+
+<p>这个方法就是OAuth2中通过<code>accessToken</code>换取令牌的方法，那么它上面设了一些参数，到<code>postForAccessGrant</code></p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">protected</span> AccessGrant <span class="hljs-title">postForAccessGrant</span><span class="hljs-params">(String accessTokenUrl, MultiValueMap&lt;String, String&gt; parameters)</span> </span>&#123;
+		<span class="hljs-keyword">return</span> extractAccessGrant(getRestTemplate().postForObject(accessTokenUrl, parameters, Map<span class="hljs-class">.<span class="hljs-keyword">class</span>))</span>;
+	&#125;</code></pre>
+
+<p>用它自己的<code>restTemplate</code>发了一个post请求，发出去的<code>post</code>请求在回来的时候要把响应的数据转换成一个<code>map</code>，它用<code>restTemplate</code>，就意味着它期望返回来的是一个<code>json</code>格式的数据，然后返回<code>content type</code>也是一个<code>application/json</code>，而刚才看到的错误信息里返回来的是一个<code>text/html</code>，所以报了这么一个错误，报了这个错误以后它就会被捕获到它就会返回<code>null</code>，然后往下走的：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567273714849.png" srcset="/img/loading.gif" alt="1567273714849"></p>
+<p>如果<code>token</code>返回<code>null</code>那么它这里也就返回<code>null</code>，到这返回<code>null</code>，<code>Social</code>又抛出了一个异常</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567273869452.png" srcset="/img/loading.gif" alt="1567273869452"></p>
+<p>然后它就会被<code>AbstractAuthenticationProcessingFilter</code>捕获到</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567273908737.png" srcset="/img/loading.gif" alt="1567273908737"></p>
+<p>最后会调用失败处理器上去</p>
+<p><code>SocialAuthenticationFilter</code>的失败处理器：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">private</span> SimpleUrlAuthenticationFailureHandler delegateAuthenticationFailureHandler;
+
+<span class="hljs-keyword">private</span> SessionStrategy sessionStrategy = <span class="hljs-keyword">new</span> HttpSessionSessionStrategy();	
+
+<span class="hljs-keyword">private</span> String filterProcessesUrl = DEFAULT_FILTER_PROCESSES_URL;
+
+<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">SocialAuthenticationFilter</span><span class="hljs-params">(AuthenticationManager authManager, UserIdSource userIdSource, UsersConnectionRepository usersConnectionRepository, SocialAuthenticationServiceLocator authServiceLocator)</span> </span>&#123;
+	<span class="hljs-keyword">this</span>.delegateAuthenticationFailureHandler = <span class="hljs-keyword">new</span> SimpleUrlAuthenticationFailureHandler(DEFAULT_FAILURE_URL);
+
+&#125;
+<span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> String DEFAULT_FAILURE_URL = <span class="hljs-string">"/signin"</span>;</code></pre>
+
+<p>它会将我们当前应用重定向到<code>DEFAULT_FAILURE_URL</code>路径上去，也就是<code>/signin</code>，往这去跳，因为在<code>browser配置</code>中没做这个请求的授权，所以就在浏览器中响应请先授权的信息</p>
+<hr>
+<p>现在问题的根源找到了，它的<code>OAuth2RestTemplate</code>是不能处理<code>html</code>这种<code>content type</code>的响应的，为什么不能处理：</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">protected</span> RestTemplate <span class="hljs-title">createRestTemplate</span><span class="hljs-params">()</span> </span>&#123;
+		ClientHttpRequestFactory requestFactory = ClientHttpRequestFactorySelector.getRequestFactory();
+		RestTemplate restTemplate = <span class="hljs-keyword">new</span> RestTemplate(requestFactory);
+		List&lt;HttpMessageConverter&lt;?&gt;&gt; converters = <span class="hljs-keyword">new</span> ArrayList&lt;HttpMessageConverter&lt;?&gt;&gt;(<span class="hljs-number">2</span>);
+		converters.add(<span class="hljs-keyword">new</span> FormHttpMessageConverter());
+		converters.add(<span class="hljs-keyword">new</span> FormMapHttpMessageConverter());
+		converters.add(<span class="hljs-keyword">new</span> MappingJackson2HttpMessageConverter());
+		restTemplate.setMessageConverters(converters);
+		restTemplate.setErrorHandler(<span class="hljs-keyword">new</span> LoggingErrorHandler());
+		<span class="hljs-keyword">if</span> (!useParametersForClientAuthentication) &#123;
+			List&lt;ClientHttpRequestInterceptor&gt; interceptors = restTemplate.getInterceptors();
+			<span class="hljs-keyword">if</span> (interceptors == <span class="hljs-keyword">null</span>) &#123;   <span class="hljs-comment">// defensively initialize list if it is null. (See SOCIAL-430)</span>
+				interceptors = <span class="hljs-keyword">new</span> ArrayList&lt;ClientHttpRequestInterceptor&gt;();
+				restTemplate.setInterceptors(interceptors);
+			&#125;
+			interceptors.add(<span class="hljs-keyword">new</span> PreemptiveBasicAuthClientHttpRequestInterceptor(clientId, clientSecret));
+		&#125;
+		<span class="hljs-keyword">return</span> restTemplate;
+	&#125;</code></pre>
+
+<p>它在加创建<code>RestTemplate</code>往里面加<code>HttpMessageConverter</code>的时候，它没有加处理<code>text/html contont type</code>这种<code>HttpMessageConverter</code>，所以现在要做的事情就是替换掉这个<code>OAuth2</code>默认的的<code>createRestTemplate</code>，写一个自己的实现，然后在自己的实现里多加一个<code>HttpMessageConverter</code>，让它可以处理<code>text/html</code>的<code>contont type</code>；</p>
+<p>首选创建一个类实现<code>OAuth2Template</code>，这里首先加上<code>MessageConverter</code>的支持</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.social.qq.connect;
+
+<span class="hljs-keyword">import</span> lombok.extern.slf4j.Slf4j;
+<span class="hljs-keyword">import</span> org.apache.commons.lang.StringUtils;
+<span class="hljs-keyword">import</span> org.springframework.http.converter.StringHttpMessageConverter;
+<span class="hljs-keyword">import</span> org.springframework.social.oauth2.AccessGrant;
+<span class="hljs-keyword">import</span> org.springframework.social.oauth2.OAuth2Template;
+<span class="hljs-keyword">import</span> org.springframework.util.MultiValueMap;
+<span class="hljs-keyword">import</span> org.springframework.web.client.RestTemplate;
+
+<span class="hljs-keyword">import</span> java.nio.charset.Charset;
+
+<span class="hljs-meta">@Slf</span>4j
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">QQOAuth2Template</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">OAuth2Template</span> </span>&#123;
+   
+ 
+  <span class="hljs-comment">//...</span>
+   
+   <span class="hljs-comment">//重写createRestTemplate，解决不能处理text/html</span>
+   <span class="hljs-meta">@Override</span>
+   <span class="hljs-function"><span class="hljs-keyword">protected</span> RestTemplate <span class="hljs-title">createRestTemplate</span><span class="hljs-params">()</span> </span>&#123;
+      RestTemplate restTemplate = <span class="hljs-keyword">super</span>.createRestTemplate();
+      restTemplate.getMessageConverters().add(<span class="hljs-keyword">new</span> StringHttpMessageConverter(Charset.forName(<span class="hljs-string">"UTF-8"</span>)));
+      <span class="hljs-keyword">return</span> restTemplate;
+   &#125;
+ 
+&#125;</code></pre>
+
+<p>这里还有一个问题，按照 <code>OAuth2</code>默认的想法来说，它发出的请求发响应的结果是一个<code>json</code></p>
+<p><code>org.springframework.social.oauth2.OAuth2Template#postForAccessGrant：</code></p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">protected</span> AccessGrant <span class="hljs-title">postForAccessGrant</span><span class="hljs-params">(String accessTokenUrl, MultiValueMap&lt;String, String&gt; parameters)</span> </span>&#123;
+	<span class="hljs-keyword">return</span> extractAccessGrant(getRestTemplate().postForObject(accessTokenUrl, parameters, Map<span class="hljs-class">.<span class="hljs-keyword">class</span>))</span>;
+&#125;</code></pre>
+
+<p>它把json解析成一个<code>map</code>传给<code>extractAccessGrant</code>方法</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">private</span> AccessGrant <span class="hljs-title">extractAccessGrant</span><span class="hljs-params">(Map&lt;String, Object&gt; result)</span> </span>&#123;
+		<span class="hljs-keyword">return</span> createAccessGrant((String) result.get(<span class="hljs-string">"access_token"</span>), (String) result.get(<span class="hljs-string">"scope"</span>), (String) result.get(<span class="hljs-string">"refresh_token"</span>), getIntegerValue(result, <span class="hljs-string">"expires_in"</span>), result);
+	&#125;</code></pre>
+
+<p>在这个方法里面它从这个<code>map</code>中去获取<code>access_token</code>、<code>refresh_token</code>、<code>scope</code>、<code>expires_in</code>，这4个字段，然后拿这4个字段去实例化一个<code>AccessGrant</code>，这个<code>AccessGrant</code>类是对<code>OAuth协议</code>中访问令牌<code>access_token</code>的封装，这是它默认的一个想法，但是在实际上呢？来看看QQ互联上的</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567275464175.png" srcset="/img/loading.gif" alt="1567275464175"></p>
+<p>这里的说明，它最终返回是并不是一个json</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567275497959.png" srcset="/img/loading.gif" alt="1567275497959"></p>
+<p>而是这样的字符串，用<strong>&amp;</strong>隔开的3个字段,下面针对这种特殊的响应格式来进行一个处理，这里通过&amp;进行分割，然后一个个获取=后面的值来获取<code>accessToken</code>、<code>expiresIn</code>、<code>refreshToken</code>来实例化<code>AccessGrant</code></p>
+<pre><code class="hljs java"><span class="hljs-comment">//qq互联获取accessToke的响应返回的是&amp;拼接的字符串</span>
+   <span class="hljs-meta">@Override</span>
+   <span class="hljs-function"><span class="hljs-keyword">protected</span> AccessGrant <span class="hljs-title">postForAccessGrant</span><span class="hljs-params">(String accessTokenUrl, MultiValueMap&lt;String, String&gt; parameters)</span> </span>&#123;
+      String responseStr = getRestTemplate().postForObject(accessTokenUrl, parameters, String<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>;
+      
+      log.info(<span class="hljs-string">"获取accessToke的响应："</span>+responseStr);
+      
+      String[] items = StringUtils.splitByWholeSeparatorPreserveAllTokens(responseStr, <span class="hljs-string">"&amp;"</span>);
+      
+      String accessToken = StringUtils.substringAfterLast(items[<span class="hljs-number">0</span>], <span class="hljs-string">"="</span>);
+      Long expiresIn = <span class="hljs-keyword">new</span> Long(StringUtils.substringAfterLast(items[<span class="hljs-number">1</span>], <span class="hljs-string">"="</span>));
+      String refreshToken = StringUtils.substringAfterLast(items[<span class="hljs-number">2</span>], <span class="hljs-string">"="</span>);
+      
+      <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> AccessGrant(accessToken, <span class="hljs-keyword">null</span>, refreshToken, expiresIn);
+   &#125;</code></pre>
+
+<p>最后一个问题：我们来看一下调用这个<code>postForAccessGrant</code>之前拼装的一些参数的时候的逻辑；org.springframework.social.oauth2.OAuth2Template#exchangeForAccess：</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> AccessGrant <span class="hljs-title">exchangeForAccess</span><span class="hljs-params">(String authorizationCode, String redirectUri, MultiValueMap&lt;String, String&gt; additionalParameters)</span> </span>&#123;
+		MultiValueMap&lt;String, String&gt; params = <span class="hljs-keyword">new</span> LinkedMultiValueMap&lt;String, String&gt;();
+		<span class="hljs-keyword">if</span> (useParametersForClientAuthentication) &#123;
+			params.set(<span class="hljs-string">"client_id"</span>, clientId);
+			params.set(<span class="hljs-string">"client_secret"</span>, clientSecret);
+		&#125;
+		params.set(<span class="hljs-string">"code"</span>, authorizationCode);
+		params.set(<span class="hljs-string">"redirect_uri"</span>, redirectUri);
+		params.set(<span class="hljs-string">"grant_type"</span>, <span class="hljs-string">"authorization_code"</span>);
+		<span class="hljs-keyword">if</span> (additionalParameters != <span class="hljs-keyword">null</span>) &#123;
+			params.putAll(additionalParameters);
+		&#125;
+		<span class="hljs-keyword">return</span> postForAccessGrant(accessTokenUrl, params);
+	&#125;</code></pre>
+
+<p>这里有5个参数，在QQ互联上也要求5个参数</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567275898849.png" srcset="/img/loading.gif" alt="1567275898849"></p>
+<p>这里是<code>OAuth协议</code>要求的，所以使用这个方法就可以了，但是这有一个，它有一个属性叫做<code>useParametersForClientAuthentication</code>，只有这个属性是<code>true</code>才会带入<code>client_id</code>、<code>client_secret</code>，在默认情况下它为<code>false</code>，所以在我们写的代码中的构造函数这，调用<code>useParametersForClientAuthentication</code>的set方法，给它改为<code>true</code></p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">QQOAuth2Template</span><span class="hljs-params">(String clientId, String clientSecret, String authorizeUrl, String accessTokenUrl)</span> </span>&#123;
+     <span class="hljs-keyword">super</span>(clientId, clientSecret, authorizeUrl, accessTokenUrl);
+     <span class="hljs-comment">//useParametersForClientAuthentication为true时exchangeForAccess方法。才会setclientId</span>
+     setUseParametersForClientAuthentication(<span class="hljs-keyword">true</span>);
+  &#125;</code></pre>
+
+<p>完整代码：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.social.qq.connect;
+
+<span class="hljs-keyword">import</span> lombok.extern.slf4j.Slf4j;
+<span class="hljs-keyword">import</span> org.apache.commons.lang.StringUtils;
+<span class="hljs-keyword">import</span> org.springframework.http.converter.StringHttpMessageConverter;
+<span class="hljs-keyword">import</span> org.springframework.social.oauth2.AccessGrant;
+<span class="hljs-keyword">import</span> org.springframework.social.oauth2.OAuth2Template;
+<span class="hljs-keyword">import</span> org.springframework.util.MultiValueMap;
+<span class="hljs-keyword">import</span> org.springframework.web.client.RestTemplate;
+
+<span class="hljs-keyword">import</span> java.nio.charset.Charset;
+
+<span class="hljs-meta">@Slf</span>4j
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">QQOAuth2Template</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">OAuth2Template</span> </span>&#123;
+   
+ 
+   <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">QQOAuth2Template</span><span class="hljs-params">(String clientId, String clientSecret, String authorizeUrl, String accessTokenUrl)</span> </span>&#123;
+      <span class="hljs-keyword">super</span>(clientId, clientSecret, authorizeUrl, accessTokenUrl);
+      <span class="hljs-comment">//useParametersForClientAuthentication为true时exchangeForAccess方法。才会setclientId</span>
+      setUseParametersForClientAuthentication(<span class="hljs-keyword">true</span>);
+   &#125;
+   
+   <span class="hljs-comment">//qq互联获取accessToke的响应返回的是&amp;拼接的字符串</span>
+   <span class="hljs-meta">@Override</span>
+   <span class="hljs-function"><span class="hljs-keyword">protected</span> AccessGrant <span class="hljs-title">postForAccessGrant</span><span class="hljs-params">(String accessTokenUrl, MultiValueMap&lt;String, String&gt; parameters)</span> </span>&#123;
+      String responseStr = getRestTemplate().postForObject(accessTokenUrl, parameters, String<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>;
+      
+      log.info(<span class="hljs-string">"获取accessToke的响应："</span>+responseStr);
+      
+      String[] items = StringUtils.splitByWholeSeparatorPreserveAllTokens(responseStr, <span class="hljs-string">"&amp;"</span>);
+      
+      String accessToken = StringUtils.substringAfterLast(items[<span class="hljs-number">0</span>], <span class="hljs-string">"="</span>);
+      Long expiresIn = <span class="hljs-keyword">new</span> Long(StringUtils.substringAfterLast(items[<span class="hljs-number">1</span>], <span class="hljs-string">"="</span>));
+      String refreshToken = StringUtils.substringAfterLast(items[<span class="hljs-number">2</span>], <span class="hljs-string">"="</span>);
+      
+      <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> AccessGrant(accessToken, <span class="hljs-keyword">null</span>, refreshToken, expiresIn);
+   &#125;
+   
+   <span class="hljs-comment">//重写createRestTemplate，解决不能处理text/html</span>
+   <span class="hljs-meta">@Override</span>
+   <span class="hljs-function"><span class="hljs-keyword">protected</span> RestTemplate <span class="hljs-title">createRestTemplate</span><span class="hljs-params">()</span> </span>&#123;
+      RestTemplate restTemplate = <span class="hljs-keyword">super</span>.createRestTemplate();
+      restTemplate.getMessageConverters().add(<span class="hljs-keyword">new</span> StringHttpMessageConverter(Charset.forName(<span class="hljs-string">"UTF-8"</span>)));
+      <span class="hljs-keyword">return</span> restTemplate;
+   &#125; 
+&#125;</code></pre>
+
+<p> 修改com.b4.mcr.auth.core.social.qq.connect.QQServiceProvider#QQServiceProvider</p>
+<pre><code class="hljs java"><span class="hljs-comment">//提供OAuth2Operations</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">QQServiceProvider</span><span class="hljs-params">(String appId, String appSecret)</span> </span>&#123;
+      <span class="hljs-keyword">super</span>(<span class="hljs-keyword">new</span> QQOAuth2Template(appId, appSecret, URL_AUTHORIZE, URL_ACCESS_TOKEN));
+      <span class="hljs-keyword">this</span>.appId = appId;
+  &#125;</code></pre>
+
+<h1 id="处理注册逻辑"><a href="#处理注册逻辑" class="headerlink" title="处理注册逻辑"></a>处理注册逻辑</h1><p>现在扫完码，浏览器的响应：</p>
+<pre><code class="hljs json">&#123;
+<span class="hljs-attr">"content"</span>: <span class="hljs-string">"请引导用户跳转到登录页面"</span>
+&#125;</code></pre>
+
+<p>控制台上：</p>
+<pre><code class="hljs angelscript"><span class="hljs-number">2019</span><span class="hljs-number">-09</span><span class="hljs-number">-01</span> <span class="hljs-number">09</span>:<span class="hljs-number">55</span>:<span class="hljs-number">49.188</span>  INFO <span class="hljs-number">22124</span> --- [p-nio<span class="hljs-number">-80</span>-exec<span class="hljs-number">-2</span>] c.b.m.a.b.BrowserSecurityController      : 引发跳转的请求-&gt;http:<span class="hljs-comment">//www.pinzhi365.com/signup</span></code></pre>
+
+<p>现在与刚才不同，这里跳转到了<code>/signup</code>地址</p>
+<hr>
+<p>现在debug，来跟一下源码，在<code>SocialAuthenticationProvider</code>64行</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567303470227.png" srcset="/img/loading.gif" alt="1567303470227"></p>
+<p><code>SocialAuthenticationFilter</code>333行打端点</p>
+<hr>
+<p>然后来扫码进行登录，</p>
+<p>在<code>authenticate</code>，中的<code>connection</code>，就是服务提供商给的用户信息</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567303654006.png" srcset="/img/loading.gif" alt="1567303654006"></p>
+<p>，这里调用了一个<code>toUserId</code>方法，将<code>connection</code>对象传递进去，这里的<code>toUserId</code>是在我们数据库的<code>UsersConnection</code>表里面根据<code>openId</code>去查询<code>userId</code></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567303706754.png" srcset="/img/loading.gif" alt="1567303706754"></p>
+<p>因为<code>UsersConnection</code>表里面没有数据，所以是<code>null</code>的，那么就会抛出一个异常</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567303811677.png" srcset="/img/loading.gif" alt="1567303811677"></p>
+<p><code>SocialAuthenticationFilter#doAuthentication</code>捕获到了抛出的异常，它会判断<code>signupUrl</code>属性是不是空的，如果是空的，它会认为你设置了一个注册的页面，那么它就会抛出<code>SocialAuthenticationRedirectException</code>异常，<code>SpringSocial</code>拿到这个异常就会跳转到你指定的注册页的URL上，默认的注册页面就是<code>/signup</code>，因为在配置中没有做授权，所以会被拦下来，响应需要授权的提示信息</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567303877749.png" srcset="/img/loading.gif" alt="1567303877749"></p>
+<hr>
+<p>以上就是产生最终结果的原因，如何解决这个问题呢？其实很简单，我们去写一个注册页，然后把这个<code>signupUrl</code>配置成自己写的注册页，在到<code>BrowserSecurityConfig</code>配置一下URL，不经过身份认证就可以访问，首先在<code>mcr-auth-browser</code>中写默认的注册页：</p>
+<p>mcr-signUp.html</p>
+<pre><code class="hljs html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">"en"</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">"UTF-8"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>标准注册页<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-name">h2</span>&gt;</span>标准注册页<span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">h3</span>&gt;</span>这是系统注册页面，请配置mcr.b4.security.browser.signUpUrl属性来设置自己的注册页<span class="hljs-tag">&lt;/<span class="hljs-name">h3</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span></code></pre>
+
+<p>BrowserSecurityProperties：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">private</span> String signUpUrl = <span class="hljs-string">"/mcr-signUp.html"</span>;</code></pre>
+
+<p>在<code>demo模块</code>中，使用自己的注册页：</p>
+<blockquote>
+<p>这里表单中的action，不用管他，因为每个注册的逻辑都不一样，因为这里有2种可能，这个用户在使用者的系统中是一个全新的用户，它以前没有用用户名密码登录过，这个时候他可能是注册一个全新的用户，另外一种可能是这个用户以前他有自己的用户名密码，这个时候他要做的事情可能就不是一个注册了，是一个绑定，他要把当前的QQ用户绑定到系统的账户上去</p>
+</blockquote>
+<p>demo-signUp.html</p>
+<pre><code class="hljs html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">"UTF-8"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>登录<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">h2</span>&gt;</span>Demo注册页<span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-name">form</span> <span class="hljs-attr">action</span>=<span class="hljs-string">"/user/regist"</span> <span class="hljs-attr">method</span>=<span class="hljs-string">"post"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">table</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">tr</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>用户名:<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"text"</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"userName"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">tr</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">tr</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>密码:<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"password"</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"password"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">tr</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">tr</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">td</span> <span class="hljs-attr">colspan</span>=<span class="hljs-string">"2"</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"submit"</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"type"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"regist"</span>&gt;</span>注册<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"submit"</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"type"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"binding"</span>&gt;</span>绑定<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">tr</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">table</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">form</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span></code></pre>
+
+<p>然后使用者需要自己写注册逻辑；</p>
+<p>UserController</p>
+<pre><code class="hljs java"><span class="hljs-meta">@PostMapping</span>(<span class="hljs-string">"/regist"</span>)
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">regist</span><span class="hljs-params">(UserVO userVO)</span> </span>&#123;
+      <span class="hljs-comment">//注册用户...</span>
+  &#125;</code></pre>
+
+<p>yml</p>
+<pre><code class="hljs yml"><span class="hljs-attr">mcr:</span>
+  <span class="hljs-attr">b4:</span>
+    <span class="hljs-attr">security:</span>
+      <span class="hljs-attr">browser:</span>
+        <span class="hljs-attr">signUpUrl:</span> <span class="hljs-string">/demo-signUp.html</span></code></pre>
+
+<p>BrowserSecurityConfig</p>
+<pre><code class="hljs java">.antMatchers(
+                      browser.getSignUpUrl(),</code></pre>
+
+<p>在<code>Social配置</code>中告诉<code>SocialAuthenticationFilter</code>跳转的注册页面路径在哪里</p>
+<pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SocialConfig</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">SocialConfigurerAdapter</span> </span>&#123;
+		<span class="hljs-comment">//...</span>
+		 <span class="hljs-meta">@Bean</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> SpringSocialConfigurer <span class="hljs-title">mcrSpringSocialConfigurer</span><span class="hljs-params">()</span> </span>&#123;
+        McrSpringSocialConfigurer mcrSpringSocialConfigurer = <span class="hljs-keyword">new</span> McrSpringSocialConfigurer(securityProperties.getSocial().getFilterProcessesUrl());
+        mcrSpringSocialConfigurer.signupUrl(securityProperties.getBrowser().getSignUpUrl());
+        <span class="hljs-keyword">return</span> mcrSpringSocialConfigurer;
+    &#125;
+&#125;</code></pre>
+
+<hr>
+<p>现在进行登录就能跳转到指定的注册页面上去了</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567307154192.png" srcset="/img/loading.gif" alt="1567307154192"></p>
+<hr>
+<p>现在它能跳到自己写demo注册页面上去了，现在有2个问题：</p>
+<ol>
+<li>在demo页面上，我不想干巴巴就显示登录页，我可能要显示一些跟当前用户信息相关的一些消息，比如你当前在用QQ的哪个账号登录，然后把头像显示给用户，告诉用户你是在用这个账号在登录，你 是要注册一个新用户还是要把这个QQ绑定已有的用户上，这样让用户的感觉更友好，在注册页上如何拿到我在之前OAuth流程里拿到的社交用户的信息？</li>
+<li>我在点注册或者绑定以后，我这个请求提交到我demo项目的绑定、注册请求进行处理，不管是注册还是绑定最终我能确定用户的唯一标识，那么也就是我们说的<code>userId</code>，如何把这个<code>userId</code>在传给<code>SpringSocial</code>，让<code>SpringSocial</code>把用户id跟我之前拿到的那些社交用户的信息一起存到数据库<code>UserConnection</code>表里面去？</li>
+</ol>
+<p>为了处理这2个问题，<code>Spring</code>提供了一个工具类：<code>ProviderSignInUtils</code></p>
+<p>SocialConfig</p>
+<pre><code class="hljs java"><span class="hljs-meta">@Bean</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> ProviderSignInUtils <span class="hljs-title">providerSignInUtils</span><span class="hljs-params">(ConnectionFactoryLocator connectionFactoryLocator)</span> </span>&#123;
+      <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> ProviderSignInUtils(connectionFactoryLocator,
+              getUsersConnectionRepository(connectionFactoryLocator));
+  &#125;</code></pre>
+
+<p>先定义一个相应数据的类</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.model.vo;
+
+<span class="hljs-keyword">import</span> lombok.Data;
+
+<span class="hljs-meta">@Data</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SocialUserInfoVO</span> </span>&#123;
+
+    <span class="hljs-keyword">private</span> String providerId;
+
+    <span class="hljs-keyword">private</span> String providerUserId;
+
+    <span class="hljs-keyword">private</span> String nickname;
+
+    <span class="hljs-keyword">private</span> String headimg;
+
+
+&#125;</code></pre>
+
+<p>BrowserSecurityController：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.browser;
+
+<span class="hljs-meta">@RestController</span>
+<span class="hljs-meta">@Slf</span>4j
+-<span class="hljs-meta">@RequestMapping</span>(<span class="hljs-string">"/authentication"</span>)
+
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">BrowserSecurityController</span> </span>&#123;
+   
+	<span class="hljs-comment">//properties....</span>
+  
+    <span class="hljs-meta">@Resource</span>
+    <span class="hljs-keyword">private</span> ProviderSignInUtils providerSignInUtils;
+    <span class="hljs-meta">@RequestMapping</span>(<span class="hljs-string">"/social/user"</span>)
+    <span class="hljs-function"><span class="hljs-keyword">public</span> SocialUserInfoVO <span class="hljs-title">getSocialUserInfo</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response)</span> </span>&#123;
+        SocialUserInfoVO socialUserInfoVO = <span class="hljs-keyword">new</span> SocialUserInfoVO();
+        Connection&lt;?&gt; connection = providerSignInUtils.getConnectionFromSession(<span class="hljs-keyword">new</span> ServletWebRequest(request, response));
+        socialUserInfoVO.setProviderId(connection.getKey().getProviderId());
+        socialUserInfoVO.setProviderUserId(connection.getKey().getProviderUserId());
+        socialUserInfoVO.setNickname(connection.getDisplayName());
+        socialUserInfoVO.setHeadimg(connection.getImageUrl());
+        <span class="hljs-keyword">return</span> socialUserInfoVO;
+    &#125;
+  
+
+  
++    <span class="hljs-meta">@RequestMapping</span>(<span class="hljs-string">"/authentication/require"</span>)
+    <span class="hljs-function"><span class="hljs-keyword">public</span> McrSecurityVO <span class="hljs-title">requireAuthentication</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="hljs-keyword">throws</span> IOException </span>&#123;
+      	<span class="hljs-comment">//...</span>
+    &#125;
+&#125;</code></pre>
+
+<p><code>ProviderSignInUtils</code>是从<code>session</code>里面拿<code>Connection</code>信息的，<code>Connection</code>是什么时候放到<code>session</code>里面的呢？</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567303877749.png" srcset="/img/loading.gif" alt="1567303877749"></p>
+<p>还记得之前介绍的这个代码吧？</p>
+<p>后面它执行了一段，它是在跳转页面之前，把<code>Connection</code>从<code>token</code>里拿出来，放到<code>session</code>中，然后把跳放入<code>session</code>以后跳到了我们的注册页上去</p>
+<pre><code class="hljs java"><span class="hljs-keyword">if</span> (signupUrl != <span class="hljs-keyword">null</span>) &#123;
+				<span class="hljs-comment">// store ConnectionData in session and redirect to register page</span>
+				sessionStrategy.setAttribute(<span class="hljs-keyword">new</span> ServletWebRequest(request), ProviderSignInAttempt.SESSION_ATTRIBUTE, <span class="hljs-keyword">new</span> ProviderSignInAttempt(token.getConnection()));
+				<span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> SocialAuthenticationRedirectException(buildSignupUrl(request));
+			&#125;</code></pre>
+
+<p>，然后我现在去发写好的<code>/social/user</code>，请求，从<code>session</code>中拿出来，拼成用户信息给前端。</p>
+<p>现在用户完成注册过程以后，不管是注册还是绑定，它都会拿到用户的唯一标识，如何把这个唯一标识给我们的<code>SpringSocial</code>？</p>
+<p>UserController</p>
+<pre><code class="hljs java"><span class="hljs-meta">@Resource</span>
+    <span class="hljs-keyword">private</span> ProviderSignInUtils providerSignInUtils;
+
+    <span class="hljs-meta">@PostMapping</span>(<span class="hljs-string">"/regist"</span>)
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">regist</span><span class="hljs-params">(UserVO userVO, HttpServletResponse response, HttpServletRequest request)</span> </span>&#123;
+        <span class="hljs-comment">//不管是注册用户还是绑定用户，都会拿到一个用户唯一标识</span>
+        String userId = userVO.getUserName();
+        <span class="hljs-comment">//以下省略注册、绑定逻辑....</span>
+        providerSignInUtils.doPostSignUp(userId, <span class="hljs-keyword">new</span> ServletWebRequest(request, response));
+    &#125;</code></pre>
+
+<p>这里通过<code>ProviderSignInUtils</code>的<code>doPostSignUp</code>就能把数据插入到数据库中的<code>UsersConnection</code>表里面去了，现在把这个注册请求配置一下，让它不用授权就能访问</p>
+<p>BrowserSecurityProperties：</p>
+<pre><code class="hljs java"><span class="hljs-comment">/**</span>
+<span class="hljs-comment">    * 注册请求</span>
+<span class="hljs-comment">    */</span>
+   <span class="hljs-keyword">private</span> String registUrl = <span class="hljs-string">"/user/regist"</span>;</code></pre>
+
+<p>BrowserSecurityConfig：</p>
+<pre><code class="hljs java">.antMatchers(        browser.getRegistUrl(), <span class="hljs-comment">//...</span></code></pre>
+
+<p>现在还有一个问题：QQ扫码登录，整个流程跑通了，可是每次都会跳转到注册页面上去，这什么怎么回事？在SocialAuthenticationProvider#authenticate中：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567318854639.png" srcset="/img/loading.gif" alt="1567318854639"></p>
+<p>这里依然拿不到<code>userId</code>，所以抛出异常，然后捕获到了，<code>SpringSocial</code>就认为在表里没有进行注册，那么就跳转注册页面上了，但是我们数据库的<code>UsersConnection</code>表里面有数据啊？为什么会查不到数据？</p>
+<p>现在就来跟一下这个<code>toUserId</code>方法。</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567319073110.png" srcset="/img/loading.gif" alt="1567319073110"></p>
+<p>这里看到，它这使用的<code>UsersConnectionRepository</code>实现类是<code>InMemoryUsersConnectionRepository</code>，没有用我们配置的<code>JdbcUsersConnectionRepository</code>，所以需要在我们的配置类中加上<code>@Order</code>注解</p>
+<pre><code class="hljs java"><span class="hljs-meta">@Order</span>(<span class="hljs-number">0</span>)
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SocialConfig</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">SocialConfigurerAdapter</span></span></code></pre>
+
+<p>因为什么要这么做？因为<code>SpringSocial</code>中的配置，比这个<code>SocialConfig</code>配置先执行了，而它那边的默认的</p>
+<p><code>UsersConnectionRepository</code>是<code>InMemoryUsersConnectionRepository</code>，所以这里就必须比它先执行。</p>
+<hr>
+<p>这个注册是需要用户手动输入的，有些时候不想这么做，微信、QQ登录以后，虽然这个用户在系统里没有这个用户，但是我不要求你去注册，我直接偷偷的给你注册一个用户，你就可以不用跳到刚刚那个注册页面去，直接让用户进系统</p>
+<hr>
+<p>在开始代码之前，先来看一下源码；</p>
+<p>SocialAuthenticationProvider：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567321588180.png" srcset="/img/loading.gif" alt="1567321588180"></p>
+<p>这里通过<code>UsersConnectionRepository</code>，也就是<code>JdbcUsersConnectionRepository</code>，通过它的<code>findUserIdsWithConnection</code>方法来拿取<code>userId</code></p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> List&lt;String&gt; <span class="hljs-title">findUserIdsWithConnection</span><span class="hljs-params">(Connection&lt;?&gt; connection)</span> </span>&#123;
+		ConnectionKey key = connection.getKey();
+		List&lt;String&gt; localUserIds = jdbcTemplate.queryForList(<span class="hljs-string">"select userId from "</span> + tablePrefix + <span class="hljs-string">"UserConnection where providerId = ? and providerUserId = ?"</span>, String<span class="hljs-class">.<span class="hljs-keyword">class</span>, <span class="hljs-title">key</span>.<span class="hljs-title">getProviderId</span>(), <span class="hljs-title">key</span>.<span class="hljs-title">getProviderUserId</span>())</span>;		
+		<span class="hljs-keyword">if</span> (localUserIds.size() == <span class="hljs-number">0</span> &amp;&amp; connectionSignUp != <span class="hljs-keyword">null</span>) &#123;
+			String newUserId = connectionSignUp.execute(connection);
+			<span class="hljs-keyword">if</span> (newUserId != <span class="hljs-keyword">null</span>)
+			&#123;
+				createConnectionRepository(newUserId).addConnection(connection);
+				<span class="hljs-keyword">return</span> Arrays.asList(newUserId);
+			&#125;
+		&#125;
+		<span class="hljs-keyword">return</span> localUserIds;
+	&#125;</code></pre>
+
+<p>这里通过<code>jdbcTemplate</code>执行<code>sql语句</code>，然后判断这个<code>sql语句</code>获取到数据是不是空的，如果不是空的，它就会执行：</p>
+<pre><code class="hljs java">String newUserId = connectionSignUp.execute(connection);</code></pre>
+
+<p>​    这里的<code>connectionSignUp</code>是<code>ConnectionSignUp</code>接口，它这没有实现类，所以它这里对象是空的，就不会走里面的代码，我们这这里定义一个类实现这个接口，在execute调用自己的注册方法，然后返回我们业务系统里面的<code>userId</code>出去，也就是上面代码的<code>newUserId</code>，如果不为<code>null</code>，它会执行</p>
+<pre><code class="hljs java">createConnectionRepository(newUserId).addConnection(connection);</code></pre>
+
+<p>这里它将<code>newUserId</code>和<code>Connection</code>信息一起插到数据库里，建一条记录，也就是它根据你社交账号信息，默认的帮你注册然后登录上，就是这么一个逻辑</p>
+<hr>
+<p>现在我们要做的就是给<code>JdbcUsersConnectionRepository</code>添加一个<code>ConnectionSignUp</code>实现类，给它里面的<code>connectionSignUp</code>赋值</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.security;
+
+<span class="hljs-keyword">import</span> org.springframework.social.connect.Connection;
+<span class="hljs-keyword">import</span> org.springframework.social.connect.ConnectionSignUp;
+<span class="hljs-keyword">import</span> org.springframework.stereotype.Component;
+<span class="hljs-meta">@Component</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">DemoConnectionSignUp</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">ConnectionSignUp</span> </span>&#123;
+
+	<span class="hljs-comment">/* (non-Javadoc)</span>
+<span class="hljs-comment">	 * @see org.springframework.social.connect.ConnectionSignUp#execute(org.springframework.social.connect.Connection)</span>
+<span class="hljs-comment">	 */</span>
+	<span class="hljs-meta">@Override</span>
+	<span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">execute</span><span class="hljs-params">(Connection&lt;?&gt; connection)</span> </span>&#123;
+		<span class="hljs-comment">//根据社交用户信息默认创建用户并返回用户唯一标识</span>
+		<span class="hljs-keyword">return</span> connection.getDisplayName();
+	&#125;
+
+&#125;</code></pre>
+
+<p>SocialConfig:</p>
+<pre><code class="hljs java"><span class="hljs-meta">@Autowired</span>(required = <span class="hljs-keyword">false</span>)
+    <span class="hljs-keyword">private</span> ConnectionSignUp connectionSignUp;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> UsersConnectionRepository <span class="hljs-title">getUsersConnectionRepository</span><span class="hljs-params">(ConnectionFactoryLocator connectionFactoryLocator)</span> </span>&#123;
+     	<span class="hljs-comment">//...</span>
+        <span class="hljs-keyword">if</span> (connectionSignUp != <span class="hljs-keyword">null</span>) &#123;
+            repository.setConnectionSignUp(connectionSignUp);
+        &#125;
+
+        <span class="hljs-keyword">return</span> repository;
+    &#125;</code></pre>
+
+<h1 id="绑定和解绑处理"><a href="#绑定和解绑处理" class="headerlink" title="绑定和解绑处理"></a>绑定和解绑处理</h1><p>绑定的流程和QQ登录流程是一样的，不一样的地方：我在QQ登录，开始走流程的时候，我是不知道当前系统的登录账号是谁的，因为要在走完流程以后用拿到的社交账号去登录系统，而绑定账号是已经知道当前用户是谁了，然后再去走那个流程，结束以后把系统账号和社交账号进行一个关联，<code>SpringSocial</code>对这样的场景提供了默认支持，下面来看一下，如何在<code>SpringSocial</code>提供的默认支持自己写代码，实现这个场景</p>
+<hr>
+<h2 id="查询绑定状态"><a href="#查询绑定状态" class="headerlink" title="查询绑定状态"></a>查询绑定状态</h2><p>现在需要3个服务：</p>
+<ol>
+<li>获取所有的社交网站的绑定信息，假设我们系统中要求有QQ、微信、微博3种，那么首先就要先查询当前用户的绑定信息</li>
+<li>绑定信息</li>
+<li>解除绑定信息</li>
+</ol>
+<p>这3个服务<code>SpringSocial</code>都为我们提供了，我们要做的就是去调它的服务</p>
+<p>获取当前登录账号绑定信息的服务：</p>
+<pre><code class="hljs http"><span class="hljs-attribute">http://www.pinzhi365.com/connect</span></code></pre>
+
+<p>这个服务页面响应内容：</p>
+<pre><code class="hljs routeros">Whitelabel <span class="hljs-builtin-name">Error</span> Page
+This application has <span class="hljs-literal">no</span> explicit mapping <span class="hljs-keyword">for</span> /error, so you are seeing this as a fallback.
+
+Sun Sep 01 19:46:33 CST 2019
+There was an unexpected <span class="hljs-builtin-name">error</span> (<span class="hljs-attribute">type</span>=Method <span class="hljs-keyword">Not</span> Allowed, <span class="hljs-attribute">status</span>=405).
+Request method <span class="hljs-string">'GET'</span> <span class="hljs-keyword">not</span> supported</code></pre>
+
+<p>控制台：</p>
+<pre><code class="hljs oxygene"><span class="hljs-number">2019</span>-<span class="hljs-number">09</span>-<span class="hljs-number">01</span> <span class="hljs-number">19</span>:<span class="hljs-number">46</span>:<span class="hljs-number">33.658</span>  WARN <span class="hljs-number">52916</span> --- [p-nio-<span class="hljs-number">80</span>-exec-<span class="hljs-number">8</span>] o.s.web.servlet.PageNotFound             : Request <span class="hljs-function"><span class="hljs-keyword">method</span> '<span class="hljs-title">GET</span>' <span class="hljs-title">not</span> <span class="hljs-title">supported</span></span></code></pre>
+
+<p>为什么会出现这个错误？来看一下<code>ConnectController</code></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567338754296.png" srcset="/img/loading.gif" alt="1567338754296"></p>
+<p>这个类就是刚才访问<code>/connect</code>请求的处理器，当请求这个URL的时候会调用以下方法：</p>
+<pre><code class="hljs java"><span class="hljs-meta">@RequestMapping</span>(method=RequestMethod.GET)
+<span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">connectionStatus</span><span class="hljs-params">(NativeWebRequest request, Model model)</span> </span>&#123;
+	setNoCache(request);
+	processFlash(request, model);
+	Map&lt;String, List&lt;Connection&lt;?&gt;&gt;&gt; connections = connectionRepository.findAllConnections();
+	model.addAttribute(<span class="hljs-string">"providerIds"</span>, connectionFactoryLocator.registeredProviderIds());		
+	model.addAttribute(<span class="hljs-string">"connectionMap"</span>, connections);
+	<span class="hljs-keyword">return</span> connectView();
+&#125;</code></pre>
+
+<p>在这里通过<code>Model</code>来存储了一些数据，而这里的数据，就是我们要的绑定信息</p>
+<p>，这里它没用使用<code>@ResponseBody</code>注解，那么就意味着，它会跳转到一个页面上去，它这里返回的是一个方法：</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">protected</span> String <span class="hljs-title">connectView</span><span class="hljs-params">()</span> </span>&#123;
+		<span class="hljs-keyword">return</span> getViewPath() + <span class="hljs-string">"status"</span>;
+	&#125;</code></pre>
+
+<p>在这里设置一个端点，继续访问：<a href="http://www.pinzhi365.com/connect，" target="_blank" rel="noopener">http://www.pinzhi365.com/connect，</a></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567341713955.png" srcset="/img/loading.gif" alt="1567341713955"></p>
+<p>这里的providerIds就是绑定信息了，然后看一下返回结果：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567341566840.png" srcset="/img/loading.gif" alt="1567341566840"></p>
+<p>这里返回<code>connect/status</code>，这是一个视图的名字，因为在我们这里没有写这个视图，所以就出去</p>
+<pre><code class="hljs oxygene"><span class="hljs-number">2019</span>-<span class="hljs-number">09</span>-<span class="hljs-number">01</span> <span class="hljs-number">19</span>:<span class="hljs-number">46</span>:<span class="hljs-number">33.658</span>  WARN <span class="hljs-number">52916</span> --- [p-nio-<span class="hljs-number">80</span>-exec-<span class="hljs-number">8</span>] o.s.web.servlet.PageNotFound             : Request <span class="hljs-function"><span class="hljs-keyword">method</span> '<span class="hljs-title">GET</span>' <span class="hljs-title">not</span> <span class="hljs-title">supported</span></span></code></pre>
+
+<p>提示信息</p>
+<hr>
+<p>现在就来写一下这个视图</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.social;
+
+
+<span class="hljs-meta">@Component</span>(<span class="hljs-string">"connect/status"</span>)
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">McrConnectionStatusView</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">AbstractView</span> </span>&#123;
+    <span class="hljs-meta">@Resource</span>
+    <span class="hljs-keyword">private</span> ObjectMapper objectMapper;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">renderMergedOutputModel</span><span class="hljs-params">(Map&lt;String, Object&gt; model, HttpServletRequest request, HttpServletResponse response)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+        Map&lt;String, List&lt;Connection&lt;?&gt;&gt;&gt; connections = (Map&lt;String, List&lt;Connection&lt;?&gt;&gt;&gt;) model.get(<span class="hljs-string">"connectionMap"</span>);
+        Map&lt;String, Boolean&gt; result = <span class="hljs-keyword">new</span> HashMap&lt;&gt;();
+        <span class="hljs-keyword">for</span> (String key : connections.keySet()) &#123;
+            result.put(key, CollectionUtils.isNotEmpty(connections.get(key)));
+        &#125;
+        response.setContentType(<span class="hljs-string">"application/json;charset=UTF-8"</span>);
+        response.getWriter().write(objectMapper.writeValueAsString(result));
+    &#125;
+&#125;</code></pre>
+
+<p>这里说一下：它的<code>model</code>参数存储了之前说的<code>org.springframework.social.connect.web.ConnectController#connectionStatus(org.springframework.web.context.request.NativeWebRequest, org.springframework.ui.Model)</code>中通过<code>model</code>存储的数据，这通过<code>model</code>那出来，做一些处理，响应出去就完成查询绑定信息功能了，现在访问<a href="http://www.pinzhi365.com/connect的响应结果：" target="_blank" rel="noopener">http://www.pinzhi365.com/connect的响应结果：</a></p>
+<pre><code class="hljs json">&#123;
+    <span class="hljs-attr">"callback.do"</span>: <span class="hljs-literal">true</span>
+&#125;</code></pre>
+
+<p>这里做查询绑定信息要注意：你认证成功，放到<code>session</code>里的<code>UserDetails</code>一定要是一个<code>SocialUserDetails</code>，也就是说我们自己写的<code>McrUserDetailsService</code>这里的返回值要是SocialUserDetails的实现，因为只有在这个接口才有<code>getUserId</code>方法，它才能拿到你的用户id，在表里面去查，如果你返回的是一个<code>UserDetails</code>接口的实现就没有这个方法的，所以这个功能就没法实现了</p>
+<h2 id="绑定"><a href="#绑定" class="headerlink" title="绑定"></a>绑定</h2><p>browser：mcr-banding.html </p>
+<pre><code class="hljs html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">"UTF-8"</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>登录<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+	<span class="hljs-tag">&lt;<span class="hljs-name">h2</span>&gt;</span>标准绑定页面<span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span>
+	<span class="hljs-tag">&lt;<span class="hljs-name">form</span> <span class="hljs-attr">action</span>=<span class="hljs-string">"/connect/callback.do"</span> <span class="hljs-attr">method</span>=<span class="hljs-string">"post"</span>&gt;</span>
+		<span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"submit"</span>&gt;</span>绑定QQ<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
+	<span class="hljs-tag">&lt;/<span class="hljs-name">form</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span></code></pre>
+
+<p>这里的<code>/connect/callback.do</code>，<code>/connect</code>是固定的，后面的<code>callback.do</code>是<code>providerId</code>，就是之前<code>QQProperties</code>中的<code>providerId</code>属性，绑定功能完成！访问：<a href="http://www.pinzhi365.com/mcr-banding.html测试吧，这里会出现100010异常，原因是我这里的`callback.do`在org.springframework.social.connect.web.ConnectController#connect这里被`@PathVariable`注解过滤成`callback`，`.do`被忽略了，所以在QQ互联上需要将`.do`去掉，然后因为它绑定的回调地址是不一样的，它会变成http://www.pinzhi365.com/connect/callback&amp;state=eab45238-f697-49bc-b5ad-6bd6b6397a3d，所以在QQ互联上要写2个回调请求，这里使用分号隔开" target="_blank" rel="noopener">http://www.pinzhi365.com/mcr-banding.html测试吧，这里会出现100010异常，原因是我这里的`callback.do`在org.springframework.social.connect.web.ConnectController#connect这里被`@PathVariable`注解过滤成`callback`，`.do`被忽略了，所以在QQ互联上需要将`.do`去掉，然后因为它绑定的回调地址是不一样的，它会变成http://www.pinzhi365.com/connect/callback&amp;state=eab45238-f697-49bc-b5ad-6bd6b6397a3d，所以在QQ互联上要写2个回调请求，这里使用分号隔开</a></p>
+<blockquote>
+<p>这里yml、页面上的请求笔者就不去写哪里要改了</p>
+</blockquote>
+<pre><code class="hljs http"><span class="hljs-attribute">http://www.pinzhi365.com/qqLogin/callback;http://www.pinzhi365.com/connect/callback</span></code></pre>
+
+<hr>
+<p>绑定完之后的处理</p>
+<p>当绑定成功之后，控制台：</p>
+<pre><code class="hljs oxygene"><span class="hljs-number">2019</span>-<span class="hljs-number">09</span>-<span class="hljs-number">02</span> <span class="hljs-number">22</span>:<span class="hljs-number">10</span>:<span class="hljs-number">47.422</span>  WARN <span class="hljs-number">61344</span> --- [p-nio-<span class="hljs-number">80</span>-exec-<span class="hljs-number">6</span>] o.s.web.servlet.PageNotFound             : Request <span class="hljs-function"><span class="hljs-keyword">method</span> '<span class="hljs-title">GET</span>' <span class="hljs-title">not</span> <span class="hljs-title">supported</span></span></code></pre>
+
+<p>又引发了这样的异常，这是为什么？</p>
+<p>因为绑定完之后，<code>spring social</code>会到<code>org.springframework.social.connect.web.ConnectController#connectionStatus(java.lang.String, org.springframework.web.context.request.NativeWebRequest, org.springframework.ui.Model)</code>这个方法里面，在这里它也返回了一个视图：</p>
+<pre><code class="hljs java"><span class="hljs-meta">@RequestMapping</span>(value=<span class="hljs-string">"/&#123;providerId&#125;"</span>, method=RequestMethod.GET)
+	<span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">connectionStatus</span><span class="hljs-params">(@PathVariable String providerId, NativeWebRequest request, Model model)</span> </span>&#123;
+		<span class="hljs-comment">//...</span>
+		<span class="hljs-keyword">if</span> (connections.isEmpty()) &#123;
+			<span class="hljs-keyword">return</span> connectView(providerId); 
+		&#125; <span class="hljs-keyword">else</span> &#123;
+			model.addAttribute(<span class="hljs-string">"connections"</span>, connections);
+			<span class="hljs-keyword">return</span> connectedView(providerId);			
+		&#125;
+	&#125;
+	<span class="hljs-function"><span class="hljs-keyword">protected</span> String <span class="hljs-title">connectView</span><span class="hljs-params">(String providerId)</span> </span>&#123;
+		<span class="hljs-keyword">return</span> getViewPath() + providerId + <span class="hljs-string">"Connect"</span>;		
+	&#125;</code></pre>
+
+<p>通过debug，看到这里返回的是<code>connect/callbackConnected</code>，前面的connect和之前一样是固定的，而后面的则是通过<code>QQProperties</code>中的<code>providerId</code>属性+“Connected”</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567433331902.png" srcset="/img/loading.gif" alt="1567433331902"></p>
+<p>这里就来写一个这个视图，这里因为QQ会写成<code>connect/callbackConnected</code>，那么如果我这里还有个微信、新浪的，那就又要在写一遍，但是里面的内容都是一样的。我们可以在这不用<code>@Component</code>注入到IOC中，把这个当做一个公共的，通过配置类，分别注入进去，因为每个三方登录，在我们系统中都会有一个配置类，所以可以这么来</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.social;
+
+
+<span class="hljs-keyword">import</span> org.springframework.web.servlet.view.AbstractView;
+
+<span class="hljs-keyword">import</span> javax.servlet.http.HttpServletRequest;
+<span class="hljs-keyword">import</span> javax.servlet.http.HttpServletResponse;
+<span class="hljs-keyword">import</span> java.util.Map;
+
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">McrConnectionView</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">AbstractView</span> </span>&#123;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">renderMergedOutputModel</span><span class="hljs-params">(Map&lt;String, Object&gt; model, HttpServletRequest request, HttpServletResponse response)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+        response.setContentType(<span class="hljs-string">"application/json;charset=utf-8"</span>);
+        response.getWriter().write(<span class="hljs-string">"&lt;h3&gt;绑定成功&lt;/h3&gt;"</span>);
+    &#125;
+&#125;</code></pre>
+
+<p>QQAutoConfig：</p>
+<pre><code class="hljs java"><span class="hljs-meta">@Bean</span>(<span class="hljs-string">"connect/callbackConnected"</span>)
+   <span class="hljs-meta">@ConditionalOnMissingBean</span>(name = <span class="hljs-string">"connect/callbackConnected"</span>)
+   <span class="hljs-function"><span class="hljs-keyword">public</span> View <span class="hljs-title">qqConnectedView</span><span class="hljs-params">()</span> </span>&#123;
+       <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> McrConnectionView();
+   &#125;</code></pre>
+
+<h2 id="解绑"><a href="#解绑" class="headerlink" title="解绑"></a>解绑</h2><p>这里的解绑和绑定的请求是一样的，区别在于解绑的请求方式是<code>delete</code>，这里页面上无法弄delete请求，有人第一时间想到使用<code>post man</code>来访问，但是使用<code>post man</code>就不是一个会话的了，又要重新登录，不太方便，这里可以使用<code>restlet client</code>工具来访问，因为它是浏览器上面的，所以还在一个会话上</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567434697756.png" srcset="/img/loading.gif" alt="1567434697756"></p>
+<p>这里响应了一个302，它的解绑最终也会返回到视图上去，它这里返回的视图和绑定返回的视图名字非常像，不过它在末尾少了一个ed</p>
+<p>QQAutoConfig：</p>
+<pre><code class="hljs java"><span class="hljs-meta">@Bean</span>(&#123;<span class="hljs-string">"connect/callbackConnected"</span>, <span class="hljs-string">"connect/callbackConnect"</span>&#125;)
+<span class="hljs-meta">@ConditionalOnMissingBean</span>(name = <span class="hljs-string">"connect/callbackConnected"</span>)
+<span class="hljs-function"><span class="hljs-keyword">public</span> View <span class="hljs-title">qqConnectedView</span><span class="hljs-params">()</span> </span>&#123;
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> McrConnectionView();
+&#125;</code></pre>
+
+<p>现在绑定和解绑使用了一个视图，要如何区分呢？绑定的<code>model</code>中有<code>connection</code>，而解绑中没有，可以拿来做判断，响应不同的内容</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.social;
+
+
+<span class="hljs-keyword">import</span> org.springframework.web.servlet.view.AbstractView;
+
+<span class="hljs-keyword">import</span> javax.servlet.http.HttpServletRequest;
+<span class="hljs-keyword">import</span> javax.servlet.http.HttpServletResponse;
+<span class="hljs-keyword">import</span> java.util.Map;
+
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">McrConnectionView</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">AbstractView</span> </span>&#123;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">renderMergedOutputModel</span><span class="hljs-params">(Map&lt;String, Object&gt; model, HttpServletRequest request, HttpServletResponse response)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+        response.setContentType(<span class="hljs-string">"application/json;charset=utf-8"</span>);
+        <span class="hljs-keyword">if</span> (model.get(<span class="hljs-string">"connection"</span>) != <span class="hljs-keyword">null</span>) &#123;
+            response.getWriter().write(<span class="hljs-string">"&lt;h3&gt;绑定成功&lt;/h3&gt;"</span>);
+        &#125; <span class="hljs-keyword">else</span> &#123;
+            response.getWriter().write(<span class="hljs-string">"&lt;h3&gt;解定成功&lt;/h3&gt;"</span>);
+
+        &#125;
+
+    &#125;
+&#125;</code></pre>
+
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/SpringSecurity/">SpringSecurity</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/spring-security-4.1.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【 四、Session 】 1.Session管理</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/spring-security-3.2.html">
+                        <span class="hidden-mobile">【 三、Social 】 2.SpringSocial基本原理</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "【 三、Social 】 3.QQ登录&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

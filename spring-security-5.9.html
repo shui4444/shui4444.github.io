@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="Shui">
+  <meta name="keywords" content="">
+  <title>【 五、OAuth 】 9.基于JWT实现SSO单点登录 - Shui&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Fluid</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2019-10-15 18:09">
+      2019年10月15日 晚上
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      3.9k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      61
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <p>什么是单点登录？请看下面这篇文章</p>
+<blockquote>
+<p><a href="http://www.cnblogs.com/ywlaker/p/6113927.html" target="_blank" rel="noopener">单点登录与简单实现</a></p>
+</blockquote>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567946533501.png" srcset="/img/loading.gif" alt="1567946533501"></p>
+<p>现在有这么一个业务场景：现在有A网站和B网站，用户在登录了A网站，然后用户再访问B网站时候就不用登录了，笔者在这里以阿里的淘宝、天猫网站为例：</p>
+<p>现在我流浪这2个网站，都是未登录状态的</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567949712176.png" srcset="/img/loading.gif" alt="1567949712176"></p>
+<p>在这里我先登录天猫，然后到淘宝上刷新的时候，就已经是登录状态了，你可以理解为这个就是单点登录</p>
+<hr>
+<p>以上面流程图为例，来介绍一下工作流程：</p>
+<ol>
+<li>当请求发给应用A时，如果这个请求需要登录以后才能访问，A会向认证服务器来请求授权，这时候，会将客户端浏览器引导到认证服务器上去授权，</li>
+<li>用户授权之后</li>
+<li>认证服务器返回授权码给应用A</li>
+<li>应用A拿着授权码请求令牌</li>
+<li>认证服务器返回给应用A JWT</li>
+<li>应用A解析JWT的信息做一个登录，这时候用户就在应用A上登录了</li>
+<li>当用户在应用A完成登录以后，他去访问了应用B</li>
+<li>对于应用B来说，用户是一个未授权的状态，它也一样会请求认证服务器给这个用户授权，让用户能去访问应用B，这个时候用户会再一次做授权，但是他不用在登录了，请求这个授权，应用A和应用B是在同一个认证服务上完成的，而这个用户之前这个认证服务器上是一个授权状态，那么通过浏览器跳到应用B的时候，认证服务器是知道当前用户是谁的，那么它只是会要求用户去授权：你可以用在我这已登录的信息去访问应用B，</li>
+<li>后面的流程和1-6是一样的，走一个OAuth流程</li>
+<li>走完OAuth以后认证服务器会给应用B一个JWT，这里的JWT与应用A的JWT是不一样的，这个token字符串是不一样的，但是通过字符串解析出来的信息是一样的，应用B拿到JWT之后，它自己做它的解析，它会解析出一个与应用A解析一样的用户信息出来，接着用户信息去构建它的Authentication，放到SecurityContext里完成它在应用B的授权，最终结果是应用A、B的session里面都有一个JWT解析出来的用户信息，认证服务器给的JWT不一样，但是解析出来的内容是一样的</li>
+<li>…</li>
+<li>使用JWT返回资源服务器</li>
+</ol>
+<hr>
+<p>笔者在这里会重写创建一个子pom模块，在这个pom模块名为mcr-auth-sso,它有3个子模块：</p>
+<ol>
+<li>mcr-auth-sso-server：认证服务器</li>
+<li>mcr–auth-sso-client1：应用A</li>
+<li>mcr–auth-sso-client2：应用B</li>
+</ol>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567947011810.png" srcset="/img/loading.gif" alt="1567947011810"></p>
+<p>mcr-auth-sso-server的pom.xml</p>
+<pre><code class="hljs xml"><span class="hljs-meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">project</span> <span class="hljs-attr">xmlns</span>=<span class="hljs-string">"http://maven.apache.org/POM/4.0.0"</span></span>
+<span class="hljs-tag">         <span class="hljs-attr">xmlns:xsi</span>=<span class="hljs-string">"http://www.w3.org/2001/XMLSchema-instance"</span></span>
+<span class="hljs-tag">         <span class="hljs-attr">xsi:schemaLocation</span>=<span class="hljs-string">"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">parent</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>mcr-auth<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>com.b4<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>1.0<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">parent</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">modelVersion</span>&gt;</span>4.0.0<span class="hljs-tag">&lt;/<span class="hljs-name">modelVersion</span>&gt;</span>
+
+    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>mcr-auth-sso<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">packaging</span>&gt;</span>pom<span class="hljs-tag">&lt;/<span class="hljs-name">packaging</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">modules</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">module</span>&gt;</span>mcr-auth-sso-server<span class="hljs-tag">&lt;/<span class="hljs-name">module</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">module</span>&gt;</span>mcr-auth-sso-client1<span class="hljs-tag">&lt;/<span class="hljs-name">module</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">module</span>&gt;</span>mcr-auth-sso-client2<span class="hljs-tag">&lt;/<span class="hljs-name">module</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">modules</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">dependencies</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.springframework.boot<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-boot-starter-security<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.springframework.boot<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.springframework.security.oauth<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-security-oauth2<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.springframework.security<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-security-jwt<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">dependencies</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">project</span>&gt;</span></code></pre>
+
+<p>mcr-auth-sso-server的启动类</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.sso.server;
+
+<span class="hljs-keyword">import</span> org.springframework.boot.SpringApplication;
+<span class="hljs-keyword">import</span> org.springframework.boot.autoconfigure.SpringBootApplication;
+
+<span class="hljs-meta">@SpringBootApplication</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">McrAuthSsoServerApplication</span> </span>&#123;
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;
+        SpringApplication.run(McrAuthSsoServerApplication<span class="hljs-class">.<span class="hljs-keyword">class</span>, <span class="hljs-title">args</span>)</span>;
+    &#125;
+&#125;</code></pre>
+
+<p>认证服务器的相关配置</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.sso.server;
+<span class="hljs-meta">@Configuration</span>
+<span class="hljs-meta">@EnableAuthorizationServer</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SsoAuthorizationServerConfig</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">AuthorizationServerConfigurerAdapter</span> </span>&#123;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(ClientDetailsServiceConfigurer clients)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+        clients.inMemory()
+                .withClient(<span class="hljs-string">"client1"</span>)
+                .secret(<span class="hljs-string">"client1"</span>)
+                .authorizedGrantTypes(<span class="hljs-string">"authorization_code"</span>, <span class="hljs-string">"refresh_token"</span>)
+                .scopes(<span class="hljs-string">"all"</span>)
+                .and()
+                .withClient(<span class="hljs-string">"client2"</span>)
+                .secret(<span class="hljs-string">"client2"</span>)
+                .authorizedGrantTypes(<span class="hljs-string">"authorization_code"</span>, <span class="hljs-string">"refresh_token"</span>)
+                .scopes(<span class="hljs-string">"all"</span>);
+    &#125;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(AuthorizationServerEndpointsConfigurer endpoints)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+        endpoints.tokenStore(jwtTokenStore()).accessTokenConverter(jwtAccessTokenConverter());
+    &#125;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(AuthorizationServerSecurityConfigurer security)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+        security.tokenKeyAccess(<span class="hljs-string">"isAuthenticated()"</span>);
+        <span class="hljs-comment">//isAuthenticated()是spring security的授权表达式，这个表达式的意思：应用访问/oauth/token的时候，</span>
+        <span class="hljs-comment">// 需要先经过身份认证，为什么需要访问/oauth/check_token，因为在前面介绍流程的场景中第5步认证服务器发给应用JWT，在生成JWT，在这里由于配置了秘钥去签名，那么用户拿到JWT的时候它要解析里面的东西，它要</span>
+        <span class="hljs-comment">//验签名，现在应用A就需要知道签名用的秘钥是什么，一会在client端会配置通过什么样的路径，client可以到认证服务器去拿解析JWT的秘钥，</span>
+        <span class="hljs-comment">// 现在当应用A访问/oauth/check_token的时候,这里就限制了它要经过身份认证才能访问这个地址，</span>
+        <span class="hljs-comment">//```java  	private String tokenKeyAccess = "denyAll()";```这里默认是拒绝所有访问</span>
+    &#125;
+
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> TokenStore <span class="hljs-title">jwtTokenStore</span><span class="hljs-params">()</span> </span>&#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> JwtTokenStore(jwtAccessTokenConverter());
+    &#125;
+
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> JwtAccessTokenConverter <span class="hljs-title">jwtAccessTokenConverter</span><span class="hljs-params">()</span> </span>&#123;
+        JwtAccessTokenConverter converter = <span class="hljs-keyword">new</span> JwtAccessTokenConverter();
+        converter.setSigningKey(<span class="hljs-string">"mcr"</span>);<span class="hljs-comment">//秘钥</span>
+        <span class="hljs-keyword">return</span> converter;
+    &#125;
+
+&#125;</code></pre>
+
+<p>yml</p>
+<pre><code class="hljs yml"><span class="hljs-attr">server:</span>
+  <span class="hljs-attr">port:</span> <span class="hljs-number">9999</span>
+  <span class="hljs-attr">context-path:</span> <span class="hljs-string">/server</span>
+<span class="hljs-attr">security:</span>
+  <span class="hljs-attr">user:</span>
+    <span class="hljs-attr">name:</span> <span class="hljs-string">user</span>
+    <span class="hljs-attr">password:</span> <span class="hljs-number">123456</span></code></pre>
+
+<p>mcr-auth-sso-clien1的启动类、rest api</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.client1;
+
+<span class="hljs-meta">@SpringBootApplication</span>
+<span class="hljs-meta">@RestController</span>
+<span class="hljs-meta">@EnableOAuth</span>2Sso
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">McrAuthClient1Application</span> </span>&#123;
+
+    <span class="hljs-meta">@GetMapping</span>(<span class="hljs-string">"/user"</span>)
+    <span class="hljs-function"><span class="hljs-keyword">public</span> Object <span class="hljs-title">getUser</span><span class="hljs-params">(Authentication user)</span> </span>&#123;
+        <span class="hljs-keyword">return</span> user;
+    &#125;
+
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;
+        SpringApplication.run(McrAuthClient1Application<span class="hljs-class">.<span class="hljs-keyword">class</span>, <span class="hljs-title">args</span>)</span>;
+    &#125;
+&#125;</code></pre>
+
+<p>yml</p>
+<pre><code class="hljs yml"><span class="hljs-attr">security:</span>
+  <span class="hljs-attr">oauth2:</span>
+    <span class="hljs-attr">client:</span>
+      <span class="hljs-attr">clientId:</span> <span class="hljs-string">client1</span>
+      <span class="hljs-attr">clientSecret:</span> <span class="hljs-string">client1</span>
+      <span class="hljs-attr">user-authorization-uri:</span> <span class="hljs-string">http://127.0.0.1:9999/server/oauth/authorize</span>
+      <span class="hljs-attr">access-token-uri:</span> <span class="hljs-string">http://127.0.0.1:9999/server/oauth/token</span>
+    <span class="hljs-attr">resource:</span>
+      <span class="hljs-attr">jwt:</span>
+        <span class="hljs-attr">key-uri:</span> <span class="hljs-string">http://127.0.0.1:9999/server/oauth/token_key</span>
+      <span class="hljs-attr">user-info-uri:</span> <span class="hljs-string">http://127.0.0.1:9999/server/user</span>
+      <span class="hljs-attr">token-info-uri:</span> <span class="hljs-string">http://127.0.0.1:9999/server/oauth/check_token</span>
+<span class="hljs-attr">server:</span>
+  <span class="hljs-attr">port:</span> <span class="hljs-number">8080</span>
+  <span class="hljs-attr">context-path:</span> <span class="hljs-string">/client1</span></code></pre>
+
+<p>resources/resources/index.html</p>
+<pre><code class="hljs html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">"UTF-8"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>SSO Client1<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>SSO Demo Client1<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"http://localhost:8060/client2/index.html"</span>&gt;</span>访问Client2<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span></code></pre>
+
+<p>mcr-auth-sso-client2和mcr-auth-sso-client1的代码是差不多的，这里把不同的地方列出来</p>
+<p>yml</p>
+<pre><code class="hljs yml"><span class="hljs-attr">security:</span>
+  <span class="hljs-attr">oauth2:</span>
+    <span class="hljs-attr">client:</span>
+      <span class="hljs-attr">clientId:</span> <span class="hljs-string">client2</span>
+      <span class="hljs-attr">clientSecret:</span> <span class="hljs-string">client2</span>
+      <span class="hljs-attr">user-authorization-uri:</span> <span class="hljs-string">http://127.0.0.1:9999/server/oauth/authorize</span>
+      <span class="hljs-attr">access-token-uri:</span> <span class="hljs-string">http://127.0.0.1:9999/server/oauth/token</span>
+    <span class="hljs-attr">resource:</span>
+      <span class="hljs-attr">jwt:</span>
+        <span class="hljs-attr">key-uri:</span> <span class="hljs-string">http://127.0.0.1:9999/server/oauth/token_key</span>
+      <span class="hljs-attr">user-info-uri:</span> <span class="hljs-string">http://127.0.0.1:9999/server/user</span>
+      <span class="hljs-attr">token-info-uri:</span> <span class="hljs-string">http://127.0.0.1:9999/server/oauth/check_token</span>
+      <span class="hljs-attr">preferTokenInfo:</span> <span class="hljs-literal">false</span>
+
+<span class="hljs-attr">server:</span>
+  <span class="hljs-attr">port:</span> <span class="hljs-number">8060</span>
+  <span class="hljs-attr">context-path:</span> <span class="hljs-string">/client2</span></code></pre>
+
+<p>html</p>
+<pre><code class="hljs html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">"UTF-8"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>SSO Client1<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>SSO Demo Client1<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"http://localhost:8080/client1/index.html"</span>&gt;</span>访问Client2<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span></code></pre>
+
+<hr>
+<p>现在访问client1，会跳转到认证服务器上弹出一个用户密码的表单，登录完成以后会跳转到认证服务器上显示这样的页面</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567953316166.png" srcset="/img/loading.gif" alt="1567953316166"></p>
+<p>这里选择授权按钮，之后就能访问clien1的index页面了</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567953377669.png" srcset="/img/loading.gif" alt="1567953377669"></p>
+<p>现在点击这个A链接，也就是要跳转到client2，这个时候会直接到认证服务器中显示这样的页面</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567953427420.png" srcset="/img/loading.gif" alt="1567953427420"></p>
+<p>在这里client2并没有像之前那样要求需要用户输入用户名密码，而是直接跳转到了认证服务器，以上就实现了前面所说的业务场景</p>
+<hr>
+<p>前面演示的流程中，最核心的功能已经实现了：只需要登录一次，同时访问应用A、B，在这个过程中有让笔者不爽的地方：在认证服务器上登录的时候，是一个http basic的弹框让用户去输入用户名密码，这里肯定是需要展示一个漂亮的登录页面，另外就是在第一次访问应用A或B它都会让我做一个授权，我要点一下授权按钮，但是在我自己两个网站上是不需要授权的，你只要登录就是了，下面就来细化这个场景</p>
+<hr>
+<p>表单登录</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.sso.server;
+
+<span class="hljs-keyword">import</span> org.springframework.security.config.annotation.web.builders.HttpSecurity;
+<span class="hljs-keyword">import</span> org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+<span class="hljs-meta">@Configuration</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SecurityConfig</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">WebSecurityConfigurerAdapter</span> </span>&#123;
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(HttpSecurity http)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+        http.formLogin()
+                .and()
+                .authorizeRequests()
+                .anyRequest()
+                .authenticated();
+    &#125;
+&#125;</code></pre>
+
+<hr>
+<p>用数据库里的账号密码做认证</p>
+<p>SecurityConfig</p>
+<pre><code class="hljs java"><span class="hljs-meta">@Bean</span>
+<span class="hljs-function"><span class="hljs-keyword">public</span> PasswordEncoder <span class="hljs-title">passwordEncoder</span><span class="hljs-params">()</span> </span>&#123;
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> BCryptPasswordEncoder();
+&#125;</code></pre>
+
+<p>UserDetailsService实现</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.sso.server;
+<span class="hljs-meta">@Component</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SSoUserDetailsServices</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">UserDetailsService</span> </span>&#123;
+    <span class="hljs-meta">@Resource</span>
+    <span class="hljs-keyword">private</span> PasswordEncoder passwordEncoder;
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> UserDetails <span class="hljs-title">loadUserByUsername</span><span class="hljs-params">(String username)</span> <span class="hljs-keyword">throws</span> UsernameNotFoundException </span>&#123;
+        String password = passwordEncoder.encode(<span class="hljs-string">"123456"</span>);
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> User(username, password, AuthorityUtils
+                .commaSeparatedStringToAuthorityList(<span class="hljs-string">"ROLE_USER"</span>));
+    &#125;
+&#125;</code></pre>
+
+<hr>
+<p>取消授权这一步操作</p>
+<blockquote>
+<p>在spring oauth中这一步是不能去掉的，但是可以用一些骚操作去修改，这里需要从源码中找到那个授权页面是在哪里生成出来的，然后改一下这个页面，已进入这个页面自动给它授权提交掉</p>
+</blockquote>
+<p>WhitelabelApprovalEndpoint，这个类就是生成授权页面的类</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> org.springframework.security.oauth2.provider.endpoint;
+
+<span class="hljs-keyword">import</span> java.util.Map;
+
+<span class="hljs-keyword">import</span> javax.servlet.http.HttpServletRequest;
+
+<span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.RequestMapping;
+<span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.SessionAttributes;
+<span class="hljs-keyword">import</span> org.springframework.web.servlet.ModelAndView;
+
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * Controller for displaying the approval page for the authorization server.</span>
+<span class="hljs-comment"> * </span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@author</span> Dave Syer</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-meta">@FrameworkEndpoint</span>
+<span class="hljs-meta">@SessionAttributes</span>(<span class="hljs-string">"authorizationRequest"</span>)
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">WhitelabelApprovalEndpoint</span> </span>&#123;
+
+	<span class="hljs-meta">@RequestMapping</span>(<span class="hljs-string">"/oauth/confirm_access"</span>)
+	<span class="hljs-function"><span class="hljs-keyword">public</span> ModelAndView <span class="hljs-title">getAccessConfirmation</span><span class="hljs-params">(Map&lt;String, Object&gt; model, HttpServletRequest request)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+		String template = createTemplate(model, request);
+		<span class="hljs-keyword">if</span> (request.getAttribute(<span class="hljs-string">"_csrf"</span>) != <span class="hljs-keyword">null</span>) &#123;
+			model.put(<span class="hljs-string">"_csrf"</span>, request.getAttribute(<span class="hljs-string">"_csrf"</span>));
+		&#125;
+		<span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> ModelAndView(<span class="hljs-keyword">new</span> SpelView(template), model);
+	&#125;
+
+	<span class="hljs-function"><span class="hljs-keyword">protected</span> String <span class="hljs-title">createTemplate</span><span class="hljs-params">(Map&lt;String, Object&gt; model, HttpServletRequest request)</span> </span>&#123;
+		String template = TEMPLATE;
+		<span class="hljs-keyword">if</span> (model.containsKey(<span class="hljs-string">"scopes"</span>) || request.getAttribute(<span class="hljs-string">"scopes"</span>) != <span class="hljs-keyword">null</span>) &#123;
+			template = template.replace(<span class="hljs-string">"%scopes%"</span>, createScopes(model, request)).replace(<span class="hljs-string">"%denial%"</span>, <span class="hljs-string">""</span>);
+		&#125;
+		<span class="hljs-keyword">else</span> &#123;
+			template = template.replace(<span class="hljs-string">"%scopes%"</span>, <span class="hljs-string">""</span>).replace(<span class="hljs-string">"%denial%"</span>, DENIAL);
+		&#125;
+		<span class="hljs-keyword">if</span> (model.containsKey(<span class="hljs-string">"_csrf"</span>) || request.getAttribute(<span class="hljs-string">"_csrf"</span>) != <span class="hljs-keyword">null</span>) &#123;
+			template = template.replace(<span class="hljs-string">"%csrf%"</span>, CSRF);
+		&#125;
+		<span class="hljs-keyword">else</span> &#123;
+			template = template.replace(<span class="hljs-string">"%csrf%"</span>, <span class="hljs-string">""</span>);
+		&#125;
+		<span class="hljs-keyword">return</span> template;
+	&#125;
+
+	<span class="hljs-function"><span class="hljs-keyword">private</span> CharSequence <span class="hljs-title">createScopes</span><span class="hljs-params">(Map&lt;String, Object&gt; model, HttpServletRequest request)</span> </span>&#123;
+		StringBuilder builder = <span class="hljs-keyword">new</span> StringBuilder(<span class="hljs-string">"&lt;ul&gt;"</span>);
+		<span class="hljs-meta">@SuppressWarnings</span>(<span class="hljs-string">"unchecked"</span>)
+		Map&lt;String, String&gt; scopes = (Map&lt;String, String&gt;) (model.containsKey(<span class="hljs-string">"scopes"</span>) ? model.get(<span class="hljs-string">"scopes"</span>) : request
+				.getAttribute(<span class="hljs-string">"scopes"</span>));
+		<span class="hljs-keyword">for</span> (String scope : scopes.keySet()) &#123;
+			String approved = <span class="hljs-string">"true"</span>.equals(scopes.get(scope)) ? <span class="hljs-string">" checked"</span> : <span class="hljs-string">""</span>;
+			String denied = !<span class="hljs-string">"true"</span>.equals(scopes.get(scope)) ? <span class="hljs-string">" checked"</span> : <span class="hljs-string">""</span>;
+			String value = SCOPE.replace(<span class="hljs-string">"%scope%"</span>, scope).replace(<span class="hljs-string">"%key%"</span>, scope).replace(<span class="hljs-string">"%approved%"</span>, approved)
+					.replace(<span class="hljs-string">"%denied%"</span>, denied);
+			builder.append(value);
+		&#125;
+		builder.append(<span class="hljs-string">"&lt;/ul&gt;"</span>);
+		<span class="hljs-keyword">return</span> builder.toString();
+	&#125;
+
+	<span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> String CSRF = <span class="hljs-string">"&lt;input type='hidden' name='$&#123;_csrf.parameterName&#125;' value='$&#123;_csrf.token&#125;' /&gt;"</span>;
+
+	<span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> String DENIAL = <span class="hljs-string">"&lt;form id='denialForm' name='denialForm' action='$&#123;path&#125;/oauth/authorize' method='post'&gt;&lt;input name='user_oauth_approval' value='false' type='hidden'/&gt;%csrf%&lt;label&gt;&lt;input name='deny' value='Deny' type='submit'/&gt;&lt;/label&gt;&lt;/form&gt;"</span>;
+
+	<span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> String TEMPLATE = <span class="hljs-string">"&lt;html&gt;&lt;body&gt;&lt;h1&gt;OAuth Approval&lt;/h1&gt;"</span>
+			+ <span class="hljs-string">"&lt;p&gt;Do you authorize '$&#123;authorizationRequest.clientId&#125;' to access your protected resources?&lt;/p&gt;"</span>
+			+ <span class="hljs-string">"&lt;form id='confirmationForm' name='confirmationForm' action='$&#123;path&#125;/oauth/authorize' method='post'&gt;&lt;input name='user_oauth_approval' value='true' type='hidden'/&gt;%csrf%%scopes%&lt;label&gt;&lt;input name='authorize' value='Authorize' type='submit'/&gt;&lt;/label&gt;&lt;/form&gt;"</span>
+			+ <span class="hljs-string">"%denial%&lt;/body&gt;&lt;/html&gt;"</span>;
+
+	<span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> String SCOPE = <span class="hljs-string">"&lt;li&gt;&lt;div class='form-group'&gt;%scope%: &lt;input type='radio' name='%key%'"</span>
+			+ <span class="hljs-string">" value='true'%approved%&gt;Approve&lt;/input&gt; &lt;input type='radio' name='%key%' value='false'%denied%&gt;Deny&lt;/input&gt;&lt;/div&gt;&lt;/li&gt;"</span>;
+
+&#125;</code></pre>
+
+
+
+<p>这个类注解了一个@FrameworkEndpoint，这个和@RestController相似，可以去在方法上写@RequestMapping，我们要做的事情就是原样写一个一模一样的类，不过会替换掉@FrameworkEndpoint改为@RestController，用@RestController注解的类，如果跟这个@RestController声明了一个一模一样的@RequestMapping，spring在处理的时候会优先使用@RestController，这样就能把这个授权页面的代码进行修改成我们预期的效果了，不过它这里的getAccessConfirmation方法使用了SpelView类，这个类是一个私有的，所以这个类也要复制在我们这里</p>
+<pre><code class="hljs java"><span class="hljs-comment">/*</span>
+<span class="hljs-comment"> * Copyright 2013-2014 the original author or authors.</span>
+<span class="hljs-comment"> *</span>
+<span class="hljs-comment"> * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with</span>
+<span class="hljs-comment"> * the License. You may obtain a copy of the License at</span>
+<span class="hljs-comment"> *</span>
+<span class="hljs-comment"> * http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="hljs-comment"> *</span>
+<span class="hljs-comment"> * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on</span>
+<span class="hljs-comment"> * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the</span>
+<span class="hljs-comment"> * specific language governing permissions and limitations under the License.</span>
+<span class="hljs-comment"> */</span>
+
+<span class="hljs-keyword">package</span> com.b4.mcr.auth.sso.server;
+
+<span class="hljs-keyword">import</span> java.util.HashMap;
+<span class="hljs-keyword">import</span> java.util.Map;
+
+<span class="hljs-keyword">import</span> javax.servlet.http.HttpServletRequest;
+<span class="hljs-keyword">import</span> javax.servlet.http.HttpServletResponse;
+
+<span class="hljs-keyword">import</span> org.springframework.context.expression.MapAccessor;
+<span class="hljs-keyword">import</span> org.springframework.expression.Expression;
+<span class="hljs-keyword">import</span> org.springframework.expression.spel.standard.SpelExpressionParser;
+<span class="hljs-keyword">import</span> org.springframework.expression.spel.support.StandardEvaluationContext;
+<span class="hljs-keyword">import</span> org.springframework.security.oauth2.common.util.RandomValueStringGenerator;
+<span class="hljs-keyword">import</span> org.springframework.util.PropertyPlaceholderHelper;
+<span class="hljs-keyword">import</span> org.springframework.util.PropertyPlaceholderHelper.PlaceholderResolver;
+<span class="hljs-keyword">import</span> org.springframework.web.servlet.View;
+<span class="hljs-keyword">import</span> org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * Simple String template renderer.</span>
+<span class="hljs-comment"> * </span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SsoSpelView</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">View</span> </span>&#123;
+
+	<span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String template;
+	
+	<span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String prefix;
+
+	<span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> SpelExpressionParser parser = <span class="hljs-keyword">new</span> SpelExpressionParser();
+
+	<span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> StandardEvaluationContext context = <span class="hljs-keyword">new</span> StandardEvaluationContext();
+
+	<span class="hljs-keyword">private</span> PlaceholderResolver resolver;
+
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">SsoSpelView</span><span class="hljs-params">(String template)</span> </span>&#123;
+		<span class="hljs-keyword">this</span>.template = template;
+		<span class="hljs-keyword">this</span>.prefix = <span class="hljs-keyword">new</span> RandomValueStringGenerator().generate() + <span class="hljs-string">"&#123;"</span>;
+		<span class="hljs-keyword">this</span>.context.addPropertyAccessor(<span class="hljs-keyword">new</span> MapAccessor());
+		<span class="hljs-keyword">this</span>.resolver = <span class="hljs-keyword">new</span> PlaceholderResolver() &#123;
+			<span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">resolvePlaceholder</span><span class="hljs-params">(String name)</span> </span>&#123;
+				Expression expression = parser.parseExpression(name);
+				Object value = expression.getValue(context);
+				<span class="hljs-keyword">return</span> value == <span class="hljs-keyword">null</span> ? <span class="hljs-keyword">null</span> : value.toString();
+			&#125;
+		&#125;;
+	&#125;
+
+	<span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">getContentType</span><span class="hljs-params">()</span> </span>&#123;
+		<span class="hljs-keyword">return</span> <span class="hljs-string">"text/html"</span>;
+	&#125;
+
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">render</span><span class="hljs-params">(Map&lt;String, ?&gt; model, HttpServletRequest request, HttpServletResponse response)</span></span>
+<span class="hljs-function">			<span class="hljs-keyword">throws</span> Exception </span>&#123;
+		Map&lt;String, Object&gt; map = <span class="hljs-keyword">new</span> HashMap&lt;String, Object&gt;(model);
+		String path = ServletUriComponentsBuilder.fromContextPath(request).build()
+				.getPath();
+		map.put(<span class="hljs-string">"path"</span>, (Object) path==<span class="hljs-keyword">null</span> ? <span class="hljs-string">""</span> : path);
+		context.setRootObject(map);
+		String maskedTemplate = template.replace(<span class="hljs-string">"$&#123;"</span>, prefix);
+		PropertyPlaceholderHelper helper = <span class="hljs-keyword">new</span> PropertyPlaceholderHelper(prefix, <span class="hljs-string">"&#125;"</span>);
+		String result = helper.replacePlaceholders(maskedTemplate, resolver);
+		result = result.replace(prefix, <span class="hljs-string">"$&#123;"</span>);
+		response.setContentType(getContentType());
+		response.getWriter().append(result);
+	&#125;
+
+&#125;</code></pre>
+
+<p>WhitelabelApprovalEndpoint</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.sso.server;
+
+<span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.RequestMapping;
+<span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.RestController;
+<span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.SessionAttributes;
+<span class="hljs-keyword">import</span> org.springframework.web.servlet.ModelAndView;
+
+<span class="hljs-keyword">import</span> javax.servlet.http.HttpServletRequest;
+<span class="hljs-keyword">import</span> java.util.Map;
+
+<span class="hljs-meta">@RestController</span>
+<span class="hljs-meta">@SessionAttributes</span>(<span class="hljs-string">"authorizationRequest"</span>)
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SsoWhitelabelApprovalEndpoint</span> </span>&#123;
+
+    <span class="hljs-meta">@RequestMapping</span>(<span class="hljs-string">"/oauth/confirm_access"</span>)
+    <span class="hljs-function"><span class="hljs-keyword">public</span> ModelAndView <span class="hljs-title">getAccessConfirmation</span><span class="hljs-params">(Map&lt;String, Object&gt; model, HttpServletRequest request)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+        String template = createTemplate(model, request);
+        <span class="hljs-keyword">if</span> (request.getAttribute(<span class="hljs-string">"_csrf"</span>) != <span class="hljs-keyword">null</span>) &#123;
+            model.put(<span class="hljs-string">"_csrf"</span>, request.getAttribute(<span class="hljs-string">"_csrf"</span>));
+        &#125;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> ModelAndView(<span class="hljs-keyword">new</span> SsoSpelView(template), model);
+    &#125;
+
+    <span class="hljs-function"><span class="hljs-keyword">protected</span> String <span class="hljs-title">createTemplate</span><span class="hljs-params">(Map&lt;String, Object&gt; model, HttpServletRequest request)</span> </span>&#123;
+        String template = TEMPLATE;
+        <span class="hljs-keyword">if</span> (model.containsKey(<span class="hljs-string">"scopes"</span>) || request.getAttribute(<span class="hljs-string">"scopes"</span>) != <span class="hljs-keyword">null</span>) &#123;
+            template = template.replace(<span class="hljs-string">"%scopes%"</span>, createScopes(model, request)).replace(<span class="hljs-string">"%denial%"</span>, <span class="hljs-string">""</span>);
+        &#125; <span class="hljs-keyword">else</span> &#123;
+            template = template.replace(<span class="hljs-string">"%scopes%"</span>, <span class="hljs-string">""</span>).replace(<span class="hljs-string">"%denial%"</span>, DENIAL);
+        &#125;
+        <span class="hljs-keyword">if</span> (model.containsKey(<span class="hljs-string">"_csrf"</span>) || request.getAttribute(<span class="hljs-string">"_csrf"</span>) != <span class="hljs-keyword">null</span>) &#123;
+            template = template.replace(<span class="hljs-string">"%csrf%"</span>, CSRF);
+        &#125; <span class="hljs-keyword">else</span> &#123;
+            template = template.replace(<span class="hljs-string">"%csrf%"</span>, <span class="hljs-string">""</span>);
+        &#125;
+        <span class="hljs-keyword">return</span> template;
+    &#125;
+
+    <span class="hljs-function"><span class="hljs-keyword">private</span> CharSequence <span class="hljs-title">createScopes</span><span class="hljs-params">(Map&lt;String, Object&gt; model, HttpServletRequest request)</span> </span>&#123;
+        StringBuilder builder = <span class="hljs-keyword">new</span> StringBuilder(<span class="hljs-string">"&lt;ul&gt;"</span>);
+        <span class="hljs-meta">@SuppressWarnings</span>(<span class="hljs-string">"unchecked"</span>)
+        Map&lt;String, String&gt; scopes = (Map&lt;String, String&gt;) (model.containsKey(<span class="hljs-string">"scopes"</span>) ? model.get(<span class="hljs-string">"scopes"</span>) : request
+                .getAttribute(<span class="hljs-string">"scopes"</span>));
+        <span class="hljs-keyword">for</span> (String scope : scopes.keySet()) &#123;
+            String approved = <span class="hljs-string">"true"</span>.equals(scopes.get(scope)) ? <span class="hljs-string">" checked"</span> : <span class="hljs-string">""</span>;
+            String denied = !<span class="hljs-string">"true"</span>.equals(scopes.get(scope)) ? <span class="hljs-string">" checked"</span> : <span class="hljs-string">""</span>;
+            String value = SCOPE.replace(<span class="hljs-string">"%scope%"</span>, scope).replace(<span class="hljs-string">"%key%"</span>, scope).replace(<span class="hljs-string">"%approved%"</span>, approved)
+                    .replace(<span class="hljs-string">"%denied%"</span>, denied);
+            builder.append(value);
+        &#125;
+        builder.append(<span class="hljs-string">"&lt;/ul&gt;"</span>);
+        <span class="hljs-keyword">return</span> builder.toString();
+    &#125;
+
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> String CSRF = <span class="hljs-string">"&lt;input type='hidden' name='$&#123;_csrf.parameterName&#125;' value='$&#123;_csrf.token&#125;' /&gt;"</span>;
+
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> String DENIAL = <span class="hljs-string">"&lt;form id='denialForm' name='denialForm' action='$&#123;path&#125;/oauth/authorize' method='post'&gt;&lt;input name='user_oauth_approval' value='false' type='hidden'/&gt;%csrf%&lt;label&gt;&lt;input name='deny' value='Deny' type='submit'/&gt;&lt;/label&gt;&lt;/form&gt;"</span>;
+
+      <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> String TEMPLATE = <span class="hljs-string">"&lt;html&gt;&lt;body&gt;&lt;div style='display:none;'&gt;&lt;h1&gt;OAuth Approval&lt;/h1&gt;"</span>
+            + <span class="hljs-string">"&lt;p&gt;Do you authorize '$&#123;authorizationRequest.clientId&#125;' to access your protected resources?&lt;/p&gt;"</span>
+            + <span class="hljs-string">"&lt;form id='confirmationForm' name='confirmationForm' action='$&#123;path&#125;/oauth/authorize' method='post'&gt;&lt;input name='user_oauth_approval' value='true' type='hidden'/&gt;%csrf%%scopes%&lt;label&gt;&lt;input name='authorize' value='Authorize' type='submit'/&gt;&lt;/label&gt;&lt;/form&gt;"</span>
+            + <span class="hljs-string">"%denial%&lt;/div&gt;&lt;script&gt;document.getElementById('confirmationForm').submit()&lt;/script&gt;&lt;/body&gt;&lt;/html&gt;"</span>;
+
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> String SCOPE = <span class="hljs-string">"&lt;li&gt;&lt;div class='form-group'&gt;%scope%: &lt;input type='radio' name='%key%'"</span>
+            + <span class="hljs-string">" value='true'%approved%&gt;Approve&lt;/input&gt; &lt;input type='radio' name='%key%' value='false'%denied%&gt;Deny&lt;/input&gt;&lt;/div&gt;&lt;/li&gt;"</span>;
+
+&#125;</code></pre>
+
+<p>现在就来实现一下业务需求：</p>
+<p>WhitelabelApprovalEndpoint</p>
+<pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> String TEMPLATE = <span class="hljs-string">"&lt;html&gt;&lt;body&gt;&lt;div style='display:none;'&gt;&lt;h1&gt;OAuth Approval&lt;/h1&gt;"</span>
+          + <span class="hljs-string">"&lt;p&gt;Do you authorize '$&#123;authorizationRequest.clientId&#125;' to access your protected resources?&lt;/p&gt;"</span>
+          + <span class="hljs-string">"&lt;form id='confirmationForm' name='confirmationForm' action='$&#123;path&#125;/oauth/authorize' method='post'&gt;&lt;input name='user_oauth_approval' value='true' type='hidden'/&gt;%csrf%%scopes%&lt;label&gt;&lt;input name='authorize' value='Authorize' type='submit'/&gt;&lt;/label&gt;&lt;/form&gt;"</span>
+          + <span class="hljs-string">"%denial%&lt;/div&gt;&lt;script&gt;document.getElementById('confirmationForm').submit()&lt;/script&gt;&lt;/body&gt;&lt;/html&gt;"</span>;</code></pre>
+
+<p>这里把这个页面的内容给隐藏来，然后直接用js给它自动提交就OK了</p>
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/SpringSecurity/">SpringSecurity</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/spring-security-6.1.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【 六、RBAC 】 1.Spring Security授权简介</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/spring-security-5.8.html">
+                        <span class="hidden-mobile">【 五、OAuth 】 8.令牌配置</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "【 五、OAuth 】 9.基于JWT实现SSO单点登录&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

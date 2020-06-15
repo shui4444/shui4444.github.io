@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="Shui">
+  <meta name="keywords" content="">
+  <title>【 Redis-学习笔记 】  2.客户端使用 - Shui&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Fluid</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2019-10-17 21:02">
+      2019年10月17日 晚上
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.4k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      20
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <h1 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h1><p>创建一个<code>maven工程</code>，在<code>pom.xml</code>中加入依赖：</p>
+<pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>redis.clients<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>jedis<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>2.9.0<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span></code></pre>
+
+<h1 id="Jedis直连"><a href="#Jedis直连" class="headerlink" title="Jedis直连"></a>Jedis直连</h1><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.jedis.demo;
+
+<span class="hljs-keyword">import</span> redis.clients.jedis.Jedis;
+
+<span class="hljs-keyword">import</span> java.util.List;
+
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">DirectConnectionDemo</span> </span>&#123;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> Integer PORT = <span class="hljs-number">6382</span>;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> String URI = <span class="hljs-string">"mcr2.com"</span>;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> Jedis jedis = <span class="hljs-keyword">new</span> Jedis(URI, PORT);
+
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;
+        kv();
+        list();
+        set();
+        zSet();
+    &#125;
+
+    <span class="hljs-comment">// kv</span>
+    <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">kv</span><span class="hljs-params">()</span> </span>&#123;
+        System.out.println(<span class="hljs-string">"========================kv"</span>);
+        <span class="hljs-comment">//获取Redis客户端</span>
+        <span class="hljs-comment">//set</span>
+        jedis.set(<span class="hljs-string">"name"</span>, <span class="hljs-string">"shui"</span>);
+        <span class="hljs-comment">//get</span>
+        String name = jedis.get(<span class="hljs-string">"name"</span>);
+
+        System.out.println(name);
+    &#125;
+
+    <span class="hljs-comment">// list</span>
+    <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">list</span><span class="hljs-params">()</span> </span>&#123;
+        System.out.println(<span class="hljs-string">"========================list"</span>);
+        jedis.del(<span class="hljs-string">"list"</span>);
+        jedis.rpush(<span class="hljs-string">"list"</span>, <span class="hljs-string">"1"</span>);
+        jedis.rpush(<span class="hljs-string">"list"</span>, <span class="hljs-string">"2"</span>);
+        jedis.rpush(<span class="hljs-string">"list"</span>, <span class="hljs-string">"3"</span>);
+        jedis.rpush(<span class="hljs-string">"list"</span>, <span class="hljs-string">"4"</span>);
+        jedis.lrange(<span class="hljs-string">"list"</span>, <span class="hljs-number">0</span>, -<span class="hljs-number">1</span>).forEach(System.out::println);
+    &#125;
+
+    <span class="hljs-comment">// set</span>
+    <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">set</span><span class="hljs-params">()</span> </span>&#123;
+        System.out.println(<span class="hljs-string">"========================set"</span>);
+        jedis.del(<span class="hljs-string">"set"</span>);
+        jedis.sadd(<span class="hljs-string">"set"</span>, <span class="hljs-string">"a"</span>);
+        jedis.sadd(<span class="hljs-string">"set"</span>, <span class="hljs-string">"b"</span>);
+        jedis.sadd(<span class="hljs-string">"set"</span>, <span class="hljs-string">"b"</span>);
+        jedis.smembers(<span class="hljs-string">"set"</span>).forEach(System.out::println);
+    &#125;
+
+    <span class="hljs-comment">// zSet</span>
+    <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">zSet</span><span class="hljs-params">()</span> </span>&#123;
+        System.out.println(<span class="hljs-string">"========================zSet"</span>);
+        jedis.del(<span class="hljs-string">"zset"</span>);
+        jedis.zadd(<span class="hljs-string">"zset"</span>, <span class="hljs-number">99</span>, <span class="hljs-string">"tom"</span>);
+        jedis.zadd(<span class="hljs-string">"zset"</span>, <span class="hljs-number">66</span>, <span class="hljs-string">"perter"</span>);
+        jedis.zadd(<span class="hljs-string">"zset"</span>, <span class="hljs-number">33</span>, <span class="hljs-string">"james"</span>);
+        System.out.println(jedis.zrangeWithScores(<span class="hljs-string">"zset"</span>, <span class="hljs-number">0</span>, -<span class="hljs-number">1</span>));
+    &#125;
+
+&#125;</code></pre>
+
+<h1 id="Jedis连接池配置"><a href="#Jedis连接池配置" class="headerlink" title="Jedis连接池配置"></a>Jedis连接池配置</h1><h2 id="配置列表"><a href="#配置列表" class="headerlink" title="配置列表"></a>配置列表</h2><table>
+<thead>
+<tr>
+<th align="center">参数名</th>
+<th align="center">含义</th>
+<th align="center">默认值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">maxTotal</td>
+<td align="center">资源最大连接数</td>
+<td align="center">8</td>
+</tr>
+<tr>
+<td align="center">maxIdel</td>
+<td align="center">资源池允许最大空闲连接数</td>
+<td align="center">8</td>
+</tr>
+<tr>
+<td align="center">minIdle</td>
+<td align="center">资源池确保最少空闲连接数</td>
+<td align="center">0</td>
+</tr>
+<tr>
+<td align="center">jmxEnabled</td>
+<td align="center">是否开启jmx监控，可用于监控</td>
+<td align="center">true</td>
+</tr>
+<tr>
+<td align="center">blockWhenExhausted</td>
+<td align="center">当资源池用尽后，调用者是否的要等待。只有当为true时，下面的maxWaitMillis才会生效</td>
+<td align="center">true</td>
+</tr>
+<tr>
+<td align="center">maxWaitMillis</td>
+<td align="center">当资源池连接用尽后，调用者的最大等待时间（单位为毫秒）</td>
+<td align="center">-1表示永不超时</td>
+</tr>
+<tr>
+<td align="center">testOnBorrow</td>
+<td align="center">向资源池借用连接时是否做连接有效性检测（ping），无效连接会被移除</td>
+<td align="center">false</td>
+</tr>
+<tr>
+<td align="center">testOnReturn</td>
+<td align="center">向资源池归还连接时是否做连接有效性检测（ping），无效连接会被移除</td>
+<td align="center">false</td>
+</tr>
+</tbody></table>
+<h2 id="适合的maxTotal"><a href="#适合的maxTotal" class="headerlink" title="适合的maxTotal"></a>适合的maxTotal</h2><p>比较难确定的，举个例子：</p>
+<ol>
+<li>命令平均执行时间0.1ms=0.0001s;</li>
+<li>业务需要50000 QPS;</li>
+<li>maxTotal理论值=0.001*50000=50个。实际值要偏大一些。</li>
+</ol>
+<p>设置maxTotal需要考虑的问题：</p>
+<ol>
+<li>业务希望Redis并发量；</li>
+<li>客户端执行命令时间；</li>
+<li>Redis资源：例如<code>nodes(例如应用个数)* maxTotal</code>是不能超过Redis的最大连接数。（config get maxclients）</li>
+</ol>
+<h2 id="适合的maxIdel和minIdle"><a href="#适合的maxIdel和minIdle" class="headerlink" title="适合的maxIdel和minIdle"></a>适合的maxIdel和minIdle</h2><p>建议<code>maxIdel</code>=<code>minIdle</code>,假如我现在<code>maxTotal：100</code>,<code>maxIdel：50</code>,现在允许最大的空闲数也就是50，假如现在已经在一个高峰期，我资源中的连接池已经通过<code>getResource</code>获取到了，这个时候第51个连接需要通过<code>new Jedis</code>以及<code>cp的三次握</code>手才能到新的连接，实际上这本身是有一定开销的，通常我们会将这2个属性设置成一样减少创建新连接的开销</p>
+<hr>
+<p>建议预热minIdle，在JedisPool初始化的时候，在第一次<code>getResource</code>的时候，依然是通过<code>new</code>来完成的，对于一些并发量特别大的应用来说，它认为第一次<code>new</code>还是不能容忍，这个时候可以在应用初始化的时候提前去<code>new</code>一些<code>getResource</code>去让它做一些操作</p>
+<h2 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h2><h3 id="获取连接超时"><a href="#获取连接超时" class="headerlink" title="获取连接超时"></a>获取连接超时</h3><pre><code class="hljs java">redis clients. jedis exceptions. JedisConnectionException: Could not get a resource from the pool
+Caused by: java util. NoSuch Element Exception: Timeout waiting <span class="hljs-keyword">for</span> idle object
+at org.apache commons. pool2 impl. GenericObjectPool. borrowobject(GenericObjectPool java: <span class="hljs-number">449</span>)</code></pre>
+
+<h3 id="连接池资源耗尽"><a href="#连接池资源耗尽" class="headerlink" title="连接池资源耗尽"></a>连接池资源耗尽</h3><blockquote>
+<p>在连接数到最大的时候，按道理现在会出现一个等的行为，但在我这设置为不等，它就会告诉你池子的资源耗尽</p>
+</blockquote>
+<pre><code class="hljs java">redis clients. jedis. exceptions. Jedis ConnectionException: Could not get a resource from the pool
+Caused by: java util. NoSuchElementEXception: Pool exhausted
+at org. apache commons. pool2impl. GenericObjectPool. borrowobject(GenericObjectPool java: <span class="hljs-number">464</span>)</code></pre>
+
+<h2 id="解决思路"><a href="#解决思路" class="headerlink" title="解决思路"></a>解决思路</h2><ul>
+<li>慢查询阻塞：池子连接都被hang住；</li>
+</ul>
+<blockquote>
+<p>假如我们连接池中设置<code>maxTotal：8</code>,假如现在有8个线程正在执行一个操作，对于Redis来说，无论借还执行操作都是非常快的，在某一个瞬间这些操作都被hang住了，这些操作执行非常慢，例如这8个都在执行<code>keys</code> * 或者某些原因Redis单线程被阻塞了这8个连接都要对这个操作进行等待，在等待期间，这个时候再去一个<code>getResouce</code>就会出现刚才那样的情况<code>连接池资源耗尽</code></p>
+</blockquote>
+<ul>
+<li>资源池参数不合理：例如QPS高、池子小;</li>
+</ul>
+<blockquote>
+<p>假如QPS为100w，但池子还设置成8，这样就不是很合理</p>
+</blockquote>
+<ul>
+<li>连接泄露（没有close()）：此类问题比较难定位，例如<code>client list</code>、<code>netstat</code>等，最重要的是代码;</li>
+<li>DNS异常等。</li>
+</ul>
+<h2 id="案例"><a href="#案例" class="headerlink" title="案例"></a>案例</h2><p>模拟连接泄露</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.jedis.demo;
+
+<span class="hljs-keyword">import</span> redis.clients.jedis.Jedis;
+<span class="hljs-keyword">import</span> redis.clients.jedis.JedisPool;
+<span class="hljs-keyword">import</span> redis.clients.jedis.JedisPoolConfig;
+
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">JedisPoolOptimizeTest</span> </span>&#123;
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;
+        JedisPoolConfig jedisPoolConfig = <span class="hljs-keyword">new</span> JedisPoolConfig();
+        jedisPoolConfig.setMaxTotal(<span class="hljs-number">10</span>);
+        jedisPoolConfig.setMaxWaitMillis(<span class="hljs-number">1000</span>);
+
+
+        JedisPool jedisPool = <span class="hljs-keyword">new</span> JedisPool(jedisPoolConfig, <span class="hljs-string">"mcr2.com"</span>, <span class="hljs-number">6382</span>);
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">10</span>; i++) &#123;
+            Jedis jedis = <span class="hljs-keyword">null</span>;
+            <span class="hljs-keyword">try</span> &#123;
+                jedis = jedisPool.getResource();
+                System.out.println(jedis.ping());
+            &#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;
+                e.printStackTrace();
+            &#125;
+            System.out.println(jedisPool.getResource().ping());
+        &#125;
+    &#125;
+&#125;</code></pre>
+
+<pre><code class="hljs java">PONG
+PONG
+PONG
+PONG
+PONG
+PONG
+PONG
+PONG
+PONG
+PONG
+redis.clients.jedis.exceptions.JedisException: Could not get a resource from the pool
+	at redis.clients.util.Pool.getResource(Pool.java:<span class="hljs-number">51</span>)
+	at redis.clients.jedis.JedisPool.getResource(JedisPool.java:<span class="hljs-number">226</span>)
+	at com.shui.jedis.demo.JedisPoolOptimizeTest.main(JedisPoolOptimizeTest.java:<span class="hljs-number">18</span>)
+Caused by: java.util.NoSuchElementException: Timeout waiting <span class="hljs-keyword">for</span> idle object
+	at org.apache.commons.pool2.impl.GenericObjectPool.borrowObject(GenericObjectPool.java:<span class="hljs-number">449</span>)
+	at org.apache.commons.pool2.impl.GenericObjectPool.borrowObject(GenericObjectPool.java:<span class="hljs-number">363</span>)
+	at redis.clients.util.Pool.getResource(Pool.java:<span class="hljs-number">49</span>)
+	... <span class="hljs-number">2</span> more
+Exception in thread <span class="hljs-string">"main"</span> redis.clients.jedis.exceptions.JedisException: Could not get a resource from the pool
+	at redis.clients.util.Pool.getResource(Pool.java:<span class="hljs-number">51</span>)
+	at redis.clients.jedis.JedisPool.getResource(JedisPool.java:<span class="hljs-number">226</span>)
+	at com.shui.jedis.demo.JedisPoolOptimizeTest.main(JedisPoolOptimizeTest.java:<span class="hljs-number">23</span>)
+Caused by: java.util.NoSuchElementException: Timeout waiting <span class="hljs-keyword">for</span> idle object
+	at org.apache.commons.pool2.impl.GenericObjectPool.borrowObject(GenericObjectPool.java:<span class="hljs-number">449</span>)
+	at org.apache.commons.pool2.impl.GenericObjectPool.borrowObject(GenericObjectPool.java:<span class="hljs-number">363</span>)
+	at redis.clients.util.Pool.getResource(Pool.java:<span class="hljs-number">49</span>)
+	... <span class="hljs-number">2</span> more</code></pre>
+
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E8%BF%90%E7%BB%B4/Redis/">Redis</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/redis-3.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【 Redis-学习笔记 】  3.瑞士军刀</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/redis-1.html">
+                        <span class="hidden-mobile">【 Redis-学习笔记 】  1.基本使用</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "【 Redis-学习笔记 】  2.客户端使用&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="Shui">
+  <meta name="keywords" content="">
+  <title>【 一、Restful Api 】  3.Restful Api - Shui&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Fluid</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2019-10-11 17:03">
+      2019年10月11日 下午
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      5.2k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      76
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>在使用<code>spring mvc</code>框架时，<code>get</code>、<code>post</code>请求用得是最多得，在不同的业务场景进行选择，在笔者身边的同事不太注重这些，夸张点全部使用post请求，这样是不合理的，笔者总结了以下几种：</p>
+<table>
+<thead>
+<tr>
+<th align="center">请求</th>
+<th align="center">业务场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">get</td>
+<td align="center">查询</td>
+</tr>
+<tr>
+<td align="center">post</td>
+<td align="center">新增</td>
+</tr>
+<tr>
+<td align="center">put</td>
+<td align="center">修改</td>
+</tr>
+<tr>
+<td align="center">delete</td>
+<td align="center">删除</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>在团队开发中都根据这样去写代码，看一个接口做了什么行为只需要看请求方式就OK了，良好的编码习惯使系统更容易维护，如果读者之前没有按照这样做，请现在开始养成这种习惯，<strong>良好的编码习惯很重要</strong>！！！</p>
+<hr>
+<p>笔者会编写一套<code>CRUD</code>，给读者进行参考</p>
+</blockquote>
+<h1 id="CRUD"><a href="#CRUD" class="headerlink" title="CRUD"></a>CRUD</h1><p>为查询接口的响应封装成一个类</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.model.vo;
+
+<span class="hljs-keyword">import</span> lombok.Data;
+
+<span class="hljs-keyword">import</span> java.io.Serializable;
+
+<span class="hljs-meta">@Data</span>
+<span class="hljs-meta">@AllArgsConstructor</span>
+<span class="hljs-meta">@NoArgsConstructor</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserVO</span>  <span class="hljs-keyword">implements</span> <span class="hljs-title">Serializable</span> </span>&#123;
+    <span class="hljs-keyword">private</span> String userId;
+    <span class="hljs-keyword">private</span> String userName;
+    <span class="hljs-keyword">private</span> String password;
+&#125;</code></pre>
+
+
+
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.web.controller;
+
+<span class="hljs-keyword">import</span> com.b4.mcr.model.vo.UserVO;
+<span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.*;
+
+<span class="hljs-keyword">import</span> java.util.Arrays;
+<span class="hljs-keyword">import</span> java.util.List;
+
+<span class="hljs-meta">@RestController</span>
+<span class="hljs-meta">@RequestMapping</span>(<span class="hljs-string">"/user"</span>)
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserController</span> </span>&#123;
+    <span class="hljs-meta">@GetMapping</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> List&lt;UserVO&gt; <span class="hljs-title">query</span><span class="hljs-params">()</span> </span>&#123;
+        <span class="hljs-keyword">return</span> Arrays.asList(
+                <span class="hljs-keyword">new</span> UserVO(<span class="hljs-string">"001"</span>, <span class="hljs-string">"t1"</span>, <span class="hljs-string">"t1"</span>),
+                <span class="hljs-keyword">new</span> UserVO(<span class="hljs-string">"002"</span>, <span class="hljs-string">"t2"</span>, <span class="hljs-string">"t2"</span>),
+                <span class="hljs-keyword">new</span> UserVO(<span class="hljs-string">"003"</span>, <span class="hljs-string">"t3"</span>, <span class="hljs-string">"t3"</span>)
+        );
+    &#125;
+
+    <span class="hljs-meta">@PostMapping</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">add</span><span class="hljs-params">(@RequestBody UserVO userVO)</span> </span>&#123;
+        <span class="hljs-comment">//新增逻辑</span>
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;
+    &#125;
+
+    <span class="hljs-meta">@PutMapping</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">update</span><span class="hljs-params">(@RequestBody UserVO userVO)</span> </span>&#123;
+        <span class="hljs-comment">//修改逻辑</span>
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;
+    &#125;
+
+    <span class="hljs-meta">@DeleteMapping</span>(<span class="hljs-string">"/&#123;id&#125;"</span>)
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">delete</span><span class="hljs-params">(@PathVariable String id)</span> </span>&#123;
+        <span class="hljs-comment">//删除逻辑</span>
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;
+    &#125;
+
+    <span class="hljs-meta">@GetMapping</span>(<span class="hljs-string">"/&#123;id&#125;"</span>)
+    <span class="hljs-function"><span class="hljs-keyword">public</span> UserVO <span class="hljs-title">geInfo</span><span class="hljs-params">(@PathVariable String id)</span> </span>&#123;
+               <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> UserVO(<span class="hljs-string">"t001"</span>, <span class="hljs-string">"t1"</span>, <span class="hljs-string">"t1"</span>);
+    &#125;
+&#125;</code></pre>
+
+<h2 id="查询接口"><a href="#查询接口" class="headerlink" title="查询接口"></a>查询接口</h2><p>从刚刚编写的<code>list</code>方法中，我不希望将所有字段给前端展示，而这个<code>get</code>方法要根据角色的权限才能访问，例如admin，可以查看指定账号的密码。我们在开发中，假设使用的是<code>mybatis plus</code>框架，通过调用它自带的<code>get</code>、<code>getOne</code>方法都是全字段查询，哪改怎么办？要自己动手写<code>mapper.xml</code>，就为了少一个密码字段？那如果哪一天这个表可能多了一个字段，又要改<code>mapper.xml</code>中的这个语句，想想都觉得痛苦，笔者这里会给读者介绍一个对这种业务场景，非常适用的解决方案——<code>@JsonView</code>注解，使用方式：</p>
+<ul>
+<li>使用接口来声明多个视图</li>
+<li>在值对象的<code>get</code>方法上指定视图</li>
+<li>在<code>Controller</code>方法上指定视图</li>
+</ul>
+<h2 id="abbrlink-1"><a href="#abbrlink-1" class="headerlink" title="abbrlink: 1"></a>abbrlink: 1</h2><p>在<code>UserVO</code>的中声明了 2个接口<code>UserSimpleView</code>、<code>UserDetailView</code>，<code>UserDetailView</code>接口继承与<code>UserSimpleView</code>接口，<code>userName</code>属性上修饰了<code>@JsonView</code>，指定的是<code>UserSimpleView</code>属性，而<code>password</code>指定的是<code>UserDetailView</code>，由于<code>UserDetailView</code>继承于<code>UserSimpleView</code>，所以它也包含了<code>userName</code></p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.model.vo;
+
+<span class="hljs-keyword">import</span> com.fasterxml.jackson.annotation.JsonView;
+<span class="hljs-keyword">import</span> lombok.AllArgsConstructor;
+<span class="hljs-keyword">import</span> lombok.Data;
+
+<span class="hljs-keyword">import</span> java.io.Serializable;
+
+<span class="hljs-meta">@Data</span>
+<span class="hljs-meta">@AllArgsConstructor</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserVO</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Serializable</span> </span>&#123;
+    <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">UserSimpleView</span> </span>&#123;
+    &#125;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">UserDetailView</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">UserSimpleView</span> </span>&#123;
+    &#125;
+
+    <span class="hljs-meta">@JsonView</span>(UserSimpleView<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>
+<span class="hljs-class">    <span class="hljs-title">private</span> <span class="hljs-title">String</span> <span class="hljs-title">userName</span></span>;
+    <span class="hljs-meta">@JsonView</span>(UserDetailView<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>
+<span class="hljs-class">    <span class="hljs-title">private</span> <span class="hljs-title">String</span> <span class="hljs-title">password</span></span>;
+&#125;</code></pre>
+
+<p>在<code>UserController</code>的<code>list</code>、<code>get</code>方法上声明</p>
+<pre><code class="hljs java"><span class="hljs-meta">@GetMapping</span>
+<span class="hljs-meta">@JsonView</span>(UserVO.UserSimpleView<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>
+<span class="hljs-class"><span class="hljs-title">public</span> <span class="hljs-title">List</span>&lt;<span class="hljs-title">UserVO</span>&gt; <span class="hljs-title">query</span>() </span>&#123;
+    <span class="hljs-keyword">return</span> Arrays.asList(
+            <span class="hljs-keyword">new</span> UserVO(<span class="hljs-string">"t1"</span>, <span class="hljs-string">"t1"</span>),
+            <span class="hljs-keyword">new</span> UserVO(<span class="hljs-string">"t2"</span>, <span class="hljs-string">"t2"</span>),
+            <span class="hljs-keyword">new</span> UserVO(<span class="hljs-string">"t3"</span>, <span class="hljs-string">"t3"</span>)
+    );
+&#125;
+
+<span class="hljs-meta">@GetMapping</span>(<span class="hljs-string">"/&#123;id&#125;"</span>)
+<span class="hljs-meta">@JsonView</span>(UserVO.UserDetailView<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>
+<span class="hljs-class"><span class="hljs-title">public</span> <span class="hljs-title">UserVO</span> <span class="hljs-title">geInfo</span>(@<span class="hljs-title">PathVariable</span> <span class="hljs-title">String</span> <span class="hljs-title">id</span>) </span>&#123;
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> UserVO(<span class="hljs-string">"t1"</span>, <span class="hljs-string">"t1"</span>);
+&#125;</code></pre>
+
+<p>list方法的响应：</p>
+<pre><code class="hljs json">[
+    &#123;
+        <span class="hljs-attr">"userName"</span>: <span class="hljs-string">"t1"</span>
+    &#125;,
+    &#123;
+        <span class="hljs-attr">"userName"</span>: <span class="hljs-string">"t2"</span>
+    &#125;,
+    &#123;
+        <span class="hljs-attr">"userName"</span>: <span class="hljs-string">"t3"</span>
+    &#125;
+]</code></pre>
+
+<p>get方法的响应：</p>
+<pre><code class="hljs json">&#123;
+    <span class="hljs-attr">"userName"</span>: <span class="hljs-string">"t1"</span>,
+    <span class="hljs-attr">"password"</span>: <span class="hljs-string">"t1"</span>
+&#125;</code></pre>
+
+<h2 id="新增、修改接口"><a href="#新增、修改接口" class="headerlink" title="新增、修改接口"></a>新增、修改接口</h2><p>在做新增和修改的时候，肯定会有这么一个场景：对客户端传递过来的数据进行校验，通过if传统的方式来进行判断，如果发生错误信息就响应相关的提示信息，首先这样写是没什么问题，但是各种if的逻辑在实际的开发中很容易出现各种问题，做的好一点，可以抽象成一个方法，做的不好一点可能会出现复制出现大量冗余的代码，一旦出现复制，在修改的时候就很麻烦，需要一个个进行修改，笔者会在这里通过一些办法来解决这个问题。</p>
+<p>传统方式：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">if</span>(StringUtils.isBlank(userVO.getXXX()))&#123;
+		<span class="hljs-keyword">if</span>(...)
+     <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> ...
+&#125;
+<span class="hljs-keyword">if</span> ...</code></pre>
+
+<p>解决方案：</p>
+<p>在<code>org.hibernate.validator</code>这个包下面提供了一些校验注解，通过这些注解就能轻松的进行数据效验</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566701442199.png" srcset="/img/loading.gif" alt="1566701442199"></p>
+<p>在<code>UserVO</code>中的使用<code>NotBlank</code>注解来修饰password属性，添加上这个注解就可以不用在控制器中写if判断数据是不是空了</p>
+<pre><code class="hljs java"><span class="hljs-meta">@Data</span>
+<span class="hljs-meta">@AllArgsConstructor</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserVO</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Serializable</span> </span>&#123;
+   <span class="hljs-comment">//...</span>
+    <span class="hljs-meta">@NotBlank</span>
+    <span class="hljs-keyword">private</span> String password;
+&#125;</code></pre>
+
+<p>我们还要在控制器的参数中加上<code>Valid</code>注解来告诉这里的参数需要验证</p>
+<pre><code class="hljs java"><span class="hljs-meta">@PostMapping</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">add</span><span class="hljs-params">(@Valid @RequestBody UserVO userVO)</span> </span>&#123;
+   	<span class="hljs-comment">//...</span>
+  &#125;</code></pre>
+
+<p>现在通过<code>post man</code>工具进行访问这个接口（如果读者不清楚post man是干什么的，可以来看下这个<a href="https://www.jianshu.com/p/6c9b45994c34" target="_blank" rel="noopener">文档</a>）</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566701998934.png" srcset="/img/loading.gif" alt="1566701998934"></p>
+<p>这里可以看到，校验是通过的，这里还需要加上一个<code>BindingResult</code>参数，它里面存储了这些错误信息，</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">add</span><span class="hljs-params">(@Valid @RequestBody UserVO userVO, BindingResult errors)</span> </span>&#123;
+        <span class="hljs-keyword">if</span> (errors.hasErrors()) &#123;
+            errors.getAllErrors().forEach(error -&gt; System.out.println(error.getDefaultMessage()));
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+        &#125;
+        <span class="hljs-comment">//新增逻辑</span>
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;
+    &#125;</code></pre>
+
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566702315546.png" srcset="/img/loading.gif" alt="1566702315546"></p>
+<p>这里还有其他的注解，笔者就不一一列举，感兴趣的读者可以自己来试一下</p>
+<table>
+<thead>
+<tr>
+<th align="center">注解</th>
+<th align="center">介绍</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">@NotNull</td>
+<td align="center">值不能为空</td>
+</tr>
+<tr>
+<td align="center">@Null</td>
+<td align="center">值必须为空</td>
+</tr>
+<tr>
+<td align="center">@Pattern(regex=)</td>
+<td align="center">字符串必须匹配正则表达式</td>
+</tr>
+<tr>
+<td align="center">@Size(min=,max=)</td>
+<td align="center">集合的元素必须在min和max之间</td>
+</tr>
+<tr>
+<td align="center">@CreditCardNumber</td>
+<td align="center">字符串必须是信用卡号（按美国的标准验证）</td>
+</tr>
+<tr>
+<td align="center">@Email</td>
+<td align="center">字符串必须是Email地址</td>
+</tr>
+<tr>
+<td align="center">@Length(min=,max=)</td>
+<td align="center">检查字符串的长度</td>
+</tr>
+<tr>
+<td align="center">@NotBlank</td>
+<td align="center">字符串必须有字符</td>
+</tr>
+<tr>
+<td align="center">@NotEmpty</td>
+<td align="center">字符串不能为null，集合由元素</td>
+</tr>
+<tr>
+<td align="center">@Range(min=,max=)</td>
+<td align="center">数字必须大于等于min，小于等于max</td>
+</tr>
+<tr>
+<td align="center">@SafeHtml</td>
+<td align="center">字符串是安全的html</td>
+</tr>
+<tr>
+<td align="center">@URL</td>
+<td align="center">字符串是合法的URL</td>
+</tr>
+<tr>
+<td align="center">@AssertFalse</td>
+<td align="center">值必须是false</td>
+</tr>
+<tr>
+<td align="center">@AssertTrue</td>
+<td align="center">值必须是true</td>
+</tr>
+<tr>
+<td align="center">@DecimalMax(value=,inclusive=)</td>
+<td align="center">值必须小于等（inclusive=true）/小于（inclusive=false）,value属性指定的值。可以注解在字符串类型属性上</td>
+</tr>
+<tr>
+<td align="center">@DecimalMin(value=,inclusive=)</td>
+<td align="center">值必须大于等（inclusive=true）/大于（inclusive=false）,value属性指定的值。可以注解在字符串类型属性上</td>
+</tr>
+<tr>
+<td align="center">@Digits</td>
+<td align="center">数字格式检查。integer指定整数部分的最大长度，fraction指定小数部分的最大长度</td>
+</tr>
+<tr>
+<td align="center">@Future</td>
+<td align="center">值必须是未来的日期</td>
+</tr>
+<tr>
+<td align="center">@Past</td>
+<td align="center">值必须是过去的日期</td>
+</tr>
+<tr>
+<td align="center">@Max</td>
+<td align="center">值必须小于等于value指定的值。不能注解在字符串类型的属性上</td>
+</tr>
+<tr>
+<td align="center">@Min</td>
+<td align="center">值必须大于等于value指定的值。不能注解在字符串类型的属性上</td>
+</tr>
+</tbody></table>
+<hr>
+<p><code>Hibernate Validator</code>中提供了一套效验注解供我们使用，可在一些业务场景中，这些注解是明显不够用的，这里笔者会带着大家来自定义这种注解，代码如下：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.validator;
+<span class="hljs-keyword">import</span> java.lang.annotation.ElementType;
+<span class="hljs-keyword">import</span> java.lang.annotation.Retention;
+<span class="hljs-keyword">import</span> java.lang.annotation.RetentionPolicy;
+<span class="hljs-keyword">import</span> java.lang.annotation.Target;
+<span class="hljs-keyword">import</span> javax.validation.Constraint;
+<span class="hljs-keyword">import</span> javax.validation.Payload;
+<span class="hljs-meta">@Target</span>(&#123;ElementType.METHOD, ElementType.FIELD&#125;)
+<span class="hljs-meta">@Retention</span>(RetentionPolicy.RUNTIME)
+<span class="hljs-meta">@Constraint</span>(validatedBy = MyConstraintValidator<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>
+<span class="hljs-class"><span class="hljs-title">public</span> @<span class="hljs-title">interface</span> <span class="hljs-title">MyConstraint</span> </span>&#123;
+	
+	<span class="hljs-function">String <span class="hljs-title">message</span><span class="hljs-params">()</span></span>;
+
+	Class&lt;?&gt;[] groups() <span class="hljs-keyword">default</span> &#123; &#125;;
+
+	Class&lt;? extends Payload&gt;[] payload() <span class="hljs-keyword">default</span> &#123; &#125;;
+
+&#125;</code></pre>
+
+<p>这里先创建了一个注解类：<code>MyConstraint</code>，它里面有<code>message</code>、<code>groups</code>、<code>payload</code>这3个方法，这里是根据<code>Hibernate Validator</code>的约定来的，是不行要有的3个方法，作用笔者不一一介绍，感兴趣的读者可以去看<a href="https://hibernate.org/validator/" target="_blank" rel="noopener">官方文档</a></p>
+<p>要对<code>MyConstraint</code>接口实现校验，需要创建一个类实现<code>ConstraintValidator</code>接口，并且在<code>MyConstraint</code>注解类上通过<code>@Constraint(validatedBy = xxx.class)</code>，来标识效验器，先不急着写，来看看它里面的源码是怎么写的，来看看<code>ConstraintValidator</code>类</p>
+<pre><code class="hljs java"><span class="hljs-comment">/*</span>
+<span class="hljs-comment">* JBoss, Home of Professional Open Source</span>
+<span class="hljs-comment">* Copyright 2009, Red Hat, Inc. and/or its affiliates, and individual contributors</span>
+<span class="hljs-comment">* by the @authors tag. See the copyright.txt in the distribution for a</span>
+<span class="hljs-comment">* full listing of individual contributors.</span>
+<span class="hljs-comment">*</span>
+<span class="hljs-comment">* Licensed under the Apache License, Version 2.0 (the "License");</span>
+<span class="hljs-comment">* you may not use this file except in compliance with the License.</span>
+<span class="hljs-comment">* You may obtain a copy of the License at</span>
+<span class="hljs-comment">* http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="hljs-comment">* Unless required by applicable law or agreed to in writing, software</span>
+<span class="hljs-comment">* distributed under the License is distributed on an "AS IS" BASIS,</span>
+<span class="hljs-comment">* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="hljs-comment">* See the License for the specific language governing permissions and</span>
+<span class="hljs-comment">* limitations under the License.</span>
+<span class="hljs-comment">*/</span>
+<span class="hljs-keyword">package</span> javax.validation;
+
+<span class="hljs-keyword">import</span> javax.validation.constraintvalidation.SupportedValidationTarget;
+<span class="hljs-keyword">import</span> java.lang.annotation.Annotation;
+
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * Defines the logic to validate a given constraint &#123;<span class="hljs-doctag">@code</span> A&#125;</span>
+<span class="hljs-comment"> * for a given object type &#123;<span class="hljs-doctag">@code</span> T&#125;.</span>
+<span class="hljs-comment"> * &lt;p/&gt;</span>
+<span class="hljs-comment"> * Implementations must comply to the following restriction:</span>
+<span class="hljs-comment"> * &lt;ul&gt;</span>
+<span class="hljs-comment"> *     &lt;li&gt;&#123;<span class="hljs-doctag">@code</span> T&#125; must resolve to a non parameterized type&lt;/li&gt;</span>
+<span class="hljs-comment"> *     &lt;li&gt;or generic parameters of &#123;<span class="hljs-doctag">@code</span> T&#125; must be unbounded</span>
+<span class="hljs-comment"> *     wildcard types&lt;/li&gt;</span>
+<span class="hljs-comment"> * &lt;/ul&gt;</span>
+<span class="hljs-comment"> * &lt;p/&gt;</span>
+<span class="hljs-comment"> * The annotation &#123;<span class="hljs-doctag">@link</span> SupportedValidationTarget&#125; can be put on a</span>
+<span class="hljs-comment"> * &#123;<span class="hljs-doctag">@code</span> ConstraintValidator&#125; implementation to mark it as supporting</span>
+<span class="hljs-comment"> * cross-parameter constraints. Check out &#123;<span class="hljs-doctag">@link</span> SupportedValidationTarget&#125;</span>
+<span class="hljs-comment"> * and &#123;<span class="hljs-doctag">@link</span> Constraint&#125; for more information.</span>
+<span class="hljs-comment"> *</span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@author</span> Emmanuel Bernard</span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@author</span> Hardy Ferentschik</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">ConstraintValidator</span>&lt;<span class="hljs-title">A</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Annotation</span>, <span class="hljs-title">T</span>&gt; </span>&#123;
+
+	<span class="hljs-comment">/**</span>
+<span class="hljs-comment">	 * Initializes the validator in preparation for</span>
+<span class="hljs-comment">	 * &#123;<span class="hljs-doctag">@link</span> #isValid(Object, ConstraintValidatorContext)&#125; calls.</span>
+<span class="hljs-comment">	 * The constraint annotation for a given constraint declaration</span>
+<span class="hljs-comment">	 * is passed.</span>
+<span class="hljs-comment">	 * &lt;p/&gt;</span>
+<span class="hljs-comment">	 * This method is guaranteed to be called before any use of this instance for</span>
+<span class="hljs-comment">	 * validation.</span>
+<span class="hljs-comment">	 *</span>
+<span class="hljs-comment">	 * <span class="hljs-doctag">@param</span> constraintAnnotation annotation instance for a given constraint declaration</span>
+<span class="hljs-comment">	 */</span>
+	<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">initialize</span><span class="hljs-params">(A constraintAnnotation)</span></span>;
+
+	<span class="hljs-comment">/**</span>
+<span class="hljs-comment">	 * Implements the validation logic.</span>
+<span class="hljs-comment">	 * The state of &#123;<span class="hljs-doctag">@code</span> value&#125; must not be altered.</span>
+<span class="hljs-comment">	 * &lt;p/&gt;</span>
+<span class="hljs-comment">	 * This method can be accessed concurrently, thread-safety must be ensured</span>
+<span class="hljs-comment">	 * by the implementation.</span>
+<span class="hljs-comment">	 *</span>
+<span class="hljs-comment">	 * <span class="hljs-doctag">@param</span> value object to validate</span>
+<span class="hljs-comment">	 * <span class="hljs-doctag">@param</span> context context in which the constraint is evaluated</span>
+<span class="hljs-comment">	 *</span>
+<span class="hljs-comment">	 * <span class="hljs-doctag">@return</span> &#123;<span class="hljs-doctag">@code</span> false&#125; if &#123;<span class="hljs-doctag">@code</span> value&#125; does not pass the constraint</span>
+<span class="hljs-comment">	 */</span>
+	<span class="hljs-function"><span class="hljs-keyword">boolean</span> <span class="hljs-title">isValid</span><span class="hljs-params">(T value, ConstraintValidatorContext context)</span></span>;
+&#125;</code></pre>
+
+<p>笔者整理这2个类的作用：</p>
+<ul>
+<li>initialize:初始化自己，它这里的<code>constraintAnnotation</code>参数是<code>Annotation</code>的子类，也就是那些校验的注解，在这可以通过这个参数拿到应用层中写的<code>message</code>、<code>max</code>这些值，存储到自己的成员变量中</li>
+<li><code>isValid</code>：方法中编写你的效验逻辑，第1个参数<code>value</code>:获取被注解的属性、方法的值，另外一个就不多讲，很少用得上（PS：笔者这里没用过，哈哈），返回值是<code>true</code>表示验证通过，false表示数据有问题</li>
+</ul>
+<p>接着来看下<code>Hibernate Validator</code>是如何实现<code>ConstraintValidator</code>接口的呢？这里以<code>NotBlank</code>注解的效验器为例，我通过IDEA，查找到<code>NotBlankValidator</code></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566705844750.png" srcset="/img/loading.gif" alt="1566705844750"></p>
+<pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">NotBlankValidator</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">ConstraintValidator</span>&lt;<span class="hljs-title">NotBlank</span>, <span class="hljs-title">CharSequence</span>&gt; </span>&#123;
+
+	<span class="hljs-meta">@Override</span>
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">initialize</span><span class="hljs-params">(NotBlank annotation)</span> </span>&#123;
+	&#125;
+
+	<span class="hljs-comment">/**</span>
+<span class="hljs-comment">	 * Checks that the trimmed string is not empty.</span>
+<span class="hljs-comment">	 *</span>
+<span class="hljs-comment">	 * <span class="hljs-doctag">@param</span> charSequence The character sequence to validate.</span>
+<span class="hljs-comment">	 * <span class="hljs-doctag">@param</span> constraintValidatorContext context in which the constraint is evaluated.</span>
+<span class="hljs-comment">	 *</span>
+<span class="hljs-comment">	 * <span class="hljs-doctag">@return</span> Returns &lt;code&gt;true&lt;/code&gt; if the string is &lt;code&gt;null&lt;/code&gt; or the length of &lt;code&gt;charSequence&lt;/code&gt; between the specified</span>
+<span class="hljs-comment">	 *         &lt;code&gt;min&lt;/code&gt; and &lt;code&gt;max&lt;/code&gt; values (inclusive), &lt;code&gt;false&lt;/code&gt; otherwise.</span>
+<span class="hljs-comment">	 */</span>
+	<span class="hljs-meta">@Override</span>
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">isValid</span><span class="hljs-params">(CharSequence charSequence, ConstraintValidatorContext constraintValidatorContext)</span> </span>&#123;
+		<span class="hljs-keyword">if</span> ( charSequence == <span class="hljs-keyword">null</span> ) &#123;
+			<span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;
+		&#125;
+
+		<span class="hljs-keyword">return</span> charSequence.toString().trim().length() &gt; <span class="hljs-number">0</span>;
+	&#125;
+&#125;</code></pre>
+
+<p>它这里<code>initialize</code>没有写内容，来看这个<code>isValid</code>方法的实现：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.validator;
+
+<span class="hljs-keyword">import</span> javax.validation.ConstraintValidator;
+<span class="hljs-keyword">import</span> javax.validation.ConstraintValidatorContext;
+
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyConstraintValidator</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">ConstraintValidator</span>&lt;<span class="hljs-title">MyConstraint</span>, <span class="hljs-title">Object</span>&gt; </span>&#123;
+
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">initialize</span><span class="hljs-params">(MyConstraint constraintAnnotation)</span> </span>&#123;
+        System.out.println(<span class="hljs-string">"my validator init"</span>);
+    &#125;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">isValid</span><span class="hljs-params">(Object value, ConstraintValidatorContext context)</span> </span>&#123;
+        System.out.println(value);
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;
+    &#125;
+
+&#125;</code></pre>
+
+<p>然后在UserVO中的username注解刚刚编写的MyConstraint</p>
+<pre><code class="hljs java"><span class="hljs-meta">@MyConstraint</span>(message = <span class="hljs-string">"test"</span>)
+ <span class="hljs-keyword">private</span> String userName;</code></pre>
+
+<p>来测试一下，还是通过post man访问add方法</p>
+<p>控制台内容：</p>
+<pre><code class="hljs applescript"><span class="hljs-keyword">my</span> validator init
+t1
+不能为空</code></pre>
+
+<p>相信笔者在这里也明白校验器的声明周期了，它在程序启动时，并不会进行初始化，而在调用接口的时候，如果这个接口的参数中的属性使用了我们自己定义的<code>MyConstraint</code>注解，它就会先进行初始化，然后再进行校验</p>
+<h2 id="错误处理"><a href="#错误处理" class="headerlink" title="错误处理"></a>错误处理</h2><p>笔者会领着读者先去查看<code>spring boot</code>中给我们提供的默认错误处理。</p>
+<p>现在访问<a href="http://localhost:8080/xxx，这个接口是不存在的，它会在浏览器响应这么一段内容" target="_blank" rel="noopener">http://localhost:8080/xxx，这个接口是不存在的，它会在浏览器响应这么一段内容</a></p>
+<pre><code class="hljs j">Whitelabel Error Page
+This application has no explicit mapping for &#x2F;error, so you are seeing this as a fallback.
+
+Sun Aug 25 12:24:52 CST 2019
+There was an unexpected error (type&#x3D;Not Found, status&#x3D;404).
+No message available</code></pre>
+
+<p>使用<code>post</code>响应内容</p>
+<pre><code class="hljs json">&#123;
+    <span class="hljs-attr">"timestamp"</span>: <span class="hljs-number">1566707174774</span>,
+    <span class="hljs-attr">"status"</span>: <span class="hljs-number">404</span>,
+    <span class="hljs-attr">"error"</span>: <span class="hljs-string">"Not Found"</span>,
+    <span class="hljs-attr">"message"</span>: <span class="hljs-string">"No message available"</span>,
+    <span class="hljs-attr">"path"</span>: <span class="hljs-string">"/user1"</span>
+&#125;</code></pre>
+
+<p>它是如何实现的呢？来看看<code>BasicErrorController</code>类</p>
+<pre><code class="hljs java"><span class="hljs-comment">/*</span>
+<span class="hljs-comment"> * Copyright 2012-2016 the original author or authors.</span>
+<span class="hljs-comment"> *</span>
+<span class="hljs-comment"> * Licensed under the Apache License, Version 2.0 (the "License");</span>
+<span class="hljs-comment"> * you may not use this file except in compliance with the License.</span>
+<span class="hljs-comment"> * You may obtain a copy of the License at</span>
+<span class="hljs-comment"> *</span>
+<span class="hljs-comment"> *      http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="hljs-comment"> *</span>
+<span class="hljs-comment"> * Unless required by applicable law or agreed to in writing, software</span>
+<span class="hljs-comment"> * distributed under the License is distributed on an "AS IS" BASIS,</span>
+<span class="hljs-comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="hljs-comment"> * See the License for the specific language governing permissions and</span>
+<span class="hljs-comment"> * limitations under the License.</span>
+<span class="hljs-comment"> */</span>
+
+<span class="hljs-keyword">package</span> org.springframework.boot.autoconfigure.web;
+
+<span class="hljs-meta">@Controller</span>
+<span class="hljs-meta">@RequestMapping</span>(<span class="hljs-string">"$&#123;server.error.path:$&#123;error.path:/error&#125;&#125;"</span>)
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">BasicErrorController</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">AbstractErrorController</span> </span>&#123;
+
+	
+
+	<span class="hljs-meta">@RequestMapping</span>(produces = <span class="hljs-string">"text/html"</span>)
+	<span class="hljs-function"><span class="hljs-keyword">public</span> ModelAndView <span class="hljs-title">errorHtml</span><span class="hljs-params">(HttpServletRequest request,</span></span>
+<span class="hljs-function"><span class="hljs-params">			HttpServletResponse response)</span> </span>&#123;
+		HttpStatus status = getStatus(request);
+		Map&lt;String, Object&gt; model = Collections.unmodifiableMap(getErrorAttributes(
+				request, isIncludeStackTrace(request, MediaType.TEXT_HTML)));
+		response.setStatus(status.value());
+		ModelAndView modelAndView = resolveErrorView(request, response, status, model);
+		<span class="hljs-keyword">return</span> (modelAndView == <span class="hljs-keyword">null</span> ? <span class="hljs-keyword">new</span> ModelAndView(<span class="hljs-string">"error"</span>, model) : modelAndView);
+	&#125;
+
+	<span class="hljs-meta">@RequestMapping</span>
+	<span class="hljs-meta">@ResponseBody</span>
+	<span class="hljs-keyword">public</span> ResponseEntity&lt;Map&lt;String, Object&gt;&gt; error(HttpServletRequest request) &#123;
+		Map&lt;String, Object&gt; body = getErrorAttributes(request,
+				isIncludeStackTrace(request, MediaType.ALL));
+		HttpStatus status = getStatus(request);
+		<span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> ResponseEntity&lt;Map&lt;String, Object&gt;&gt;(body, status);
+	&#125;
+
+	<span class="hljs-comment">//...</span>
+&#125;</code></pre>
+
+<p><code>errorHtml</code>方法的上面<code>@RequestMapping(produces = &quot;text/html&quot;)</code>,这么有段代码，在浏览器中访问时，请求头就会带上<code>text/html</code>，所以它会自动走到这里面，如果不是浏览器访问，比如是<code>post man</code>或者APP通过http client来访问是不会带上<code>text/html</code>这样的请求头的，所以它会进error方法中，这个方法注解了<code>@ResponseBody</code>，也就是说，它会响应<code>json</code>格式的数据</p>
+<p>这里我在<code>UserController</code>中再创一个接口</p>
+<pre><code class="hljs java"><span class="hljs-meta">@PostMapping</span>(<span class="hljs-string">"/v2"</span>)
+   <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">add2</span><span class="hljs-params">(@Valid @RequestBody UserVO userVO)</span> </span>&#123;
+       <span class="hljs-comment">//新增逻辑</span>
+       <span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;
+   &#125;</code></pre>
+
+<p>使用<code>post man</code>进行访问，这里传递一个空<code>json</code>，响应结果：</p>
+<pre><code class="hljs json">&#123;
+    <span class="hljs-attr">"timestamp"</span>: <span class="hljs-number">1566708165191</span>,
+    <span class="hljs-attr">"status"</span>: <span class="hljs-number">400</span>,
+    <span class="hljs-attr">"error"</span>: <span class="hljs-string">"Bad Request"</span>,
+    <span class="hljs-attr">"exception"</span>: <span class="hljs-string">"org.springframework.web.bind.MethodArgumentNotValidException"</span>,
+    <span class="hljs-attr">"errors"</span>: [
+        &#123;
+            <span class="hljs-attr">"codes"</span>: [
+                <span class="hljs-string">"NotBlank.userVO.password"</span>,
+                <span class="hljs-string">"NotBlank.password"</span>,
+                <span class="hljs-string">"NotBlank.java.lang.String"</span>,
+                <span class="hljs-string">"NotBlank"</span>
+            ],
+            <span class="hljs-attr">"arguments"</span>: [
+                &#123;
+                    <span class="hljs-attr">"codes"</span>: [
+                        <span class="hljs-string">"userVO.password"</span>,
+                        <span class="hljs-string">"password"</span>
+                    ],
+                    <span class="hljs-attr">"arguments"</span>: <span class="hljs-literal">null</span>,
+                    <span class="hljs-attr">"defaultMessage"</span>: <span class="hljs-string">"password"</span>,
+                    <span class="hljs-attr">"code"</span>: <span class="hljs-string">"password"</span>
+                &#125;
+            ],
+            <span class="hljs-attr">"defaultMessage"</span>: <span class="hljs-string">"不能为空"</span>,
+            <span class="hljs-attr">"objectName"</span>: <span class="hljs-string">"userVO"</span>,
+            <span class="hljs-attr">"field"</span>: <span class="hljs-string">"password"</span>,
+            <span class="hljs-attr">"rejectedValue"</span>: <span class="hljs-literal">null</span>,
+            <span class="hljs-attr">"bindingFailure"</span>: <span class="hljs-literal">false</span>,
+            <span class="hljs-attr">"code"</span>: <span class="hljs-string">"NotBlank"</span>
+        &#125;
+    ],
+    <span class="hljs-attr">"message"</span>: <span class="hljs-string">"Validation failed for object='userVO'. Error count: 1"</span>,
+    <span class="hljs-attr">"path"</span>: <span class="hljs-string">"/user/v2"</span>
+&#125;</code></pre>
+
+<p>实现浏览器中如果出现404异常，就跳转到指定页面</p>
+<p>在demo模块中创建<code>404.html</code>，当用户在浏览器中请求如果发生404，就会到这个页面上</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566712743738.png" srcset="/img/loading.gif" alt="1566712743738"></p>
+<p>实现客户端访问接口出现异常，响应相关的提示json</p>
+<p>创建一个自定义异常</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.exception;
+
+<span class="hljs-keyword">import</span> lombok.Data;
+
+<span class="hljs-meta">@Data</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserNotExistException</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">RuntimeException</span> </span>&#123;
+
+
+    <span class="hljs-keyword">private</span> String id;
+
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">UserNotExistException</span><span class="hljs-params">(String id)</span> </span>&#123;
+        <span class="hljs-keyword">super</span>(<span class="hljs-string">"user not exist"</span>);
+        <span class="hljs-keyword">this</span>.id = id;
+    &#125;
+&#125;</code></pre>
+
+<p>在UserController中编写一个方法，直接抛出异常</p>
+<pre><code class="hljs java"><span class="hljs-meta">@GetMapping</span>(<span class="hljs-string">"/v2"</span>)
+  <span class="hljs-function"><span class="hljs-keyword">public</span> List&lt;UserVO&gt; <span class="hljs-title">query2</span><span class="hljs-params">()</span> </span>&#123;
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> UserNotExistException(<span class="hljs-string">"1"</span>);
+  &#125;</code></pre>
+
+<p>编写一个处理<code>UserNotExistException</code>异常的处理器</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.web.controller;
+
+<span class="hljs-keyword">import</span> com.b4.mcr.exception.UserNotExistException;
+<span class="hljs-keyword">import</span> org.springframework.http.HttpStatus;
+<span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.ControllerAdvice;
+<span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.ExceptionHandler;
+<span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.ResponseBody;
+<span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.ResponseStatus;
+
+<span class="hljs-keyword">import</span> java.util.HashMap;
+<span class="hljs-keyword">import</span> java.util.Map;
+
+<span class="hljs-meta">@ControllerAdvice</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ControllerExceptionHandler</span> </span>&#123;
+
+    <span class="hljs-meta">@ExceptionHandler</span>(UserNotExistException<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>
+<span class="hljs-class">    @<span class="hljs-title">ResponseBody</span></span>
+<span class="hljs-class">    @<span class="hljs-title">ResponseStatus</span>(<span class="hljs-title">HttpStatus</span>.<span class="hljs-title">INTERNAL_SERVER_ERROR</span>)</span>
+<span class="hljs-class">    <span class="hljs-title">public</span> <span class="hljs-title">Map</span>&lt;<span class="hljs-title">String</span>, <span class="hljs-title">Object</span>&gt; <span class="hljs-title">handleUserNotExistException</span>(<span class="hljs-title">UserNotExistException</span> <span class="hljs-title">ex</span>) </span>&#123;
+        Map&lt;String, Object&gt; result = <span class="hljs-keyword">new</span> HashMap&lt;&gt;();
+        result.put(<span class="hljs-string">"id"</span>, ex.getId());
+        result.put(<span class="hljs-string">"message"</span>, ex.getMessage());
+        <span class="hljs-keyword">return</span> result;
+    &#125;
+
+&#125;</code></pre>
+
+<blockquote>
+<p>这里通过ExceptionHandler注解来监听UserNotExistException异常，这里是可以监听多个的</p>
+</blockquote>
+<p>访问<a href="http://localhost:8080/user/v2，响应结果：" target="_blank" rel="noopener">http://localhost:8080/user/v2，响应结果：</a></p>
+<pre><code class="hljs java">&#123;
+    <span class="hljs-string">"id"</span>: <span class="hljs-string">"1"</span>,
+    <span class="hljs-string">"message"</span>: <span class="hljs-string">"user not exist"</span>
+&#125;</code></pre>
+
+<h1 id="拦截Rest服务"><a href="#拦截Rest服务" class="headerlink" title="拦截Rest服务"></a>拦截Rest服务</h1><p>在某些业务场景中，我们要对一些<code>restful api</code>做一些统一的处理，这里就可以使用拦截来实现，拦截的方式有3种：</p>
+<ul>
+<li>过滤器（Filter）</li>
+<li>拦截器（Interceptor）</li>
+<li>切片（Aspect）</li>
+</ul>
+<p>这里有个业务场景：记录所有的api处理时间</p>
+<h2 id="过滤器"><a href="#过滤器" class="headerlink" title="过滤器"></a>过滤器</h2><pre><code class="hljs java"><span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * </span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-keyword">package</span> com.b4.mcr.web.filter;
+
+<span class="hljs-keyword">import</span> org.springframework.stereotype.Component;
+
+<span class="hljs-keyword">import</span> java.io.IOException;
+<span class="hljs-keyword">import</span> java.util.Date;
+
+<span class="hljs-keyword">import</span> javax.servlet.Filter;
+<span class="hljs-keyword">import</span> javax.servlet.FilterChain;
+<span class="hljs-keyword">import</span> javax.servlet.FilterConfig;
+<span class="hljs-keyword">import</span> javax.servlet.ServletException;
+<span class="hljs-keyword">import</span> javax.servlet.ServletRequest;
+<span class="hljs-keyword">import</span> javax.servlet.ServletResponse;
+
+<span class="hljs-meta">@Component</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TimeFilter</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Filter</span> </span>&#123;
+
+	<span class="hljs-comment">/* (non-Javadoc)</span>
+<span class="hljs-comment">	 * @see javax.servlet.Filter#destroy()</span>
+<span class="hljs-comment">	 */</span>
+	<span class="hljs-meta">@Override</span>
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">destroy</span><span class="hljs-params">()</span> </span>&#123;
+		System.out.println(<span class="hljs-string">"time filter destroy"</span>);
+	&#125;
+
+	<span class="hljs-comment">/* (non-Javadoc)</span>
+<span class="hljs-comment">	 * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest, javax.servlet.ServletResponse, javax.servlet.FilterChain)</span>
+<span class="hljs-comment">	 */</span>
+	<span class="hljs-meta">@Override</span>
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">doFilter</span><span class="hljs-params">(ServletRequest request, ServletResponse response, FilterChain chain)</span></span>
+<span class="hljs-function">			<span class="hljs-keyword">throws</span> IOException, ServletException </span>&#123;
+		System.out.println(<span class="hljs-string">"time filter start"</span>);
+		<span class="hljs-keyword">long</span> start = <span class="hljs-keyword">new</span> Date().getTime();
+		chain.doFilter(request, response);
+		System.out.println(<span class="hljs-string">"time filter 耗时:"</span>+ (<span class="hljs-keyword">new</span> Date().getTime() - start));
+		System.out.println(<span class="hljs-string">"time filter finish"</span>);
+	&#125;
+
+	<span class="hljs-comment">/* (non-Javadoc)</span>
+<span class="hljs-comment">	 * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)</span>
+<span class="hljs-comment">	 */</span>
+	<span class="hljs-meta">@Override</span>
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">init</span><span class="hljs-params">(FilterConfig arg0)</span> <span class="hljs-keyword">throws</span> ServletException </span>&#123;
+		System.out.println(<span class="hljs-string">"time filter init"</span>);
+	&#125;
+
+&#125;</code></pre>
+
+<blockquote>
+<p>笔者这里使用了    <code>System.out.println()</code>，在实际开发中建议使用logger，因为它有锁，影响性能</p>
+</blockquote>
+<p>这样是针对所有接口去拦截，现在可能希望只针对一些接口去拦截该怎么做？首先去除TimeFilter类的Component注解，然后编写一个Config类，进行配置，这样做有什么好处？比如你希望这个过滤器只在开发、测试环境上使用，而生产环境中不使用，就可以通过Profile注解来控制，这里读者不会去介绍Profile注解，感兴趣去百度吧~</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.web.config;
+
+<span class="hljs-keyword">import</span> com.b4.mcr.web.filter.TimeFilter;
+<span class="hljs-keyword">import</span> org.springframework.boot.web.servlet.FilterRegistrationBean;
+<span class="hljs-keyword">import</span> org.springframework.context.annotation.Bean;
+<span class="hljs-keyword">import</span> org.springframework.context.annotation.Configuration;
+<span class="hljs-keyword">import</span> java.util.Arrays;
+<span class="hljs-meta">@Configuration</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">WebConfig</span> </span>&#123;
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> FilterRegistrationBean <span class="hljs-title">timeFilter</span><span class="hljs-params">()</span> </span>&#123;
+        FilterRegistrationBean registrationbean = <span class="hljs-keyword">new</span> FilterRegistrationBean(<span class="hljs-keyword">new</span> TimeFilter());
+        registrationbean.setUrlPatterns(Arrays.asList(<span class="hljs-string">"/*"</span>));
+        <span class="hljs-keyword">return</span> registrationbean;
+    &#125;
+&#125;</code></pre>
+
+<h2 id="拦截器"><a href="#拦截器" class="headerlink" title="拦截器"></a>拦截器</h2><p>之前通过<code>Filter</code>来拦截，但是这有个问题，它只能拿到http的请求和响应，这里希望能知道这个请求是哪个控制器的方法来处理的，通过上面的<code>Filter</code>是无法实现的，这样的场景可以通过拦截器来实现</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.web.interceptor;
+
+<span class="hljs-keyword">import</span> java.util.Date;
+
+<span class="hljs-keyword">import</span> javax.servlet.http.HttpServletRequest;
+<span class="hljs-keyword">import</span> javax.servlet.http.HttpServletResponse;
+
+<span class="hljs-keyword">import</span> org.springframework.stereotype.Component;
+<span class="hljs-keyword">import</span> org.springframework.web.method.HandlerMethod;
+<span class="hljs-keyword">import</span> org.springframework.web.servlet.HandlerInterceptor;
+<span class="hljs-keyword">import</span> org.springframework.web.servlet.ModelAndView;
+
+<span class="hljs-meta">@Component</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TimeInterceptor</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">HandlerInterceptor</span> </span>&#123;
+
+	<span class="hljs-comment">/* (non-Javadoc)</span>
+<span class="hljs-comment">	 * @see org.springframework.web.servlet.HandlerInterceptor#preHandle(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, java.lang.Object)</span>
+<span class="hljs-comment">	 */</span>
+	<span class="hljs-meta">@Override</span>
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">preHandle</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response, Object handler)</span></span>
+<span class="hljs-function">			<span class="hljs-keyword">throws</span> Exception </span>&#123;
+		System.out.println(<span class="hljs-string">"preHandle"</span>);
+		
+		System.out.println(((HandlerMethod)handler).getBean().getClass().getName());
+		System.out.println(((HandlerMethod)handler).getMethod().getName());
+		
+		request.setAttribute(<span class="hljs-string">"startTime"</span>, <span class="hljs-keyword">new</span> Date().getTime());
+		<span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;
+	&#125;
+
+	<span class="hljs-comment">/* (non-Javadoc)</span>
+<span class="hljs-comment">	 * @see org.springframework.web.servlet.HandlerInterceptor#postHandle(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, java.lang.Object, org.springframework.web.servlet.ModelAndView)</span>
+<span class="hljs-comment">	 */</span>
+	<span class="hljs-meta">@Override</span>
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">postHandle</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response, Object handler,</span></span>
+<span class="hljs-function"><span class="hljs-params">			ModelAndView modelAndView)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+		System.out.println(<span class="hljs-string">"postHandle"</span>);
+		Long start = (Long) request.getAttribute(<span class="hljs-string">"startTime"</span>);
+		System.out.println(<span class="hljs-string">"time interceptor 耗时:"</span>+ (<span class="hljs-keyword">new</span> Date().getTime() - start));
+
+	&#125;
+
+	<span class="hljs-comment">/* (non-Javadoc)</span>
+<span class="hljs-comment">	 * @see org.springframework.web.servlet.HandlerInterceptor#afterCompletion(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, java.lang.Object, java.lang.Exception)</span>
+<span class="hljs-comment">	 */</span>
+	<span class="hljs-meta">@Override</span>
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">afterCompletion</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)</span></span>
+<span class="hljs-function">			<span class="hljs-keyword">throws</span> Exception </span>&#123;
+		System.out.println(<span class="hljs-string">"afterCompletion"</span>);
+		Long start = (Long) request.getAttribute(<span class="hljs-string">"startTime"</span>);
+		System.out.println(<span class="hljs-string">"time interceptor 耗时:"</span>+ (<span class="hljs-keyword">new</span> Date().getTime() - start));
+		System.out.println(<span class="hljs-string">"ex is "</span>+ex);
+
+	&#125;
+
+&#125;</code></pre>
+
+<p>方法介绍：</p>
+<ul>
+<li>preHandle：它的返回值决定了后面的api是不是要执行，返回true：执行，false：被拦截，不执行了</li>
+<li>postHandle：post请求执行的方法，在api执行之后，执行此方法</li>
+<li>afterCompletion：其他请求方式执行的方法，在api执行之后，执行此方法</li>
+</ul>
+<p>这里通过@Component还没生效，还需要在配置类中进行配置</p>
+<pre><code class="hljs java"><span class="hljs-meta">@Configuration</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">WebConfig</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">WebMvcConfigurerAdapter</span> </span>&#123;
+    <span class="hljs-meta">@Resource</span>
+    <span class="hljs-keyword">private</span> TimeInterceptor timeInterceptor;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">addInterceptors</span><span class="hljs-params">(InterceptorRegistry registry)</span> </span>&#123;
+        <span class="hljs-keyword">super</span>.addInterceptors(registry);
+        registry.addInterceptor(timeInterceptor);
+    &#125;
+    <span class="hljs-comment">//..</span>
+&#125;</code></pre>
+
+<p>浏览器中请求<a href="http://localhost:8080/user/v2" target="_blank" rel="noopener">http://localhost:8080/user/v2</a></p>
+<p>控制台输出：</p>
+<pre><code class="hljs java">preHandle
+com.b4.mcr.web.controller.UserController
+query2
+<span class="hljs-number">2019</span>-<span class="hljs-number">08</span>-<span class="hljs-number">25</span> <span class="hljs-number">15</span>:<span class="hljs-number">09</span>:<span class="hljs-number">57.339</span>  WARN <span class="hljs-number">13856</span> --- [nio-<span class="hljs-number">8080</span>-exec-<span class="hljs-number">2</span>] .m.m.a.ExceptionHandlerExceptionResolver : Resolved exception caused by Handler execution: UserNotExistException(id=<span class="hljs-number">1</span>)
+afterCompletion
+time interceptor 耗时:<span class="hljs-number">1</span>
+ex is <span class="hljs-keyword">null</span></code></pre>
+
+<p>这里的/user/v2中抛出了一个UserNotExistException异常</p>
+<pre><code class="hljs java"><span class="hljs-meta">@GetMapping</span>(<span class="hljs-string">"/v2"</span>)
+   <span class="hljs-function"><span class="hljs-keyword">public</span> List&lt;UserVO&gt; <span class="hljs-title">query2</span><span class="hljs-params">()</span> </span>&#123;
+       <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> UserNotExistException(<span class="hljs-string">"1"</span>);
+   &#125;</code></pre>
+
+<p>这是因为，这个UserNotExistException被ControllerExceptionHandler检测，所以就拿不到了，这里要注意一下</p>
+<h2 id="切片"><a href="#切片" class="headerlink" title="切片"></a>切片</h2><p>之前使用拦截器方式拿到了处理器中的方法，但是还是有问题，它拿不到方法中的参数，来看下<code>DispatcherServlet#doService</code>方法的内容</p>
+<pre><code class="hljs java"><span class="hljs-keyword">try</span> &#123;
+			doDispatch(request, response);
+		&#125;</code></pre>
+
+<p>它这里会调用doDispatch方法，来看下doDispatch的这段代码</p>
+<pre><code class="hljs java"><span class="hljs-keyword">if</span> (!mappedHandler.applyPreHandle(processedRequest, response)) &#123;
+				<span class="hljs-keyword">return</span>;
+			&#125;
+
+			<span class="hljs-comment">// Actually invoke the handler.</span>
+			mv = ha.handle(processedRequest, response, mappedHandler.getHandler());</code></pre>
+
+<p>这里通过<code>mappedHandler</code>调用了<code>applyPreHandle</code>方法并传递了<code>request</code>，<code>response</code></p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">boolean</span> <span class="hljs-title">applyPreHandle</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+		HandlerInterceptor[] interceptors = getInterceptors();
+		<span class="hljs-keyword">if</span> (!ObjectUtils.isEmpty(interceptors)) &#123;
+			<span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; interceptors.length; i++) &#123;
+				HandlerInterceptor interceptor = interceptors[i];
+				<span class="hljs-keyword">if</span> (!interceptor.preHandle(request, response, <span class="hljs-keyword">this</span>.handler)) &#123;
+					triggerAfterCompletion(request, response, <span class="hljs-keyword">null</span>);
+					<span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+				&#125;
+				<span class="hljs-keyword">this</span>.interceptorIndex = i;
+			&#125;
+		&#125;
+		<span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;
+	&#125;</code></pre>
+
+<p>它这里拿到所有的拦截器，然后遍历调用<code>preHandle</code>方法，这样一来就能调用我们写的<code>TimeInterceptor#preHandle</code>方法了，如果返回<code>false</code>，这里的<code>mappedHandler</code>对象的<code>applyPreHandle</code>也会返回<code>false</code>，然后在<code>DispatcherServlet#doDispatch</code>就直接返回，不在往下走了，也就不会执行    <code>mv = ha.handle(processedRequest, response, mappedHandler.getHandler());</code>了，这里也就是调用处理器的方法不被执行，这就是在<code>TimeInterceptor#preHandle</code>方法中返回<code>false</code>，就不会执行api的原因，然后再说下拦截器为什么拿不到处理器方法的参数？——请看</p>
+<pre><code class="hljs java">mappedHandler.applyPreHandle(processedRequest, response)</code></pre>
+
+<p>这是不是只传了request、response，而没传递handler参数，所以在这个时候，handler是空的</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">preHandle</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response, Object handler)</span></span></code></pre>
+
+<p>这个handler参数是在执行了这段代码才拿到的，所以说<code>preHandle</code>并不知道参数长成什么丫子的</p>
+<pre><code class="hljs java">mv = ha.handle(processedRequest, response, mappedHandler.getHandler())</code></pre>
+
+<hr>
+<p>通过切片就可以满足这样的业务需求，代码如下：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.web.aspect;
+
+<span class="hljs-keyword">import</span> java.util.Date;
+
+<span class="hljs-keyword">import</span> org.aspectj.lang.ProceedingJoinPoint;
+<span class="hljs-keyword">import</span> org.aspectj.lang.annotation.Around;
+<span class="hljs-keyword">import</span> org.aspectj.lang.annotation.Aspect;
+<span class="hljs-keyword">import</span> org.springframework.stereotype.Component;
+
+<span class="hljs-meta">@Aspect</span>
+<span class="hljs-meta">@Component</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TimeAspect</span> </span>&#123;
+	
+	<span class="hljs-meta">@Around</span>(<span class="hljs-string">"execution(* com.b4.mcr.web.controller.*.*(..))"</span>)
+	<span class="hljs-function"><span class="hljs-keyword">public</span> Object <span class="hljs-title">handleControllerMethod</span><span class="hljs-params">(ProceedingJoinPoint pjp)</span> <span class="hljs-keyword">throws</span> Throwable </span>&#123;
+		
+		System.out.println(<span class="hljs-string">"time aspect start"</span>);
+		
+		Object[] args = pjp.getArgs();
+		<span class="hljs-keyword">for</span> (Object arg : args) &#123;
+			System.out.println(<span class="hljs-string">"arg is "</span>+arg);
+		&#125;
+		
+		<span class="hljs-keyword">long</span> start = <span class="hljs-keyword">new</span> Date().getTime();
+		
+		Object object = pjp.proceed();
+		
+		System.out.println(<span class="hljs-string">"time aspect 耗时:"</span>+ (<span class="hljs-keyword">new</span> Date().getTime() - start));
+		
+		System.out.println(<span class="hljs-string">"time aspect end"</span>);
+		
+		<span class="hljs-keyword">return</span> object;
+	&#125;
+
+&#125;</code></pre>
+
+<p>使用<code>post man</code>发送请求</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566719187552.png" srcset="/img/loading.gif" alt="1566719187552"></p>
+<p>控制台输出：</p>
+<pre><code class="hljs pgsql">t1
+<span class="hljs-type">time</span> aspect <span class="hljs-keyword">start</span>
+arg <span class="hljs-keyword">is</span> UserVO(userName=t1, <span class="hljs-keyword">password</span>=t1)
+<span class="hljs-type">time</span> aspect 耗时:<span class="hljs-number">0</span>
+<span class="hljs-type">time</span> aspect <span class="hljs-keyword">end</span></code></pre>
+
+<h2 id="执行顺序"><a href="#执行顺序" class="headerlink" title="执行顺序"></a>执行顺序</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566719359465.png" srcset="/img/loading.gif" alt="1566719359465"></p>
+<h1 id="Swagger文档"><a href="#Swagger文档" class="headerlink" title="Swagger文档"></a>Swagger文档</h1><blockquote>
+<p>笔者正在补充~</p>
+</blockquote>
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/SpringSecurity/">SpringSecurity</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/spring-security-2.1.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【 二、Form 】  1.Spring Secrutiy基本原理</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/spring-security-1.2.html">
+                        <span class="hidden-mobile">【 一、Restful Api 】  2.Hello Spring Security</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "【 一、Restful Api 】  3.Restful Api&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

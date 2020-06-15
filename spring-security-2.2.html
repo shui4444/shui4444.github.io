@@ -1,0 +1,2671 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="Shui">
+  <meta name="keywords" content="">
+  <title>【 二、Form 】  2.自定义用户认证逻辑 - Shui&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Fluid</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2019-10-12 18:02">
+      2019年10月12日 晚上
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      10.2k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      158
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <p>之前通过user和控制台上的密码进行登录，在实际开发肯定不会这么做登录，这里笔者会带着读者来实现实际的登录功能</p>
+<hr>
+<h1 id="个性化登录页"><a href="#个性化登录页" class="headerlink" title="个性化登录页"></a>个性化登录页</h1><p>首先自己创建一个登录页面，<code>browser#resources/resources/mcr-login.html</code></p>
+<pre><code class="hljs html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">"en"</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">"UTF-8"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>登录页面<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">h3</span>&gt;</span>登录页面<span class="hljs-tag">&lt;/<span class="hljs-name">h3</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">form</span> <span class="hljs-attr">action</span>=<span class="hljs-string">"/authentication/form"</span> <span class="hljs-attr">method</span>=<span class="hljs-string">"post"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">table</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">tr</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>账号<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"text"</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"username"</span>/&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">tr</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">tr</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>密码<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"password"</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"password"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">tr</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">tr</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">td</span> <span class="hljs-attr">colspan</span>=<span class="hljs-string">"2"</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"submit"</span>&gt;</span>登录<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">tr</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">table</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">form</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span></code></pre>
+
+<p>告诉<code>spring security</code>登录页面的位置，当用户没做登录时，就会跳转到这里</p>
+<pre><code class="hljs java"> <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(HttpSecurity http)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+        http
+                 .formLogin()
++                .loginPage(<span class="hljs-string">"/mcr-login.html"</span>)
+								...
+
+    &#125;</code></pre>
+
+<p>之前看源码的时候，<code>UsernamePasswordAuthenticationFilter</code>，它只处理<code>/login</code>的<code>post请求</code>，所以还需要配置一下，告诉<code>UsernamePasswordAuthenticationFilter</code>去处理我们编写的其他路径：</p>
+<pre><code class="hljs java"><span class="hljs-meta">@Override</span>
+ <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(HttpSecurity http)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+     http
+             .formLogin()
+            .loginProcessingUrl(<span class="hljs-string">"/authentication/form"</span>)
+       		...
+ &#125;</code></pre>
+
+<p>启动，访问：<a href="http://localhost:8080/user.html" target="_blank" rel="noopener">http://localhost:8080/user.html</a></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566906164555.png" srcset="/img/loading.gif" alt="1566906164555"></p>
+<p>这是怎么回事？——因为现在<code>spring security</code>跳转的到了<code>mcr-login.html</code>，而它也是受保护的，所以会继续跳转，而跳转的页面是<code>mcr-login.html</code>，这样就会出现多次跳转的情况</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566906354466.png" srcset="/img/loading.gif" alt="1566906354466"></p>
+<p> <code>mcr-login.html</code>不需要保护</p>
+<pre><code class="hljs java"><span class="hljs-meta">@Override</span>
+ <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(HttpSecurity http)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+     http
+             .formLogin()
+       			...
+             .and()
+             .authorizeRequests()
+         	↓关键代码
+             .antMatchers(<span class="hljs-string">"/mcr-login.html"</span>)
+             .permitAll()
+             .anyRequest().authenticated();
+
+ &#125;</code></pre>
+
+<p>现在自定义的页面是出来了，进行登录时：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566907097168.png" srcset="/img/loading.gif" alt="1566907097168"></p>
+<p>这是因为在默认情况下，<code>spring security</code>提供了跨域请求的防护，这里需要关闭防护</p>
+<pre><code class="hljs java"><span class="hljs-meta">@Override</span>
+   <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(HttpSecurity http)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+       http
+        ...
+               .authorizeRequests()
+				...
+           	↓关键代码
+               .and()
+               .csrf()
+               .disable();
+
+   &#125;</code></pre>
+
+<h1 id="自定义认证逻辑"><a href="#自定义认证逻辑" class="headerlink" title="自定义认证逻辑"></a>自定义认证逻辑</h1><p>之前通过账号：user，密码：控制台上的，来认证通过，实际开发不会这样吧？这里就来带着笔者来实现自定义认证逻辑</p>
+<hr>
+<p>在这之前，先来介绍一下<code>UserDetailsService</code>，它是专门负责处理认证的，这里的<code>username</code>参数是用户在表单中输入的账号，我们可以通过账号去数据库中拿取用户的信息，返回给<code>spring security</code>，<code>spring security</code>就会拿着这个信息去和表单输入的账号密码去做处理</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> org.springframework.security.core.userdetails;
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">UserDetailsService</span> </span>&#123;
+	<span class="hljs-function">UserDetails <span class="hljs-title">loadUserByUsername</span><span class="hljs-params">(String username)</span> <span class="hljs-keyword">throws</span> UsernameNotFoundException</span>;
+&#125;</code></pre>
+
+<p>编写一个类实现<code>UserDetailsService</code>接口，假如所有账号的密码都是123</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.security.service;
+
+
+<span class="hljs-meta">@Service</span>
+<span class="hljs-meta">@Slf</span>4j
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">McrUserDetailsService</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">UserDetailsService</span> </span>&#123;
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> UserDetails <span class="hljs-title">loadUserByUsername</span><span class="hljs-params">(String username)</span> <span class="hljs-keyword">throws</span> UsernameNotFoundException </span>&#123;
+        log.info(<span class="hljs-string">"用户-&gt;&#123;&#125;进行了登录"</span>, username);
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> User(username, <span class="hljs-string">"123"</span>, AuthorityUtils.commaSeparatedStringToAuthorityList(<span class="hljs-string">"admin"</span>));
+    &#125;
+&#125;</code></pre>
+
+<p>这里返回的UserDetails类型，我使用的是它自带的User类，在实际开发中，可以自己创建一个User类实现接口，这个接口包含方法：</p>
+<ul>
+<li>getAuthorities：权限信息</li>
+<li>getPassword：密码</li>
+<li>getUsername：账号</li>
+<li>isAccountNonExpired：账户是否过期：true（否），false（是）</li>
+<li>isAccountNonLocked：账户是否锁定</li>
+<li>isCredentialsNonExpired：密码是否过期</li>
+<li>isEnabled：账号是否可用</li>
+</ul>
+<p>从数据库中读取的密码不会是123，这里介绍一下加密器来模拟一下用户密码是加密的，这个一般是用到注册使用的</p>
+<p><code>PasswordEncoder</code>就是加密器</p>
+<pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">PasswordEncoder</span> </span>&#123;
+    <span class="hljs-comment">//加密</span>
+    <span class="hljs-function">String <span class="hljs-title">encode</span><span class="hljs-params">(CharSequence var1)</span></span>;
+    <span class="hljs-comment">//验证是否匹配</span>
+    <span class="hljs-function"><span class="hljs-keyword">boolean</span> <span class="hljs-title">matches</span><span class="hljs-params">(CharSequence var1, String var2)</span></span>;
+&#125;</code></pre>
+
+<p>将加密器注入到IOC容器中</p>
+<pre><code class="hljs java"><span class="hljs-meta">@Bean</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> PasswordEncoder <span class="hljs-title">passwordEncoder</span><span class="hljs-params">()</span> </span>&#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> BCryptPasswordEncoder();
+    &#125;</code></pre>
+
+<p>McrUserDetailsService：</p>
+<pre><code class="hljs java"><span class="hljs-meta">@Service</span>
+<span class="hljs-meta">@Slf</span>4j
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">McrUserDetailsService</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">UserDetailsService</span> </span>&#123;
+    <span class="hljs-meta">@Resource</span>
++    <span class="hljs-keyword">private</span> PasswordEncoder passwordEncoder;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> UserDetails <span class="hljs-title">loadUserByUsername</span><span class="hljs-params">(String username)</span> <span class="hljs-keyword">throws</span> UsernameNotFoundException </span>&#123;
++        String pwd = passwordEncoder.encode(<span class="hljs-string">"123"</span>);
+        log.info(<span class="hljs-string">"用户-&gt;&#123;&#125;进行了登录，它的密码是-&gt;&#123;&#125;"</span>, username, pwd);
++        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> User(username, pwd, AuthorityUtils.commaSeparatedStringToAuthorityList(<span class="hljs-string">"admin"</span>));
+    &#125;
+&#125;</code></pre>
+
+
+
+<h1 id="处理不同请求"><a href="#处理不同请求" class="headerlink" title="处理不同请求"></a>处理不同请求</h1><p>这里实现以下图中的功能：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566914744512.png" srcset="/img/loading.gif" alt="1566914744512"></p>
+<p>对响应提示信息进行封装</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.model.vo;
+
+
+<span class="hljs-keyword">import</span> lombok.AllArgsConstructor;
+<span class="hljs-keyword">import</span> lombok.Data;
+
+<span class="hljs-meta">@Data</span>
+<span class="hljs-meta">@AllArgsConstructor</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">McrSecurityVO</span> </span>&#123;
+    <span class="hljs-keyword">private</span> Object content;
+&#125;</code></pre>
+
+<p>controller:</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.browser;
+
+
+<span class="hljs-meta">@RestController</span>
+<span class="hljs-meta">@RequestMapping</span>(<span class="hljs-string">"/authentication"</span>)
+<span class="hljs-meta">@Slf</span>4j
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">BrowserSecurityController</span> </span>&#123;
+    <span class="hljs-keyword">private</span> RequestCache requestCache = <span class="hljs-keyword">new</span> HttpSessionRequestCache();
+    <span class="hljs-keyword">private</span> RedirectStrategy redirectStrategy = <span class="hljs-keyword">new</span> DefaultRedirectStrategy();
+
+    <span class="hljs-meta">@RequestMapping</span>(<span class="hljs-string">"/require"</span>)
+    <span class="hljs-meta">@ResponseStatus</span>(HttpStatus.UNAUTHORIZED)
+    <span class="hljs-function"><span class="hljs-keyword">public</span> McrSecurityVO <span class="hljs-title">requireAuthentication</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="hljs-keyword">throws</span> IOException </span>&#123;
+        SavedRequest savedRequest = requestCache.getRequest(request, response);
+        <span class="hljs-keyword">if</span> (savedRequest != <span class="hljs-keyword">null</span>) &#123;
+            String targetUrl = savedRequest.getRedirectUrl();
+            log.info(<span class="hljs-string">"引发跳转的请求-&gt;&#123;&#125;"</span>, targetUrl);
+            <span class="hljs-keyword">if</span> (StringUtils.endsWithIgnoreCase(targetUrl, <span class="hljs-string">".html"</span>)) &#123;
+                redirectStrategy.sendRedirect(request, response, <span class="hljs-string">"/mcr-login.html"</span>);
+            &#125;
+        &#125;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> McrSecurityVO(<span class="hljs-string">"请引导用户跳转到登录页面"</span>);
+    &#125;
+&#125;</code></pre>
+
+<p>修改配置，跳转到<code>/authentication/require</code></p>
+<pre><code class="hljs java"> <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(HttpSecurity http)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+        http
+                .formLogin()
++               .loginPage(<span class="hljs-string">"/authentication/require"</span>)
+                .loginProcessingUrl(<span class="hljs-string">"/authentication/form"</span>)
+                .and()
+                .authorizeRequests()
++               .antMatchers(<span class="hljs-string">"/mcr-login.html"</span>, <span class="hljs-string">"/authentication/require"</span>)
+                .permitAll()
+                .anyRequest().authenticated()
+                .and()
+                .csrf()
+                .disable();
+
+    &#125;</code></pre>
+
+<h1 id="登录成功和登录失败的响应"><a href="#登录成功和登录失败的响应" class="headerlink" title="登录成功和登录失败的响应"></a>登录成功和登录失败的响应</h1><ul>
+<li>处理成功响应：AuthenticationSuccessHandler</li>
+<li>处理失败响应：AuthenticationFailureHandler</li>
+</ul>
+<p>这2个类都是接口类，使用它们需要实现这2个接口</p>
+<p>成功处理：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.browser.authentication;
+<span class="hljs-meta">@Component</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">McrAuthenticationSuccessHandler</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">AuthenticationSuccessHandler</span> </span>&#123;
+    <span class="hljs-meta">@Resource</span>
+    <span class="hljs-keyword">private</span> ObjectMapper objectMapper;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">onAuthenticationSuccess</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response, Authentication authentication)</span> <span class="hljs-keyword">throws</span> IOException, ServletException </span>&#123;
+        response.setContentType(<span class="hljs-string">"application/json;charset=utf-8"</span>);
+        response.getWriter().write(objectMapper.writeValueAsString(<span class="hljs-keyword">new</span> McrSecurityVO(authentication)));
+    &#125;
+&#125;</code></pre>
+
+<p>失败处理：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.browser.authentication;
+<span class="hljs-meta">@Component</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">McrAuthenticationFailureHandler</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">AuthenticationFailureHandler</span> </span>&#123;
+    <span class="hljs-meta">@Resource</span>
+    <span class="hljs-keyword">private</span> ObjectMapper objectMapper;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">onAuthenticationFailure</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception)</span> <span class="hljs-keyword">throws</span> IOException, ServletException </span>&#123;
+        response.setContentType(<span class="hljs-string">"application/json;charset=utf-8"</span>);
+        response.getWriter().write(objectMapper.writeValueAsString(<span class="hljs-keyword">new</span> McrSecurityVO(exception.getMessage())));
+    &#125;
+&#125;</code></pre>
+
+<p>配置：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.browser;
+
+
+
+<span class="hljs-meta">@Configuration</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">BrowserSecurityConfig</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">WebSecurityConfigurerAdapter</span> </span>&#123;
+    <span class="hljs-meta">@Resource</span>
+    <span class="hljs-keyword">private</span> AuthenticationSuccessHandler authenticationSuccessHandler;
+    <span class="hljs-meta">@Resource</span>
+    <span class="hljs-keyword">private</span> AuthenticationFailureHandler authenticationFailureHandler;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(HttpSecurity http)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+        http
+                   .formLogin()
++                   .successHandler(authenticationSuccessHandler)
++                  .failureHandler(authenticationFailureHandler)
+                   .loginPage(<span class="hljs-string">"/authentication/require"</span>)
+                   .loginProcessingUrl(<span class="hljs-string">"/authentication/form"</span>)
+               	...
+    &#125;
+&#125;</code></pre>
+
+<h1 id="认证流程源码详情"><a href="#认证流程源码详情" class="headerlink" title="认证流程源码详情"></a>认证流程源码详情</h1><p>流程图：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566918955707.png" srcset="/img/loading.gif" alt="1566918955707"></p>
+<ul>
+<li><p>UsernamePasswordAuthenticationFilter:表单用户名登陆过滤器</p>
+</li>
+<li><p>AuthenticationManager：管理所有的Provider，并选择适合的进行验证</p>
+</li>
+<li><p>AuthenticationProvider：验证提供者，可以自己写provider处理自己的业务场景逻辑</p>
+</li>
+<li><p>UserDetailsService：验证用户登陆信息</p>
+</li>
+<li><p>UserDetails:用户信息</p>
+</li>
+<li><p>Authentication:认证信息封装</p>
+<hr>
+</li>
+</ul>
+<p>UsernamePasswordAuthenticationFilter :</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566919161314.png" srcset="/img/loading.gif" alt="1566919161314"></p>
+<p>通过用户填写的表单信息封装成UsernamePasswordAuthenticationToken  </p>
+<p>UsernamePasswordAuthenticationToken  ：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566919277796.png" srcset="/img/loading.gif" alt="1566919277796"></p>
+<p>这里它首先调用了自己的父类构造方法，传递了一个null</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566919334433.png" srcset="/img/loading.gif" alt="1566919334433"></p>
+<p>这个实际上就是刚刚讲的UserDetails中的权限信息，由于现在还在做认证处理，没确定用户的账号和密码是否正确，所以这里还没有给定权限信息，接着它将账号和密码赋给自己的本地变量上，最后的：<code>setAuthenticated(false);</code>这个方法的意思是当前用户信息是否经过了身份认证，这里还在认证，所以传false</p>
+<hr>
+<p>回到<code>UsernamePasswordAuthenticationFilter#attemptAuthentication</code>方法，继续往下看，它然后执行了这么一段代码，传递了request和前面的<code>UsernamePasswordAuthenticationToken</code>对象</p>
+<pre><code class="hljs java">setDetails(request, authRequest);</code></pre>
+
+<hr>
+<p>这里的<code>setDetails</code>方法中调用了参数<code>authRequest</code>的<code>setDetails</code>方法</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setDetails</span><span class="hljs-params">(HttpServletRequest request,</span></span>
+<span class="hljs-function"><span class="hljs-params">		UsernamePasswordAuthenticationToken authRequest)</span> </span>&#123;
+	authRequest.setDetails(authenticationDetailsSource.buildDetails(request));
+&#125;</code></pre>
+
+<p>来看看<code>authenticationDetailsSource.buildDetails(request)</code>是的返回结构</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566919792395.png" srcset="/img/loading.gif" alt="1566919792395"></p>
+<p>这里就是将ip地址和<code>sessionId</code>设置给<code>UsernamePasswordAuthenticationToken</code>对象</p>
+<hr>
+<p>回到<code>UsernamePasswordAuthenticationFilter</code></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566919884046.png" srcset="/img/loading.gif" alt="1566919884046"></p>
+<p>这里将token交给了<code>AuthenticationManager</code></p>
+<hr>
+<p><code>ProviderManager#authenticate</code>,这里的<code>ProviderManager</code>，实现了<code>AuthenticationManager</code>接口，实际上用得是它</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566920015141.png" srcset="/img/loading.gif" alt="1566920015141"></p>
+<p>这里它会拿取所有的<code>AuthenticationProvider</code>来进行遍历，调用每个<code>AuthenticationProvider</code>的<code>supports</code>方法并传递<code>token</code>，这里的<code>supports</code>方法会根据<code>token</code>，查看自己是否对这个<code>token</code>支持认证，如果支持就会调用自己的<code>authenticate</code>方法，将<code>token</code>传递进去</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566920224819.png" srcset="/img/loading.gif" alt="1566920224819"></p>
+<p>来看下<code>AuthenticationProvider#authenticate</code>，它的<code>authenticate</code>方法属于它的父类的</p>
+<p><code>AbstractUserDetailsAuthenticationProvider#authenticate</code></p>
+<pre><code class="hljs java">UserDetails user = <span class="hljs-keyword">this</span>.userCache.getUserFromCache(username);
+
+		<span class="hljs-keyword">if</span> (user == <span class="hljs-keyword">null</span>) &#123;
+			cacheWasUsed = <span class="hljs-keyword">false</span>;
+
+			<span class="hljs-keyword">try</span> &#123;
+				user = retrieveUser(username,
+						(UsernamePasswordAuthenticationToken) authentication);
+			&#125;
+			<span class="hljs-keyword">catch</span> (UsernameNotFoundException notFound) &#123;
+				logger.debug(<span class="hljs-string">"User '"</span> + username + <span class="hljs-string">"' not found"</span>);
+
+				<span class="hljs-keyword">if</span> (hideUserNotFoundExceptions) &#123;
+					<span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> BadCredentialsException(messages.getMessage(
+							<span class="hljs-string">"AbstractUserDetailsAuthenticationProvider.badCredentials"</span>,
+							<span class="hljs-string">"Bad credentials"</span>));
+				&#125;
+				<span class="hljs-keyword">else</span> &#123;
+					<span class="hljs-keyword">throw</span> notFound;
+				&#125;
+			&#125;</code></pre>
+
+<p>这里它首先会通过用户的账号从缓存中拿，如果拿不到就调用<code>retrieveUser</code>方法</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">final</span> UserDetails <span class="hljs-title">retrieveUser</span><span class="hljs-params">(String username,</span></span>
+<span class="hljs-function"><span class="hljs-params">			UsernamePasswordAuthenticationToken authentication)</span></span>
+<span class="hljs-function">			<span class="hljs-keyword">throws</span> AuthenticationException </span>&#123;
+		UserDetails loadedUser;
+
+		<span class="hljs-keyword">try</span> &#123;
+			loadedUser = <span class="hljs-keyword">this</span>.getUserDetailsService().loadUserByUsername(username);
+		&#125;
+&#125;</code></pre>
+
+<p>在这里这一段            <code>loadedUser = this.getUserDetailsService().loadUserByUsername(username);</code>实际上调用的就是我之前编写的<code>McrUserDetailsService#loadUserByUsername</code></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566920666268.png" srcset="/img/loading.gif" alt="1566920666268"></p>
+<p>回到<code>AbstractUserDetailsAuthenticationProvider#authenticate</code></p>
+<pre><code class="hljs java"><span class="hljs-keyword">try</span> &#123;
+			preAuthenticationChecks.check(user);
+			additionalAuthenticationChecks(user,
+					(UsernamePasswordAuthenticationToken) authentication);
+		&#125;
+		<span class="hljs-keyword">catch</span> (AuthenticationException exception) &#123;
+			<span class="hljs-comment">//..</span>
+		&#125;
+
+	<span class="hljs-comment">//...</span>
+		<span class="hljs-keyword">return</span> createSuccessAuthentication(principalToReturn, authentication, user);</code></pre>
+
+<p>preAuthenticationChecks.check：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">DefaultPreAuthenticationChecks</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">UserDetailsChecker</span> </span>&#123;
+		<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">check</span><span class="hljs-params">(UserDetails user)</span> </span>&#123;
+			<span class="hljs-keyword">if</span> (!user.isAccountNonLocked()) &#123;
+				logger.debug(<span class="hljs-string">"User account is locked"</span>);
+
+				<span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> LockedException(messages.getMessage(
+						<span class="hljs-string">"AbstractUserDetailsAuthenticationProvider.locked"</span>,
+						<span class="hljs-string">"User account is locked"</span>));
+			&#125;
+
+			<span class="hljs-keyword">if</span> (!user.isEnabled()) &#123;
+				logger.debug(<span class="hljs-string">"User account is disabled"</span>);
+
+				<span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> DisabledException(messages.getMessage(
+						<span class="hljs-string">"AbstractUserDetailsAuthenticationProvider.disabled"</span>,
+						<span class="hljs-string">"User is disabled"</span>));
+			&#125;
+
+			<span class="hljs-keyword">if</span> (!user.isAccountNonExpired()) &#123;
+				logger.debug(<span class="hljs-string">"User account is expired"</span>);
+
+				<span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> AccountExpiredException(messages.getMessage(
+						<span class="hljs-string">"AbstractUserDetailsAuthenticationProvider.expired"</span>,
+						<span class="hljs-string">"User account has expired"</span>));
+			&#125;
+		&#125;
+	&#125;</code></pre>
+
+<p>检查用户是否锁定、用户账号是否启动、用户账号是否过期，如果出现一个就会抛出对应的异常</p>
+<hr>
+<p>additionalAuthenticationChecks：</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">additionalAuthenticationChecks</span><span class="hljs-params">(UserDetails userDetails,</span></span>
+<span class="hljs-function"><span class="hljs-params">			UsernamePasswordAuthenticationToken authentication)</span></span>
+<span class="hljs-function">			<span class="hljs-keyword">throws</span> AuthenticationException </span>&#123;
+		Object salt = <span class="hljs-keyword">null</span>;
+
+		<span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.saltSource != <span class="hljs-keyword">null</span>) &#123;
+			salt = <span class="hljs-keyword">this</span>.saltSource.getSalt(userDetails);
+		&#125;
+
+		<span class="hljs-keyword">if</span> (authentication.getCredentials() == <span class="hljs-keyword">null</span>) &#123;
+			logger.debug(<span class="hljs-string">"Authentication failed: no credentials provided"</span>);
+
+			<span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> BadCredentialsException(messages.getMessage(
+					<span class="hljs-string">"AbstractUserDetailsAuthenticationProvider.badCredentials"</span>,
+					<span class="hljs-string">"Bad credentials"</span>));
+		&#125;
+
+		String presentedPassword = authentication.getCredentials().toString();
+
+		<span class="hljs-keyword">if</span> (!passwordEncoder.isPasswordValid(userDetails.getPassword(),
+				presentedPassword, salt)) &#123;
+			logger.debug(<span class="hljs-string">"Authentication failed: password does not match stored value"</span>);
+
+			<span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> BadCredentialsException(messages.getMessage(
+					<span class="hljs-string">"AbstractUserDetailsAuthenticationProvider.badCredentials"</span>,
+					<span class="hljs-string">"Bad credentials"</span>));
+		&#125;
+	&#125;</code></pre>
+
+<p>这里通过passwordEncoder加密解密器去校验当前密码是否匹配，不匹配的话就抛出异常</p>
+<hr>
+<p>postAuthenticationChecks.check：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">DefaultPostAuthenticationChecks</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">UserDetailsChecker</span> </span>&#123;
+		<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">check</span><span class="hljs-params">(UserDetails user)</span> </span>&#123;
+			<span class="hljs-keyword">if</span> (!user.isCredentialsNonExpired()) &#123;
+				logger.debug(<span class="hljs-string">"User account credentials have expired"</span>);
+
+				<span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> CredentialsExpiredException(messages.getMessage(
+						<span class="hljs-string">"AbstractUserDetailsAuthenticationProvider.credentialsExpired"</span>,
+						<span class="hljs-string">"User credentials have expired"</span>));
+			&#125;
+		&#125;
+	&#125;</code></pre>
+
+<hr>
+<p>在里所有检查都通过，就认为用户 认证是成功的，用户认证成功的时候会返回：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">return</span> createSuccessAuthentication(principalToReturn, authentication, user)</code></pre>
+
+<p>createSuccessAuthentication:</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">protected</span> Authentication <span class="hljs-title">createSuccessAuthentication</span><span class="hljs-params">(Object principal,</span></span>
+<span class="hljs-function"><span class="hljs-params">			Authentication authentication, UserDetails user)</span> </span>&#123;
+
+		UsernamePasswordAuthenticationToken result = <span class="hljs-keyword">new</span> UsernamePasswordAuthenticationToken(
+				principal, authentication.getCredentials(),
+				authoritiesMapper.mapAuthorities(user.getAuthorities()));
+		result.setDetails(authentication.getDetails());
+
+		<span class="hljs-keyword">return</span> result;
+	&#125;</code></pre>
+
+<p>这里就会拿之前的token，重新实例化一个token，并把权限信息设置上去，它在这次调用的另外一个构造方法,调用setAuthenticated传递true，表示这个账号信息已经认证通过了</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">UsernamePasswordAuthenticationToken</span><span class="hljs-params">(Object principal, Object credentials,</span></span>
+<span class="hljs-function"><span class="hljs-params">			Collection&lt;? extends GrantedAuthority&gt; authorities)</span> </span>&#123;
+		<span class="hljs-keyword">super</span>(authorities);
+		<span class="hljs-keyword">this</span>.principal = principal;
+		<span class="hljs-keyword">this</span>.credentials = credentials;
+		<span class="hljs-keyword">super</span>.setAuthenticated(<span class="hljs-keyword">true</span>); <span class="hljs-comment">// must use super, as we override</span>
+	&#125;</code></pre>
+
+<p>到这里，<code>UsernamePasswordAuthenticationFilter#attemptAuthentication</code>就走完了，实际上调用<code>UsernamePasswordAuthenticationFilter#attemptAuthentication</code>的是<code>AbstractAuthenticationProcessingFilter#doFilter</code>，这里它做了一系列的判断，如果都没问题，则会调用<code>successfulAuthentication</code>方法，如果有问题，<code>UsernamePasswordAuthenticationFilter#attemptAuthentication</code>方法会抛出一个异常，这这里面就行了捕获就会调用<code>unsuccessfulAuthentication</code>方法</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">doFilter</span><span class="hljs-params">(ServletRequest req, ServletResponse res, FilterChain chain)</span></span>
+<span class="hljs-function">			<span class="hljs-keyword">throws</span> IOException, ServletException </span>&#123;
+
+		HttpServletRequest request = (HttpServletRequest) req;
+		HttpServletResponse response = (HttpServletResponse) res;
+
+		<span class="hljs-keyword">if</span> (!requiresAuthentication(request, response)) &#123;
+			chain.doFilter(request, response);
+
+			<span class="hljs-keyword">return</span>;
+		&#125;
+
+		<span class="hljs-keyword">if</span> (logger.isDebugEnabled()) &#123;
+			logger.debug(<span class="hljs-string">"Request is to process authentication"</span>);
+		&#125;
+
+		Authentication authResult;
+
+		<span class="hljs-keyword">try</span> &#123;
+			authResult = attemptAuthentication(request, response);
+			<span class="hljs-keyword">if</span> (authResult == <span class="hljs-keyword">null</span>) &#123;
+				<span class="hljs-comment">// return immediately as subclass has indicated that it hasn't completed</span>
+				<span class="hljs-comment">// authentication</span>
+				<span class="hljs-keyword">return</span>;
+			&#125;
+			sessionStrategy.onAuthentication(authResult, request, response);
+		&#125;
+		<span class="hljs-keyword">catch</span> (InternalAuthenticationServiceException failed) &#123;
+			logger.error(
+					<span class="hljs-string">"An internal error occurred while trying to authenticate the user."</span>,
+					failed);
+			unsuccessfulAuthentication(request, response, failed);
+
+			<span class="hljs-keyword">return</span>;
+		&#125;
+		<span class="hljs-keyword">catch</span> (AuthenticationException failed) &#123;
+			<span class="hljs-comment">// Authentication failed</span>
+			unsuccessfulAuthentication(request, response, failed);
+
+			<span class="hljs-keyword">return</span>;
+		&#125;
+
+		<span class="hljs-comment">// Authentication success</span>
+		<span class="hljs-keyword">if</span> (continueChainBeforeSuccessfulAuthentication) &#123;
+			chain.doFilter(request, response);
+		&#125;
+
+		successfulAuthentication(request, response, chain, authResult);
+	&#125;</code></pre>
+
+<p>successfulAuthentication：</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">successfulAuthentication</span><span class="hljs-params">(HttpServletRequest request,</span></span>
+<span class="hljs-function"><span class="hljs-params">			HttpServletResponse response, FilterChain chain, Authentication authResult)</span></span>
+<span class="hljs-function">			<span class="hljs-keyword">throws</span> IOException, ServletException </span>&#123;
+
+		<span class="hljs-keyword">if</span> (logger.isDebugEnabled()) &#123;
+			logger.debug(<span class="hljs-string">"Authentication success. Updating SecurityContextHolder to contain: "</span>
+					+ authResult);
+		&#125;
+
+		SecurityContextHolder.getContext().setAuthentication(authResult);
+
+		rememberMeServices.loginSuccess(request, response, authResult);
+
+		<span class="hljs-comment">// Fire event</span>
+		<span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.eventPublisher != <span class="hljs-keyword">null</span>) &#123;
+			eventPublisher.publishEvent(<span class="hljs-keyword">new</span> InteractiveAuthenticationSuccessEvent(
+					authResult, <span class="hljs-keyword">this</span>.getClass()));
+		&#125;
+		
+		successHandler.onAuthenticationSuccess(request, response, authResult);
+	&#125;</code></pre>
+
+<ul>
+<li><code>successHandler.onAuthenticationSuccess(request, response, authResult);</code>:调用之前编写的登录成功处理器McrAuthenticationSuccessHandler#onAuthenticationSuccess；</li>
+<li><code>SecurityContextHolder.getContext().setAuthentication(authResult);</code>：将用户信息存储在sesison中</li>
+</ul>
+<p>SecurityContextHolder.getContext().setAuthentication(authResult)：</p>
+<p>这里的SecurityContextHolder.getContext()返回一个SecurityContext类，SecurityContext类的实现类是SecurityContextImpl，调用的是它的setAuthentication方法</p>
+<blockquote>
+<p>这里的SecurityContextHolder看了半天没办法表达，以后再补上</p>
+</blockquote>
+<hr>
+<p>unsuccessfulAuthentication：</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">unsuccessfulAuthentication</span><span class="hljs-params">(HttpServletRequest request,</span></span>
+<span class="hljs-function"><span class="hljs-params">			HttpServletResponse response, AuthenticationException failed)</span></span>
+<span class="hljs-function">			<span class="hljs-keyword">throws</span> IOException, ServletException </span>&#123;
+		SecurityContextHolder.clearContext();
+
+		<span class="hljs-keyword">if</span> (logger.isDebugEnabled()) &#123;
+			logger.debug(<span class="hljs-string">"Authentication request failed: "</span> + failed.toString(), failed);
+			logger.debug(<span class="hljs-string">"Updated SecurityContextHolder to contain null Authentication"</span>);
+			logger.debug(<span class="hljs-string">"Delegating to authentication failure handler "</span> + failureHandler);
+		&#125;
+
+		rememberMeServices.loginFail(request, response);
+
+		failureHandler.onAuthenticationFailure(request, response, failed);
+	&#125;</code></pre>
+
+<p>这里就是调用之前编写的失败处理器McrAuthenticationFailureHandler</p>
+<h1 id="获取当前用户信息"><a href="#获取当前用户信息" class="headerlink" title="获取当前用户信息"></a>获取当前用户信息</h1><pre><code class="hljs java"><span class="hljs-meta">@GetMapping</span>(<span class="hljs-string">"/me"</span>)
+   <span class="hljs-function"><span class="hljs-keyword">public</span> Object <span class="hljs-title">getCurrentUser</span><span class="hljs-params">()</span> </span>&#123;
+       <span class="hljs-keyword">return</span> SecurityContextHolder.getContext().getAuthentication();
+   &#125;
+<span class="hljs-meta">@GetMapping</span>(<span class="hljs-string">"/me/2"</span>)
+   <span class="hljs-function"><span class="hljs-keyword">public</span> Object <span class="hljs-title">getCurrentUser</span><span class="hljs-params">(Authentication authentication)</span> </span>&#123;
+       <span class="hljs-keyword">return</span> authentication;
+   &#125;
+<span class="hljs-meta">@GetMapping</span>(<span class="hljs-string">"/me/v3"</span>)
+   <span class="hljs-function"><span class="hljs-keyword">public</span> Object <span class="hljs-title">getCurrentUser</span><span class="hljs-params">(@AuthenticationPrincipal UserDetails authentication)</span> </span>&#123;
+       <span class="hljs-keyword">return</span> authentication;
+   &#125;</code></pre>
+
+<hr>
+<h1 id="图形验证码登录"><a href="#图形验证码登录" class="headerlink" title="图形验证码登录"></a>图形验证码登录</h1><h2 id="生成图形验证码"><a href="#生成图形验证码" class="headerlink" title="生成图形验证码"></a>生成图形验证码</h2><p>将图片验证码需要的信息封装成一个类</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.model.dto;
+
+<span class="hljs-keyword">import</span> lombok.Data;
+
+<span class="hljs-keyword">import</span> java.awt.image.BufferedImage;
+<span class="hljs-keyword">import</span> java.time.LocalDateTime;
+
+<span class="hljs-meta">@Data</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ImageCodeDTO</span> </span>&#123;
+	<span class="hljs-comment">/**</span>
+<span class="hljs-comment">	 * 图片</span>
+<span class="hljs-comment">	 */</span>
+	<span class="hljs-keyword">private</span> BufferedImage image;
+	
+	<span class="hljs-comment">/**</span>
+<span class="hljs-comment">	 * 随机数</span>
+<span class="hljs-comment">	 */</span>
+	<span class="hljs-keyword">private</span> String code;
+	
+	<span class="hljs-comment">/**</span>
+<span class="hljs-comment">	 * 过期时间</span>
+<span class="hljs-comment">	 */</span>
+	<span class="hljs-keyword">private</span> LocalDateTime expireTime;
+	
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">ImageCodeDTO</span><span class="hljs-params">(BufferedImage image, String code, <span class="hljs-keyword">int</span> expireIn)</span></span>&#123;
+		<span class="hljs-keyword">this</span>.image = image;
+		<span class="hljs-keyword">this</span>.code = code;
+		<span class="hljs-comment">//多少秒后</span>
+		<span class="hljs-keyword">this</span>.expireTime = LocalDateTime.now().plusSeconds(expireIn);
+	&#125;
+	
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">ImageCodeDTO</span><span class="hljs-params">(BufferedImage image, String code, LocalDateTime expireTime)</span></span>&#123;
+		<span class="hljs-keyword">this</span>.image = image;
+		<span class="hljs-keyword">this</span>.code = code;
+		<span class="hljs-keyword">this</span>.expireTime = expireTime;
+	&#125;
+	
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">isExpired</span><span class="hljs-params">()</span> </span>&#123;
+		<span class="hljs-keyword">return</span> LocalDateTime.now().isAfter(expireTime);
+	&#125;
+&#125;</code></pre>
+
+<p>获取图形验证码的请求</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.validate.code;
+<span class="hljs-meta">@RestController</span>
+<span class="hljs-meta">@RequestMapping</span>(<span class="hljs-string">"/code"</span>)
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ValidateCodeController</span> </span>&#123;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> String SESSION_KEY = <span class="hljs-string">"SESSION_KEY_CODE"</span>;
+
+    <span class="hljs-keyword">private</span> SessionStrategy sessionStrategy = <span class="hljs-keyword">new</span> HttpSessionSessionStrategy();
+
+    <span class="hljs-meta">@GetMapping</span>(<span class="hljs-string">"/image"</span>)
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">imageCreateCode</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="hljs-keyword">throws</span> IOException </span>&#123;
+        <span class="hljs-comment">//1：根据随机数生成图片</span>
+        ImageCodeDTO imageCodeDTO = generate(<span class="hljs-keyword">new</span> ServletWebRequest(request));
+        <span class="hljs-comment">//2：将图片放入session中</span>
+        sessionStrategy.setAttribute(<span class="hljs-keyword">new</span> ServletWebRequest(request), SESSION_KEY + <span class="hljs-string">"/image"</span>, imageCodeDTO);
+        <span class="hljs-comment">//3：将生成的图片写入接口的响应中</span>
+        ImageIO.write(imageCodeDTO.getImage(), <span class="hljs-string">"JPEG"</span>, response.getOutputStream());
+
+    &#125;
+
+    <span class="hljs-function"><span class="hljs-keyword">private</span> ImageCodeDTO <span class="hljs-title">generate</span><span class="hljs-params">(ServletWebRequest request)</span> </span>&#123;
+        <span class="hljs-keyword">int</span> width = <span class="hljs-number">67</span>;
+        <span class="hljs-keyword">int</span> height = <span class="hljs-number">23</span>;
+        BufferedImage image = <span class="hljs-keyword">new</span> BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+
+        Graphics g = image.getGraphics();
+
+        Random random = <span class="hljs-keyword">new</span> Random();
+
+        g.setColor(getRandColor(<span class="hljs-number">200</span>, <span class="hljs-number">250</span>));
+        g.fillRect(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, width, height);
+        g.setFont(<span class="hljs-keyword">new</span> Font(<span class="hljs-string">"Times New Roman"</span>, Font.ITALIC, <span class="hljs-number">20</span>));
+        g.setColor(getRandColor(<span class="hljs-number">160</span>, <span class="hljs-number">200</span>));
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">155</span>; i++) &#123;
+            <span class="hljs-keyword">int</span> x = random.nextInt(width);
+            <span class="hljs-keyword">int</span> y = random.nextInt(height);
+            <span class="hljs-keyword">int</span> xl = random.nextInt(<span class="hljs-number">12</span>);
+            <span class="hljs-keyword">int</span> yl = random.nextInt(<span class="hljs-number">12</span>);
+            g.drawLine(x, y, x + xl, y + yl);
+        &#125;
+
+        String sRand = <span class="hljs-string">""</span>;
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">4</span>; i++) &#123;
+            String rand = String.valueOf(random.nextInt(<span class="hljs-number">10</span>));
+            sRand += rand;
+            g.setColor(<span class="hljs-keyword">new</span> Color(<span class="hljs-number">20</span> + random.nextInt(<span class="hljs-number">110</span>), <span class="hljs-number">20</span> + random.nextInt(<span class="hljs-number">110</span>), <span class="hljs-number">20</span> + random.nextInt(<span class="hljs-number">110</span>)));
+            g.drawString(rand, <span class="hljs-number">13</span> * i + <span class="hljs-number">6</span>, <span class="hljs-number">16</span>);
+        &#125;
+
+        g.dispose();
+
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> ImageCodeDTO(image, sRand, <span class="hljs-number">60</span>);
+    &#125;
+
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 生成随机背景条纹</span>
+<span class="hljs-comment">     *</span>
+<span class="hljs-comment">     * <span class="hljs-doctag">@param</span> fc</span>
+<span class="hljs-comment">     * <span class="hljs-doctag">@param</span> bc</span>
+<span class="hljs-comment">     * <span class="hljs-doctag">@return</span></span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-function"><span class="hljs-keyword">private</span> Color <span class="hljs-title">getRandColor</span><span class="hljs-params">(<span class="hljs-keyword">int</span> fc, <span class="hljs-keyword">int</span> bc)</span> </span>&#123;
+        Random random = <span class="hljs-keyword">new</span> Random();
+        <span class="hljs-keyword">if</span> (fc &gt; <span class="hljs-number">255</span>) &#123;
+            fc = <span class="hljs-number">255</span>;
+        &#125;
+        <span class="hljs-keyword">if</span> (bc &gt; <span class="hljs-number">255</span>) &#123;
+            bc = <span class="hljs-number">255</span>;
+        &#125;
+        <span class="hljs-keyword">int</span> r = fc + random.nextInt(bc - fc);
+        <span class="hljs-keyword">int</span> g = fc + random.nextInt(bc - fc);
+        <span class="hljs-keyword">int</span> b = fc + random.nextInt(bc - fc);
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Color(r, g, b);
+    &#125;
+
+&#125;</code></pre>
+
+<p>让这个请求不需要校验</p>
+<pre><code class="hljs java">.antMatchers(
+				....
+                      <span class="hljs-string">"/code/**"</span></code></pre>
+
+<p>在登录页面中加入：</p>
+<pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">tr</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>图形验证码:<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"text"</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"imageCode"</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"/code/image"</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">tr</span>&gt;</span></code></pre>
+
+<h2 id="图形验证码验证"><a href="#图形验证码验证" class="headerlink" title="图形验证码验证"></a>图形验证码验证</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566723514793.png" srcset="/img/loading.gif" alt=""></p>
+<p>图形验证码是比用户的账号密码先效验的，所以我会在<code>UsernamePasswordAuthenticationFilter</code>前面加一个验证用户填的验证码是否正确的过滤器，如果验证不通过就抛出异常，这里的异常我希望可以让<code>spring security</code>捕获，可以自定义一个类继承<code>AuthenticationException</code> ，或者直接抛出<code>AuthenticationException</code> 的异常，这里我就自定义一个</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.validate.code;
+
+<span class="hljs-keyword">import</span> org.springframework.security.core.AuthenticationException;
+
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ValidateCodeException</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">AuthenticationException</span> </span>&#123;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">long</span> serialVersionUID = -<span class="hljs-number">7285211528095468156L</span>;
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">ValidateCodeException</span><span class="hljs-params">(String msg)</span> </span>&#123;
+        <span class="hljs-keyword">super</span>(msg);
+    &#125;
+&#125;</code></pre>
+
+<hr>
+<p>过滤器：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.validate.code;
+<span class="hljs-meta">@Data</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ImageValidateCodeFilter</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">OncePerRequestFilter</span> </span>&#123;
+    <span class="hljs-keyword">private</span> AuthenticationFailureHandler authenticationFailureHandler;
+    <span class="hljs-keyword">private</span> SessionStrategy sessionStrategy = <span class="hljs-keyword">new</span> HttpSessionSessionStrategy();
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">doFilterInternal</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)</span></span>
+<span class="hljs-function">            <span class="hljs-keyword">throws</span> ServletException, IOException </span>&#123;
+        <span class="hljs-keyword">if</span> (StringUtils.equals(<span class="hljs-string">"/authentication/form"</span>, request.getRequestURI())
+                &amp;&amp; StringUtils.equalsIgnoreCase(request.getMethod(), <span class="hljs-string">"post"</span>)) &#123;
+            <span class="hljs-keyword">try</span> &#123;
+                validate(<span class="hljs-keyword">new</span> ServletWebRequest(request));
+            &#125; <span class="hljs-keyword">catch</span> (ValidateCodeException e) &#123;
+                authenticationFailureHandler.onAuthenticationFailure(request, response, e);
+                <span class="hljs-comment">//出现异常不继续执行</span>
+                <span class="hljs-keyword">return</span>;
+            &#125;
+        &#125;
+        filterChain.doFilter(request, response);
+
+    &#125;
+
+    <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">validate</span><span class="hljs-params">(ServletWebRequest request)</span> <span class="hljs-keyword">throws</span> ServletRequestBindingException </span>&#123;
+        ImageCodeDTO codeInSession = (ImageCodeDTO) sessionStrategy.getAttribute(request,
+                ValidateCodeController.SESSION_KEY + <span class="hljs-string">"/image"</span>);
+        String codeInRequest = ServletRequestUtils.getStringParameter(request.getRequest(), <span class="hljs-string">"imageCode"</span>);
+        <span class="hljs-keyword">if</span> (StringUtils.isBlank(codeInRequest)) &#123;
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> ValidateCodeException(<span class="hljs-string">"验证码的值不能为空"</span>);
+        &#125;
+        <span class="hljs-keyword">if</span> (codeInSession == <span class="hljs-keyword">null</span>) &#123;
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> ValidateCodeException(<span class="hljs-string">"验证码不存在"</span>);
+        &#125;
+        <span class="hljs-keyword">if</span> (codeInSession.isExpired()) &#123;
+            sessionStrategy.removeAttribute(request, ValidateCodeController.SESSION_KEY);
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> ValidateCodeException(<span class="hljs-string">"验证码已过期"</span>);
+        &#125;
+        <span class="hljs-keyword">if</span> (!StringUtils.equals(codeInSession.getCode(), codeInRequest)) &#123;
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> ValidateCodeException(<span class="hljs-string">"验证码不匹配"</span>);
+        &#125;
+        sessionStrategy.removeAttribute(request, ValidateCodeController.SESSION_KEY);
+    &#125;
+&#125;</code></pre>
+
+<hr>
+<p>将图形验证码过滤添加到<code>UsernamePasswordAuthenticationFilter</code>的前面：</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(HttpSecurity http)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+    ImageValidateCodeFilter imageValidateCodeFilter = <span class="hljs-keyword">new</span> ImageValidateCodeFilter();
+    imageValidateCodeFilter.setAuthenticationFailureHandler(authenticationFailureHandler);
+    http
+            .addFilterBefore(imageValidateCodeFilter, UsernamePasswordAuthenticationFilter<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>
+<span class="hljs-class"> 		//...</span>
+<span class="hljs-class"></span>
+<span class="hljs-class">&#125;</span></code></pre>
+
+<h1 id="手机登录"><a href="#手机登录" class="headerlink" title="手机登录"></a>手机登录</h1><h2 id="生成短信验证码"><a href="#生成短信验证码" class="headerlink" title="生成短信验证码"></a>生成短信验证码</h2><p>和上面的图形验证码差不多，不多废话直接上代码</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.model.dto;
+
+<span class="hljs-keyword">import</span> lombok.Data;
+
+<span class="hljs-keyword">import</span> java.time.LocalDateTime;
+
+<span class="hljs-meta">@Data</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SmsCodeDTO</span> </span>&#123;
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 验证码</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-keyword">private</span> String code;
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 失效时间 </span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-keyword">private</span> LocalDateTime expireTime;
+
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">SmsCodeDTO</span><span class="hljs-params">(String code, <span class="hljs-keyword">int</span> expireAfterSeconds)</span> </span>&#123;
+        <span class="hljs-keyword">this</span>.code = code;
+        <span class="hljs-comment">//多少秒后</span>
+        <span class="hljs-keyword">this</span>.expireTime = LocalDateTime.now().plusSeconds(expireAfterSeconds);
+    &#125;
+
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">SmsCodeDTO</span><span class="hljs-params">(String code, LocalDateTime expireTime)</span> </span>&#123;
+        <span class="hljs-keyword">this</span>.code = code;
+        <span class="hljs-keyword">this</span>.expireTime = expireTime;
+    &#125;
+
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 是否失效</span>
+<span class="hljs-comment">     *</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">isExpired</span><span class="hljs-params">()</span> </span>&#123;
+        <span class="hljs-keyword">return</span> LocalDateTime.now().isAfter(expireTime);
+    &#125;
+&#125;</code></pre>
+
+<hr>
+<p>ValidateCodeController</p>
+<pre><code class="hljs java"><span class="hljs-meta">@GetMapping</span>(<span class="hljs-string">"/sms"</span>)
+  <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">createSmsCode</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response)</span> </span>&#123;
+      String code = String.valueOf(RandomUtils.nextInt(<span class="hljs-number">9999</span>));
+      SmsCodeDTO smsCodeDTO = <span class="hljs-keyword">new</span> SmsCodeDTO(code, <span class="hljs-number">60</span>);
+      sessionStrategy.setAttribute(<span class="hljs-keyword">new</span> ServletWebRequest(request, response), SESSION_KEY + <span class="hljs-string">"/sms"</span>, smsCodeDTO);
+      <span class="hljs-keyword">return</span> code;
+  &#125;</code></pre>
+
+<hr>
+<pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">hr</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">h3</span>&gt;</span>短信登录<span class="hljs-tag">&lt;/<span class="hljs-name">h3</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">form</span> <span class="hljs-attr">action</span>=<span class="hljs-string">"/authentication/mobile"</span> <span class="hljs-attr">method</span>=<span class="hljs-string">"post"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">table</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">tr</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>手机号:<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"text"</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"mobile"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"13012345678"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">tr</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">tr</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>短信验证码:<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"text"</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"smsCode"</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"/code/sms?mobile=13012345678"</span>&gt;</span>发送验证码<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">tr</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">tr</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">td</span> <span class="hljs-attr">colspan</span>=<span class="hljs-string">"2"</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"submit"</span>&gt;</span>登录<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">tr</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">table</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">form</span>&gt;</span></code></pre>
+
+<h2 id="手机登录验证"><a href="#手机登录验证" class="headerlink" title="手机登录验证"></a>手机登录验证</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567003728157.png" srcset="/img/loading.gif" alt="1567003728157"></p>
+<p>手机登录，1是手机号码，2是手机收到的验证码，这里的验证与前面的图形验证码验证是不同的，它不能通过<code>UsernamePasswordAuthenticationFilter</code>去做验证，在这里就需要自己自定义一个<code>AtuehtncationFilter</code>，然后还需要一个做验证的<code>Provider</code>也是需要自己来做的，读者不用担心很复杂，笔者这里是通过复制这些源码，来进行修改完成的，实际上不会太难</p>
+<hr>
+<p>SmsCodeAuthenticationToken：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.authentication.mobile;
+
+<span class="hljs-keyword">import</span> org.springframework.security.authentication.AbstractAuthenticationToken;
+<span class="hljs-keyword">import</span> org.springframework.security.core.GrantedAuthority;
+<span class="hljs-keyword">import</span> org.springframework.security.core.SpringSecurityCoreVersion;
+
+<span class="hljs-keyword">import</span> java.util.Collection;
+
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SmsCodeAuthenticationToken</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">AbstractAuthenticationToken</span> </span>&#123;
+ 
+	<span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">long</span> serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+ 
+	<span class="hljs-comment">// ~ Instance fields</span>
+	<span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Object principal;<span class="hljs-comment">//存放认证信息。</span>
+ 
+	<span class="hljs-comment">// ~ Constructors</span>
+	<span class="hljs-comment">/**</span>
+<span class="hljs-comment">	 * 认证之前存放手机号</span>
+<span class="hljs-comment">	 */</span>
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">SmsCodeAuthenticationToken</span><span class="hljs-params">(Object mobile)</span> </span>&#123;
+		<span class="hljs-keyword">super</span>(<span class="hljs-keyword">null</span>);
+		<span class="hljs-keyword">this</span>.principal = mobile;
+		setAuthenticated(<span class="hljs-keyword">false</span>);
+	&#125;
+ 
+	<span class="hljs-comment">/**</span>
+<span class="hljs-comment">	 * 认证成功存放用户</span>
+<span class="hljs-comment">	 */</span>
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">SmsCodeAuthenticationToken</span><span class="hljs-params">(Object principal, Collection&lt;? extends GrantedAuthority&gt; authorities)</span> </span>&#123;
+		<span class="hljs-keyword">super</span>(authorities);
+		<span class="hljs-keyword">this</span>.principal = principal;
+		<span class="hljs-keyword">super</span>.setAuthenticated(<span class="hljs-keyword">true</span>); <span class="hljs-comment">// must use super, as we override</span>
+	&#125;
+ 
+	<span class="hljs-comment">// ~ Methods</span>
+	<span class="hljs-function"><span class="hljs-keyword">public</span> Object <span class="hljs-title">getPrincipal</span><span class="hljs-params">()</span> </span>&#123;
+		<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.principal;
+	&#125;
+ 
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setAuthenticated</span><span class="hljs-params">(<span class="hljs-keyword">boolean</span> isAuthenticated)</span> <span class="hljs-keyword">throws</span> IllegalArgumentException </span>&#123;
+		<span class="hljs-keyword">if</span> (isAuthenticated) &#123;
+			<span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> IllegalArgumentException(
+					<span class="hljs-string">"Cannot set this token to trusted - use constructor which takes a GrantedAuthority list instead"</span>);
+		&#125;
+ 
+		<span class="hljs-keyword">super</span>.setAuthenticated(<span class="hljs-keyword">false</span>);
+	&#125;
+ 
+	<span class="hljs-meta">@Override</span>
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">eraseCredentials</span><span class="hljs-params">()</span> </span>&#123;
+		<span class="hljs-keyword">super</span>.eraseCredentials();
+	&#125;
+ 
+	<span class="hljs-meta">@Override</span>
+	<span class="hljs-function"><span class="hljs-keyword">public</span> Object <span class="hljs-title">getCredentials</span><span class="hljs-params">()</span> </span>&#123;
+		<span class="hljs-comment">// TODO Auto-generated method stub</span>
+		<span class="hljs-keyword">return</span> <span class="hljs-keyword">null</span>;
+	&#125;
+&#125;</code></pre>
+
+<p>SmsCodeAuthenticationFilter：</p>
+<blockquote>
+<p>实际上与UsernamePasswordAuthenticationFilter做的事情是差不多的，只不过它这里拿的是用户填写的手机号码封装成SmsCodeAuthenticationToken</p>
+</blockquote>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.authentication.mobile;
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SmsCodeAuthenticationFilter</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">AbstractAuthenticationProcessingFilter</span> </span>&#123;
+	<span class="hljs-comment">//请求中携带的参数名</span>
+	<span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> String IMOOC_FORM_MOBILE_KEY = <span class="hljs-string">"mobile"</span>;
+	<span class="hljs-keyword">private</span> String mobileParameter = IMOOC_FORM_MOBILE_KEY;<span class="hljs-comment">// 请求中携带参数的名字是什么</span>
+	<span class="hljs-keyword">private</span> <span class="hljs-keyword">boolean</span> postOnly = <span class="hljs-keyword">true</span>;<span class="hljs-comment">//是否仅处理post请求</span>
+	<span class="hljs-comment">// ~ Constructors</span>
+	<span class="hljs-comment">//处理的短信登录的请求是什么</span>
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">SmsCodeAuthenticationFilter</span><span class="hljs-params">()</span> </span>&#123;
+		<span class="hljs-keyword">super</span>(<span class="hljs-keyword">new</span> AntPathRequestMatcher(<span class="hljs-string">"/authentication/mobile"</span>, <span class="hljs-string">"POST"</span>));
+	&#125;
+	<span class="hljs-comment">// ~ Methods</span>
+	<span class="hljs-function"><span class="hljs-keyword">public</span> Authentication <span class="hljs-title">attemptAuthentication</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response)</span></span>
+<span class="hljs-function">			<span class="hljs-keyword">throws</span> AuthenticationException </span>&#123;
+		<span class="hljs-keyword">if</span> (postOnly &amp;&amp; !request.getMethod().equals(<span class="hljs-string">"POST"</span>)) &#123;
+			<span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> AuthenticationServiceException(<span class="hljs-string">"Authentication method not supported: "</span> + request.getMethod());
+		&#125;
+		String mobile = obtainMobile(request);
+		<span class="hljs-keyword">if</span> (mobile == <span class="hljs-keyword">null</span>) &#123;
+			mobile = <span class="hljs-string">""</span>;
+		&#125;
+		mobile = mobile.trim();
+		SmsCodeAuthenticationToken authRequest = <span class="hljs-keyword">new</span> SmsCodeAuthenticationToken(mobile);
+		<span class="hljs-comment">// 将请求的信息设置在Token中</span>
+		setDetails(request, authRequest);
+		<span class="hljs-comment">//拿着Token调用AuthenticationManager</span>
+		<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.getAuthenticationManager().authenticate(authRequest);
+	&#125;
+	
+	<span class="hljs-comment">/**</span>
+<span class="hljs-comment">	 * 获取请求参数中的手机号</span>
+<span class="hljs-comment">	 * <span class="hljs-doctag">@param</span> request</span>
+<span class="hljs-comment">	 * <span class="hljs-doctag">@return</span></span>
+<span class="hljs-comment">	 */</span>
+	<span class="hljs-function"><span class="hljs-keyword">protected</span> String <span class="hljs-title">obtainMobile</span><span class="hljs-params">(HttpServletRequest request)</span> </span>&#123;
+		<span class="hljs-keyword">return</span> request.getParameter(mobileParameter);
+	&#125;
+ 
+	<span class="hljs-comment">/**</span>
+<span class="hljs-comment">	 * 将请求的信息设置在Token中</span>
+<span class="hljs-comment">	 * <span class="hljs-doctag">@param</span> request</span>
+<span class="hljs-comment">	 * <span class="hljs-doctag">@param</span> authRequest</span>
+<span class="hljs-comment">	 */</span>
+	<span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setDetails</span><span class="hljs-params">(HttpServletRequest request, SmsCodeAuthenticationToken authRequest)</span> </span>&#123;
+		authRequest.setDetails(authenticationDetailsSource.buildDetails(request));
+	&#125;
+ 
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setMobileParameter</span><span class="hljs-params">(String mobileParameter)</span> </span>&#123;
+		Assert.hasText(mobileParameter, <span class="hljs-string">"Mobile parameter must not be empty or null"</span>);
+		<span class="hljs-keyword">this</span>.mobileParameter = mobileParameter;
+	&#125;
+ 
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setPostOnly</span><span class="hljs-params">(<span class="hljs-keyword">boolean</span> postOnly)</span> </span>&#123;
+		<span class="hljs-keyword">this</span>.postOnly = postOnly;
+	&#125;
+ 
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> String <span class="hljs-title">getMobileParameter</span><span class="hljs-params">()</span> </span>&#123;
+		<span class="hljs-keyword">return</span> mobileParameter;
+	&#125;
+&#125;</code></pre>
+
+<p>SmsCodeAuthenticationProvider：</p>
+<blockquote>
+<p>用于验证SmsCodeAuthenticationToken</p>
+</blockquote>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.authentication.mobile;
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SmsCodeAuthenticationProvider</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">AuthenticationProvider</span> </span>&#123;
+	<span class="hljs-meta">@Setter</span>
+	<span class="hljs-meta">@Getter</span>
+	<span class="hljs-keyword">private</span> UserDetailsService userDetailsService;
+	<span class="hljs-comment">/**</span>
+<span class="hljs-comment">	 * 身份认证的逻辑</span>
+<span class="hljs-comment">	 */</span>
+	<span class="hljs-meta">@Override</span>
+	<span class="hljs-function"><span class="hljs-keyword">public</span> Authentication <span class="hljs-title">authenticate</span><span class="hljs-params">(Authentication authentication)</span> <span class="hljs-keyword">throws</span> AuthenticationException </span>&#123;
+		SmsCodeAuthenticationToken smsCodeAuthenticationToken = (SmsCodeAuthenticationToken)authentication;
+		UserDetails user = userDetailsService.loadUserByUsername((String) smsCodeAuthenticationToken.getPrincipal());
+		<span class="hljs-keyword">if</span>(user == <span class="hljs-keyword">null</span>)&#123;
+			<span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> InternalAuthenticationServiceException(<span class="hljs-string">"无法获取用户信息"</span>);
+		&#125;
+		<span class="hljs-comment">/**</span>
+<span class="hljs-comment">		 * 1:用户认证信息</span>
+<span class="hljs-comment">		 * 2：用户权限</span>
+<span class="hljs-comment">		 */</span>
+		SmsCodeAuthenticationToken authenticationResult = <span class="hljs-keyword">new</span> SmsCodeAuthenticationToken(user, user.getAuthorities());
+		
+		<span class="hljs-comment">//将之前未认证的请求放进认证后的Token中</span>
+		authenticationResult.setDetails(smsCodeAuthenticationToken);
+		
+		<span class="hljs-keyword">return</span> authenticationResult;
+	&#125;
+	
+	<span class="hljs-comment">/**</span>
+<span class="hljs-comment">	 * AuthenticationManager带着Token调用Provider</span>
+<span class="hljs-comment">	 * 判断传进来的Token最终调用的是哪个Provider</span>
+<span class="hljs-comment">	 */</span>
+	<span class="hljs-meta">@Override</span>
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">supports</span><span class="hljs-params">(Class&lt;?&gt; authentication)</span> </span>&#123;
+		<span class="hljs-keyword">return</span> SmsCodeAuthenticationToken<span class="hljs-class">.<span class="hljs-keyword">class</span>.<span class="hljs-title">isAssignableFrom</span>(<span class="hljs-title">authentication</span>)</span>;
+	&#125;
+&#125;</code></pre>
+
+<p>ImageValidateCodeFilter：</p>
+<blockquote>
+<p>这里的SmsValidateCodeFilter 和ImageValidateCodeFilter逻辑一样</p>
+</blockquote>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.validate.code.sms;
+
+
+<span class="hljs-keyword">import</span> com.b4.mcr.auth.core.model.dto.SmsCodeDTO;
+<span class="hljs-keyword">import</span> com.b4.mcr.auth.core.validate.code.ValidateCodeController;
+<span class="hljs-keyword">import</span> com.b4.mcr.auth.core.validate.code.ValidateCodeException;
+<span class="hljs-keyword">import</span> lombok.Data;
+<span class="hljs-keyword">import</span> org.apache.commons.lang.StringUtils;
+<span class="hljs-keyword">import</span> org.springframework.security.web.authentication.AuthenticationFailureHandler;
+<span class="hljs-keyword">import</span> org.springframework.social.connect.web.HttpSessionSessionStrategy;
+<span class="hljs-keyword">import</span> org.springframework.social.connect.web.SessionStrategy;
+<span class="hljs-keyword">import</span> org.springframework.web.bind.ServletRequestBindingException;
+<span class="hljs-keyword">import</span> org.springframework.web.bind.ServletRequestUtils;
+<span class="hljs-keyword">import</span> org.springframework.web.context.request.ServletWebRequest;
+<span class="hljs-keyword">import</span> org.springframework.web.filter.OncePerRequestFilter;
+
+<span class="hljs-keyword">import</span> javax.servlet.FilterChain;
+<span class="hljs-keyword">import</span> javax.servlet.ServletException;
+<span class="hljs-keyword">import</span> javax.servlet.http.HttpServletRequest;
+<span class="hljs-keyword">import</span> javax.servlet.http.HttpServletResponse;
+<span class="hljs-keyword">import</span> java.io.IOException;
+
+<span class="hljs-meta">@Data</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SmsValidateCodeFilter</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">OncePerRequestFilter</span> </span>&#123;
+
+    <span class="hljs-keyword">private</span> AuthenticationFailureHandler authenticationFailureHandler;
+
+    <span class="hljs-keyword">private</span> SessionStrategy sessionStrategy = <span class="hljs-keyword">new</span> HttpSessionSessionStrategy();
+
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">doFilterInternal</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)</span></span>
+<span class="hljs-function">            <span class="hljs-keyword">throws</span> ServletException, IOException </span>&#123;
+        <span class="hljs-keyword">if</span> (request.getRequestURI().equals(<span class="hljs-string">"/authentication/mobile"</span>)
+                &amp;&amp; StringUtils.equalsIgnoreCase(request.getMethod(), <span class="hljs-string">"post"</span>)) &#123;
+            <span class="hljs-keyword">try</span> &#123;
+                validate(<span class="hljs-keyword">new</span> ServletWebRequest(request));
+            &#125; <span class="hljs-keyword">catch</span> (ValidateCodeException e) &#123;
+                authenticationFailureHandler.onAuthenticationFailure(request, response, e);
+                <span class="hljs-keyword">return</span>;
+            &#125;
+        &#125;
+        filterChain.doFilter(request, response);
+    &#125;
+
+    <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">validate</span><span class="hljs-params">(ServletWebRequest request)</span> <span class="hljs-keyword">throws</span> ServletRequestBindingException </span>&#123;
+        String key = ValidateCodeController.SESSION_KEY + <span class="hljs-string">"/sms"</span>;
+        SmsCodeDTO smsCodeDTO = (SmsCodeDTO) sessionStrategy.getAttribute(request,
+                key);
+
+        String codeInRequest = ServletRequestUtils.getStringParameter(request.getRequest(), <span class="hljs-string">"smsCode"</span>);
+
+        <span class="hljs-keyword">if</span> (StringUtils.isBlank(codeInRequest)) &#123;
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> ValidateCodeException(<span class="hljs-string">"验证码的值不能为空"</span>);
+        &#125;
+
+        <span class="hljs-keyword">if</span> (smsCodeDTO == <span class="hljs-keyword">null</span>) &#123;
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> ValidateCodeException(<span class="hljs-string">"验证码不存在"</span>);
+        &#125;
+
+        <span class="hljs-keyword">if</span> (smsCodeDTO.isExpired()) &#123;
+            sessionStrategy.removeAttribute(request, key);
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> ValidateCodeException(<span class="hljs-string">"验证码已过期"</span>);
+        &#125;
+
+        <span class="hljs-keyword">if</span> (!StringUtils.equals(smsCodeDTO.getCode(), codeInRequest)) &#123;
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> ValidateCodeException(<span class="hljs-string">"验证码不匹配"</span>);
+        &#125;
+
+        sessionStrategy.removeAttribute(request, key);
+    &#125;
+
+
+&#125;</code></pre>
+
+<p>现在可以将这些类配置到browser模块里，但是有一个问题，以后还有对app模块进行code时，希望app模块中也提供手机登录的功能，那又得在app模块中进行配置，这里可以将这个配置抽象起来，通过继承<code>SecurityConfigurerAdapter</code>类，然后将配置写在里面，browser和app模块只需要引入这个配置就可以了</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.authentication.mobile;
+
+<span class="hljs-keyword">import</span> org.springframework.beans.factory.annotation.Autowired;
+<span class="hljs-keyword">import</span> org.springframework.security.authentication.AuthenticationManager;
+<span class="hljs-keyword">import</span> org.springframework.security.config.annotation.SecurityConfigurerAdapter;
+<span class="hljs-keyword">import</span> org.springframework.security.config.annotation.web.builders.HttpSecurity;
+<span class="hljs-keyword">import</span> org.springframework.security.core.userdetails.UserDetailsService;
+<span class="hljs-keyword">import</span> org.springframework.security.web.DefaultSecurityFilterChain;
+<span class="hljs-keyword">import</span> org.springframework.security.web.authentication.AuthenticationFailureHandler;
+<span class="hljs-keyword">import</span> org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+<span class="hljs-keyword">import</span> org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+<span class="hljs-keyword">import</span> org.springframework.stereotype.Component;
+
+
+<span class="hljs-meta">@Component</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SmsCodeAuthenticationSecurityConfig</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">SecurityConfigurerAdapter</span>&lt;<span class="hljs-title">DefaultSecurityFilterChain</span>, <span class="hljs-title">HttpSecurity</span>&gt; </span>&#123;
+	
+	<span class="hljs-meta">@Autowired</span>
+	<span class="hljs-keyword">private</span> AuthenticationSuccessHandler authenticationSuccessHandler;
+	
+	<span class="hljs-meta">@Autowired</span>
+	<span class="hljs-keyword">private</span> AuthenticationFailureHandler authenticationFailureHandler;
+	
+	<span class="hljs-meta">@Autowired</span>
+	<span class="hljs-keyword">private</span> UserDetailsService userDetailsService;
+	
+	<span class="hljs-meta">@Override</span>
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(HttpSecurity http)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+		
+		SmsCodeAuthenticationFilter smsCodeAuthenticationFilter = <span class="hljs-keyword">new</span> SmsCodeAuthenticationFilter();
+		smsCodeAuthenticationFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager<span class="hljs-class">.<span class="hljs-keyword">class</span>))</span>;
+		smsCodeAuthenticationFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler);
+		smsCodeAuthenticationFilter.setAuthenticationFailureHandler(authenticationFailureHandler);
+		SmsCodeAuthenticationProvider smsCodeAuthenticationProvider = <span class="hljs-keyword">new</span> SmsCodeAuthenticationProvider();
+		smsCodeAuthenticationProvider.setUserDetailsService(userDetailsService);
+		http.authenticationProvider(smsCodeAuthenticationProvider)
+			.addFilterAfter(smsCodeAuthenticationFilter, UsernamePasswordAuthenticationFilter<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>;
+		
+	&#125;
+
+&#125;</code></pre>
+
+<p>在SmsCodeAuthenticationSecurityConfig中将<code>SmsValidateCodeFilter</code>进行配置，并引入SmsCodeAuthenticationSecurityConfig配置</p>
+<p>SmsCodeAuthenticationSecurityConfig#configure</p>
+<pre><code class="hljs java"><span class="hljs-meta">@Resource</span>
+    <span class="hljs-keyword">private</span> SmsCodeAuthenticationSecurityConfig smsCodeAuthenticationSecurityConfig;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(HttpSecurity http)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+
+
+        SmsValidateCodeFilter smsValidateCodeFilter = <span class="hljs-keyword">new</span> SmsValidateCodeFilter();
+        smsValidateCodeFilter.setAuthenticationFailureHandler(authenticationFailureHandler);
+
+
+        http.apply(smsCodeAuthenticationSecurityConfig)
+                .and()
+                .addFilterBefore(smsValidateCodeFilter, UsernamePasswordAuthenticationFilter<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span></code></pre>
+
+<h1 id="重构代码"><a href="#重构代码" class="headerlink" title="重构代码"></a>重构代码</h1><p>这里的重构代码，主要是将一些固定的值使yml、properties可配置，比如说之前做的自定义登录页面，在别人拿到我们的代码加入他的工程时，他编写的登录页面路径和名称必须是固定的，他在开发时可能并没有使用前后端分离，登录失败时，只想跳回登录页面，不希望是返回一段josn…，我们就来实现这些功能</p>
+<h2 id="登录页面路径"><a href="#登录页面路径" class="headerlink" title="登录页面路径"></a>登录页面路径</h2><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.properties;
+
+<span class="hljs-keyword">import</span> lombok.Data;
+
+<span class="hljs-meta">@Data</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">BrowserSecurityProperties</span> </span>&#123;
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 登录页路径</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-keyword">private</span> String loginUrl = <span class="hljs-string">"/mcr-login.html"</span>;
+&#125;</code></pre>
+
+
+
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.properties;
+
+<span class="hljs-keyword">import</span> lombok.Data;
+<span class="hljs-keyword">import</span> org.springframework.boot.context.properties.ConfigurationProperties;
+<span class="hljs-keyword">import</span> org.springframework.context.annotation.Configuration;
+
+<span class="hljs-meta">@Configuration</span>
+<span class="hljs-meta">@ConfigurationProperties</span>(prefix = <span class="hljs-string">"mcr.b4.security"</span>)
+<span class="hljs-meta">@Data</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SecurityProperties</span> </span>&#123;
+    <span class="hljs-keyword">private</span> BrowserSecurityProperties browser = <span class="hljs-keyword">new</span> BrowserSecurityProperties();
+&#125;</code></pre>
+
+
+
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core; 
+<span class="hljs-meta">@Configuration</span>
+<span class="hljs-meta">@EnableConfigurationProperties</span>(SecurityProperties<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>
+<span class="hljs-class"><span class="hljs-title">public</span> <span class="hljs-title">class</span> <span class="hljs-title">SecurityCoreConfig</span> </span>&#123;
+&#125;</code></pre>
+
+<p>com.b4.mcr.auth.browser.BrowserSecurityController#requireAuthentication：</p>
+<pre><code class="hljs java">    <span class="hljs-meta">@Resource</span>
+    <span class="hljs-keyword">private</span> SecurityProperties security; 
+<span class="hljs-function"><span class="hljs-keyword">public</span> McrSecurityVO <span class="hljs-title">requireAuthentication</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="hljs-keyword">throws</span> IOException </span>&#123;
+    <span class="hljs-comment">//..</span>
+ redirectStrategy.sendRedirect(request, response, security.getBrowser().getLoginUrl());
+&#125;</code></pre>
+
+<p>BrowserSecurityConfig：</p>
+<blockquote>
+<p>这里把所有的@Resource注解去掉，在类上方加入@AllArgsConstructor</p>
+</blockquote>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.browser;
+<span class="hljs-meta">@Configuration</span>
+<span class="hljs-meta">@AllArgsConstructor</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">BrowserSecurityConfig</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">WebSecurityConfigurerAdapter</span> </span>&#123;
+    <span class="hljs-keyword">private</span> AuthenticationSuccessHandler authenticationSuccessHandler;
+    <span class="hljs-keyword">private</span> AuthenticationFailureHandler authenticationFailureHandler;
+    <span class="hljs-keyword">private</span> SmsCodeAuthenticationSecurityConfig smsCodeAuthenticationSecurityConfig;
+    <span class="hljs-keyword">private</span> SecurityProperties security;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(HttpSecurity http)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+        BrowserSecurityProperties browser = security.getBrowser();
+				<span class="hljs-comment">//....</span>
+                .antMatchers(browser.getLoginUrl(), <span class="hljs-string">"/authentication/require"</span>, <span class="hljs-string">"/code/**"</span>)
+              
+    &#125;
+&#125;</code></pre>
+
+<h2 id="成功失败处理器"><a href="#成功失败处理器" class="headerlink" title="成功失败处理器"></a>成功失败处理器</h2><p>成功失败处理器对于一些开发来说是没必要返回josn的，他可能希望得是跳转页面</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.properties;
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">enum</span> LoginType &#123;
+    JSON, REDIRECT
+&#125;</code></pre>
+
+<p>BrowserSecurityProperties</p>
+<pre><code class="hljs java"><span class="hljs-keyword">private</span> LoginType loginType = LoginType.JSON;</code></pre>
+
+<p>成功处理器和失败处理器都从icon容器中拿取SecurityProperties类，判断BrowserSecurityProperties中的LoginType是json的话就返回json，否则跳转页面，这里跳转页面可以不用自己写，spring security中的默认使用的就是跳转，可以将之前的失败、成功接口换成继承spring security中提供的</p>
+<p>成功处理器：</p>
+<pre><code class="hljs java">
+
+<span class="hljs-keyword">package</span> com.b4.mcr.auth.browser.authentication;
+
+
+<span class="hljs-meta">@Component</span>
+<span class="hljs-meta">@AllArgsConstructor</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">McrAuthenticationSuccessHandler</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">SavedRequestAwareAuthenticationSuccessHandler</span> </span>&#123;
+    <span class="hljs-keyword">private</span> ObjectMapper objectMapper;
+    <span class="hljs-keyword">private</span> SecurityProperties security;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">onAuthenticationSuccess</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response, Authentication authentication)</span> <span class="hljs-keyword">throws</span> IOException, ServletException </span>&#123;
+        <span class="hljs-keyword">if</span> (security.getBrowser().getLoginType().equals(LoginType.JSON)) &#123;
+            response.setContentType(<span class="hljs-string">"application/json;charset=utf-8"</span>);
+            response.getWriter().write(objectMapper.writeValueAsString(<span class="hljs-keyword">new</span> McrSecurityVO(authentication)));
+        &#125; <span class="hljs-keyword">else</span> &#123;
+            <span class="hljs-keyword">super</span>.onAuthenticationSuccess(request, response, authentication);
+        &#125;
+    &#125;
+&#125;</code></pre>
+
+<p>失败处理器：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.browser.authentication;
+
+
+<span class="hljs-keyword">import</span> com.b4.mcr.auth.core.model.vo.McrSecurityVO;
+<span class="hljs-keyword">import</span> com.b4.mcr.auth.core.properties.LoginType;
+<span class="hljs-keyword">import</span> com.b4.mcr.auth.core.properties.SecurityProperties;
+<span class="hljs-keyword">import</span> com.fasterxml.jackson.databind.ObjectMapper;
+<span class="hljs-keyword">import</span> lombok.AllArgsConstructor;
+<span class="hljs-keyword">import</span> org.springframework.security.core.AuthenticationException;
+<span class="hljs-keyword">import</span> org.springframework.security.web.authentication.ExceptionMappingAuthenticationFailureHandler;
+<span class="hljs-keyword">import</span> org.springframework.stereotype.Component;
+
+<span class="hljs-keyword">import</span> javax.servlet.ServletException;
+<span class="hljs-keyword">import</span> javax.servlet.http.HttpServletRequest;
+<span class="hljs-keyword">import</span> javax.servlet.http.HttpServletResponse;
+<span class="hljs-keyword">import</span> java.io.IOException;
+
+<span class="hljs-meta">@Component</span>
+<span class="hljs-meta">@AllArgsConstructor</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">McrAuthenticationFailureHandler</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">ExceptionMappingAuthenticationFailureHandler</span> </span>&#123;
+    <span class="hljs-keyword">private</span> ObjectMapper objectMapper;
+    <span class="hljs-keyword">private</span> SecurityProperties security;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">onAuthenticationFailure</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception)</span> <span class="hljs-keyword">throws</span> IOException, ServletException </span>&#123;
+        <span class="hljs-keyword">if</span> (security.getBrowser().getLoginType().equals(LoginType.JSON)) &#123;
+            response.setContentType(<span class="hljs-string">"application/json;charset=utf-8"</span>);
+            response.getWriter().write(objectMapper.writeValueAsString(<span class="hljs-keyword">new</span> McrSecurityVO(exception.getMessage())));
+        &#125; <span class="hljs-keyword">else</span> &#123;
+            <span class="hljs-keyword">super</span>.onAuthenticationFailure(request, response, exception);
+        &#125;
+    &#125;
+&#125;</code></pre>
+
+<h2 id="图片验证码"><a href="#图片验证码" class="headerlink" title="图片验证码"></a>图片验证码</h2><hr>
+<p>图片验证码生成的宽、高，验证码长度、过期时间</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.properties;
+
+<span class="hljs-keyword">import</span> lombok.Data;
+
+<span class="hljs-meta">@Data</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ImageCodeProperties</span> </span>&#123;
+	<span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> width = <span class="hljs-number">67</span>;
+	<span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> height = <span class="hljs-number">23</span>;
+	<span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> length = <span class="hljs-number">4</span>;
+	<span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> expireIn = <span class="hljs-number">60</span>;
+&#125;</code></pre>
+
+<p>因为以后app模块也会实现图片验证码功能，所以这里不应该放到BrowserSecurityProperties类中，这里创建一个ValidateCodeProperties放到SecurityProperties中</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.properties;
+
+<span class="hljs-keyword">import</span> lombok.Data;
+
+<span class="hljs-meta">@Data</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ValidateCodeProperties</span> </span>&#123;
+	<span class="hljs-keyword">private</span> ImageCodeProperties image = <span class="hljs-keyword">new</span> ImageCodeProperties();
+	
+&#125;</code></pre>
+
+<p>SecurityProperties</p>
+<pre><code class="hljs java"><span class="hljs-keyword">private</span> ValidateCodeProperties code = <span class="hljs-keyword">new</span> ValidateCodeProperties();</code></pre>
+
+<p>之前把生成图片验证码的逻辑放到了ValidateCodeController类中，这样做会不好扩展，如果说使用者不想用我提供的图片验证码生成，而是用其他的那就没法实现了，这里我使用里氏替换原则实现，首先这里做一个接口，提供一个生成图片类：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.validate.code;
+
+<span class="hljs-keyword">import</span> com.b4.mcr.auth.core.model.dto.ImageCodeDTO;
+<span class="hljs-keyword">import</span> org.springframework.web.context.request.ServletWebRequest;
+
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">ValidateCodeGenerator</span> </span>&#123;
+	<span class="hljs-function">ImageCodeDTO <span class="hljs-title">generate</span><span class="hljs-params">(ServletWebRequest request)</span></span>;
+&#125;</code></pre>
+
+<p>默认实现类：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.demo.core.validate.code.image;
+
+<span class="hljs-meta">@Data</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ImageValidateCodeGenerator</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">ValidateCodeGenerator</span> </span>&#123;
+
+    <span class="hljs-meta">@Setter</span>
+    <span class="hljs-keyword">private</span> SecurityProperties securityProperties;
+
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> ImageCodeDTO <span class="hljs-title">generate</span><span class="hljs-params">(ServletWebRequest request)</span> </span>&#123;
+        <span class="hljs-keyword">int</span> width = ServletRequestUtils.getIntParameter(request.getRequest(), <span class="hljs-string">"width"</span>,
+                securityProperties.getCode().getImage().getWidth());
+        <span class="hljs-keyword">int</span> height = ServletRequestUtils.getIntParameter(request.getRequest(), <span class="hljs-string">"height"</span>,
+                securityProperties.getCode().getImage().getHeight());
+        BufferedImage image = <span class="hljs-keyword">new</span> BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+
+        Graphics g = image.getGraphics();
+
+        Random random = <span class="hljs-keyword">new</span> Random();
+
+        g.setColor(getRandColor(<span class="hljs-number">200</span>, <span class="hljs-number">250</span>));
+        g.fillRect(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, width, height);
+        g.setFont(<span class="hljs-keyword">new</span> Font(<span class="hljs-string">"Times New Roman"</span>, Font.ITALIC, <span class="hljs-number">20</span>));
+        g.setColor(getRandColor(<span class="hljs-number">160</span>, <span class="hljs-number">200</span>));
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">155</span>; i++) &#123;
+            <span class="hljs-keyword">int</span> x = random.nextInt(width);
+            <span class="hljs-keyword">int</span> y = random.nextInt(height);
+            <span class="hljs-keyword">int</span> xl = random.nextInt(<span class="hljs-number">12</span>);
+            <span class="hljs-keyword">int</span> yl = random.nextInt(<span class="hljs-number">12</span>);
+            g.drawLine(x, y, x + xl, y + yl);
+        &#125;
+
+        String sRand = <span class="hljs-string">""</span>;
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; securityProperties.getCode().getImage().getLength(); i++) &#123;
+            String rand = String.valueOf(random.nextInt(<span class="hljs-number">10</span>));
+            sRand += rand;
+            g.setColor(<span class="hljs-keyword">new</span> Color(<span class="hljs-number">20</span> + random.nextInt(<span class="hljs-number">110</span>), <span class="hljs-number">20</span> + random.nextInt(<span class="hljs-number">110</span>), <span class="hljs-number">20</span> + random.nextInt(<span class="hljs-number">110</span>)));
+            g.drawString(rand, <span class="hljs-number">13</span> * i + <span class="hljs-number">6</span>, <span class="hljs-number">16</span>);
+        &#125;
+
+        g.dispose();
+
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> ImageCodeDTO(image,sRand, securityProperties.getCode().getImage().getExpireIn());
+
+    &#125;
+
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 生成随机背景条纹</span>
+<span class="hljs-comment">     *</span>
+<span class="hljs-comment">     * <span class="hljs-doctag">@param</span> fc</span>
+<span class="hljs-comment">     * <span class="hljs-doctag">@param</span> bc</span>
+<span class="hljs-comment">     * <span class="hljs-doctag">@return</span></span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-function"><span class="hljs-keyword">private</span> Color <span class="hljs-title">getRandColor</span><span class="hljs-params">(<span class="hljs-keyword">int</span> fc, <span class="hljs-keyword">int</span> bc)</span> </span>&#123;
+        Random random = <span class="hljs-keyword">new</span> Random();
+        <span class="hljs-keyword">if</span> (fc &gt; <span class="hljs-number">255</span>) &#123;
+            fc = <span class="hljs-number">255</span>;
+        &#125;
+        <span class="hljs-keyword">if</span> (bc &gt; <span class="hljs-number">255</span>) &#123;
+            bc = <span class="hljs-number">255</span>;
+        &#125;
+        <span class="hljs-keyword">int</span> r = fc + random.nextInt(bc - fc);
+        <span class="hljs-keyword">int</span> g = fc + random.nextInt(bc - fc);
+        <span class="hljs-keyword">int</span> b = fc + random.nextInt(bc - fc);
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Color(r, g, b);
+    &#125;
+&#125;</code></pre>
+
+<p>编写一个配置类，判断使用者是否自己实现了ValidateCodeGenerator类并放入IOC中，是：就用他自己的，否：用我们默认提供的</p>
+<p>ValidateCodeBeanConfig</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.demo.core.validate.code;
+
+<span class="hljs-keyword">import</span> com.b4.demo.core.properties.SecurityProperties;
+<span class="hljs-keyword">import</span> com.b4.demo.core.validate.code.image.ImageValidateCodeGenerator;
+<span class="hljs-keyword">import</span> lombok.AllArgsConstructor;
+<span class="hljs-keyword">import</span> org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+<span class="hljs-keyword">import</span> org.springframework.context.annotation.Bean;
+<span class="hljs-keyword">import</span> org.springframework.context.annotation.Configuration;
+
+<span class="hljs-meta">@Configuration</span>
+<span class="hljs-meta">@AllArgsConstructor</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ValidateCodeBeanConfig</span> </span>&#123;
+    <span class="hljs-keyword">private</span> SecurityProperties securityProperties;
+
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-meta">@ConditionalOnMissingBean</span>(name = <span class="hljs-string">"imageValidateCodeGenerator"</span>)
+    <span class="hljs-function"><span class="hljs-keyword">public</span> ValidateCodeGenerator <span class="hljs-title">imageValidateCodeGenerator</span><span class="hljs-params">()</span> </span>&#123;
+        ImageValidateCodeGenerator imageValidateCodeGenerator = <span class="hljs-keyword">new</span> ImageValidateCodeGenerator();
+        imageValidateCodeGenerator.setSecurityProperties(securityProperties);
+        <span class="hljs-keyword">return</span> imageValidateCodeGenerator;
+    &#125;
+
+&#125;</code></pre>
+
+<p>ValidateCodeController#imageCreateCode：</p>
+<pre><code class="hljs java"><span class="hljs-meta">@Resource</span>
+    <span class="hljs-keyword">private</span> ValidateCodeGenerator imageValidateCodeGenerator;
+
+    <span class="hljs-meta">@GetMapping</span>(<span class="hljs-string">"/image"</span>)
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">imageCreateCode</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="hljs-keyword">throws</span> IOException </span>&#123;
+        <span class="hljs-comment">//1：根据随机数生成图片</span>
+        ImageCodeDTO imageCodeDTO = (ImageCodeDTO) imageValidateCodeGenerator.generate(<span class="hljs-keyword">new</span> ServletWebRequest(request));
+        <span class="hljs-comment">//2：将图片放入session中</span>
+        sessionStrategy.setAttribute(<span class="hljs-keyword">new</span> ServletWebRequest(request), SESSION_KEY + <span class="hljs-string">"/image"</span>, imageCodeDTO);
+        <span class="hljs-comment">//3：将生成的图片写入接口的响应中</span>
+        ImageIO.write(imageCodeDTO.getImage(), <span class="hljs-string">"JPEG"</span>, response.getOutputStream());
+
+    &#125;</code></pre>
+
+<p>前面实现了通过<code>SmsValidateCodeFilter</code>来拦截登录请求，在某些业务场景，可能还需要拦截其他的地址，这里的地址是可变的，下面我就来满足这个业务需求</p>
+<p>ImageCodeProperties在加入url属性</p>
+<pre><code class="hljs java"><span class="hljs-keyword">private</span> String url;</code></pre>
+
+<p>ImageValidateCodeFilter：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.mcr.s.auth.core.validate.code.image;
+
+
+<span class="hljs-meta">@Data</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ImageValidateCodeFilter</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">OncePerRequestFilter</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">InitializingBean</span> </span>&#123;
+    <span class="hljs-keyword">private</span> AuthenticationFailureHandler authenticationFailureHandler;
+    <span class="hljs-keyword">private</span> SessionStrategy sessionStrategy = <span class="hljs-keyword">new</span> HttpSessionSessionStrategy();
+    <span class="hljs-comment">//配置文件中配置的需要验证码的拦截路径</span>
+    <span class="hljs-keyword">private</span> Set&lt;String&gt; urls = <span class="hljs-keyword">new</span> HashSet&lt;&gt;();
+
+    <span class="hljs-keyword">private</span> SecurityProperties securityProperties;
+
+    <span class="hljs-keyword">private</span> AntPathMatcher pathMatcher = <span class="hljs-keyword">new</span> AntPathMatcher();
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">afterPropertiesSet</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> ServletException </span>&#123;
+        <span class="hljs-keyword">super</span>.afterPropertiesSet();
+
+        String[] configUrls = <span class="hljs-keyword">null</span>;
+        <span class="hljs-keyword">if</span> (securityProperties.getCode().getImage().getUrl() != <span class="hljs-keyword">null</span>) &#123;
+            configUrls = StringUtils.splitByWholeSeparatorPreserveAllTokens(securityProperties.getCode().getImage().getUrl(), <span class="hljs-string">","</span>);
+        &#125;
+        <span class="hljs-keyword">if</span> (configUrls != <span class="hljs-keyword">null</span>) &#123;
+            urls.addAll(Arrays.asList(configUrls));
+        &#125;
+
+        urls.add(<span class="hljs-string">"/authentication/form"</span>);
+    &#125;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">doFilterInternal</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)</span></span>
+<span class="hljs-function">            <span class="hljs-keyword">throws</span> ServletException, IOException </span>&#123;
+        <span class="hljs-keyword">boolean</span> action = <span class="hljs-keyword">false</span>;
+        <span class="hljs-keyword">for</span> (String url : urls) &#123;
+            <span class="hljs-keyword">if</span> (pathMatcher.match(url, request.getRequestURI())) &#123;
+                action = <span class="hljs-keyword">true</span>;
+                <span class="hljs-keyword">break</span>;
+            &#125;
+        &#125;
+
+
+        <span class="hljs-keyword">if</span> (action) &#123;
+            <span class="hljs-keyword">try</span> &#123;
+                validate(<span class="hljs-keyword">new</span> ServletWebRequest(request));
+            &#125; <span class="hljs-keyword">catch</span> (ValidateCodeException e) &#123;
+                authenticationFailureHandler.onAuthenticationFailure(request, response, e);
+                <span class="hljs-keyword">return</span>;
+            &#125;
+
+        &#125;
+        filterChain.doFilter(request, response);
+
+    &#125;
+
+    <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">validate</span><span class="hljs-params">(ServletWebRequest request)</span> <span class="hljs-keyword">throws</span> ServletRequestBindingException </span>&#123;
+        ImageCodeDTO codeInSession = (ImageCodeDTO) sessionStrategy.getAttribute(request,
+                ValidateCodeController.SESSION_KEY + <span class="hljs-string">"/image"</span>);
+        String codeInRequest = ServletRequestUtils.getStringParameter(request.getRequest(), <span class="hljs-string">"imageCode"</span>);
+        <span class="hljs-keyword">if</span> (StringUtils.isBlank(codeInRequest)) &#123;
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> ValidateCodeException(<span class="hljs-string">"验证码的值不能为空"</span>);
+        &#125;
+        <span class="hljs-keyword">if</span> (codeInSession == <span class="hljs-keyword">null</span>) &#123;
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> ValidateCodeException(<span class="hljs-string">"验证码不存在"</span>);
+        &#125;
+        <span class="hljs-keyword">if</span> (codeInSession.isExpired()) &#123;
+            sessionStrategy.removeAttribute(request, ValidateCodeController.SESSION_KEY);
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> ValidateCodeException(<span class="hljs-string">"验证码已过期"</span>);
+        &#125;
+        <span class="hljs-keyword">if</span> (!StringUtils.equals(codeInSession.getCode(), codeInRequest)) &#123;
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> ValidateCodeException(<span class="hljs-string">"验证码不匹配"</span>);
+        &#125;
+        sessionStrategy.removeAttribute(request, ValidateCodeController.SESSION_KEY);
+    &#125;
+&#125;</code></pre>
+
+<p>BrowserSecurityConfig#configure</p>
+<pre><code class="hljs java">    imageValidateCodeFilter.setSecurityProperties(security);
+imageValidateCodeFilter.afterPropertiesSet();</code></pre>
+
+<h2 id="手机验证码"><a href="#手机验证码" class="headerlink" title="手机验证码"></a>手机验证码</h2><p>现在使用者希望生成的短信验证码是6位数，我们之前因为给的是一个无法修改的长度，使用者来说是无法修改的，这些进行重构</p>
+<hr>
+<p>在这里开始之前，来看看以UML图：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567164661098.png" srcset="/img/loading.gif" alt="1567164661098"></p>
+<p>这里可以看到<code>SmsCodeDTO</code>和<code>ImageCodeDTO</code>的属性有3个是相同的，这里可以通过继承关系来减少代码，<code>ImageCodeDTO</code>继承<code>SmsCodeDTO</code>就OK了，这里将<code>SmsCodeDTO</code>的名字修改为<code>ValidateCodeDTO</code>，这样才更像一个父类；</p>
+<p>ImageCodeDTO</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.model.dto;
+<span class="hljs-meta">@Data</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ImageCodeDTO</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">ValidateCodeDTO</span> </span>&#123;
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 图片</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-keyword">private</span> BufferedImage image;
+
+
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">ImageCodeDTO</span><span class="hljs-params">(BufferedImage image, String code, <span class="hljs-keyword">int</span> expireAfterSeconds)</span> </span>&#123;
+        <span class="hljs-keyword">super</span>(code, expireAfterSeconds);
+        <span class="hljs-keyword">this</span>.image = image;
+    &#125;
+
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">ImageCodeDTO</span><span class="hljs-params">(BufferedImage image, String code, LocalDateTime expireTime)</span> </span>&#123;
+        <span class="hljs-keyword">super</span>(code, expireTime);
+        <span class="hljs-keyword">this</span>.image = image;
+    &#125;
+
+
+&#125;</code></pre>
+
+<p>ValidateCodeGenerator</p>
+<blockquote>
+<p>返回类型改为ValidateCodeDTO</p>
+</blockquote>
+<pre><code class="hljs java"><span class="hljs-function">ValidateCodeDTO <span class="hljs-title">generate</span><span class="hljs-params">(ServletWebRequest request)</span></span>;</code></pre>
+
+<p>如果使用者想把手机验证码的长度进行修改，这样的需求是无法实现的，因为我们这里的长度是写死的，然后假设我之前的的短信使用的是腾讯的短信服务，而使用者喜欢用阿里云的，但是没法改就只能含泪使用腾讯的了，这里就来重构这些的代码吧，让它变为可变的</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.properties;
+
+<span class="hljs-keyword">import</span> lombok.Data;
+
+<span class="hljs-meta">@Data</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SmsCodeProperties</span> </span>&#123;
+    <span class="hljs-comment">/*</span>
+<span class="hljs-comment">     * 长度</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> length = <span class="hljs-number">6</span>;
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 过期秒数 默认3分钟</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> expireIn = <span class="hljs-number">180</span>;
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 拦截的请求</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-keyword">private</span> String url;
+
+&#125;</code></pre>
+
+<p>这里会想到ImageCodeProperties和SmsCodeProperties的属性很多都一样，这里也用继承关系来简化</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.properties;
+
+<span class="hljs-keyword">import</span> lombok.Data;
+
+<span class="hljs-meta">@Data</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ImageCodeProperties</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">SmsCodeProperties</span> </span>&#123;
+
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> width = <span class="hljs-number">67</span>;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> height = <span class="hljs-number">23</span>;
+
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">ImageCodeProperties</span><span class="hljs-params">()</span> </span>&#123;
+        setLength(<span class="hljs-number">4</span>);
+    &#125;
+&#125;</code></pre>
+
+<p>ValidateCodeProperties</p>
+<pre><code class="hljs java"><span class="hljs-keyword">private</span> SmsCodeProperties sms = <span class="hljs-keyword">new</span> SmsCodeProperties();</code></pre>
+
+<p>定义一个发送器接口：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.validate.code.sms;
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">SmsCodeSender</span> </span>&#123;
+	
+	<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">send</span><span class="hljs-params">(String mobile, String code)</span></span>;
+
+&#125;</code></pre>
+
+<p>发送接口默认实现类：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.validate.code.sms;
+
+<span class="hljs-keyword">import</span> lombok.extern.slf4j.Slf4j;
+
+<span class="hljs-meta">@Slf</span>4j
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">DefaultSmsCodeSender</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">SmsCodeSender</span> </span>&#123;
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">send</span><span class="hljs-params">(String mobile, String code)</span> </span>&#123;
+        log.info(<span class="hljs-string">"腾讯云服务向手机-&gt;&#123;&#125;发送短信验证码-&gt;&#123;&#125;"</span>, mobile, code);
+    &#125;
+&#125;</code></pre>
+
+<p>ValidateCodeBeanConfig</p>
+<pre><code class="hljs java"><span class="hljs-meta">@Bean</span>
+	<span class="hljs-meta">@ConditionalOnMissingBean</span>(SmsCodeSender<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>
+<span class="hljs-class">	<span class="hljs-title">public</span> <span class="hljs-title">SmsCodeSender</span> <span class="hljs-title">smsCodeSender</span>() </span>&#123;
+		<span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> DefaultSmsCodeSender();
+	&#125;</code></pre>
+
+<p>如果用户没有实现SmsCodeSender的类，就使用我提供的DefaultSmsCodeSender，也就是腾讯服务</p>
+<hr>
+<p>SmsValidateCodeGenerator</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.validate.code.sms;
+<span class="hljs-meta">@Component</span>(<span class="hljs-string">"smsValidateCodeGenerator"</span>)
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SmsValidateCodeGenerator</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">ValidateCodeGenerator</span> </span>&#123;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> SecurityProperties securityProperties;
+
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> ValidateCodeDTO <span class="hljs-title">generate</span><span class="hljs-params">(ServletWebRequest request)</span> </span>&#123;
+        String code = RandomStringUtils.randomNumeric(securityProperties.getCode().getSms().getLength());
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> ValidateCodeDTO(code, securityProperties.getCode().getSms().getExpireIn());
+    &#125;
+&#125;</code></pre>
+
+<p>ValidateCodeController：</p>
+<pre><code class="hljs java"><span class="hljs-meta">@Resource</span>
+  <span class="hljs-keyword">private</span> ValidateCodeGenerator smsValidateCodeGenerator;
+  <span class="hljs-meta">@Resource</span>
+  <span class="hljs-keyword">private</span> SmsCodeSender smsCodeSender;
+
+  <span class="hljs-comment">/**</span>
+<span class="hljs-comment">   * 获取图片验证码</span>
+<span class="hljs-comment">   */</span>
+  <span class="hljs-meta">@GetMapping</span>(<span class="hljs-string">"/sms"</span>)
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">createSms</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="hljs-keyword">throws</span> IOException, ServletRequestBindingException </span>&#123;
+      log.info(<span class="hljs-string">"获取短信验证码"</span>);
+      <span class="hljs-comment">//1.获取短信验证码</span>
+      ValidateCodeDTO validateCodeDTO = smsValidateCodeGenerator.generate(<span class="hljs-keyword">new</span> ServletWebRequest(request, response));
+      <span class="hljs-comment">//2.保存到session中</span>
+      sessionStrategy.setAttribute(<span class="hljs-keyword">new</span> ServletWebRequest(request), SESSION_KEY + <span class="hljs-string">"/sms"</span>, validateCodeDTO);
+      <span class="hljs-comment">//3.发送</span>
+      String mobile = ServletRequestUtils.getRequiredStringParameter(request, <span class="hljs-string">"mobile"</span>);
+      smsCodeSender.send(mobile, validateCodeDTO.getCode());
+  &#125;</code></pre>
+
+<h2 id="硬字符串重构"><a href="#硬字符串重构" class="headerlink" title="硬字符串重构"></a>硬字符串重构</h2><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.properties;
+
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">SecurityConstants</span> </span>&#123;
+
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 默认的处理验证码的url前缀</span>
+<span class="hljs-comment">     */</span>
+    String DEFAULT_VALIDATE_CODE_URL_PREFIX = <span class="hljs-string">"/code"</span>;
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 当请求需要身份认证时，默认跳转的url</span>
+<span class="hljs-comment">     */</span>
+    String DEFAULT_UNAUTHENTICATED_URL = <span class="hljs-string">"/authentication/require"</span>;
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 默认的用户名密码登录请求处理url</span>
+<span class="hljs-comment">     */</span>
+    String DEFAULT_LOGIN_PROCESSING_URL_FORM = <span class="hljs-string">"/authentication/form"</span>;
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 默认的手机验证码登录请求处理url</span>
+<span class="hljs-comment">     */</span>
+    String DEFAULT_LOGIN_PROCESSING_URL_MOBILE = <span class="hljs-string">"/authentication/mobile"</span>;
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 默认登录页面</span>
+<span class="hljs-comment">     */</span>
+    String DEFAULT_LOGIN_PAGE_URL = <span class="hljs-string">"/mcr-login.html"</span>;
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 验证图片验证码时，http请求中默认的携带图片验证码信息的参数的名称</span>
+<span class="hljs-comment">     */</span>
+    String DEFAULT_PARAMETER_NAME_CODE_IMAGE = <span class="hljs-string">"imageCode"</span>;
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 验证短信验证码时，http请求中默认的携带短信验证码信息的参数的名称</span>
+<span class="hljs-comment">     */</span>
+    String DEFAULT_PARAMETER_NAME_CODE_SMS = <span class="hljs-string">"smsCode"</span>;
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 发送短信验证码 或 验证短信验证码时，传递手机号的参数的名称</span>
+<span class="hljs-comment">     */</span>
+    String DEFAULT_PARAMETER_NAME_MOBILE = <span class="hljs-string">"mobile"</span>;
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * session失效默认的跳转地址</span>
+<span class="hljs-comment">     */</span>
+    String DEFAULT_SESSION_INVALID_URL = <span class="hljs-string">"/session/invalid"</span>;
+
+&#125;</code></pre>
+
+<p>BrowserSecurityProperties</p>
+<pre><code class="hljs java"><span class="hljs-keyword">private</span> String loginUrl = SecurityConstants.DEFAULT_LOGIN_PAGE_URL;</code></pre>
+
+<p>BrowserSecurityConfig</p>
+<pre><code class="hljs java">		
+            .loginPage(SecurityConstants.DEFAULT_UNAUTHENTICATED_URL)
+            	   	.loginProcessingUrl(SecurityConstants.DEFAULT_LOGIN_PROCESSING_URL_FORM)
+              
+            SecurityConstants.DEFAULT_UNAUTHENTICATED_URL, SecurityConstants.DEFAULT_VALIDATE_CODE_URL_PREFIX + <span class="hljs-string">"/*"</span>)
+           
+&#125;</code></pre>
+
+<p>SmsValidateCodeFilter</p>
+<pre><code class="hljs java"><span class="hljs-keyword">if</span> (request.getRequestURI().equals(SecurityConstants.DEFAULT_LOGIN_PROCESSING_URL_MOBILE)</code></pre>
+
+<p>SmsCodeAuthenticationFilter</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">SmsCodeAuthenticationFilter</span><span class="hljs-params">()</span> </span>&#123;
+		<span class="hljs-keyword">super</span>(<span class="hljs-keyword">new</span> AntPathRequestMatcher(SecurityConstants.DEFAULT_LOGIN_PROCESSING_URL_MOBILE, <span class="hljs-string">"POST"</span>));
+	&#125;</code></pre>
+
+<p>ImageValidateCodeFilter：</p>
+<pre><code class="hljs java">String codeInRequest = ServletRequestUtils.getStringParameter(request.getRequest(), SecurityConstants.DEFAULT_PARAMETER_NAME_CODE_IMAGE);</code></pre>
+
+<p>SmsValidateCodeFilter</p>
+<pre><code class="hljs java">String codeInRequest = ServletRequestUtils.getStringParameter(request.getRequest(), SecurityConstants.DEFAULT_PARAMETER_NAME_CODE_SMS);</code></pre>
+
+<p>ValidateCodeController</p>
+<pre><code class="hljs java">String mobile = ServletRequestUtils.getRequiredStringParameter(request, SecurityConstants.DEFAULT_PARAMETER_NAME_MOBILE);</code></pre>
+
+<h2 id="验证码读写重构"><a href="#验证码读写重构" class="headerlink" title="验证码读写重构"></a>验证码读写重构</h2><p>通过以上的重构，是不是发现,手机验证码和图片验证码的生成逻辑非常得相似：</p>
+<ol>
+<li>生成验证码，放入session</li>
+<li>用户登录时，拿出来进行对比</li>
+</ol>
+<p>这里定义一个枚举单例工厂</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.validate.code;
+
+
+<span class="hljs-keyword">import</span> com.b4.mcr.auth.core.properties.SecurityConstants;
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">enum</span> ValidateCodeType &#123;
+	
+	<span class="hljs-comment">/**</span>
+<span class="hljs-comment">	 * 短信验证码</span>
+<span class="hljs-comment">	 */</span>
+	SMS &#123;
+		<span class="hljs-meta">@Override</span>
+		<span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">getParamNameOnValidate</span><span class="hljs-params">()</span> </span>&#123;
+			<span class="hljs-keyword">return</span> SecurityConstants.DEFAULT_PARAMETER_NAME_CODE_SMS;
+		&#125;
+	&#125;,
+	<span class="hljs-comment">/**</span>
+<span class="hljs-comment">	 * 图片验证码</span>
+<span class="hljs-comment">	 */</span>
+	IMAGE &#123;
+		<span class="hljs-meta">@Override</span>
+		<span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">getParamNameOnValidate</span><span class="hljs-params">()</span> </span>&#123;
+			<span class="hljs-keyword">return</span> SecurityConstants.DEFAULT_PARAMETER_NAME_CODE_IMAGE;
+		&#125;
+	&#125;;
+
+	<span class="hljs-comment">/**</span>
+<span class="hljs-comment">	 * 校验时从请求中获取的参数的名字</span>
+<span class="hljs-comment">	 */</span>
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">abstract</span> String <span class="hljs-title">getParamNameOnValidate</span><span class="hljs-params">()</span></span>;
+
+&#125;</code></pre>
+
+<p>这里定义一个发送器接口，里面有2个方法，create：创建验证码并将验证码保存到session中，然后响应给前端，validate：效验用户填写的信息是否和session中一样</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.validate.code;
+
+<span class="hljs-keyword">import</span> org.springframework.web.context.request.ServletWebRequest;
+
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * 校验码处理器，封装不同校验码的处理逻辑</span>
+<span class="hljs-comment"> * </span>
+<span class="hljs-comment"> *</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">ValidateCodeProcessor</span> </span>&#123;
+
+	<span class="hljs-comment">/**</span>
+<span class="hljs-comment">	 * 验证码放入session时的前缀</span>
+<span class="hljs-comment">	 */</span>
+	String SESSION_KEY_PREFIX = <span class="hljs-string">"SESSION_KEY_FOR_CODE_"</span>;
+
+	<span class="hljs-comment">/**</span>
+<span class="hljs-comment">	 * 创建校验码</span>
+<span class="hljs-comment">	 * </span>
+<span class="hljs-comment">	 */</span>
+	<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">create</span><span class="hljs-params">(ServletWebRequest request)</span> <span class="hljs-keyword">throws</span> Exception</span>;
+
+	<span class="hljs-comment">/**</span>
+<span class="hljs-comment">	 * 校验验证码</span>
+<span class="hljs-comment">	 * </span>
+<span class="hljs-comment">	 */</span>
+	<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">validate</span><span class="hljs-params">(ServletWebRequest servletWebRequest)</span></span>;
+
+&#125;</code></pre>
+
+<p>发送器接口的抽象实现类：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.validate.code;
+
+
+<span class="hljs-keyword">import</span> org.apache.commons.lang.StringUtils;
+<span class="hljs-keyword">import</span> org.springframework.beans.factory.annotation.Autowired;
+<span class="hljs-keyword">import</span> org.springframework.social.connect.web.HttpSessionSessionStrategy;
+<span class="hljs-keyword">import</span> org.springframework.social.connect.web.SessionStrategy;
+<span class="hljs-keyword">import</span> org.springframework.web.bind.ServletRequestBindingException;
+<span class="hljs-keyword">import</span> org.springframework.web.bind.ServletRequestUtils;
+<span class="hljs-keyword">import</span> org.springframework.web.context.request.ServletWebRequest;
+
+<span class="hljs-keyword">import</span> java.util.Map;
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">abstract</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AbstractValidateCodeProcessor</span>&lt;<span class="hljs-title">C</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">ValidateCodeDTO</span>&gt; <span class="hljs-keyword">implements</span> <span class="hljs-title">ValidateCodeProcessor</span> </span>&#123;
+
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 操作session的工具类</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-keyword">private</span> SessionStrategy sessionStrategy = <span class="hljs-keyword">new</span> HttpSessionSessionStrategy();
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 收集系统中所有的 &#123;<span class="hljs-doctag">@link</span> ValidateCodeGenerator&#125; 接口的实现。</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> Map&lt;String, ValidateCodeGenerator&gt; validateCodeGenerators;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">create</span><span class="hljs-params">(ServletWebRequest request)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+        C validateCode = generate(request);
+        save(request, validateCode);
+        send(request, validateCode);
+    &#125;
+
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 生成校验码</span>
+<span class="hljs-comment">     *</span>
+<span class="hljs-comment">     * <span class="hljs-doctag">@param</span> request</span>
+<span class="hljs-comment">     * <span class="hljs-doctag">@return</span></span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-function"><span class="hljs-keyword">private</span> C <span class="hljs-title">generate</span><span class="hljs-params">(ServletWebRequest request)</span> </span>&#123;
+        String type = getValidateCodeType().toString().toLowerCase();
+        String generatorName = type + ValidateCodeGenerator<span class="hljs-class">.<span class="hljs-keyword">class</span>.<span class="hljs-title">getSimpleName</span>()</span>;
+<span class="hljs-comment">//                String generatorName = type + StringUtils.substringAfter(ValidateCodeGenerator.class.getSimpleName(), "Validate");</span>
+
+        ValidateCodeGenerator validateCodeGenerator = validateCodeGenerators.get(generatorName);
+        <span class="hljs-keyword">if</span> (validateCodeGenerator == <span class="hljs-keyword">null</span>) &#123;
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> ValidateCodeException(<span class="hljs-string">"验证码生成器"</span> + generatorName + <span class="hljs-string">"不存在"</span>);
+        &#125;
+        <span class="hljs-keyword">return</span> (C) validateCodeGenerator.generate(request);
+    &#125;
+
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 保存校验码</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">save</span><span class="hljs-params">(ServletWebRequest request, C validateCode)</span> </span>&#123;
+        sessionStrategy.setAttribute(request, getSessionKey(), validateCode);
+    &#125;
+
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 构建验证码放入session时的key</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-function"><span class="hljs-keyword">private</span> String <span class="hljs-title">getSessionKey</span><span class="hljs-params">()</span> </span>&#123;
+        <span class="hljs-keyword">return</span> SESSION_KEY_PREFIX + getValidateCodeType().toString().toUpperCase();
+    &#125;
+
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 根据请求的url获取校验码的类型</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-function"><span class="hljs-keyword">private</span> ValidateCodeType <span class="hljs-title">getValidateCodeType</span><span class="hljs-params">()</span> </span>&#123;
+        String type = StringUtils.substringBefore(getClass().getSimpleName(), <span class="hljs-string">"ValidateCodeProcessor"</span>);
+        <span class="hljs-keyword">return</span> ValidateCodeType.valueOf(type.toUpperCase());
+    &#125;
+
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 发送校验码，由子类实现</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">abstract</span> <span class="hljs-keyword">void</span> <span class="hljs-title">send</span><span class="hljs-params">(ServletWebRequest request, C validateCode)</span> <span class="hljs-keyword">throws</span> Exception</span>;
+
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">validate</span><span class="hljs-params">(ServletWebRequest request)</span> </span>&#123;
+
+        ValidateCodeType processorType = getValidateCodeType();
+        String sessionKey = getSessionKey();
+
+        C codeInSession = (C) sessionStrategy.getAttribute(request, sessionKey);
+
+        String codeInRequest;
+        <span class="hljs-keyword">try</span> &#123;
+            codeInRequest = ServletRequestUtils.getStringParameter(request.getRequest(),
+                    processorType.getParamNameOnValidate());
+        &#125; <span class="hljs-keyword">catch</span> (ServletRequestBindingException e) &#123;
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> ValidateCodeException(<span class="hljs-string">"获取验证码的值失败"</span>);
+        &#125;
+
+        <span class="hljs-keyword">if</span> (StringUtils.isBlank(codeInRequest)) &#123;
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> ValidateCodeException(processorType + <span class="hljs-string">"验证码的值不能为空"</span>);
+        &#125;
+
+        <span class="hljs-keyword">if</span> (codeInSession == <span class="hljs-keyword">null</span>) &#123;
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> ValidateCodeException(processorType + <span class="hljs-string">"验证码不存在"</span>);
+        &#125;
+
+        <span class="hljs-keyword">if</span> (codeInSession.isExpired()) &#123;
+            sessionStrategy.removeAttribute(request, sessionKey);
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> ValidateCodeException(processorType + <span class="hljs-string">"验证码已过期"</span>);
+        &#125;
+
+        <span class="hljs-keyword">if</span> (!StringUtils.equals(codeInSession.getCode(), codeInRequest)) &#123;
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> ValidateCodeException(processorType + <span class="hljs-string">"验证码不匹配"</span>);
+        &#125;
+
+        sessionStrategy.removeAttribute(request, sessionKey);
+    &#125;
+
+&#125;</code></pre>
+
+
+
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.validate.code.image;
+
+
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * 图片验证码处理器</span>
+<span class="hljs-comment"> *</span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@author</span> zhailiang</span>
+<span class="hljs-comment"> *</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-meta">@Component</span>(<span class="hljs-string">"imageValidateCodeProcessor"</span>)
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ImageValidateCodeProcessor</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">AbstractValidateCodeProcessor</span>&lt;<span class="hljs-title">ImageCodeDTO</span>&gt; </span>&#123;
+
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 发送图形验证码，将其写到响应中</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">send</span><span class="hljs-params">(ServletWebRequest request, ImageCodeDTO imageCode)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+        ImageIO.write(imageCode.getImage(), <span class="hljs-string">"JPEG"</span>, request.getResponse().getOutputStream());
+    &#125;
+
+&#125;</code></pre>
+
+
+
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.validate.code.sms;
+
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * 短信验证码处理器</span>
+<span class="hljs-comment"> *</span>
+<span class="hljs-comment"> *</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-meta">@Component</span>(<span class="hljs-string">"smsValidateCodeProcessor"</span>)
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SmsValidateCodeProcessor</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">AbstractValidateCodeProcessor</span>&lt;<span class="hljs-title">ValidateCodeDTO</span>&gt; </span>&#123;
+
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 短信验证码发送器</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> SmsCodeSender smsCodeSender;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">send</span><span class="hljs-params">(ServletWebRequest request, ValidateCodeDTO validateCode)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+        String paramName = SecurityConstants.DEFAULT_PARAMETER_NAME_MOBILE;
+        String mobile = ServletRequestUtils.getRequiredStringParameter(request.getRequest(), paramName);
+        smsCodeSender.send(mobile, validateCode.getCode());
+    &#125;
+
+&#125;</code></pre>
+
+<p>那么controller中要如何使用呢？写2个方法？这里用这么一个办法，只需要编写一个方法就搞定了,</p>
+<p>首先这里的findValidateCodeProcessor方法通过不同的type来从validateCodeProcessors成员变量中拿取不同的ValidateCodeProcessor实现。这里使用了容器单例模式</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.validate.code;
+
+<span class="hljs-keyword">import</span> java.util.Map;
+
+<span class="hljs-keyword">import</span> org.springframework.beans.factory.annotation.Autowired;
+<span class="hljs-keyword">import</span> org.springframework.stereotype.Component;
+
+<span class="hljs-meta">@Component</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ValidateCodeProcessorHolder</span> </span>&#123;
+
+	<span class="hljs-meta">@Autowired</span>
+	<span class="hljs-keyword">private</span> Map&lt;String, ValidateCodeProcessor&gt; validateCodeProcessors;
+
+	<span class="hljs-function"><span class="hljs-keyword">public</span> ValidateCodeProcessor <span class="hljs-title">findValidateCodeProcessor</span><span class="hljs-params">(ValidateCodeType type)</span> </span>&#123;
+		<span class="hljs-keyword">return</span> findValidateCodeProcessor(type.toString().toLowerCase());
+	&#125;
+
+	<span class="hljs-function"><span class="hljs-keyword">public</span> ValidateCodeProcessor <span class="hljs-title">findValidateCodeProcessor</span><span class="hljs-params">(String type)</span> </span>&#123;
+		String name = type.toLowerCase() + ValidateCodeProcessor<span class="hljs-class">.<span class="hljs-keyword">class</span>.<span class="hljs-title">getSimpleName</span>()</span>;
+		ValidateCodeProcessor processor = validateCodeProcessors.get(name);
+		<span class="hljs-keyword">if</span> (processor == <span class="hljs-keyword">null</span>) &#123;
+			<span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> ValidateCodeException(<span class="hljs-string">"验证码处理器"</span> + name + <span class="hljs-string">"不存在"</span>);
+		&#125;
+		<span class="hljs-keyword">return</span> processor;
+	&#125;
+
+&#125;</code></pre>
+
+<p>获取图片验证码的请求：<code>/code/image</code>，发送短信验证码的请求：<code>/code/sms</code>，这里会给到type参数上，然后交给<code>validateCodeProcessorHolder#findValidateCodeProcessor</code>，获取对应的<code>ValidateCodeProcessor</code>实现，调用它2的create方法，而它两的create方法是父类<code>AbstractValidateCodeProcessor</code>的，那么就会调用<code>generate</code>方法生成验证码，然后通过<code>save</code>保存到<code>session</code>中，最后调用<code>send</code>方法发送出去</p>
+<p>ValidateCodeController</p>
+<pre><code class="hljs java"><span class="hljs-meta">@Resource</span>
+   <span class="hljs-keyword">private</span> ValidateCodeProcessorHolder validateCodeProcessorHolder;
+
+   <span class="hljs-comment">/**</span>
+<span class="hljs-comment">    * 创建验证码，根据验证码类型不同，调用不同的 &#123;<span class="hljs-doctag">@link</span> ValidateCodeProcessor&#125;接口实现</span>
+<span class="hljs-comment">    */</span>
+   <span class="hljs-meta">@GetMapping</span>(<span class="hljs-string">"/&#123;type&#125;"</span>)
+   <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">createCode</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response, @PathVariable String type)</span></span>
+<span class="hljs-function">           <span class="hljs-keyword">throws</span> Exception </span>&#123;
+       validateCodeProcessorHolder.findValidateCodeProcessor(type).create(<span class="hljs-keyword">new</span> ServletWebRequest(request, response));
+   &#125;</code></pre>
+
+<p>ValidateCodeFilter，将2个校验过滤器结合起来，其他2个可以删除掉了</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.validate.code;
+<span class="hljs-meta">@Component</span>(<span class="hljs-string">"validateCodeFilter"</span>)
+<span class="hljs-meta">@AllArgsConstructor</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ValidateCodeFilter</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">OncePerRequestFilter</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">InitializingBean</span> </span>&#123;
+
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 验证码校验失败处理器</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-keyword">private</span> AuthenticationFailureHandler authenticationFailureHandler;
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 系统配置信息</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-keyword">private</span> SecurityProperties securityProperties;
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 系统中的校验码处理器</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-keyword">private</span> ValidateCodeProcessorHolder validateCodeProcessorHolder;
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 存放所有需要校验验证码的url</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;String, ValidateCodeType&gt; urlMap = <span class="hljs-keyword">new</span> HashMap&lt;&gt;();
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 验证请求url与配置的url是否匹配的工具类</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> AntPathMatcher pathMatcher = <span class="hljs-keyword">new</span> AntPathMatcher();
+
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 初始化要拦截的url配置信息</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">afterPropertiesSet</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> ServletException </span>&#123;
+        <span class="hljs-keyword">super</span>.afterPropertiesSet();
+
+        urlMap.put(SecurityConstants.DEFAULT_LOGIN_PROCESSING_URL_FORM, ValidateCodeType.IMAGE);
+        addUrlToMap(securityProperties.getCode().getImage().getUrl(), ValidateCodeType.IMAGE);
+
+        urlMap.put(SecurityConstants.DEFAULT_LOGIN_PROCESSING_URL_MOBILE, ValidateCodeType.SMS);
+        addUrlToMap(securityProperties.getCode().getSms().getUrl(), ValidateCodeType.SMS);
+    &#125;
+
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 讲系统中配置的需要校验验证码的URL根据校验的类型放入map</span>
+<span class="hljs-comment">     *</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">addUrlToMap</span><span class="hljs-params">(String urlString, ValidateCodeType type)</span> </span>&#123;
+        <span class="hljs-keyword">if</span> (StringUtils.isNotBlank(urlString)) &#123;
+            String[] urls = StringUtils.splitByWholeSeparatorPreserveAllTokens(urlString, <span class="hljs-string">","</span>);
+            <span class="hljs-keyword">for</span> (String url : urls) &#123;
+                urlMap.put(url, type);
+            &#125;
+        &#125;
+    &#125;
+
+    <span class="hljs-comment">/*</span>
+<span class="hljs-comment">     * (non-Javadoc)</span>
+<span class="hljs-comment">     *</span>
+<span class="hljs-comment">     * @see</span>
+<span class="hljs-comment">     * org.springframework.web.filter.OncePerRequestFilter#doFilterInternal(</span>
+<span class="hljs-comment">     * javax.servlet.http.HttpServletRequest,</span>
+<span class="hljs-comment">     * javax.servlet.http.HttpServletResponse, javax.servlet.FilterChain)</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">doFilterInternal</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response, FilterChain chain)</span></span>
+<span class="hljs-function">            <span class="hljs-keyword">throws</span> ServletException, IOException </span>&#123;
+
+        ValidateCodeType type = getValidateCodeType(request);
+        <span class="hljs-keyword">if</span> (type != <span class="hljs-keyword">null</span>) &#123;
+            logger.info(<span class="hljs-string">"校验请求("</span> + request.getRequestURI() + <span class="hljs-string">")中的验证码,验证码类型"</span> + type);
+            <span class="hljs-keyword">try</span> &#123;
+                validateCodeProcessorHolder.findValidateCodeProcessor(type)
+                        .validate(<span class="hljs-keyword">new</span> ServletWebRequest(request, response));
+                logger.info(<span class="hljs-string">"验证码校验通过"</span>);
+            &#125; <span class="hljs-keyword">catch</span> (ValidateCodeException exception) &#123;
+                authenticationFailureHandler.onAuthenticationFailure(request, response, exception);
+                <span class="hljs-keyword">return</span>;
+            &#125;
+        &#125;
+
+        chain.doFilter(request, response);
+
+    &#125;
+
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 获取校验码的类型，如果当前请求不需要校验，则返回null</span>
+<span class="hljs-comment">     *</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-function"><span class="hljs-keyword">private</span> ValidateCodeType <span class="hljs-title">getValidateCodeType</span><span class="hljs-params">(HttpServletRequest request)</span> </span>&#123;
+        ValidateCodeType result = <span class="hljs-keyword">null</span>;
+        <span class="hljs-keyword">if</span> (!StringUtils.equalsIgnoreCase(request.getMethod(), <span class="hljs-string">"get"</span>)) &#123;
+            Set&lt;String&gt; urls = urlMap.keySet();
+            <span class="hljs-keyword">for</span> (String url : urls) &#123;
+                <span class="hljs-keyword">if</span> (pathMatcher.match(url, request.getRequestURI())) &#123;
+                    result = urlMap.get(url);
+                &#125;
+            &#125;
+        &#125;
+        <span class="hljs-keyword">return</span> result;
+    &#125;
+
+&#125;</code></pre>
+
+<p>BrowserSecurityConfig：</p>
+<pre><code class="hljs java">   <span class="hljs-keyword">private</span> ValidateCodeFilter validateCodeFilter;
+    <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(HttpSecurity http)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+			<span class="hljs-comment">//...</span>
+			http.                .addFilterBefore(validateCodeFilter,UsernamePasswordAuthenticationFilter<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>
+<span class="hljs-class"></span>
+<span class="hljs-class"></span>
+<span class="hljs-class">&#125;</span></code></pre>
+
+<h1 id="记住我"><a href="#记住我" class="headerlink" title="记住我"></a>记住我</h1><p>当用户登录一次以后系统会记住用户一段时间，在段时间用户不能反复登录就可以使用我们的系统</p>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><p>BrowserSecurityProperties</p>
+<pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> rememberMeSeconds = <span class="hljs-number">36000</span>;</code></pre>
+
+<p>BrowserSecurityConfig</p>
+<pre><code class="hljs java">  <span class="hljs-keyword">private</span> DataSource dataSource;
+    <span class="hljs-keyword">private</span> UserDetailsService userDetailsService;
+
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> PersistentTokenRepository <span class="hljs-title">repository</span><span class="hljs-params">()</span> </span>&#123;
+        JdbcTokenRepositoryImpl jdbcTokenRepository = <span class="hljs-keyword">new</span> JdbcTokenRepositoryImpl();
+        jdbcTokenRepository.setDataSource(dataSource);
+        <span class="hljs-comment">//自动创建表</span>
+        jdbcTokenRepository.setCreateTableOnStartup(<span class="hljs-keyword">true</span>);
+        <span class="hljs-keyword">return</span> jdbcTokenRepository;
+    &#125;
+
+<span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(HttpSecurity http)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+        BrowserSecurityProperties browser = security.getBrowser();
+
+
+        http
+                <span class="hljs-comment">/*rememberMe*/</span>
+                .rememberMe()
+                .tokenRepository(repository())
+                .tokenValiditySeconds(browser.getRememberMeSeconds())
+                .userDetailsService(userDetailsService)
+                .and()</code></pre>
+
+<p>mcr-login.html</p>
+<pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">h3</span>&gt;</span>登录页面<span class="hljs-tag">&lt;/<span class="hljs-name">h3</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">form</span> <span class="hljs-attr">action</span>=<span class="hljs-string">"/authentication/form"</span> <span class="hljs-attr">method</span>=<span class="hljs-string">"post"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">table</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">tr</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>账号<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"text"</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"username"</span>/&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">tr</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">tr</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>密码<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"password"</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"password"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">tr</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">tr</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>图形验证码:<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"text"</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"imageCode"</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"/code/image"</span>&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">tr</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">tr</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">td</span> <span class="hljs-attr">colspan</span>=<span class="hljs-string">"2"</span>&gt;</span>
+                记住我 <span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"checkbox"</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"remember-me"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"true"</span>/&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">tr</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">tr</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">td</span> <span class="hljs-attr">colspan</span>=<span class="hljs-string">"2"</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"submit"</span>&gt;</span>登录<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">tr</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">table</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">form</span>&gt;</span></code></pre>
+
+<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567436120008.png" srcset="/img/loading.gif" alt="1567436120008"></p>
+<p>UsernamePasswordAuthenticationFilter认证成功处理以后，它会调用一个RememberMeServices服务，这这个服务中有一个TokenRepository，这个服务它会生成一个token，将这个token写入浏览器到浏览器的cookie里面，同时它会用这个TokenRepository把生成的token写到到数据库里面，因为这个动作是在身份认证成功以后做的，所以它在 token写入数据库的时候，会把认证成功的用户名同时写进去，数据库中token和用户名是一一对应的，比如过了一天用户又来访问系统，他就不需要登录了，他就可以直接访问收保护的服务，那么这个请求经过过滤器链的时候会经过RememberMeAuthenticationFilter过滤器，它会读取cookie中的 token，因为用户在登录成功的时候，就是把一个token写入到浏览器的cookie里，那么在这个过滤器它会把这个token从cookie里读出来，交给RememberMeServices，RememberMeServices会用TokenRepository到数据库里去查这个token我数据库里有没有记录，如果数据库里有记录，那么就把对应的用户名取出来，取出来用户名以后，它会去调用UserDetailsService，然后去获取用户的信息，把当前获取到的用户信息放到SecurityContext里面，这样就把用户登录上了</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567436147796.png" srcset="/img/loading.gif" alt="1567436147796"></p>
+<p>这里的RememberMeAuthenticationFilter它在过滤器链上绿色部分的倒数第2个位置，前面是一些其他认证过滤器，其他认证都没法认证用户信息的时候，它会去尝试去做认证</p>
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/SpringSecurity/">SpringSecurity</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/spring-security-3.1.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【 三、Social 】 1.OAuth协议简介</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/spring-security-2.1.html">
+                        <span class="hidden-mobile">【 二、Form 】  1.Spring Secrutiy基本原理</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "【 二、Form 】  2.自定义用户认证逻辑&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

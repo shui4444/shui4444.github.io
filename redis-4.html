@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="Shui">
+  <meta name="keywords" content="">
+  <title>【 Redis-学习笔记 】 4.持久化 - Shui&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Fluid</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2019-10-17 21:04">
+      2019年10月17日 晚上
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      4.6k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      50
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <h1 id="持久化的作用"><a href="#持久化的作用" class="headerlink" title="持久化的作用"></a>持久化的作用</h1><h2 id="什么是持久化"><a href="#什么是持久化" class="headerlink" title="什么是持久化"></a>什么是持久化</h2><p> 持久化（Persistence），即把数据（如内存中的对象）保存到可永久保存的存储设备中（如磁盘）。<br>持久化 Redis 所有数据保持在内存中，对数据的更新将异步地保存到磁盘上。 </p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571240413585.png" srcset="/img/loading.gif" alt="1571240413585">  </p>
+<h2 id="持久化的实现方式"><a href="#持久化的实现方式" class="headerlink" title="持久化的实现方式"></a>持久化的实现方式</h2><h3 id="快照方式持久化"><a href="#快照方式持久化" class="headerlink" title="快照方式持久化"></a>快照方式持久化</h3><p>快照方式持久化就是在某时刻把所有数据进行完整备份。</p>
+<p>例：Mysql 的 Dump 方式、Redis 的 RDB 方式。</p>
+<h3 id="写日志方式持久化"><a href="#写日志方式持久化" class="headerlink" title="写日志方式持久化"></a>写日志方式持久化</h3><p>写日志方式持久化就是把用户执行的所有写指令（增删改）备份到文件中，还原数据时只需要把备份的所有指令重新执行一遍即可。</p>
+<p>例：Mysql 的 Binlog、Redis 的 AOF、Hbase 的 HLog。</p>
+<h1 id="RDB"><a href="#RDB" class="headerlink" title="RDB"></a>RDB</h1><h2 id="什么是-RDB"><a href="#什么是-RDB" class="headerlink" title="什么是 RDB"></a>什么是 RDB</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571240680932.png" srcset="/img/loading.gif" alt="1571240680932"></p>
+<p> RDB 持久化方式能够在指定的时间间隔能对你的数据进行快照存储。<br>在默认情况下， Redis 将数据库快照保存在名字为 dump.rdb 的二进制文件中。<br>在 Redis 运行时， RDB 程序将当前内存中的数据库快照保存到磁盘文件中， 在 Redis 重启动时， RDB 程序可以通过载入 RDB 文件来还原数据库的状态。 </p>
+<h2 id="RDB-的三种主要触发机制"><a href="#RDB-的三种主要触发机制" class="headerlink" title="RDB 的三种主要触发机制"></a>RDB 的三种主要触发机制</h2><h3 id="save-命令（同步数据到磁盘上）"><a href="#save-命令（同步数据到磁盘上）" class="headerlink" title="save 命令（同步数据到磁盘上）"></a>save 命令（同步数据到磁盘上）</h3><p><code>save</code> 属于O（n）命令执行一个同步操作，以 RDB 文件的方式保存所有数据的快照。</p>
+<pre><code class="hljs bash">127.0.0.1:6379&gt; save
+OK</code></pre>
+
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571240796252.png" srcset="/img/loading.gif" alt="1571240796252"></p>
+<p> 由于 <code>save</code> 命令是同步命令，会占用 <code>Redis</code> 的主进程。若 <code>Redis</code> 数据非常多时，<code>save</code> 命令执行速度会非常慢，阻塞所有客户端的请求。<br>因此很少在生产环境直接使用 SAVE 命令，可以使用 <code>BGSAVE</code> 命令代替。如果在 <code>BGSAVE</code> 命令的保存数据的子进程发生错误的时，用 SAVE 命令保存最新的数据是最后的手段。 </p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571240834372.png" srcset="/img/loading.gif" alt="1571240834372"></p>
+<h3 id="bgsave-命令（异步保存数据到磁盘上）"><a href="#bgsave-命令（异步保存数据到磁盘上）" class="headerlink" title="bgsave 命令（异步保存数据到磁盘上）"></a>bgsave 命令（异步保存数据到磁盘上）</h3><p><code>bgsave</code> 命令执行一个异步操作，以 RDB 文件的方式保存所有数据的快照。</p>
+<pre><code class="hljs bash">127.0.0.1:6379&gt; bgsave
+Background saving started</code></pre>
+
+<p> Redis 使用 Linux 系统的 <code>fock()</code> 生成一个子进程来将 DB 数据保存到磁盘，主进程继续提供服务以供客户端调用。<br>如果操作成功，可以通过客户端命令 LASTSAVE 来检查操作结果。 </p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571240943676.png" srcset="/img/loading.gif" alt="1571240943676"></p>
+<h3 id="save-与-bgsave-对比"><a href="#save-与-bgsave-对比" class="headerlink" title="save 与 bgsave 对比"></a>save 与 bgsave 对比</h3><table>
+<thead>
+<tr>
+<th align="left">命令</th>
+<th align="left">save</th>
+<th align="left">bgsave</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">IO 类型</td>
+<td align="left">同步</td>
+<td align="left">异步</td>
+</tr>
+<tr>
+<td align="left">阻塞？</td>
+<td align="left">是</td>
+<td align="left">是（阻塞发生在 fock ()，通常非常快）</td>
+</tr>
+<tr>
+<td align="left">复杂度</td>
+<td align="left">O(n)</td>
+<td align="left">O(n)</td>
+</tr>
+<tr>
+<td align="left">优点</td>
+<td align="left">不会消耗额外的内存</td>
+<td align="left">不阻塞客户端命令</td>
+</tr>
+<tr>
+<td align="left">缺点</td>
+<td align="left">阻塞客户端命令</td>
+<td align="left">需要 fock 子进程，消耗内存</td>
+</tr>
+</tbody></table>
+<h3 id="自动生成-RDB"><a href="#自动生成-RDB" class="headerlink" title="自动生成 RDB"></a>自动生成 RDB</h3><p>除了手动执行 <code>save</code> 和 <code>bgsave</code> 命令实现 RDB 持久化以外，Redis 还提供了自动自动生成 RDB 的方式。</p>
+<p>你可以通过配置文件对 Redis 进行设置， 让它在 “N 秒内数据集至少有 M 个改动” 这一条件被满足时， 自动进行数据集保存操作。<br>比如说， 以下设置会让 Redis 在满足 “60 秒内有至少有 1000 个键被改动” 这一条件时， 自动进行数据集保存操作：</p>
+<pre><code class="hljs bash">save 60 1000</code></pre>
+
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571241038316.png" srcset="/img/loading.gif" alt="1571241038316"></p>
+<h2 id="触发机制-不容忽视的方式"><a href="#触发机制-不容忽视的方式" class="headerlink" title="触发机制-不容忽视的方式"></a>触发机制-不容忽视的方式</h2><ol>
+<li>全量复制</li>
+<li>debug reload</li>
+<li>shutdown</li>
+</ol>
+<h2 id="RDB-相关配置"><a href="#RDB-相关配置" class="headerlink" title="RDB 相关配置"></a>RDB 相关配置</h2><pre><code class="hljs properties"><span class="hljs-comment"># RDB自动持久化规则</span>
+<span class="hljs-comment"># 当 900 秒内有至少有 1 个键被改动时，自动进行数据集保存操作</span>
+<span class="hljs-attr">save</span> <span class="hljs-string">900 1</span>
+<span class="hljs-comment"># 当 300 秒内有至少有 10 个键被改动时，自动进行数据集保存操作</span>
+<span class="hljs-attr">save</span> <span class="hljs-string">300 10</span>
+<span class="hljs-comment"># 当 60 秒内有至少有 10000 个键被改动时，自动进行数据集保存操作</span>
+<span class="hljs-attr">save</span> <span class="hljs-string">60 10000</span>
+
+<span class="hljs-comment"># RDB持久化文件名</span>
+<span class="hljs-attr">dbfilename</span> <span class="hljs-string">dump-$&#123;port&#125;.rdb</span>
+
+<span class="hljs-comment"># 数据持久化文件存储目录</span>
+<span class="hljs-attr">dir</span> <span class="hljs-string">/var/lib/redis</span>
+
+<span class="hljs-comment"># bgsave发生错误时是否停止写入，通常为yes</span>
+<span class="hljs-meta">stop-writes-on-bgsave-error</span> <span class="hljs-string">yes</span>
+
+<span class="hljs-comment"># rdb文件是否使用压缩格式</span>
+<span class="hljs-attr">rdbcompression</span> <span class="hljs-string">yes</span>
+
+<span class="hljs-comment"># 是否对rdb文件进行校验和检验，通常为yes</span>
+<span class="hljs-attr">rdbchecksum</span> <span class="hljs-string">yes</span></code></pre>
+
+
+
+<h2 id="RDB-的优点"><a href="#RDB-的优点" class="headerlink" title="RDB 的优点"></a>RDB 的优点</h2><ol>
+<li>RDB 是一个非常紧凑的文件，它保存了某个时间点得数据集，非常适用于数据集的备份，比如你可以在每个小时报保存一下过去 24 小时内的数据，同时每天保存过去 30 天的数据，这样即使出了问题你也可以根据需求恢复到不同版本的数据集。</li>
+<li>RDB 是一个紧凑的单一文件，很方便传送到另一个远端数据中心或者亚马逊的 S3（可能加密），非常适用于灾难恢复。</li>
+<li>RDB 在保存 RDB 文件时父进程唯一需要做的就是 fork 出一个子进程，接下来的工作全部由子进程来做，父进程不需要再做其他 IO 操作，所以 RDB 持久化方式可以最大化 redis 的性能。</li>
+<li>与 AOF 相比，在恢复大的数据集的时候，RDB 方式会更快一些。</li>
+</ol>
+<h2 id="RDB-的缺点"><a href="#RDB-的缺点" class="headerlink" title="RDB 的缺点"></a>RDB 的缺点</h2><ol>
+<li>耗时、耗性能。RDB 需要经常 fork 子进程来保存数据集到硬盘上，当数据集比较大的时候，fork 的过程是非常耗时的，可能会导致 Redis 在一些毫秒级内不能响应客户端的请求。如果数据集巨大并且 CPU 性能不是很好的情况下，这种情况会持续 1 秒，AOF 也需要 fork，但是你可以调节重写日志文件的频率来提高数据集的耐久度。</li>
+<li>不可控、丢失数据。如果你希望在 redis 意外停止工作（例如电源中断）的情况下丢失的数据最少的话，那么 RDB 不适合你。虽然你可以配置不同的 save 时间点 (例如每隔 5 分钟并且对数据集有 100 个写的操作)，是 Redis 要完整的保存整个数据集是一个比较繁重的工作，你通常会每隔 5 分钟或者更久做一次完整的保存，万一在 Redis 意外宕机，你可能会丢失几分钟的数据。</li>
+</ol>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
+<li><code>RDB</code>是<code>Redis</code>内存到硬盘的快照，用于持久化；</li>
+<li>save通常会阻塞<code>Redis</code>;</li>
+<li><code>bgsave</code>不会阻塞<code>Redis</code>，但是会fork新进程；</li>
+<li><code>save</code>自动配置满足任一就会被执行；</li>
+<li>有些触发机制不容忽视。</li>
+</ol>
+<h1 id="AOF"><a href="#AOF" class="headerlink" title="AOF"></a>AOF</h1><h2 id="什么是-AOF"><a href="#什么是-AOF" class="headerlink" title="什么是 AOF"></a>什么是 AOF</h2><p>快照功能（RDB）并不是非常耐久（durable）： 如果 Redis 因为某些原因而造成故障停机， 那么服务器将丢失最近写入、且仍未保存到快照中的那些数据。 从 1.1 版本开始， Redis 增加了一种完全耐久的持久化方式： AOF 持久化。<br>你可以在配置文件中打开 AOF 方式：</p>
+<pre><code class="hljs nginx"><span class="hljs-attribute">appendonly</span> <span class="hljs-literal">yes</span></code></pre>
+
+<p>打开 AOF 后， 每当 Redis 执行一个改变数据集的命令时（比如 SET）， 这个命令就会被追加到 AOF 文件的末尾。这样的话， 当 Redis 重新启时， 程序就可以通过重新执行 AOF 文件中的命令来达到重建数据集的目的。</p>
+<p>AOF 运行原理 - 创建</p>
+<p>  <img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1460000016021226.png" srcset="/img/loading.gif" alt="1460000016021226">  </p>
+<p>AOF 运行原理 - 恢复</p>
+<p> <img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1460000016021227.png" srcset="/img/loading.gif" alt="1460000016021227.png"> </p>
+<h2 id="AOF-持久化的三种策略"><a href="#AOF-持久化的三种策略" class="headerlink" title="AOF 持久化的三种策略"></a>AOF 持久化的三种策略</h2><h3 id="always"><a href="#always" class="headerlink" title="always"></a>always</h3><p>你可以通过配置文件配置 Redis 多久才将数据 fsync 到磁盘一次。每次有新命令追加到 AOF 文件时就执行一次 fsync ：非常慢，也非常安全。</p>
+<p> <img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1460000016021228-1571313423491.png" srcset="/img/loading.gif" alt="1460000016021228"> </p>
+<h3 id="everysec"><a href="#everysec" class="headerlink" title="everysec"></a>everysec</h3><p>每秒 fsync 一次：足够快（和使用 RDB 持久化差不多），并且在故障时只会丢失 1 秒钟的数据。<br>推荐（并且也是默认）的措施为每秒 fsync 一次， 这种 fsync 策略可以兼顾速度和安全性。</p>
+<p> <img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1460000016021229.png" srcset="/img/loading.gif" alt="img"> </p>
+<h3 id="no"><a href="#no" class="headerlink" title="no"></a>no</h3><p>从不 fsync ：将数据交给操作系统来处理，由操作系统来决定什么时候同步数据。更快，也更不安全的选择。</p>
+<p> <img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1460000016021230.png" srcset="/img/loading.gif" alt="no"></p>
+<h3 id="always、everysec、no-对比"><a href="#always、everysec、no-对比" class="headerlink" title="always、everysec、no 对比"></a>always、everysec、no 对比</h3><table>
+<thead>
+<tr>
+<th align="center">命令</th>
+<th align="center">优点</th>
+<th align="center">缺点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">always</td>
+<td align="center">不丢失数据</td>
+<td align="center">IO 开销大，一般 SATA 磁盘只有几百 TPS</td>
+</tr>
+<tr>
+<td align="center">everysec</td>
+<td align="center">每秒进行与 fsync，最多丢失 1 秒数据</td>
+<td align="center">可能丢失 1 秒数据</td>
+</tr>
+<tr>
+<td align="center">no</td>
+<td align="center">不用管</td>
+<td align="center">不可控</td>
+</tr>
+</tbody></table>
+<h2 id="重写"><a href="#重写" class="headerlink" title="重写"></a>重写</h2><h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><p>因为 <code>AOF</code> 的运作方式是不断地将命令追加到文件的末尾， 所以随着写入命令的不断增加， <code>AOF</code> 文件的体积也会变得越来越大。举个例子， 如果你对一个计数器调用了 100 次 <code>INCR</code> ， 那么仅仅是为了保存这个计数器的当前值， <code>AOF</code> 文件就需要使用 100 条记录（entry）。然而在实际上， 只使用一条 SET 命令已经足以保存计数器的当前值了， 其余 99 条记录实际上都是多余的。<br>为了处理这种情况， <code>Redis</code> 支持一种有趣的特性： 可以在不打断服务客户端的情况下， 对 <code>AOF</code> 文件进行重建（rebuild）。执行 <code>bgrewriteaof</code> 命令， <code>Redis</code> 将生成一个新的 <code>AOF</code> 文件， 这个文件包含重建当前数据集所需的最少命令。<br><code>Redis 2.2</code> 需要自己手动执行 <code>bgrewriteaof</code> 命令； <code>Redis 2.4</code> 则可以通过配置自动触发 <code>AOF</code> 重写。</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571316511368.png" srcset="/img/loading.gif" alt="1571316511368">  </p>
+<h3 id="AOF-重写的作用"><a href="#AOF-重写的作用" class="headerlink" title="AOF 重写的作用"></a>AOF 重写的作用</h3><ul>
+<li>减少磁盘占用量</li>
+<li>加速数据恢复</li>
+</ul>
+<h3 id="AOF-重写的实现方式"><a href="#AOF-重写的实现方式" class="headerlink" title="AOF 重写的实现方式"></a>AOF 重写的实现方式</h3><ul>
+<li><p><strong>bgrewriteaof 命令</strong></p>
+<p>Redis bgrewriteaof 命令用于异步执行一个 AOF（AppendOnly File）文件重写操作。重写会创建一个当前 AOF 文件的体积优化版本。<br>即使 bgrewriteaof 执行失败，也不会有任何数据丢失，因为旧的 AOF 文件在 bgrewriteaof 成功之前不会被修改。<br>AOF 重写由 Redis 自行触发，bgrewriteaof 仅仅用于手动触发重写操作。<br>具体内容:</p>
+<ul>
+<li>如果一个子 Redis 是通过磁盘快照创建的，AOF 重写将会在 RDB 终止后才开始保存。这种情况下 BGREWRITEAOF 任然会返回 OK 状态码。从 Redis 2.6 起你可以通过 INFO 命令查看 AOF 重写执行情况。</li>
+<li>如果只在执行的 AOF 重写返回一个错误，AOF 重写将会在稍后一点的时间重新调用。</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/3606763245-5b73cfc6d009c_articlex.jpg" srcset="/img/loading.gif" alt="3606763245-5b73cfc6d009c_articlex"></p>
+<ul>
+<li>AOF 重写配置</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">配置名</th>
+<th align="left">含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">auto-aof-rewrite-min-size</td>
+<td align="left">触发 AOF 文件执行重写的最小尺寸</td>
+</tr>
+<tr>
+<td align="left">auto-aof-rewrite-percentage</td>
+<td align="left">触发 AOF 文件执行重写的增长率</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th align="left">统计名</th>
+<th align="left">含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">aof_current_size</td>
+<td align="left">AOF 文件当前尺寸（字节）</td>
+</tr>
+<tr>
+<td align="left">aof_base_size</td>
+<td align="left">AOF 文件上次启动和重写时的尺寸（字节）</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>AOF 重写自动触发机制，需要同时满足下面两个条件：</p>
+<ul>
+<li>aof_current_size &gt; auto-aof-rewrite-min-size</li>
+<li>(aof_current_size - aof_base_size) * 100 / aof_base_size &gt; auto-aof-rewrite-percentage</li>
+</ul>
+</blockquote>
+<p>假设 Redis 的配置项为：</p>
+<pre><code class="hljs pseudocode">auto-aof-rewrite-min-size 64mb
+auto-aof-rewrite-percentage 100</code></pre>
+
+<p> 当 AOF 文件的体积大于 64Mb，并且 AOF 文件的体积比上一次重写之久的体积大了至少一倍（100%）时，Redis 将执行 bgrewriteaof 命令进行重写。 </p>
+<h3 id="AOF-重写的流程"><a href="#AOF-重写的流程" class="headerlink" title="AOF 重写的流程"></a>AOF 重写的流程</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571317003921.png" srcset="/img/loading.gif" alt="1571317003921"></p>
+<h2 id="AOF-相关配置"><a href="#AOF-相关配置" class="headerlink" title="AOF 相关配置"></a>AOF 相关配置</h2><pre><code class="hljs pseudocode"># 开启AOF持久化方式
+appendonly yes
+
+# AOF持久化文件名
+appendfilename appendonly-&lt;port&gt;.aof
+
+# 每秒把缓冲区的数据同步到磁盘
+appendfsync everysec
+
+# 数据持久化文件存储目录
+dir &#x2F;var&#x2F;lib&#x2F;redis
+
+# 是否在执行重写时不同步数据到AOF文件
+# 这里的 yes，就是执行重写时不同步数据到AOF文件
+no-appendfsync-on-rewrite yes
+
+# 触发AOF文件执行重写的最小尺寸
+auto-aof-rewrite-min-size 64mb
+
+# 触发AOF文件执行重写的增长率
+auto-aof-rewrite-percentage 100</code></pre>
+
+<h2 id="AOF-的优点"><a href="#AOF-的优点" class="headerlink" title="AOF 的优点"></a>AOF 的优点</h2><ol>
+<li>使用 <code>AOF</code> 会让你的 <code>Redis</code> 更加耐久：你可以使用不同的 <code>fsync</code> 策略：无 <code>fsync</code>，每秒 <code>fsync</code>，每次写的时候 <code>fsync</code>。使用默认的每秒 <code>fsync</code> 策略，<code>Redis</code> 的性能依然很好 (<code>fsync</code> 是由后台线程进行处理的，主线程会尽力处理客户端请求)，一旦出现故障，你最多丢失 1 秒的数据。</li>
+<li><code>AOF</code> 文件是一个只进行追加的日志文件，所以不需要写入 seek，即使由于某些原因 (磁盘空间已满，写的过程中宕机等等) 未执行完整的写入命令，你也也可使用 <code>redis-check-aof</code> 工具修复这些问题。</li>
+<li><code>Redis</code> 可以在 <code>AOF</code> 文件体积变得过大时，自动地在后台对 <code>AOF</code> 进行重写： 重写后的新 <code>AOF</code> 文件包含了恢复当前数据集所需的最小命令集合。 整个重写操作是绝对安全的，因为 <code>Redis</code> 在创建新 <code>AOF</code> 文件的过程中，会继续将命令追加到现有的 <code>AOF</code> 文件里面，即使重写过程中发生停机，现有的 <code>AOF</code> 文件也不会丢失。 而一旦新 <code>AOF</code> 文件创建完毕，<code>Redis</code> 就会从旧 <code>AOF</code> 文件切换到新 <code>AOF</code> 文件，并开始对新 <code>AOF</code> 文件进行追加操作。</li>
+<li><code>AOF</code> 文件有序地保存了对数据库执行的所有写入作， 这些写入操作以 Redis 协议的格式保存， 因此 <code>AOF</code> 文件的内容非常容易被人读懂， 对文件进行分析（parse）也很轻松。 导出（export） AOF 文件也非常简单： 举个例子， 如果你不小心执行了 <code>FLUSHALL</code> 命令， 但只要 <code>AOF</code> 文件未被重写， 那么只要停止服务器， 移除 <code>AOF</code> 文件末尾的 <code>FLUSHALL</code> 命令， 并重启 <code>Redis</code> ， 就可以将数据集恢复到 <code>FLUSHALL</code> 执行之前的状态。</li>
+</ol>
+<h2 id="AOF-的缺点"><a href="#AOF-的缺点" class="headerlink" title="AOF 的缺点"></a>AOF 的缺点</h2><ol>
+<li>对于相同的数据集来说，<code>AOF</code> 文件的体积通常要大于 <code>RDB</code> 文件的体积;</li>
+<li>根据所使用的 <code>fsync</code> 策略，AOF 的速度可能会慢于 <code>RDB</code> 。 在一般情况下， 每秒 fsync 的性能依然非常高， 而关闭 <code>fsync</code> 可以让 <code>AOF</code> 的速度和 <code>RDB</code> 一样快， 即使在高负荷之下也是如此。 不过在处理巨大的写入载入时，<code>RDB</code> 可以提供更有保证的最大延迟时间（latency）。</li>
+</ol>
+<h1 id="RDB-和-AOF-的抉择"><a href="#RDB-和-AOF-的抉择" class="headerlink" title="RDB 和 AOF 的抉择"></a>RDB 和 AOF 的抉择</h1><h2 id="RDB-和-AOF-对比"><a href="#RDB-和-AOF-对比" class="headerlink" title="RDB 和 AOF 对比"></a>RDB 和 AOF 对比</h2><table>
+<thead>
+<tr>
+<th align="left">命令</th>
+<th align="left">RDB</th>
+<th align="left">AOF</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">启动优先级</td>
+<td align="left">低</td>
+<td align="left">高</td>
+</tr>
+<tr>
+<td align="left">体积</td>
+<td align="left">小</td>
+<td align="left">大</td>
+</tr>
+<tr>
+<td align="left">恢复速度</td>
+<td align="left">快</td>
+<td align="left">慢</td>
+</tr>
+<tr>
+<td align="left">数据安全性</td>
+<td align="left">丢数据</td>
+<td align="left">根据策略决定</td>
+</tr>
+<tr>
+<td align="left">较重</td>
+<td align="left">重</td>
+<td align="left">轻</td>
+</tr>
+</tbody></table>
+<p><code>RDB</code>是一个很重的操作，因为它要将全部的<code>Redis</code>数据挪到硬盘中，这个操作就涉及到很多方便，我们要把这个数据全部由内存去导到硬盘，首先硬盘写入量就很大而且它是一个CPU密集形操作，同时它还执行<code>bgsave</code>的话会执行一个<code>fork</code>会产生一定内存开销；</p>
+<p><code>AOF</code>来说不讨论重新，它本身是一个追加日志，对于大部分情况下，对硬盘是有一定压力，但总体是很轻的。</p>
+<h2 id="RDB最佳策略"><a href="#RDB最佳策略" class="headerlink" title="RDB最佳策略"></a>RDB最佳策略</h2><ul>
+<li>把RDB“关”掉：这里的关是一个引号，因为后面会介绍<code>Redis</code>主从复制，<code>Redis</code>主从复制它起到一个全量复制，需要主节点去执行一次<code>bgsave</code>然后把<code>rdb文件</code>传给从节点，来实现一个复制的效果，第一次全量复制，所以这里的关是永远关不掉的；</li>
+<li>集中管理：<code>RDB</code>是一个很重的操作，对于我们数据备份是有一定作用的，假如我们真的想按天、按小时来比较大的量级来备份数据，或者按天来备份数据那么<code>RDB</code>是一个不错的选择，因为它的文件大小比较小，它的传输速度比较快，对于管理有优势；</li>
+<li>主从，从开？：在别的场景下有的时候是需要在从节点去开一下<code>RDB</code>，这样就可以在本地去保存一个历史的<code>RDB</code>文件这样是有一定优势的但是一定要控制<code>save</code>不要太频繁，这样及时是从节点，虽然不进行<code>Redis</code> 的一个读写，但是我们所有的<code>Redis</code>都是一个混合部署（单机多部署），<code>RDB</code>是一个很重的操作会多硬盘、CPU、内存有一定影响，这个要根据实际开发来进行设定。</li>
+</ul>
+<h2 id="AOP最佳策略"><a href="#AOP最佳策略" class="headerlink" title="AOP最佳策略"></a>AOP最佳策略</h2><ul>
+<li>“开”：缓存和存储：大部分情况是建议开的，这样可以体现<code>Redis</code>的特点，可以持久化，在大部分情况下只会丢一秒数据，通常设置策略为每秒去刷新磁盘，但是有的时候，例如缓存的场景，它完全拿<code>Redis</code>当一个缓存，即使里面数据丢了，那也无所谓，只需要下次加载的时候从数据源加载进来就好，而且它对数据源压力也没有那么大，假如你的访问对数据源没有那么大，缓存也只是起到一定的缓存作用时候，这样时候可以关闭掉，<code>AOF</code>是有一定的开销的；</li>
+<li><code>AOF</code>重写集中管理：这样以后会提到，大概说一下，在单机多部署的情况下， 如果<code>AOF</code>集中发生大量的<code>fork</code>，但是我们机器内存比如是百分百的话，大部分情况下会分配百分60~70的内存给<code>Redis</code>，留20-30给<code>fork</code>做操作，假如集中做<code>fork</code>,有可能会出现内存爆满的情况；</li>
+<li>everysec：建议使用每秒去刷盘。</li>
+</ul>
+<h2 id="最佳策略"><a href="#最佳策略" class="headerlink" title="最佳策略"></a>最佳策略</h2><p>无论使用<code>AOF</code>、<code>RDB</code>，都可以去参考</p>
+<ul>
+<li>小分片：我们使用使用<code>maxmemory</code>为<code>Redis</code>进行规划，例如我们每个<code>Redis</code>一个<code>maxmemory</code>只设置最大内存为<code>4G</code>,这样无论是<code>fork</code>还是<code>RDB</code>复制的传输它都会较小的开销；</li>
+<li>缓存或存储：小分片就是处理这些问题的最好方法，当然它也有一定的问题，在分布式情况下我们要产生更多一个<code>Redis</code>进程，那样可能对CPU占用会更多一些，还有前面提到的根据存储和缓存的特性去决定使用哪种策略；</li>
+<li>监控（硬盘、内存、负载、网络）：这个相信在各各公司都会有开发软件去监控机器的方面，这样可以对机器有一个全面了解，然后在定位问题的时候去抓到一个关键点；</li>
+<li>足够的内存：前面提到不要有百分百内存把它全都布满，布满的情况会产生很多问题，像fork、其他内存的飙升例如客户端缓冲区它不受<code>maxmemory</code>的限制类似这样的问题，它都是有额外的内存消耗的，在实际部署中一定要根据场景进行选择。</li>
+</ul>
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E8%BF%90%E7%BB%B4/Redis/">Redis</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/redis-5.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【 Redis-学习笔记 】 5.常见的持久化开发运维问题</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/redis-3.html">
+                        <span class="hidden-mobile">【 Redis-学习笔记 】  3.瑞士军刀</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "【 Redis-学习笔记 】 4.持久化&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

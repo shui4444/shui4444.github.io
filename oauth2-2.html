@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="Shui">
+  <meta name="keywords" content="">
+  <title>【 OAuth2-学习笔记 】  2.OAuth进阶篇 - Shui&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Fluid</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2020-03-23 22:58">
+      2020年3月23日 晚上
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.8k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      46
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <h1 id="手动配置认证服务"><a href="#手动配置认证服务" class="headerlink" title="手动配置认证服务"></a>手动配置认证服务</h1><p>由于<code>AuthorizationServerConfig#configure(org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer)</code>需要配置<code>AuthenticationManager</code>，所以需要先配置<code>WebSecurityConfig</code>，来将<code>AuthenticationManager</code>注入到IOC中</p>
+<pre><code class="hljs java"><span class="hljs-meta">@Configuration</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">WebSecurityConfig</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">WebSecurityConfigurerAdapter</span> </span>&#123;
+
+  <span class="hljs-meta">@Override</span>
+  <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(HttpSecurity http)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+    http
+        .formLogin()
+      .and()
+        .authorizeRequests()
+        .anyRequest()
+        .authenticated()
+      .and()
+        .csrf().disable();
+  &#125;
+
+  <span class="hljs-meta">@Bean</span>
+  <span class="hljs-meta">@Override</span>
+  <span class="hljs-meta">@SneakyThrows</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> AuthenticationManager <span class="hljs-title">authenticationManagerBean</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">super</span>.authenticationManagerBean();
+  &#125;
+
+  <span class="hljs-meta">@Bean</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> PasswordEncoder <span class="hljs-title">passwordEncoder</span><span class="hljs-params">()</span> </span>&#123;
+    <span class="hljs-keyword">return</span> PasswordEncoderFactories.createDelegatingPasswordEncoder();
+  &#125;
+&#125;</code></pre>
+
+<p>认证服务配置代码如下：</p>
+<pre><code class="hljs java"><span class="hljs-meta">@Configuration</span>
+<span class="hljs-meta">@EnableAuthorizationServer</span>
+<span class="hljs-meta">@AllArgsConstructor</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AuthorizationServerConfig</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">AuthorizationServerConfigurerAdapter</span> </span>&#123;
+
+  <span class="hljs-keyword">private</span> AuthenticationManager authenticationManager;
+
+  <span class="hljs-keyword">private</span> UserDetailsService userDetailsService;
+
+
+  <span class="hljs-meta">@Override</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(ClientDetailsServiceConfigurer clients)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+    clients
+        .inMemory()
+        .withClient(<span class="hljs-string">"mcr"</span>)
+        .secret(<span class="hljs-string">"mcr"</span>);
+  &#125;
+
+  <span class="hljs-meta">@Override</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(AuthorizationServerEndpointsConfigurer endpoints)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+    endpoints
+        .allowedTokenEndpointRequestMethods(HttpMethod.GET, HttpMethod.POST)
+        .userDetailsService(userDetailsService)
+        .authenticationManager(authenticationManager);
+  &#125;
+&#125;</code></pre>
+
+<p>以上这些代码是之前老的方式，在新的版本中这样是有问题的，当我去访问<code>/oauth/token</code>的时候它会报一个错误：</p>
+<pre><code class="hljs xquery">java<span class="hljs-built_in">.lang</span>.IllegalArgumentException: There <span class="hljs-literal">is</span> no PasswordEncoder mapped <span class="hljs-keyword">for</span> the<span class="hljs-built_in"> id</span> <span class="hljs-string">"null"</span></code></pre>
+
+<p>这里通过万能的搜索引擎知道它的问题——<a href="https://blog.csdn.net/Hello_World_QWP/article/details/81811462" target="_blank" rel="noopener">链接</a></p>
+<hr>
+<p>这里正确的打开方式：</p>
+<pre><code class="hljs bash">private PasswordEncoder passwordEncoder;
+  
+  @Override
+  public void configure(ClientDetailsServiceConfigurer clients) throws Exception &#123;
+    clients
+        .inMemory()
+        .withClient(<span class="hljs-string">"mcr"</span>)		
+        👇关键代码
+        .secret(passwordEncoder.encode(<span class="hljs-string">"mcr"</span>));
+  &#125;</code></pre>
+
+<h1 id="使用Redis存储Token"><a href="#使用Redis存储Token" class="headerlink" title="使用Redis存储Token"></a>使用Redis存储Token</h1><blockquote>
+<p>这个在以前的Spring Security中是一样的，这里在复习下</p>
+</blockquote>
+<p>pom加入Redis依赖</p>
+<pre><code class="hljs xml"><span class="hljs-comment">&lt;!--Redis--&gt;</span>
+       <span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span>
+           <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.springframework.boot<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span>
+           <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-boot-starter-data-redis<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span>
+       <span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span></code></pre>
+
+<hr>
+<p>yml</p>
+<pre><code class="hljs yml"><span class="hljs-attr">spring:</span>
+  <span class="hljs-attr">redis:</span>
+    <span class="hljs-attr">host:</span> <span class="hljs-string">mcr.dev.com</span>
+    <span class="hljs-attr">port:</span> <span class="hljs-number">6380</span></code></pre>
+
+<hr>
+<p>AuthorizationServerConfig</p>
+<pre><code class="hljs java"><span class="hljs-keyword">private</span> RedisConnectionFactory connectionFactory;
+
+<span class="hljs-meta">@Bean</span>
+<span class="hljs-function"><span class="hljs-keyword">public</span> TokenStore <span class="hljs-title">tokenStore</span><span class="hljs-params">()</span> </span>&#123;
+  <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> RedisTokenStore(connectionFactory);
+&#125;
+
+
+<span class="hljs-meta">@Override</span>
+<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(AuthorizationServerEndpointsConfigurer endpoints)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+  endpoints
+...        
+      👇关键代码
+      .tokenStore(tokenStore());
+&#125;</code></pre>
+
+<h1 id="权限控制"><a href="#权限控制" class="headerlink" title="权限控制"></a>权限控制</h1><h2 id="数据库设计"><a href="#数据库设计" class="headerlink" title="数据库设计"></a>数据库设计</h2><p>图1</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/Diagram2.jpg" srcset="/img/loading.gif" alt=""></p>
+<ul>
+<li>sys_user：略</li>
+<li>sys_role：略</li>
+<li>sys_user_role：略</li>
+<li>sys_role_menu：略</li>
+<li>sys_menu：这里的permission是一个权限标识，用它来判断用户是否能访问特定的接口</li>
+</ul>
+<h2 id="认证逻辑"><a href="#认证逻辑" class="headerlink" title="认证逻辑"></a>认证逻辑</h2><p>首先定义一个类继承Security提供的User类，个性化自己需要的属性</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.mcr.auth.security.service;
+
+<span class="hljs-keyword">import</span> lombok.Getter;
+<span class="hljs-keyword">import</span> org.springframework.security.core.GrantedAuthority;
+<span class="hljs-keyword">import</span> org.springframework.security.core.userdetails.User;
+
+<span class="hljs-keyword">import</span> java.io.Serializable;
+<span class="hljs-keyword">import</span> java.util.Collection;
+
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">McrUser</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">User</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Serializable</span> </span>&#123;
+
+  <span class="hljs-meta">@Getter</span>
+  <span class="hljs-keyword">private</span> Integer id;
+
+  <span class="hljs-meta">@Getter</span>
+  <span class="hljs-keyword">private</span> Integer deptId;
+
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">McrUser</span><span class="hljs-params">(Integer id, Integer deptId, String username, String password, Collection&lt;? extends GrantedAuthority&gt; authorities)</span> </span>&#123;
+    <span class="hljs-keyword">super</span>(username, password, authorities);
+    <span class="hljs-keyword">this</span>.id = id;
+    <span class="hljs-keyword">this</span>.deptId = deptId;
+  &#125;
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">McrUser</span><span class="hljs-params">(Integer id, Integer deptId, String username, String password, <span class="hljs-keyword">boolean</span> enabled, <span class="hljs-keyword">boolean</span> accountNonExpired, <span class="hljs-keyword">boolean</span> credentialsNonExpired, <span class="hljs-keyword">boolean</span> accountNonLocked, Collection&lt;? extends GrantedAuthority&gt; authorities)</span> </span>&#123;
+    <span class="hljs-keyword">super</span>(username, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, authorities);
+    <span class="hljs-keyword">this</span>.id = id;
+    <span class="hljs-keyword">this</span>.deptId = deptId;
+  &#125;
+&#125;</code></pre>
+
+<hr>
+<p>McrUserDetailsService：略</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.mcr.auth.security.service;
+
+
+
+<span class="hljs-meta">@Component</span>
+<span class="hljs-meta">@Slf</span>4j
+<span class="hljs-meta">@AllArgsConstructor</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">McrUserDetailsService</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">UserDetailsService</span> </span>&#123;
+
+    <span class="hljs-keyword">private</span> SysUserMapper userMapper;
+
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String BCRYPT = <span class="hljs-string">"&#123;bcrypt&#125;"</span>;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> UserDetails <span class="hljs-title">loadUserByUsername</span><span class="hljs-params">(String username)</span> <span class="hljs-keyword">throws</span> UsernameNotFoundException </span>&#123;
+        SysUser sysUser = userMapper.selectOneByUsername(username);
+        log.info(<span class="hljs-keyword">new</span> Gson().toJson(sysUser));
+        <span class="hljs-keyword">return</span> getMcrUser(username, sysUser);
+    &#125;
+
+    <span class="hljs-function"><span class="hljs-keyword">private</span> McrUser <span class="hljs-title">getMcrUser</span><span class="hljs-params">(String username, SysUser sysUser)</span> </span>&#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> McrUser(sysUser.getUserId(), sysUser.getDeptId(), username,
+                BCRYPT + sysUser.getPassword(), <span class="hljs-keyword">true</span>, <span class="hljs-keyword">true</span>, <span class="hljs-keyword">true</span>,
+                StrUtil.equals(sysUser.getLockFlag(), <span class="hljs-string">"0"</span>),
+                AuthorityUtils.commaSeparatedStringToAuthorityList(<span class="hljs-string">"admin"</span>));
+    &#125;
+&#125;</code></pre>
+
+<h2 id="令牌增强"><a href="#令牌增强" class="headerlink" title="令牌增强"></a>令牌增强</h2><p>AuthorizationServerConfig（认证服务配置类）加入以下代码</p>
+<pre><code class="hljs java"><span class="hljs-meta">@Override</span>
+   <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(AuthorizationServerEndpointsConfigurer endpoints)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+       endpoints
+               ...
+               .tokenEnhancer(tokenEnhancer());
+   &#125;
+
+   <span class="hljs-meta">@Bean</span>
+   <span class="hljs-function"><span class="hljs-keyword">public</span> TokenEnhancer <span class="hljs-title">tokenEnhancer</span><span class="hljs-params">()</span> </span>&#123;
+       <span class="hljs-keyword">return</span> (accessToken, authentication) -&gt; &#123;
+           McrUser user = (McrUser) authentication
+                   .getUserAuthentication()
+                   .getPrincipal();
+           <span class="hljs-keyword">final</span> Map&lt;String, Object&gt; additionalInfo = <span class="hljs-keyword">new</span> HashMap&lt;&gt;(<span class="hljs-number">4</span>);
+           additionalInfo.put(<span class="hljs-string">"userId"</span>, user.getId());
+           additionalInfo.put(<span class="hljs-string">"deptId"</span>, user.getDeptId());
+           ((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(additionalInfo);
+           <span class="hljs-keyword">return</span> accessToken;
+       &#125;;
+   &#125;</code></pre>
+
+<hr>
+<p>在访问<code>/oauth/token</code>的时候得到的数据变成了：</p>
+<pre><code class="hljs json">&#123;
+    <span class="hljs-attr">"access_token"</span>: <span class="hljs-string">"059861b7-755c-4ebb-8869-d94b6314a977"</span>,
+    <span class="hljs-attr">"token_type"</span>: <span class="hljs-string">"bearer"</span>,
+    <span class="hljs-attr">"expires_in"</span>: <span class="hljs-number">43199</span>,
+    <span class="hljs-attr">"scope"</span>: <span class="hljs-string">"server"</span>,
+    <span class="hljs-attr">"deptId"</span>: <span class="hljs-number">1</span>,
+    <span class="hljs-attr">"userId"</span>: <span class="hljs-number">1</span>
+&#125;</code></pre>
+
+<hr>
+<p>业务代码获取<code>McrUser</code>中的数据：</p>
+<pre><code class="hljs java">  SecurityContext context = SecurityContextHolder.getContext();
+<span class="hljs-keyword">return</span> (McrUser) context
+        .getAuthentication()
+        .getPrincipal();</code></pre>
+
+<p>可以将它封装为一个工具类</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.mcr.auth.common.util;
+
+
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * 安全工具类</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-meta">@UtilityClass</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SecurityUtils</span> </span>&#123;
+
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 获取Authentication</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> Authentication <span class="hljs-title">getAuthentication</span><span class="hljs-params">()</span> </span>&#123;
+        <span class="hljs-keyword">return</span> SecurityContextHolder
+                .getContext()
+                .getAuthentication();
+    &#125;
+
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 获取用户</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> McrUser <span class="hljs-title">getUser</span><span class="hljs-params">(Authentication authentication)</span> </span>&#123;
+        Object principal = authentication.getPrincipal();
+        <span class="hljs-keyword">if</span> (principal <span class="hljs-keyword">instanceof</span> McrUser) &#123;
+            <span class="hljs-keyword">return</span> (McrUser) principal;
+        &#125;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">null</span>;
+    &#125;
+
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 获取用户</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> McrUser <span class="hljs-title">getUser</span><span class="hljs-params">()</span> </span>&#123;
+        Authentication authentication = getAuthentication();
+        <span class="hljs-keyword">if</span> (authentication == <span class="hljs-keyword">null</span>) &#123;
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">null</span>;
+        &#125;
+        <span class="hljs-keyword">return</span> getUser(authentication);
+    &#125;</code></pre>
+
+<h2 id="访问控制"><a href="#访问控制" class="headerlink" title="访问控制"></a>访问控制</h2><blockquote>
+<p>实现功能：根据数据库中的数据，也就是<code>图1</code>中的<code>sys_menu</code>表的<code>permission</code>来控制特殊的接口</p>
+</blockquote>
+<p>在<code>Spring Security</code>中的<code>User类</code>的<code>authorities属性</code>就是用于接口访问权限控制的，在之前的编写的<code>McrUserDetailsService类</code>中：</p>
+<pre><code class="hljs reasonml"><span class="hljs-keyword">private</span> McrUser get<span class="hljs-constructor">McrUser(String <span class="hljs-params">username</span>, SysUser <span class="hljs-params">sysUser</span>)</span> &#123;
+        return <span class="hljs-keyword">new</span> <span class="hljs-constructor">McrUser(<span class="hljs-params">sysUser</span>.<span class="hljs-params">getUserId</span>()</span>, sysUser.get<span class="hljs-constructor">DeptId()</span>, username,
+                BCRYPT + sysUser.get<span class="hljs-constructor">Password()</span>, <span class="hljs-literal">true</span>, <span class="hljs-literal">true</span>, <span class="hljs-literal">true</span>,
+                <span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">StrUtil</span>.</span></span>equals(sysUser.get<span class="hljs-constructor">LockFlag()</span>, <span class="hljs-string">"0"</span>),
+                <span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">AuthorityUtils</span>.</span></span>comma<span class="hljs-constructor">SeparatedStringToAuthorityList(<span class="hljs-string">"admin"</span>)</span>);
+    &#125;</code></pre>
+
+<p>这里给的是一个死的值，这里需要将它该为用<code>sys_menu的permission</code></p>
+<hr>
+<p>建立一个<code>UserInfo</code>来关联<code>sys_user</code>和<code>sys_menu的permission</code></p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.mcr.auth.common.model.dto;
+<span class="hljs-meta">@Data</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserInfo</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Serializable</span> </span>&#123;
+
+    <span class="hljs-keyword">private</span> SysUser sysUser;
+
+    <span class="hljs-keyword">private</span> String[] permissions;
+
+&#125;</code></pre>
+
+<hr>
+<p>SysMenuMapper</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.mcr.auth.common.mapper;
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">SysMenuMapper</span> </span>&#123;
+   <span class="hljs-function">List&lt;SysMenu&gt; <span class="hljs-title">findByRoleId</span><span class="hljs-params">(@Param(<span class="hljs-string">"roleId"</span>)</span> Integer roleId)</span>;
+&#125;</code></pre>
+
+<p>SysMenuMapper.xml</p>
+<pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">select</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"findByRoleId"</span> <span class="hljs-attr">resultMap</span>=<span class="hljs-string">"BaseResultMap"</span>&gt;</span>
+        select *
+        from sys_menu m
+                 JOIN sys_role_menu rm ON m.menu_id = rm.menu_id
+        WHERE rm.role_id = #&#123;roleId,jdbcType=INTEGER&#125;;
+<span class="hljs-tag">&lt;/<span class="hljs-name">select</span>&gt;</span></code></pre>
+
+
+
+
+
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.mcr.auth.common.service.impl;
+<span class="hljs-meta">@Service</span>
+<span class="hljs-meta">@AllArgsConstructor</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SysUserServiceImpl</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">SysUserService</span> </span>&#123;
+
+  <span class="hljs-keyword">private</span> SysUserMapper userMapper;
+
+  <span class="hljs-keyword">private</span> SysMenuMapper menuMapper;
+
+  <span class="hljs-keyword">private</span> SysRoleMapper roleMapper;
+
+  <span class="hljs-comment">/**</span>
+<span class="hljs-comment">   * 根据用户名查询用户和它的权限</span>
+<span class="hljs-comment">   * <span class="hljs-doctag">@param</span> username 用户名</span>
+<span class="hljs-comment">   * <span class="hljs-doctag">@return</span></span>
+<span class="hljs-comment">   */</span>
+  <span class="hljs-meta">@Override</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> UserInfo <span class="hljs-title">selectOneByUsername</span><span class="hljs-params">(String username)</span> </span>&#123;
+    SysUser sysUser = userMapper.selectOneByUsername(username);
+    <span class="hljs-keyword">if</span> (sysUser == <span class="hljs-keyword">null</span>) <span class="hljs-keyword">return</span> <span class="hljs-keyword">null</span>;
+    UserInfo userInfo = <span class="hljs-keyword">new</span> UserInfo();
+    Integer userId = sysUser.getUserId();
+    Set&lt;String&gt; permissions = <span class="hljs-keyword">new</span> HashSet&lt;&gt;();
+    roleIdList.forEach(roleId -&gt; &#123;
+      List&lt;String&gt; permissionList = menuMapper
+          .findByRoleId(roleId)
+          .stream()
+          .filter(menu -&gt; StrUtil.isNotBlank(menu.getPermission()))
+          .map(SysMenu::getPermission)
+          .collect(Collectors.toList());
+      permissions.addAll(permissionList);
+    &#125;);
+    userInfo.setSysUser(sysUser);
+    userInfo.setPermissions(permissions.toArray(<span class="hljs-keyword">new</span> String[<span class="hljs-number">0</span>]));
+    <span class="hljs-keyword">return</span> userInfo;
+  &#125;
+&#125;</code></pre>
+
+<hr>
+<p>McrUserDetailsService全部代码：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.mcr.auth.security.service;
+
+
+<span class="hljs-meta">@Component</span>
+<span class="hljs-meta">@Slf</span>4j
+<span class="hljs-meta">@AllArgsConstructor</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">McrUserDetailsService</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">UserDetailsService</span> </span>&#123;
+
+  <span class="hljs-keyword">private</span> SysUserService userService;
+
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String BCRYPT = <span class="hljs-string">"&#123;bcrypt&#125;"</span>;
+
+  <span class="hljs-meta">@Override</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> UserDetails <span class="hljs-title">loadUserByUsername</span><span class="hljs-params">(String username)</span> <span class="hljs-keyword">throws</span> UsernameNotFoundException </span>&#123;
+    UserInfo userInfo = userService.selectOneByUsername(username);
+    log.info(<span class="hljs-keyword">new</span> Gson().toJson(userInfo));
+    <span class="hljs-keyword">return</span> getMcrUser(username, userInfo);
+  &#125;
+
+  <span class="hljs-function"><span class="hljs-keyword">private</span> McrUser <span class="hljs-title">getMcrUser</span><span class="hljs-params">(String username, UserInfo userInfo)</span> </span>&#123;
+    SysUser sysUser = userInfo.getSysUser();
+    Set&lt;String&gt; permissions = <span class="hljs-keyword">new</span> HashSet&lt;&gt;(Arrays.asList(userInfo.getPermissions()));
+    List&lt;GrantedAuthority&gt; authorityList = AuthorityUtils.createAuthorityList(permissions.toArray(<span class="hljs-keyword">new</span> String[<span class="hljs-number">0</span>]));
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> McrUser(sysUser.getUserId(), sysUser.getDeptId(), username,
+        BCRYPT + sysUser.getPassword(), <span class="hljs-keyword">true</span>, <span class="hljs-keyword">true</span>, <span class="hljs-keyword">true</span>,
+        StrUtil.equals(sysUser.getLockFlag(), <span class="hljs-string">"0"</span>),
+        authorityList);
+  &#125;
+&#125;</code></pre>
+
+<hr>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.mcr.auth.security.component;
+
+<span class="hljs-meta">@Slf</span>4j
+<span class="hljs-meta">@Component</span>(<span class="hljs-string">"pms"</span>)
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">PermissionService</span> </span>&#123;
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">hashPermission</span><span class="hljs-params">(String permission)</span> </span>&#123;
+    Authentication authentication = SecurityContextHolder
+        .getContext()
+        .getAuthentication();
+
+    <span class="hljs-keyword">if</span> (authentication == <span class="hljs-keyword">null</span>) &#123;
+      <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+    &#125;
+    Collection&lt;? extends GrantedAuthority&gt; authorities = authentication.getAuthorities();
+    <span class="hljs-keyword">return</span> authorities
+        .stream()
+        .map(GrantedAuthority::getAuthority)
+        .filter(StringUtils::hasText)
+        .anyMatch(x -&gt; PatternMatchUtils.simpleMatch(permission, x));
+  &#125;
+&#125;</code></pre>
+
+<p>这个类用于判断当前接口，用户是否可以访问。方法中的逻辑：从ThreadLocal中取permissions，看是否满足参数传递的值</p>
+<hr>
+<p>在IndexController中建立一个接口，并使用它</p>
+<pre><code class="hljs java"><span class="hljs-meta">@GetMapping</span>(<span class="hljs-string">"/permissionTest"</span>)
+<span class="hljs-meta">@PreAuthorize</span>(<span class="hljs-string">"@pms.hashPermission('not')"</span>)
+<span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">permissionTest</span><span class="hljs-params">()</span> </span>&#123;
+  <span class="hljs-keyword">return</span> <span class="hljs-string">"OK"</span>;
+&#125;</code></pre>
+
+<p>这里的 <code>@PreAuthorize(&quot;@pms.hashPermission(&#39;not&#39;)&quot;)</code>会在<code>PermissionService#hashPermission</code>传递not值来验证</p>
+<hr>
+<p>在<code>Spring Security 5.x</code>中<code>@PreAuthorize</code>默认是不生效的，需要通过这个注解开启</p>
+<pre><code class="hljs java"><span class="hljs-meta">@Configuration</span>
+<span class="hljs-meta">@EnableGlobalMethodSecurity</span>(prePostEnabled = <span class="hljs-keyword">true</span>)
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">WebSecurityConfig</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">WebSecurityConfigurerAdapter</span> </span>&#123;
+	...
+&#125;</code></pre>
+
+<hr>
+<p>访问这个接口会得到以下信息：</p>
+<pre><code class="hljs json">&#123;
+    <span class="hljs-attr">"error"</span>: <span class="hljs-string">"access_denied"</span>,
+    <span class="hljs-attr">"error_description"</span>: <span class="hljs-string">"不允许访问"</span>
+&#125;</code></pre>
+
+<h2 id="数据库中的Client"><a href="#数据库中的Client" class="headerlink" title="数据库中的Client"></a>数据库中的Client</h2><p>对于之前的<code>clientId和secret</code>的定义方式：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AuthorizationServerConfig</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">AuthorizationServerConfigurerAdapter</span> </span>&#123;
+   <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(ClientDetailsServiceConfigurer clients)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+        clients
+                .inMemory()
+                .withClient(<span class="hljs-string">"mcr"</span>)
+                .secret(passwordEncoder.encode(<span class="hljs-string">"mcr"</span>))
+                .authorizedGrantTypes(<span class="hljs-string">"password"</span>,<span class="hljs-string">"refresh_token"</span>);
+    &#125;
+&#125;</code></pre>
+
+<p>下面来实现从数据库中来取</p>
+<hr>
+<p>建表sql</p>
+<pre><code class="hljs mysql">CREATE TABLE sys_oauth_client_details
+(
+  client_id               VARCHAR(32)   NOT NULL
+    PRIMARY KEY,
+  resource_ids            VARCHAR(256)  NULL,
+  client_secret           VARCHAR(256)  NULL,
+  scope                   VARCHAR(256)  NULL,
+  authorized_grant_types  VARCHAR(256)  NULL,
+  web_server_redirect_uri VARCHAR(256)  NULL,
+  authorities             VARCHAR(256)  NULL,
+  access_token_validity   INT           NULL,
+  refresh_token_validity  INT           NULL,
+  additional_information  VARCHAR(4096) NULL,
+  autoapprove             VARCHAR(256)  NULL
+)
+  COMMENT &#39;终端信息表&#39;;</code></pre>
+
+<hr>
+<p>Java代码（一把梭）</p>
+<p>SecurityConstant：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.mcr.auth.security.constant;
+
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">SecurityConstant</span> </span>&#123;
+  <span class="hljs-comment">/**</span>
+<span class="hljs-comment">   * 字段</span>
+<span class="hljs-comment">   */</span>
+  String CLIENT_FIELDS = <span class="hljs-string">"client_id,"</span> +
+      <span class="hljs-string">"       CONCAT('&#123;noop&#125;', client_secret) AS client_secret,"</span> +
+      <span class="hljs-string">"       resource_ids,"</span> +
+      <span class="hljs-string">"       scope,"</span> +
+      <span class="hljs-string">"       authorized_grant_types,"</span> +
+      <span class="hljs-string">"       web_server_redirect_uri,"</span> +
+      <span class="hljs-string">"       authorities,"</span> +
+      <span class="hljs-string">"       access_token_validity,"</span> +
+      <span class="hljs-string">"       refresh_token_validity,"</span> +
+      <span class="hljs-string">"       additional_information,"</span> +
+      <span class="hljs-string">"       autoapprove"</span>;
+
+  String BASE_FIND_STATEMENT = <span class="hljs-string">"select "</span> + CLIENT_FIELDS
+      + <span class="hljs-string">" from sys_oauth_client_details"</span>;
+
+
+  <span class="hljs-comment">/**</span>
+<span class="hljs-comment">   * 默认的查询语句</span>
+<span class="hljs-comment">   */</span>
+  String DEFAULT_FIND_STATEMENT = BASE_FIND_STATEMENT + <span class="hljs-string">" order by client_id"</span>;
+
+  <span class="hljs-comment">/**</span>
+<span class="hljs-comment">   * 按条件client_id 查询</span>
+<span class="hljs-comment">   */</span>
+  String DEFAULT_SELECT_STATEMENT = BASE_FIND_STATEMENT + <span class="hljs-string">" where client_id = ?"</span>;
+&#125;</code></pre>
+
+<p>AuthorizationServerConfig</p>
+<pre><code class="hljs java"><span class="hljs-meta">@Override</span>
+<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(ClientDetailsServiceConfigurer clients)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+  JdbcClientDetailsService jdbcClientDetailsService = <span class="hljs-keyword">new</span> JdbcClientDetailsService(dataSource);
+  jdbcClientDetailsService.setFindClientDetailsSql(SecurityConstant.DEFAULT_FIND_STATEMENT);
+  jdbcClientDetailsService.setSelectClientDetailsSql(SecurityConstant.DEFAULT_SELECT_STATEMENT);
+  clients
+      .withClientDetails(jdbcClientDetailsService);
+&#125;</code></pre>
+
+<h2 id="自定义响应"><a href="#自定义响应" class="headerlink" title="自定义响应"></a>自定义响应</h2><blockquote>
+<p>我刚来到一家公司上班，公司用的<code>Spring Security</code>做权限认证，这里我遇见了一个问题：请求登录接口、Token过期的数据格式修改一下。于是就有了这一章节</p>
+</blockquote>
+<h3 id="异常类型"><a href="#异常类型" class="headerlink" title="异常类型"></a>异常类型</h3><p>自定响应内容就需要先了解Spring Security常见的异常都有哪些？这里列出常见的几个：</p>
+<ul>
+<li>UsernameNotFoundException（用户不存在）</li>
+<li>DisabledException（用户已被禁用）</li>
+<li>BadCredentialsException（坏的凭据）</li>
+<li>LockedException（账户锁定）</li>
+<li>AccountExpiredException （账户过期）</li>
+<li>CredentialsExpiredException（证书过期）<br>…</li>
+</ul>
+<h3 id="从哪下手？"><a href="#从哪下手？" class="headerlink" title="从哪下手？"></a>从哪下手？</h3><p><code>TokenEndpoint</code>提供了<code>/oauth/token</code>请求，在这个请求中对一些情况抛出异常，对于这些异常，它自己也做了异常的捕获，代码如下：</p>
+<pre><code class="hljs java"><span class="hljs-meta">@ExceptionHandler</span>(HttpRequestMethodNotSupportedException<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>
+<span class="hljs-class">	<span class="hljs-title">public</span> <span class="hljs-title">ResponseEntity</span>&lt;<span class="hljs-title">OAuth2Exception</span>&gt; <span class="hljs-title">handleHttpRequestMethodNotSupportedException</span>(<span class="hljs-title">HttpRequestMethodNotSupportedException</span> <span class="hljs-title">e</span>) <span class="hljs-title">throws</span> <span class="hljs-title">Exception</span> </span>&#123;
+				<span class="hljs-comment">//...</span>
+	    <span class="hljs-keyword">return</span> getExceptionTranslator().translate(e);
+	&#125;
+	
+	<span class="hljs-meta">@ExceptionHandler</span>(Exception<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>
+<span class="hljs-class">	<span class="hljs-title">public</span> <span class="hljs-title">ResponseEntity</span>&lt;<span class="hljs-title">OAuth2Exception</span>&gt; <span class="hljs-title">handleException</span>(<span class="hljs-title">Exception</span> <span class="hljs-title">e</span>) <span class="hljs-title">throws</span> <span class="hljs-title">Exception</span> </span>&#123;
+				<span class="hljs-comment">//...</span>
+		<span class="hljs-keyword">return</span> getExceptionTranslator().translate(e);
+	&#125;
+	
+	<span class="hljs-meta">@ExceptionHandler</span>(ClientRegistrationException<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>
+<span class="hljs-class">	<span class="hljs-title">public</span> <span class="hljs-title">ResponseEntity</span>&lt;<span class="hljs-title">OAuth2Exception</span>&gt; <span class="hljs-title">handleClientRegistrationException</span>(<span class="hljs-title">Exception</span> <span class="hljs-title">e</span>) <span class="hljs-title">throws</span> <span class="hljs-title">Exception</span> </span>&#123;
+				<span class="hljs-comment">//...</span>
+		<span class="hljs-keyword">return</span> getExceptionTranslator().translate(<span class="hljs-keyword">new</span> BadClientCredentialsException());
+	&#125;
+
+	<span class="hljs-meta">@ExceptionHandler</span>(OAuth2Exception<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>
+<span class="hljs-class">	<span class="hljs-title">public</span> <span class="hljs-title">ResponseEntity</span>&lt;<span class="hljs-title">OAuth2Exception</span>&gt; <span class="hljs-title">handleException</span>(<span class="hljs-title">OAuth2Exception</span> <span class="hljs-title">e</span>) <span class="hljs-title">throws</span> <span class="hljs-title">Exception</span> </span>&#123;
+		<span class="hljs-comment">//...</span>
+		<span class="hljs-keyword">return</span> getExceptionTranslator().translate(e);
+	&#125;</code></pre>
+
+<p>从这些异常处理器中都能看最后的代码都是<code>return getExceptionTranslator().translate(e);</code>，它是做什么的？这里接着看它调用的这个方法<code>translate</code></p>
+<pre><code class="hljs java">
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * Translates exceptions into HTTP Responses.</span>
+<span class="hljs-comment"> * </span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@param</span> &lt;T&gt; The error model that will be used as the HTTP Response body.</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">WebResponseExceptionTranslator</span>&lt;<span class="hljs-title">T</span>&gt; </span>&#123;
+	
+	<span class="hljs-function">ResponseEntity&lt;T&gt; <span class="hljs-title">translate</span><span class="hljs-params">(Exception e)</span> <span class="hljs-keyword">throws</span> Exception</span>;
+
+&#125;</code></pre>
+
+<p>Translates exceptions into HTTP Responses.-&gt;将异常转换为响应。这里说的很清楚了，实际上是只要编写一个类实现接口中的方法就能实现自定义的响应。方法中的内容要怎么写？可以参考它的默认实现类：</p>
+<p>DefaultWebResponseExceptionTranslator</p>
+<hr>
+<h3 id="编写代码"><a href="#编写代码" class="headerlink" title="编写代码"></a>编写代码</h3><p>首先编写一个McrAuth2ExceptionSerializer，这里的代码不做过多介绍，关于<code>fasterxml.jackson</code>有很多内容要讲，我以后会系统的来对这个学习。</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.mcr.auth.security.component;
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">McrAuth2ExceptionSerializer</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">StdSerializer</span>&lt;<span class="hljs-title">McrAuth2Exception</span>&gt; </span>&#123;
+  <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-title">McrAuth2ExceptionSerializer</span><span class="hljs-params">()</span> </span>&#123;
+    <span class="hljs-keyword">super</span>(McrAuth2Exception<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>;
+  &#125;
+    
+  <span class="hljs-meta">@Override</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">serialize</span><span class="hljs-params">(McrAuth2Exception e, JsonGenerator gen, SerializerProvider serializerProvider)</span> <span class="hljs-keyword">throws</span> IOException </span>&#123;
+    gen.writeStartObject();
+    gen.writeObjectField(<span class="hljs-string">"code"</span>, <span class="hljs-number">1</span>);
+    gen.writeObjectField(<span class="hljs-string">"msg"</span>, e.getMessage());
+    gen.writeObjectField(<span class="hljs-string">"data"</span>, e.getErrorCode());
+    gen.writeEndObject();
+  &#125;
+&#125;</code></pre>
+
+<p>自定义异常基类</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.mcr.auth.security.exception;
+<span class="hljs-meta">@JsonSerialize</span>(using = McrAuth2ExceptionSerializer<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>
+<span class="hljs-class"><span class="hljs-title">public</span> <span class="hljs-title">class</span> <span class="hljs-title">McrAuth2Exception</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">OAuth2Exception</span> </span>&#123;
+
+  <span class="hljs-meta">@Getter</span>
+  <span class="hljs-keyword">private</span> String errorCode;
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">McrAuth2Exception</span><span class="hljs-params">(String msg, String errorCode)</span> </span>&#123;
+    <span class="hljs-keyword">super</span>(msg);
+    <span class="hljs-keyword">this</span>.errorCode = errorCode;
+  &#125;
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">McrAuth2Exception</span><span class="hljs-params">(String msg)</span> </span>&#123;
+    <span class="hljs-keyword">super</span>(msg);
+  &#125;
+&#125;</code></pre>
+
+<p>访问被拒绝的异常</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.mcr.auth.security.exception;
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * 访问被拒接</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-meta">@JsonSerialize</span>(using = McrAuth2ExceptionSerializer<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>
+<span class="hljs-class"><span class="hljs-title">public</span> <span class="hljs-title">class</span> <span class="hljs-title">ForbiddenException</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">McrAuth2Exception</span> </span>&#123;
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">ForbiddenException</span><span class="hljs-params">(String msg, Throwable t)</span> </span>&#123;
+    <span class="hljs-keyword">super</span>(msg);
+  &#125;
+
+  <span class="hljs-meta">@Override</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">getOAuth2ErrorCode</span><span class="hljs-params">()</span> </span>&#123;
+    <span class="hljs-keyword">return</span> <span class="hljs-string">"access_denied"</span>;
+  &#125;
+
+  <span class="hljs-meta">@Override</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> <span class="hljs-title">getHttpErrorCode</span><span class="hljs-params">()</span> </span>&#123;
+    <span class="hljs-keyword">return</span> HttpStatus.FORBIDDEN.value();
+  &#125;
+&#125;</code></pre>
+
+<p>无效的异常</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.mcr.auth.security.exception;
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * 无效的异常</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-meta">@JsonSerialize</span>(using = McrAuth2ExceptionSerializer<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>
+<span class="hljs-class"><span class="hljs-title">public</span> <span class="hljs-title">class</span> <span class="hljs-title">InvalidException</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">McrAuth2Exception</span> </span>&#123;
+
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">InvalidException</span><span class="hljs-params">(String msg, Throwable t)</span> </span>&#123;
+		<span class="hljs-keyword">super</span>(msg);
+	&#125;
+
+	<span class="hljs-meta">@Override</span>
+	<span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">getOAuth2ErrorCode</span><span class="hljs-params">()</span> </span>&#123;
+		<span class="hljs-keyword">return</span> <span class="hljs-string">"invalid_exception"</span>;
+	&#125;
+
+	<span class="hljs-meta">@Override</span>
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> <span class="hljs-title">getHttpErrorCode</span><span class="hljs-params">()</span> </span>&#123;
+		<span class="hljs-keyword">return</span> <span class="hljs-number">426</span>;
+	&#125;
+
+&#125;</code></pre>
+
+<p>不允许的方法</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.mcr.auth.security.exception;
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * 不允许的方法</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-meta">@JsonSerialize</span>(using = McrAuth2ExceptionSerializer<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>
+<span class="hljs-class"><span class="hljs-title">public</span> <span class="hljs-title">class</span> <span class="hljs-title">MethodNotAllowed</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">McrAuth2Exception</span> </span>&#123;
+
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">MethodNotAllowed</span><span class="hljs-params">(String msg, Throwable t)</span> </span>&#123;
+		<span class="hljs-keyword">super</span>(msg);
+	&#125;
+
+	<span class="hljs-meta">@Override</span>
+	<span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">getOAuth2ErrorCode</span><span class="hljs-params">()</span> </span>&#123;
+		<span class="hljs-keyword">return</span> <span class="hljs-string">"method_not_allowed"</span>;
+	&#125;
+
+	<span class="hljs-meta">@Override</span>
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> <span class="hljs-title">getHttpErrorCode</span><span class="hljs-params">()</span> </span>&#123;
+		<span class="hljs-keyword">return</span> HttpStatus.METHOD_NOT_ALLOWED.value();
+	&#125;
+
+&#125;</code></pre>
+
+<p>服务错误</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.mcr.auth.security.exception;
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * 服务错误</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-meta">@JsonSerialize</span>(using = McrAuth2ExceptionSerializer<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>
+<span class="hljs-class"><span class="hljs-title">public</span> <span class="hljs-title">class</span> <span class="hljs-title">ServerErrorException</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">McrAuth2Exception</span> </span>&#123;
+
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">ServerErrorException</span><span class="hljs-params">(String msg, Throwable t)</span> </span>&#123;
+		<span class="hljs-keyword">super</span>(msg);
+	&#125;
+
+	<span class="hljs-meta">@Override</span>
+	<span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">getOAuth2ErrorCode</span><span class="hljs-params">()</span> </span>&#123;
+		<span class="hljs-keyword">return</span> <span class="hljs-string">"server_error"</span>;
+	&#125;
+
+	<span class="hljs-meta">@Override</span>
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> <span class="hljs-title">getHttpErrorCode</span><span class="hljs-params">()</span> </span>&#123;
+		<span class="hljs-keyword">return</span> HttpStatus.INTERNAL_SERVER_ERROR.value();
+	&#125;
+
+&#125;</code></pre>
+
+<p>未经授权的异常</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.mcr.auth.security.exception;
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * 未经过授权的异常</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-meta">@JsonSerialize</span>(using = McrAuth2ExceptionSerializer<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>
+<span class="hljs-class"><span class="hljs-title">public</span> <span class="hljs-title">class</span> <span class="hljs-title">UnauthorizedException</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">McrAuth2Exception</span> </span>&#123;
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">UnauthorizedException</span><span class="hljs-params">(String msg, Throwable t)</span> </span>&#123;
+    <span class="hljs-keyword">super</span>(msg);
+  &#125;
+
+  <span class="hljs-meta">@Override</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">getOAuth2ErrorCode</span><span class="hljs-params">()</span> </span>&#123;
+    <span class="hljs-keyword">return</span> <span class="hljs-string">"unauthorized"</span>;
+  &#125;
+
+  <span class="hljs-meta">@Override</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> <span class="hljs-title">getHttpErrorCode</span><span class="hljs-params">()</span> </span>&#123;
+    <span class="hljs-keyword">return</span> HttpStatus.UNAUTHORIZED.value();
+  &#125;
+&#125;</code></pre>
+
+<hr>
+<p><code>WebResponseExceptionTranslator实现类</code>：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.mcr.auth.security.component;
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">McrResponseExceptionTranslator</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">WebResponseExceptionTranslator</span> </span>&#123;
+
+  <span class="hljs-keyword">private</span> ThrowableAnalyzer throwableAnalyzer = <span class="hljs-keyword">new</span> DefaultThrowableAnalyzer();
+
+
+  <span class="hljs-meta">@Override</span>
+  <span class="hljs-meta">@SneakyThrows</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> ResponseEntity <span class="hljs-title">translate</span><span class="hljs-params">(Exception e)</span> </span>&#123;
+    Throwable[] causeChain = throwableAnalyzer.determineCauseChain(e);
+
+    Exception ase = (AuthenticationException) throwableAnalyzer.getFirstThrowableOfType(AuthenticationException<span class="hljs-class">.<span class="hljs-keyword">class</span>,</span>
+<span class="hljs-class">        <span class="hljs-title">causeChain</span>)</span>;
+
+    <span class="hljs-keyword">if</span> (ase != <span class="hljs-keyword">null</span>) &#123;
+      <span class="hljs-keyword">return</span> handleOAuth2Exception(<span class="hljs-keyword">new</span> UnauthorizedException(e.getMessage(), e));
+    &#125;
+
+    ase = (AccessDeniedException) throwableAnalyzer
+        .getFirstThrowableOfType(AccessDeniedException<span class="hljs-class">.<span class="hljs-keyword">class</span>, <span class="hljs-title">causeChain</span>)</span>;
+    <span class="hljs-keyword">if</span> (ase != <span class="hljs-keyword">null</span>) &#123;
+      <span class="hljs-keyword">return</span> handleOAuth2Exception(<span class="hljs-keyword">new</span> ForbiddenException(ase.getMessage(), ase));
+    &#125;
+
+    ase = (InvalidGrantException) throwableAnalyzer
+        .getFirstThrowableOfType(InvalidGrantException<span class="hljs-class">.<span class="hljs-keyword">class</span>, <span class="hljs-title">causeChain</span>)</span>;
+
+    <span class="hljs-keyword">if</span> (ase != <span class="hljs-keyword">null</span>) &#123;
+      <span class="hljs-keyword">return</span> handleOAuth2Exception(<span class="hljs-keyword">new</span> InvalidException(ase.getMessage(), ase));
+    &#125;
+
+
+    ase = (HttpRequestMethodNotSupportedException) throwableAnalyzer
+        .getFirstThrowableOfType(HttpRequestMethodNotSupportedException<span class="hljs-class">.<span class="hljs-keyword">class</span>, <span class="hljs-title">causeChain</span>)</span>;
+
+    <span class="hljs-keyword">if</span> (ase != <span class="hljs-keyword">null</span>) &#123;
+      <span class="hljs-keyword">return</span> handleOAuth2Exception(<span class="hljs-keyword">new</span> MethodNotAllowed(ase.getMessage(), ase));
+    &#125;
+
+    ase = (OAuth2Exception) throwableAnalyzer.getFirstThrowableOfType(
+        OAuth2Exception<span class="hljs-class">.<span class="hljs-keyword">class</span>, <span class="hljs-title">causeChain</span>)</span>;
+
+    <span class="hljs-keyword">if</span> (ase != <span class="hljs-keyword">null</span>) &#123;
+      <span class="hljs-keyword">return</span> handleOAuth2Exception((OAuth2Exception) ase);
+    &#125;
+    <span class="hljs-keyword">return</span> handleOAuth2Exception(<span class="hljs-keyword">new</span> ServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), e));
+  &#125;
+
+
+  <span class="hljs-function"><span class="hljs-keyword">private</span> ResponseEntity&lt;OAuth2Exception&gt; <span class="hljs-title">handleOAuth2Exception</span><span class="hljs-params">(OAuth2Exception e)</span> </span>&#123;
+
+    <span class="hljs-keyword">int</span> status = e.getHttpErrorCode();
+    HttpHeaders headers = <span class="hljs-keyword">new</span> HttpHeaders();
+    headers.set(HttpHeaders.CACHE_CONTROL, <span class="hljs-string">"no-store"</span>);
+    headers.set(HttpHeaders.PRAGMA, <span class="hljs-string">"no-cache"</span>);
+    <span class="hljs-keyword">if</span> (status == HttpStatus.UNAUTHORIZED.value() || (e <span class="hljs-keyword">instanceof</span> InsufficientScopeException)) &#123;
+      headers.set(HttpHeaders.WWW_AUTHENTICATE, String.format(<span class="hljs-string">"%s %s"</span>, OAuth2AccessToken.BEARER_TYPE, e.getSummary()));
+    &#125;
+
+    <span class="hljs-comment">// 客户端异常直接返回客户端,不然无法解析</span>
+    <span class="hljs-keyword">if</span> (e <span class="hljs-keyword">instanceof</span> ClientAuthenticationException) &#123;
+      <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> ResponseEntity&lt;&gt;(e, headers,
+          HttpStatus.valueOf(status));
+    &#125;
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> ResponseEntity&lt;&gt;(<span class="hljs-keyword">new</span> McrAuth2Exception(e.getMessage(), e.getOAuth2ErrorCode()), headers,
+        HttpStatus.valueOf(status));
+
+  &#125;
+&#125;</code></pre>
+
+<p>在TokenEndpoint上绑定上<code>McrResponseExceptionTranslator</code></p>
+<pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AuthorizationServerConfig</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">AuthorizationServerConfigurerAdapter</span> </span>&#123;
+
+<span class="hljs-meta">@Override</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(AuthorizationServerEndpointsConfigurer endpoints)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+    endpoints
+		<span class="hljs-comment">//...       </span>
+        👇关键代码
+        .exceptionTranslator(<span class="hljs-keyword">new</span> McrResponseExceptionTranslator());
+  &#125;
+&#125;</code></pre>
+
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/OAuth/">OAuth</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/react-1.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【React】 Styled-Component + Tailwind CSS + Tailwind Macro</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/oauth2-1.html">
+                        <span class="hidden-mobile">【 OAuth2-学习笔记 】  1.Hello OAuth2</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "【 OAuth2-学习笔记 】  2.OAuth进阶篇&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

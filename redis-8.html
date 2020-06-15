@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="Shui">
+  <meta name="keywords" content="">
+  <title>【 Redis-学习笔记 】 8.初识Redis Cluster - Shui&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Fluid</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2019-10-17 21:08">
+      2019年10月17日 晚上
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      6.2k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      84
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <h1 id="呼唤集群"><a href="#呼唤集群" class="headerlink" title="呼唤集群"></a>呼唤集群</h1><h2 id="并发量"><a href="#并发量" class="headerlink" title="并发量"></a>并发量</h2><p>Redis每秒可以达到每秒10W QPS，但是有些业务是需要100W QPS,</p>
+<h2 id="数据量"><a href="#数据量" class="headerlink" title="数据量"></a>数据量</h2><p>现在有一台机器16~256G，假如说一个传统的Redis部署在上面，假如说业务需要500G数据呢？</p>
+<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p>配置“强悍”的机器：超大内存、牛xCPU等，但是随着业务量变得越来越大的时候，单机已经无法满足了</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572003131116.png" srcset="/img/loading.gif" alt="1572003131116"></p>
+<h2 id="正确的解决方案"><a href="#正确的解决方案" class="headerlink" title="正确的解决方案"></a>正确的解决方案</h2><p>分布式：简单的认为加机器；</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572003163058.png" srcset="/img/loading.gif" alt="1572003163058"></p>
+<h1 id="数据分布概念"><a href="#数据分布概念" class="headerlink" title="数据分布概念"></a>数据分布概念</h1><p>现在有一份全量的数据，它的单机已经无法满足需求，所以就要对数据进行分区，比如现在有100份数据按照一定的规则分到若干个子集当中，</p>
+<p>它的分区规则：</p>
+<ul>
+<li><p>顺序分区：假如有3个节点<img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572003461916.png" srcset="/img/loading.gif" alt="1572003461916" style="zoom: 25%;" /></p>
+</li>
+<li><p>哈希分区：对每个数字做一个hash函数，通过节点去给它取余,例如<code>hash(key)%3</code>，结果是0放1分区，1放2分区，2放3分区，它这里有很的函数，等会会介绍。<img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572003650622.png" srcset="/img/loading.gif" alt="1572003650622" style="zoom:25%;" /></p>
+</li>
+</ul>
+<p><strong>数据分布对比</strong></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572003693407.png" srcset="/img/loading.gif" alt="1572003693407"></p>
+<h1 id="节点取余分区"><a href="#节点取余分区" class="headerlink" title="节点取余分区"></a>节点取余分区</h1><p>3个节点中的hash分区： 对每个key去执行一个hansh函数对3去取一个余数，如果是0到1分区，1到2分区，2到3分区…</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572004167066.png" srcset="/img/loading.gif" alt="1572004167066"></p>
+<p>这是一个简单的分区操作，但是有一个问题：如果需要进行扩容，业务量不断增大，3个节点无法满足要求，现在加入一个节点，添加之后有一个问题，数据会发生变化，因为要做的是对每一个数据去取一个hash去取它的节点数的余数，那就会有造成很多的数据偏移，原来在第1个节点的3，原来对3去取余是0，对4取余是3，所以它会到4节点….<img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572004395008.png" srcset="/img/loading.gif" alt="1572004395008" style="zoom: 50%;" /></p>
+<p>这里有一种方式叫做“多被扩容”，比如原本是3个节点，扩容的时候再加3个节点也就是3的倍数，这样做可以保留百分50的数据不被迁移，之前这样会迁移百分80会有很明显的降低。如果你希望迁移量少可以使用这种方式，在迁移之后去缓存中第一次可能会取不到数据，这个时候就需要去数据库中获取到那个数据，然后放到Redis中，这样会出现大量的缓存回写，这样对一个系统来说是一个不正常的现象</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572004570436.png" srcset="/img/loading.gif" alt="1572004570436"></p>
+<ul>
+<li>客户端分片：哈希+取余</li>
+<li>节点伸缩：数据节点关系变化，导致数据迁移</li>
+<li>迁移数量和添加节点数量有关：建议翻倍扩容</li>
+</ul>
+<h1 id="一致性哈希"><a href="#一致性哈希" class="headerlink" title="一致性哈希"></a>一致性哈希</h1><blockquote>
+<p>前面取余是有问题的，加了节点之后它的数据迁移量是非常大的，无论是百分50还是百分80它影响的范围太大了，一致性hash就解决了这个问题</p>
+</blockquote>
+<h2 id="是什么？"><a href="#是什么？" class="headerlink" title="是什么？"></a>是什么？</h2><p>将数据看成一个环，将数据做一个token环，这个token环的意思代表数据范围，0~2的32次方这样的范围，我们为每个节点去分配一个token，这个token是在范围内，比如节点1的范围：0到多少多少，节点2是多少多少，每一个范围负责一定的数据一部分token，当数据的key对它进行hash计算之后，它是在某范围内，例如图中的范围，它会去顺时针去找节点</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572005650015-1572005654310.png" srcset="/img/loading.gif" alt="1572005650015"></p>
+<h2 id="这样做有什么好处？"><a href="#这样做有什么好处？" class="headerlink" title="这样做有什么好处？"></a>这样做有什么好处？</h2><p>假如现在添加一个node5，这个node5是在1和2之间，我们为它分配了一个这样的token，这个时候做一个数据迁移是怎么样的？下一次哈希计算之后它落到node1和node5之间，这个时候数据会到node5上，这样就出现了数据偏移，但是它有一个好处：我添加一个节点之后不会影响node3和node4，只会影响node1、node2这些数据偏移，它的影响范围能缩小很多，尤其是在数据节点非常多的时候，假如环上有1000个节点，那现在在1000个节点中加入一个节点，它影响范围可能就只有1000分之1，一致性哈希在节点比较多的情况去使用，它还是一种缓存的使用方式，因为我原来在node2已经存的数据在node5，因为这个时候它的规格发生了变化，那它只能去node5去取，但node5没有就只能去数据库去回写，虽然它仍然是一个缓存的场景，无法实现将node2的数据迁移到node5这是它的一个问题；</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>客户端分片：哈希+顺时针（优化取舍）</li>
+<li>节点伸缩：只影响邻近节点，但是还是有数据迁移</li>
+<li>翻倍伸缩：现在我在2个节点之间添加一个节点，它没法实现数据的一个负载均衡，因为它添加节点之后，node3和node4还是负责很多数据，然后1和2和5数据量比较小所以它会出现流量和一些数据不均匀的情况，对于分布式数据库来说这不是一个很好的使用方式，所以在真正需要扩容的时候可能会使用翻倍扩容的方式</li>
+</ul>
+<h1 id="虚拟槽分区"><a href="#虚拟槽分区" class="headerlink" title="虚拟槽分区"></a>虚拟槽分区</h1><h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><ul>
+<li>预设虚拟槽：每个槽映射一个数据子集，一般比节点数大，这个槽你可以理解为一个数字，然后它有一定范围，比如0到383，这个是<code>RedisCluster</code>的范围，这个概念是比较抽象的，它每一个槽是负责大数据的一个子集，假如说现在我有10W个数据，16384个槽按照一定的哈希的规则，例如对每一个数据做一个hash，然后对16383进行取余，它落到槽范围内就证明是这个槽管理的数据，下面通过图进行说明</li>
+<li>良好的哈希函数：例如CRC16</li>
+<li>服务端管理节点、槽、数据：例如Redis Cluster</li>
+</ul>
+<h2 id="虚拟槽分配"><a href="#虚拟槽分配" class="headerlink" title="虚拟槽分配"></a>虚拟槽分配</h2><p>Redis Cluster模型</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572006846336.png" srcset="/img/loading.gif" alt="1572006846336"></p>
+<p>现在有5个节点，对槽进行平均分成5份，例如0到3276是归节点1管理，13108到16383是到节点5去管理，对于每个key来将，我们对它做一个哈希，在Redis Cluster里面就是一个CRC16给它做一个哈希，然后对16383去取余，然后它会发送给Redis Cluster任意一个节点，它每一个节点都会记录自己是不是负责这个槽的，假如是算出这个值是100，我们发送给节点1，节点1发现它是在自己负责的槽的范围内，它去把它进行保存给它返回一个结果，如果它发现不在自己槽访问内：由于Redis Cluster节点之间是一个共享消息的模式，我节点1知道剩余的节点负责哪些槽，这样的话返回的结果会告诉你去其他节点去取，具体是哪个节点我也告诉你了，这就是一个服务端去管理数据和槽还有节点关系的一种模式，一致性哈希分布、取余哈希分布都有一个问题：我添加新的节点之后数据会进行迁移，会存在丢数据的可能性，所以它只能作为缓存场景使用，使用虚拟槽就不存在这样的问题，因为每个节点负责的槽范围是固定的，你加一个新节点也没有把其他节点的槽抢走，必须是我这个节点把我这个槽权利去分配给你，把数据根据槽分配给你，这样的话就不会有丢数据的这样的问题；</p>
+<h1 id="基本架构"><a href="#基本架构" class="headerlink" title="基本架构"></a>基本架构</h1><p>服务端是很多个节点，每个节点负责去读也负责去写，而且节点之间是彼此通信的，它们彼此之间知道彼此负责的槽，然后把16384进行平均，每个节点负责一部分槽，客户端去访问任意节点的时候，如果它去访问的key在对应的节点上就给它直接返回，如果不在对应的节点就告诉它去其他节点去找，但是它不会为你做跳转，它会返回给你对应目标节点的结果，然后你去做对应的跳转，当然这种方式是有问题的：它的性能不够高，而且当节点非常多的时候，命中率不会很高；所以这种情况要使用智能客户端，用它去知道所有节点，客户端也知道每个节点负责哪些槽，而且这个槽和节点的关系发生变化的时候，客户端也会知道，这是一种高效的方式，这个在介绍客户端的时候会去说明，这里就记住几点：</p>
+<ul>
+<li>在Redis Cluster分布式情况下是互相通信的；</li>
+<li>每个节点都会负责读写，因为每个节点都是数据集的一部分，这是分布式的特性；</li>
+</ul>
+<p><strong>Redis Cluster架构</strong></p>
+<ul>
+<li>Redis Cluster会有一堆节点，每个节点负责去读写；</li>
+<li>它有一个meet操作，节点之间是进行相关通信的，meet操作就是完成这个过程的基础；</li>
+<li>指派槽：每个节点指派了对应的槽它才可以去进行正常的读写，你现在去启动节点，然后它指定一个Cluster模式，这个后面可以看到，它不会正常读写，你要为它指派槽，当数据访问过来的时候它去看这个key是不是在自己槽范围内；</li>
+<li>它为了保证高可用，它也提供了复制，每个主节点都有一个从节点，但是它有很多主节点，当主节点出现问题，它通过某种形式也可以实现主备高可用，主节点挂了 ，从节点会顶上来，它内部监控是没有依赖与Sentinel，而是通过节点之间的相互监控来完成的；</li>
+</ul>
+<p><strong>安装</strong></p>
+<ul>
+<li><p>对于节点来说它于普通Redis节点的区别就是它有一个<code>cluster-enabled</code>它是否是集群模式，如果是yes就以集群模式启动</p>
+</li>
+<li><p><code>meet</code>：假如说现在有3个节点，节点A对节点B发送了meet操作，它会返回<code>PONG</code>说明A和B已经可以进行消息交流了，然后当A发送给Cmeet的时候它也返回对应的结果，这个时候A和C根据某种协议通过B对A的了解，B可以找到对应的C，这样就完成了相互通信<img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572008784267.png" srcset="/img/loading.gif" alt="1572008784267" style="zoom:25%;" /></p>
+</li>
+<li><p>指派槽：现在有3个主节点，但是有16384个槽，16384是<code>Redis Cluster</code>指定槽的数量，那么我们为了达到负责均衡的效果，会给每个节点指派指定的槽，例如给A节点指派0到5460，B：5461到10922，C：10923到16383，当我们一个key访问过来时候会计算它的哈希值，然后对16383去取一个余数，看它是否在对应一个槽的范围内，如果在就返回结果，如果不在返回对应的一个节点，因为它们直接彼此知道哪些槽是在哪个节点上，对于客户端来说客户端只需要计算一个key算出对应的slot</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572009121295.png" srcset="/img/loading.gif" alt="1572009121295"></p>
+<p><strong>RedisCluster特性</strong></p>
+<p>它有主从复制，每个主节点都有从节点，而且他是高可用的，哪个主节点挂了，从节点都能完成一个晋升，而且它是分片的：多个主节点进行一个读写</p>
+</li>
+</ul>
+<h1 id="原生安装"><a href="#原生安装" class="headerlink" title="原生安装"></a>原生安装</h1><h2 id="介绍-1"><a href="#介绍-1" class="headerlink" title="介绍"></a>介绍</h2><h3 id="两种安装"><a href="#两种安装" class="headerlink" title="两种安装"></a>两种安装</h3><ul>
+<li>原生命令安装</li>
+</ul>
+<blockquote>
+<p>通过RedisCluster协议，通过Redis-Cli从节点启动、meet、分配槽以及、分配主从关系来实现完整的安装过程</p>
+</blockquote>
+<ul>
+<li>官方工具安装</li>
+</ul>
+<blockquote>
+<p>使用Redis提供的ruby工具，它可以省去上面的过程，你只需要简单的配置就能一键安装</p>
+</blockquote>
+<h3 id="理解架构"><a href="#理解架构" class="headerlink" title="理解架构"></a>理解架构</h3><blockquote>
+<p>通过一步一步手动去安装可以充分理解RedisCluster基本架构，</p>
+</blockquote>
+<ol>
+<li>配置开启节点：这和普通启动没有太大区别，它只是加了一些cluster的一些配置</li>
+<li>meet：实现节点之间的相互通信</li>
+<li>指派槽：只有指派槽之后才能实现客户端数据的访问</li>
+<li>主从：有了主从关系就能实现故障自动转移</li>
+</ol>
+<h3 id="配置开启Redis"><a href="#配置开启Redis" class="headerlink" title="配置开启Redis"></a>配置开启Redis</h3><h4 id="redis-conf"><a href="#redis-conf" class="headerlink" title="redis.conf"></a>redis.conf</h4><pre><code class="hljs nginx"><span class="hljs-attribute">port</span> <span class="hljs-variable">$port</span>]
+daemonize <span class="hljs-literal">yes</span>
+dir<span class="hljs-string">"/opt/redis/redis/data/</span>
+<span class="hljs-string">dbfilename dump-S&#123;port&#125;. rdb</span>
+<span class="hljs-string">logfile "</span><span class="hljs-variable">$&#123;port&#125;</span>.log<span class="hljs-string">"</span>
+<span class="hljs-string">cluster-enabled yes	#当前节点是一个cluster节点</span>
+<span class="hljs-string">cluster-config-file nodes-<span class="hljs-variable">$&#123;port&#125;</span>.conf #为cluster节点添加一个自己的配置文件</span></code></pre>
+
+<h4 id="开启节点"><a href="#开启节点" class="headerlink" title="开启节点"></a>开启节点</h4><pre><code class="hljs bash">redis-server redis-7000.conf
+redis-server redis-7001.conf
+redis-server redis-7002.conf
+redis-server redis-7003.conf
+redis-server redis-7004.conf
+redis-server redis-7005.conf</code></pre>
+
+<h4 id="meet"><a href="#meet" class="headerlink" title="meet"></a>meet</h4><p> <strong>语法</strong></p>
+<pre><code class="hljs bash">cluster meet ip port</code></pre>
+
+<p> <strong>例子</strong></p>
+<pre><code class="hljs bash">redis-cli -h 127.0.0.1 -p 7000 cluster meet 120.0.0.1 7001
+redis-cli -h 127.0.0.1 -p 7000 cluster meet 120.0.0.1 7002
+redis-cli -h 127.0.0.1 -p 7000 cluster meet 120.0.0.1 7003
+redis-cli -h 127.0.0.1 -p 7000 cluster meet 120.0.0.1 7004
+redis-cli -h 127.0.0.1 -p 7000 cluster meet 120.0.0.1 7005</code></pre>
+
+<h4 id="Cluster节点主要配置"><a href="#Cluster节点主要配置" class="headerlink" title="Cluster节点主要配置"></a>Cluster节点主要配置</h4><pre><code class="hljs nginx"> <span class="hljs-comment">#代表当前节点是一个cluster节点</span>
+clustetr-enabled yes
+<span class="hljs-comment">#单位毫秒，这里可以理解为它是一个故障转移的时间或者节点超时时间，这里不太好说，在Redis源代码中是有很多作用的，例如它是一个主观下线的超时时间以及他是一个ping的最长不能容忍时间的2分之1，一般来说使用默认配置</span>
+cluster-node-timeout 15000 
+<span class="hljs-comment">#集群节点配置，这里注意单机多部署，本次演示也是一个单机多部署情况下，都是用端口进行区分的</span>
+cluster-config-file "nodes.conf"
+<span class="hljs-comment">#是否需要对集群内所有节点提供服务，才能认为节点是正确的。假如我集群中一个节点挂了，那我对外就不提供服务了，这个默认是yes，在实际生产中这个配置是不合理的，所以一般会配置成no。</span>
+cluster-require-full-coverage yes</code></pre>
+
+<h4 id="分配凑"><a href="#分配凑" class="headerlink" title="分配凑"></a>分配凑</h4><p><strong>语法</strong></p>
+<pre><code class="hljs bash">cluster addslots slot [slot...]</code></pre>
+
+<p><strong>例子</strong></p>
+<pre><code class="hljs bash">redis-cli -h 127.0.0.1 -p 7000 clusuter addslot &#123;0...5461&#125;
+redis-cli -h 127.0.0.1 -p 7001 clusuter addslot &#123;5462...10922&#125;
+redis-cli -h 127.0.0.1 -p 7002 clusuter addslot &#123;10923...16383&#125;</code></pre>
+
+<h4 id="设置主从"><a href="#设置主从" class="headerlink" title="设置主从"></a>设置主从</h4><p><strong>语法</strong></p>
+<pre><code class="hljs bash">cluster replicate node-id <span class="hljs-comment">#集群节点的id,它在你集群节点启动的时候就会进行分配，这里的node-id和runid是不同的，因为runid会随着重启进行重置，而node-id不会被重置</span></code></pre>
+
+<p><strong>例子</strong></p>
+<pre><code class="hljs bash">redis-cli -h 127.0.0.1 -p 7003 cluster replicate <span class="hljs-variable">$&#123;node-id-7000&#125;</span>
+redis-cli -h 127.0.0.1 -p 7004 cluster replicate <span class="hljs-variable">$&#123;node-id-7001&#125;</span>
+redis-cli -h 127.0.0.1 -p 7005 cluster replicate <span class="hljs-variable">$&#123;node-id-7002&#125;</span></code></pre>
+
+<blockquote>
+<p>这里的node-id是如何获取的在后续的演示中进行介绍</p>
+</blockquote>
+<h2 id="具体安装"><a href="#具体安装" class="headerlink" title="具体安装"></a>具体安装</h2><h3 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h3><pre><code class="hljs bash">vim redis-7000.conf</code></pre>
+
+<p>redis-7000.conf</p>
+<pre><code class="hljs nginx"><span class="hljs-attribute">port</span> <span class="hljs-number">7000</span>
+daemonize <span class="hljs-literal">yes</span>
+dir <span class="hljs-string">"/usr/src/redis/data"</span>
+logfile <span class="hljs-string">"7000.log"</span>
+dbfilename <span class="hljs-string">"dump-7000.rdb"</span>
+cluster-enabled <span class="hljs-literal">yes</span>
+cluster-config-file nodes-<span class="hljs-number">7000</span>.conf
+cluster-require-full-coverage <span class="hljs-literal">no</span></code></pre>
+
+<p>其他节点</p>
+<pre><code class="hljs bash">sed <span class="hljs-string">"s/7000/7002/g"</span> redis-7000.conf &gt; redis-7002.conf
+sed <span class="hljs-string">"s/7000/7003/g"</span> redis-7000.conf &gt; redis-7003.conf
+sed <span class="hljs-string">"s/7000/7004/g"</span> redis-7000.conf &gt; redis-7004.conf
+sed <span class="hljs-string">"s/7000/7005/g"</span> redis-7000.conf &gt; redis-7005.conf</code></pre>
+
+<p>启动</p>
+<pre><code class="hljs bash">[root@mcr2 config] redis-server  redis-7000.conf
+[root@mcr2 config] redis-server  redis-7001.conf
+[root@mcr2 config] redis-server  redis-7002.conf
+[root@mcr2 config] redis-server  redis-7003.conf
+[root@mcr2 config] redis-server  redis-7004.conf
+[root@mcr2 config] redis-server  redis-7005.conf
+[root@mcr2 config] ps -ef | grep redis
+root      10200      1  0 12:04 ?        00:00:00 redis-server *:7000 [cluster]
+root      10215      1  0 12:05 ?        00:00:00 redis-server *:7001 [cluster]
+root      10220      1  0 12:05 ?        00:00:00 redis-server *:7002 [cluster]
+root      10224      1  0 12:05 ?        00:00:00 redis-server *:7003 [cluster]
+root      10228      1  0 12:05 ?        00:00:00 redis-server *:7004 [cluster]
+root      10232      1  0 12:05 ?        00:00:00 redis-server *:7005 [cluster]
+root      10236   9913  0 12:05 pts/1    00:00:00 grep --color=auto redis</code></pre>
+
+<p>现在连接7000端口的节点写入一条数据会出错</p>
+<pre><code class="hljs bash">[root@mcr2 config]<span class="hljs-comment"># redis-cli -p 7000</span>
+127.0.0.1:7000&gt; <span class="hljs-built_in">set</span> k1 v1
+(error) CLUSTERDOWN The cluster is down</code></pre>
+
+<blockquote>
+<p>这是说你还没有分配槽，所以无法写入数据</p>
+</blockquote>
+<p>data文件中查看自动生成的文件：</p>
+<pre><code class="hljs bash">[root@mcr2 data] ll
+<span class="hljs-comment"># xx.log...</span>
+-rw-r--r-- 1 root root     112 10月 26 12:04 nodes-7000.conf
+-rw-r--r-- 1 root root     112 10月 26 12:05 nodes-7001.conf
+-rw-r--r-- 1 root root     112 10月 26 12:05 nodes-7002.conf
+-rw-r--r-- 1 root root     112 10月 26 12:05 nodes-7003.conf
+-rw-r--r-- 1 root root     112 10月 26 12:05 nodes-7004.conf
+-rw-r--r-- 1 root root     112 10月 26 12:05 nodes-7005.conf
+[root@mcr2 data] cat nodes-7001.conf
+b8706be32b3021222237479148acfbdeb9af9e55 :0 myself,master - 0 0 0 connected
+vars currentEpoch 0 lastVoteEpoch 0</code></pre>
+
+<blockquote>
+<p>这里的<code>b8706be32b3021222237479148acfbdeb9af9e55</code>是nodeid，它的角色是<code>master</code>，myself表示自己，假如当前假如了后期节点的时候它就会有一些其他节点可以看到</p>
+</blockquote>
+<p>也可以通过命令去查看</p>
+<pre><code class="hljs bash">[root@mcr2 data] redis-cli -p 7000 cluster nodes
+7486b5c98c7c644bdcc992ec8a0b0a9d711c5a49 :7000 myself,master - 0 0 0 connected</code></pre>
+
+<p>集群信息</p>
+<pre><code class="hljs bash">[root@mcr2 data]<span class="hljs-comment"># redis-cli -p 7000 cluster info</span>
+cluster_state:fail	<span class="hljs-comment">#集群状态：fail失败</span>
+cluster_slots_assigned:0	<span class="hljs-comment">#集群分配的槽</span>
+cluster_slots_ok:0	<span class="hljs-comment">#集配成功的槽</span>
+cluster_slots_pfail:0	
+cluster_slots_fail:0
+cluster_known_nodes:1
+cluster_size:0
+cluster_current_epoch:0
+cluster_my_epoch:0
+cluster_stats_messages_sent:0
+cluster_stats_messages_received:0</code></pre>
+
+<h3 id="meet-1"><a href="#meet-1" class="headerlink" title="meet"></a>meet</h3><pre><code class="hljs bash">[root@mcr2 config] redis-cli -p  7000 cluster meet 127.0.0.1 7001
+OK
+[root@mcr2 config] redis-cli -p  7000 cluster meet 127.0.0.1 7002
+OK
+[root@mcr2 config] redis-cli -p  7000 cluster meet 127.0.0.1 7003
+OK
+[root@mcr2 config] redis-cli -p  7000 cluster meet 127.0.0.1 7004
+OK
+[root@mcr2 config] redis-cli -p  7000 cluster meet 127.0.0.1 7005
+OK</code></pre>
+
+<p>meet完之后查看节点</p>
+<pre><code class="hljs bash">[root@mcr2 config] redis-cli -p 7000 cluster nodes
+ea47d9f8edeb000478512389731ca9132a69713d 127.0.0.1:7004 master - 0 1572078449112                                                                 3 connected
+16d4832afd3a8acdb4435e1be4acc733ec6377dd 127.0.0.1:7003 master - 0 1572078449614                                                                 5 connected
+b8706be32b3021222237479148acfbdeb9af9e55 127.0.0.1:7001 master - 0 1572078450118                                                                 2 connected
+7486b5c98c7c644bdcc992ec8a0b0a9d711c5a49 127.0.0.1:7000 myself,master - 0 0 1 co                                                                nnected
+67dcb98c8e4d12dc0f7a523b744566610821d8f2 127.0.0.1:7005 master - 0 1572078451125                                                                 4 connected
+fc9247fe63eeb84196cc2fd0fe936627e1ed767a 127.0.0.1:7002 master - 0 1572078452132                                                                 0 connected</code></pre>
+
+<h2 id="分配槽"><a href="#分配槽" class="headerlink" title="分配槽"></a>分配槽</h2><p>现在没分配槽的时候是不能进行读写的</p>
+<pre><code class="hljs bash">[root@mcr2 config]  redis-cli -p 7000
+127.0.0.1:7000&gt; <span class="hljs-built_in">set</span> k1 v1
+(error) CLUSTERDOWN The cluster is down</code></pre>
+
+<p>这里一个个设置很麻烦，这里写一个脚本</p>
+<pre><code class="hljs bash">[root@mcr2 script] vim addslots.sh
+
+start=<span class="hljs-variable">$1</span>
+end=<span class="hljs-variable">$2</span>
+port=<span class="hljs-variable">$3</span>
+<span class="hljs-keyword">for</span> slot <span class="hljs-keyword">in</span> `seq <span class="hljs-variable">$&#123;start&#125;</span> <span class="hljs-variable">$&#123;end&#125;</span>`
+<span class="hljs-keyword">do</span>
+        <span class="hljs-built_in">echo</span> <span class="hljs-string">"slot:<span class="hljs-variable">$&#123;slot&#125;</span>"</span>
+        redis-cli -p <span class="hljs-variable">$&#123;port&#125;</span> cluster addslots <span class="hljs-variable">$&#123;slot&#125;</span>
+<span class="hljs-keyword">done</span></code></pre>
+
+<p>执行脚本</p>
+<pre><code class="hljs bash">[root@mcr2 script] sh addslots.sh  0 5461 7000</code></pre>
+
+<p>查看信息</p>
+<pre><code class="hljs bash">[root@mcr2 script] redis-cli -p 7000
+127.0.0.1:7000&gt; cluster info
+cluster_state:ok
+cluster_slots_assigned:5462
+cluster_slots_ok:5462	<span class="hljs-comment"># 5462个槽</span>
+cluster_slots_pfail:0
+cluster_slots_fail:0
+cluster_known_nodes:6
+cluster_size:1
+cluster_current_epoch:5
+cluster_my_epoch:1
+cluster_stats_messages_sent:2277
+cluster_stats_messages_received:2277
+
+
+127.0.0.1:7000&gt; CLUSTER NODES
+....
+<span class="hljs-comment">#  nnected 0-5461	 槽信息</span>
+7486b5c98c7c644bdcc992ec8a0b0a9d711c5a49 127.0.0.1:7000 myself,master - 0 0 1 co                                                                nnected 0-5461</code></pre>
+
+<p>其他节点分槽</p>
+<pre><code class="hljs bash">[root@mcr2 script] sh addslots.sh  5462 10922 7001
+
+[root@mcr2 script] sh addslots.sh  10923 16383 7002</code></pre>
+
+<p>现在查看cluster信息</p>
+<pre><code class="hljs bash">[root@mcr2 config] redis-cli -p 7000 cluster info
+cluster_state:ok
+cluster_slots_assigned:16384
+cluster_slots_ok:16384
+cluster_slots_pfail:0
+cluster_slots_fail:0
+cluster_known_nodes:6
+cluster_size:3
+cluster_current_epoch:5
+cluster_my_epoch:1
+cluster_stats_messages_sent:3114
+cluster_stats_messages_received:3114</code></pre>
+
+<blockquote>
+<p>这里集群状态是ok的，其他节点留着做从节点</p>
+</blockquote>
+<h2 id="主从分配"><a href="#主从分配" class="headerlink" title="主从分配"></a>主从分配</h2><p>前面介绍过，想要一个节点变成一个节点的从节点要通过<code>cluster replicate +node-id</code>，这里查看集群中的node-id</p>
+<pre><code class="hljs bash">[root@mcr2 config] redis-cli -p 7000 cluster nodes
+ea47d9f8edeb000478512389731ca9132a69713d 127.0.0.1:7004 master - 0 1572079922359 3 connected
+16d4832afd3a8acdb4435e1be4acc733ec6377dd 127.0.0.1:7003 master - 0 1572079920347 5 connected
+b8706be32b3021222237479148acfbdeb9af9e55 127.0.0.1:7001 master - 0 1572079923367 2 connected 5462-10922
+7486b5c98c7c644bdcc992ec8a0b0a9d711c5a49 127.0.0.1:7000 myself,master - 0 0 1 connected 0-5461
+67dcb98c8e4d12dc0f7a523b744566610821d8f2 127.0.0.1:7005 master - 0 1572079921353 4 connected
+fc9247fe63eeb84196cc2fd0fe936627e1ed767a 127.0.0.1:7002 master - 0 1572079924374 0 connected 10923-16383</code></pre>
+
+<p>7003端口的节点做7000端口节点的从节点</p>
+<pre><code class="hljs bash">[root@mcr2 config] redis-cli -p 7003 cluster replicate 7486b5c98c7c644bdcc992ec8a0b0a9d711c5a49
+OK</code></pre>
+
+<p>这里再次使用<code>cluster nodes</code>，可以看到，它是一个slave节点</p>
+<pre><code class="hljs bash">[root@mcr2 config] redis-cli -p 7000 cluster nodes
+16d4832afd3a8acdb4435e1be4acc733ec6377dd 127.0.0.1:7003 slave 7486b5c98c7c644bdcc992ec8a0b0a9d711c5a49 0 1572080237607 5 connected</code></pre>
+
+<p>7004端口复制7001</p>
+<pre><code class="hljs bash">[root@mcr2 config] redis-cli -p 7004 cluster replicate b8706be32b3021222237479148acfbdeb9af9e55
+OK</code></pre>
+
+<p>7005复制7002</p>
+<pre><code class="hljs bash">[root@mcr2 config] redis-cli -p 7005 cluster replicate fc9247fe63eeb84196cc2fd0fe936627e1ed767a
+OK</code></pre>
+
+<p>现在一个3主3从的集群就搭建完成了</p>
+<pre><code class="hljs bash">[root@mcr2 config]<span class="hljs-comment"># redis-cli -p 7000 cluster nodes</span>
+ea47d9f8edeb000478512389731ca9132a69713d 127.0.0.1:7004 slave b8706be32b30212222                                                                37479148acfbdeb9af9e55 0 1572080526708 3 connected
+16d4832afd3a8acdb4435e1be4acc733ec6377dd 127.0.0.1:7003 slave 7486b5c98c7c644bdc                                                                c992ec8a0b0a9d711c5a49 0 1572080529728 5 connected
+b8706be32b3021222237479148acfbdeb9af9e55 127.0.0.1:7001 master - 0 1572080530735                                                                 2 connected 5462-10922
+7486b5c98c7c644bdcc992ec8a0b0a9d711c5a49 127.0.0.1:7000 myself,master - 0 0 1 co                                                                nnected 0-5461
+67dcb98c8e4d12dc0f7a523b744566610821d8f2 127.0.0.1:7005 slave fc9247fe63eeb84196                                                                cc2fd0fe936627e1ed767a 0 1572080531743 4 connected
+fc9247fe63eeb84196cc2fd0fe936627e1ed767a 127.0.0.1:7002 master - 0 1572080528217                                                                 0 connected 10923-16383</code></pre>
+
+<p>查看槽的分布信息</p>
+<pre><code class="hljs bash">[root@mcr2 config]<span class="hljs-comment"># redis-cli -p 7000 cluster slots</span>
+1) 1) (<span class="hljs-built_in">integer</span>) 5462
+   2) (<span class="hljs-built_in">integer</span>) 10922
+   3) 1) <span class="hljs-string">"127.0.0.1"</span>
+      2) (<span class="hljs-built_in">integer</span>) 7001
+   4) 1) <span class="hljs-string">"127.0.0.1"</span>
+      2) (<span class="hljs-built_in">integer</span>) 7004
+2) 1) (<span class="hljs-built_in">integer</span>) 0
+   2) (<span class="hljs-built_in">integer</span>) 5461
+   3) 1) <span class="hljs-string">"127.0.0.1"</span>
+      2) (<span class="hljs-built_in">integer</span>) 7000
+   4) 1) <span class="hljs-string">"127.0.0.1"</span>
+      2) (<span class="hljs-built_in">integer</span>) 7003
+3) 1) (<span class="hljs-built_in">integer</span>) 10923
+   2) (<span class="hljs-built_in">integer</span>) 16383
+   3) 1) <span class="hljs-string">"127.0.0.1"</span>
+      2) (<span class="hljs-built_in">integer</span>) 7002
+   4) 1) <span class="hljs-string">"127.0.0.1"</span>
+      2) (<span class="hljs-built_in">integer</span>) 7005</code></pre>
+
+<h1 id="官方工具安装"><a href="#官方工具安装" class="headerlink" title="官方工具安装"></a>官方工具安装</h1><h2 id="Ruby环境准备"><a href="#Ruby环境准备" class="headerlink" title="Ruby环境准备"></a>Ruby环境准备</h2><blockquote>
+<p>RedisCluster提供了Ruby安装脚本，相比我们使用Redis-cli简单很多，但是使用它需要环境搭建，这里就来介绍一下Ruby环境</p>
+</blockquote>
+<h2 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h2><ol>
+<li>下载、编译、安装Ruby</li>
+<li>安装<code>rubygem redis</code>客户端</li>
+<li>安装<code>redis-trib.rb</code></li>
+</ol>
+<p>（1）下载ruby</p>
+<pre><code class="hljs bash">wget https://cache.ruby-lang.org/pub/ruby/2.3/ruby-2.3.1.tar.gz</code></pre>
+
+<p>（2）安装ruby</p>
+<pre><code class="hljs bash">tar -xvf ruby-2.3.1.tar.gz 
+./configure -prefix=/usr/<span class="hljs-built_in">local</span>/ruby
+make
+make install
+<span class="hljs-built_in">cd</span> /usr/<span class="hljs-built_in">local</span>/ruby
+cp bin/ruby /usr/<span class="hljs-built_in">local</span>/bin</code></pre>
+
+<p>（3）安装 rubygem redis</p>
+<pre><code class="hljs bash">wget http://rubygems.org/downloads/redis-3.3.0.gem
+gem install -i redis-3.3.0.gem
+gem list --check redis gem</code></pre>
+
+<p>（4）安装redis-trib.rb</p>
+<pre><code class="hljs bash">cp $<span class="hljs-variable">$&#123;REDIS_HOME&#125;</span>/src/redis-trib.rb /usr/<span class="hljs-built_in">local</span>/bin</code></pre>
+
+<h2 id="ruby环境准备-操作"><a href="#ruby环境准备-操作" class="headerlink" title="ruby环境准备-操作"></a>ruby环境准备-操作</h2><pre><code class="hljs bash">[root@mcr2 opt] wget https://cache.rubylang.org/pub/ruby/2.3/ruby-2.3.1.tar.gz
+[root@mcr2 opt] tar -xvf ruby-2.3.1.tar.gz  -C /usr/src
+
+[root@mcr2 opt] <span class="hljs-built_in">cd</span> /usr/src/ruby-2.3.1/
+[root@mcr2 ruby-2.3.1] ./configure -prefix=/usr/<span class="hljs-built_in">local</span>/ruby
+
+[root@mcr2 ruby-2.3.1] make &amp;&amp; make install
+....等待
+[root@mcr2 ruby-2.3.1] cp ruby /usr/<span class="hljs-built_in">local</span>/bin
+
+[root@mcr2 ruby-2.3.1] ruby  -v
+ruby 2.3.1p112 (2016-04-26 revision 54768) [x86_64-linux]
+
+[root@mcr2 bin] <span class="hljs-built_in">pwd</span>
+/usr/<span class="hljs-built_in">local</span>/ruby/bin
+[root@mcr2 bin] cp gem /usr/<span class="hljs-built_in">local</span>/bin/</code></pre>
+
+<p>安装redis客户端</p>
+<pre><code class="hljs bash">[root@mcr2 src] <span class="hljs-built_in">pwd</span>
+/usr/src
+[root@mcr2 src] wget http://rubygems.org/downloads/redis3.3.0.gem
+[root@mcr2 src] gem install -l redis-3.3.0.gem
+
+<span class="hljs-comment">#检查是否有让edis</span>
+[root@mcr2 src] gem list -- check redis gem
+
+*** LOCAL GEMS ***
+
+bigdecimal (1.2.0)
+io-console (0.4.2)
+json (1.7.7)
+psych (2.0.0)
+rdoc (4.0.0)
+redis (3.3.0)
+
+[root@mcr2 redis] <span class="hljs-built_in">cd</span> /usr/src/redis/src
+[root@mcr2 src] ./redis-trib.rb
+....</code></pre>
+
+<h2 id="redis-trib构建集群"><a href="#redis-trib构建集群" class="headerlink" title="redis-trib构建集群"></a>redis-trib构建集群</h2><p>将<code>redis-trib.rb</code>命令放到全局</p>
+<pre><code class="hljs bash">cp <span class="hljs-variable">$&#123;REDIS_HOME&#125;</span>/src/redis-trib.rb /usr/<span class="hljs-built_in">local</span>/bin</code></pre>
+
+<p>一键开启</p>
+<blockquote>
+<p>这里的节点端口分别为8000、8001、8002、8003、8004、8005</p>
+</blockquote>
+<pre><code class="hljs bash">./redis-trib.rb create --replicas 
+1 127.0.0.1:8000\ 127.0.0.1:8001\
+127.0.0.1:8002 127.00.1:8003\
+127.0.0.1:8004 127.0.0.1:8005</code></pre>
+
+<blockquote>
+<p>这里的语法为 ./redis-trib.rb create –replicas  [ 从节点数量 ]    ip:[port]    [ ip:[port]  ] …，这里我们只要一个从节点，所有写的是1，在我们执行的命令中，前面3个是主节点，后面3个是从节点，也就是8000和8003对应、8001和8004、8002和8005，如果你需要2个从节点，那你在主节点后面加6个从节点，当你所填的数量以及它的格式不符合标准，它会返回给你错误</p>
+</blockquote>
+<p>首先将之前的redis集群全部关闭</p>
+<pre><code class="hljs bash">[root@mcr2 config] ps -ef | grep redis-server | grep 700 | awk <span class="hljs-string">'&#123;print $2&#125;'</span> | xargs <span class="hljs-built_in">kill</span></code></pre>
+
+<p>将data目录的数据清除</p>
+<pre><code class="hljs bash">[root@mcr2 config] <span class="hljs-built_in">cd</span> ../data
+[root@mcr2 data] rm -rf *</code></pre>
+
+<p>启动redis服务</p>
+<pre><code class="hljs bash">[root@mcr2 config] redis-server redis-7000.conf
+[root@mcr2 config] redis-server redis-7001.conf
+[root@mcr2 config] redis-server redis-7002.conf
+[root@mcr2 config] redis-server redis-7003.conf
+[root@mcr2 config] redis-server redis-7004.conf
+[root@mcr2 config] redis-server redis-7005.conf</code></pre>
+
+<p>使用<code>redis-trib.rb</code>搭建集群</p>
+<pre><code class="hljs bash">[root@mcr2 config] redis-trib.rb  create   --replicas 1 \
+&gt;  127.0.0.1:7000  127.0.0.1:7001  127.0.0.1:7002 \
+&gt;  127.0.0.1:7003  127.0.0.1:7004  127.0.0.1:7005</code></pre>
+
+<p>执行完上面的命令会有这些内容，这里是主从对应关系</p>
+<pre><code class="hljs bash">Adding replica 127.0.0.1:7003 to 127.0.0.1:7000
+Adding replica 127.0.0.1:7004 to 127.0.0.1:7001
+Adding replica 127.0.0.1:7005 to 127.0.0.1:7002</code></pre>
+
+<p>还有node-id，槽的范围，节点是从还是主</p>
+<pre><code class="hljs bash">M: 709ce3bd4d8fba5f62f57d7ec3b64569a070f22d 127.0.0.1:7000
+   slots:0-5460 (5461 slots) master
+M: d030b2dc316d9c58a4a0b14dcc31e49108d76f9f 127.0.0.1:7001
+   slots:5461-10922 (5462 slots) master
+M: 325733e9d4ded75d31c68f978c75357334163428 127.0.0.1:7002
+   slots:10923-16383 (5461 slots) master
+S: 7a0624a0256fc0f00c1c66096dafda41157fc9dc 127.0.0.1:7003
+   replicates 709ce3bd4d8fba5f62f57d7ec3b64569a070f22d
+S: 4052a3fa7cfe1b2ce293b05223516d5819c34ef0 127.0.0.1:7004
+   replicates d030b2dc316d9c58a4a0b14dcc31e49108d76f9f
+S: df4b8f2b54c36853d234a079cc273ad300917f2c 127.0.0.1:7005
+   replicates 325733e9d4ded75d31c68f978c75357334163428</code></pre>
+
+<p>最后它问你同意这个配置吗，这里输入yes</p>
+<pre><code class="hljs bash">Can I <span class="hljs-built_in">set</span> the above configuration? (<span class="hljs-built_in">type</span> <span class="hljs-string">'yes'</span> to accept): yes</code></pre>
+
+<p>这里环境就搭建完成了，来检验一下</p>
+<pre><code class="hljs bash">[root@mcr2 config] redis-cli -p 7000 cluster nodes
+df4b8f2b54c36853d234a079cc273ad300917f2c 127.0.0.1:7005 slave 325733e9d4ded75d31c68f978c75357334163428 0 1572138063357 6 connected
+709ce3bd4d8fba5f62f57d7ec3b64569a070f22d 127.0.0.1:7000 myself,master - 0 0 1 connected 0-5460
+4052a3fa7cfe1b2ce293b05223516d5819c34ef0 127.0.0.1:7004 slave d030b2dc316d9c58a4a0b14dcc31e49108d76f9f 0 1572138060334 5 connected
+d030b2dc316d9c58a4a0b14dcc31e49108d76f9f 127.0.0.1:7001 master - 0 1572138062348 2 connected 5461-10922
+7a0624a0256fc0f00c1c66096dafda41157fc9dc 127.0.0.1:7003 slave 709ce3bd4d8fba5f62f57d7ec3b64569a070f22d 0 1572138057313 4 connected
+325733e9d4ded75d31c68f978c75357334163428 127.0.0.1:7002 master - 0 1572138061342 3 connected 10923-16383
+[root@mcr2 config] redis-cli -p 7000 cluster info
+cluster_state:ok
+cluster_slots_assigned:16384
+cluster_slots_ok:16384
+cluster_slots_pfail:0
+cluster_slots_fail:0
+cluster_known_nodes:6
+cluster_size:3
+cluster_current_epoch:6
+cluster_my_epoch:1
+cluster_stats_messages_sent:106
+cluster_stats_messages_received:106</code></pre>
+
+<h1 id="原生命令和redis-trib-rb对比"><a href="#原生命令和redis-trib-rb对比" class="headerlink" title="原生命令和redis-trib.rb对比"></a>原生命令和redis-trib.rb对比</h1><h2 id="原生命令安装"><a href="#原生命令安装" class="headerlink" title="原生命令安装"></a>原生命令安装</h2><ul>
+<li>理解Redis Cluster架构；</li>
+<li>生产环境不使用。</li>
+</ul>
+<h2 id="官方工具安装-1"><a href="#官方工具安装-1" class="headerlink" title="官方工具安装"></a>官方工具安装</h2><ul>
+<li>高效、准确</li>
+<li>生产环境可以使用。</li>
+</ul>
+<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><ul>
+<li>可视化部署；</li>
+</ul>
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E8%BF%90%E7%BB%B4/Redis/">Redis</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/redis-9.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【 Redis-学习笔记 】 9.深入Redis Cluster</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/redis-7.html">
+                        <span class="hidden-mobile">【 Redis-学习笔记 】 7.RedisSentinel</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "【 Redis-学习笔记 】 8.初识Redis Cluster&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

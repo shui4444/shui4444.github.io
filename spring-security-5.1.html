@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="Shui">
+  <meta name="keywords" content="">
+  <title>【 五、OAuth 】 1.Spring Security OAuth简介 - Shui&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Fluid</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2019-10-15 18:01">
+      2019年10月15日 晚上
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.5k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      26
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567510663145.png" srcset="/img/loading.gif" alt="1567510663145"></p>
+<p>之前的登录的认证信息是存储到<code>session</code>中的，用户通过浏览器每次去访问服务时，每次都会检查浏览器的cookie里是否存在<code>JSessionID</code>，如果不存在就会在服务器上新建<code>session</code>，把这个<code>sesion id</code>写到浏览器的cookie里，这样用户每次通过浏览器去发请求的时候，我们系统会根据用户浏览器中的<code>JSessionID</code>找到相应的session拿出来，这个是之前开发中基于服务器session一种保存用户信息的一种登录方式，随着技术不断发展，一种新的前端技术渠道出现了，我们常用的手机APP，除了这种APP以外，本身的部署方式也在演进，现在比较流程的方式：前后端分离，在前后端分离的时候，html不在和服务器放在一块部署，它会单独放到一个web server上，在采用前后分离的架构的时候，用户直接访问的是web server，针对这个html一些渲染、ajax请求的一些处理，都是由web server来完成，ajax请求发给web server以后，web server再去访问application server来拿数据，不管是手机APP、还是前后端分离当架构演变成这样子的时候，一个最根本的变化出现了：用户不在是通过浏览器直接访问我们的应用，而是通过第三方的应用，例如app、web server访问我们的应用的服务器，不在是浏览器，而是一些其他的应用，这时候在使用之前的cookie session的方式就会出现一些问题，首先明确一点，当在前后分离架构下，是否能用cookie+sesison这种方式，答案是可以的，但是它在app中会有一些问题：</p>
+<ul>
+<li>开发繁琐：在浏览器中cookie这种功能是自带的，我们在开发的时候不需要针对cookie去写太多代码，对于app来说，app每次关闭再打开以后，你要重新在代码里面去实例化http的客户端，去发请求，每次去发http，客户端都是空的，都是初始化的状态，所以需要处理cookie之前存的数据</li>
+<li>安全性和用户体验差：基于cookie+session这种方式，它的验证工作都是服务器自己去做的，其实也没有什么验证工作，拿过来的这个请求，cookie里有session id，那么就直接从session里拿东西，就认为你登录了，没有所谓再去验什么东西，这时候就导致，如果你的JSessionID别了知道了，他用这个JSessionID放到cookie里，就可以直接获取用户身份，这里有人会想到可以把session的失效时间设断一点，但是这回导致用户频繁重新登录。</li>
+<li>有些前端的技术不支持cookie、如小程序</li>
+</ul>
+<p>由于存在这些问题，当访问者不在是浏览器，而是一些应用的时候，我们就应该使用另外一种方式来处理用户的认证信息的存储，这个方式就是令牌的方式，在spring social将的那种，也就是token，其实它的原理和session的原理差不多，它也是要给用户一个唯一标识，只不过在session的方式下，我是往浏览器的cookie里去写一个JSessionID，而令牌的方式，我是直接发给用户一个token，用户每次访问都要带着这个令牌，而我们这的应用服务器不在把用户信息存储再session中，而是根据用户每次请求带着这个令牌来判断他是谁，他有什么权限。令牌的表现形式是一个字符串，当采用令牌这种方式时候，我前面说的这些问题它都会得到一个解决：</p>
+<ul>
+<li>解决开发繁琐：因为令牌发给app以后，app每次发请求带着这个令牌它不是通过cookie来带的，而是http请求的参数，它就像带一个普通参数一样带上就可以了，不需要针对令牌专门去写cookie的代码</li>
+<li>解决安全性和客户体验差：在session方式中，写JSessionID是由服务器来完成的，我们是没法去干涉的，但是用token这种方式， token怎么来生成、里面包含的信息、我们怎么来校验这些我们都是可以来控制的，所以我们可以在这个令牌加很多技术手段来增强它的安全性。基于session来解决安全问题会导致用户频繁登录，基于token的方式我们就可以设计一种token刷新的机制，在三方登录的时候也能看到，你在完OAuth流程以后它会给一个token，还会给你一个refresh token，这个refresh token就可以让用户在没有感觉的情况下去刷新令牌，不需要用户频繁登录，这样既可以保证用户的安全性还可以保证用户的体验</li>
+<li>解决有些前端的技术不支持cookie：这里不使用cookie，这个问题就不存在了</li>
+</ul>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567224896676.png" srcset="/img/loading.gif" alt="1567224896676"></p>
+<p>说到这，现在做认证的方式就变成了发令牌的方式在自己的应用和其他应用之间完成授权，说到这里，相信读者脑海里第一个想到的就是之前在spring social介绍的OAuth协议，它授权的方式就是令牌，在现在的场景中，我们就变成了服务提供商，现在的app和前后端分离中的前端就变成了第三方应用，我只要给它们发令牌，它们拿到令牌来访问我，我这里来验这个令牌就可以了，之前说得spring social中封装的是第三方应用client它所要做的事情，使用它可以很快开发第三应用角色的应用，去连任意一个我想连的服务提供商，而这里说的spring oauth则是封装了服务提供商所要完成的绝大部分行为，使用它就可以快速搭建起一个服务提供商的程序来。</p>
+<hr>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567511400096.png" srcset="/img/loading.gif" alt="1567511400096"></p>
+<p>要实现oauth服务提供商这个角色，它的所有功能，实际上就实现2个服务器，也就是之前说的认证服务器和资源服务器，</p>
+<ul>
+<li>在认证服务器中有两大范式<ul>
+<li>实现我们之前介绍的oauth协议中的授权模式（授权码模式、密码模式、客户端模式、简化模式），通过这4种授权模式让我们的应用来确认用户的身份以后用户拥有的权限，在spring security oauth把这4种授权模式都替我们实现了，这4种授权模式实现了以后，通过这4种模式知道用户的身份后权限以后，根据这些信息来生成和存储这些令牌，这里的生成和存储没有明确的规定，token要按照什么规则来生成，但在spring security oauth中默认定制了一套生成规则，按照它的想法做的实现 </li>
+</ul>
+</li>
+<li>资源服务器就是来保护资源，在我们的场景下，我们要保护的资源是什么，就是值我们写的rest服务，怎么来保护这些服务呢？按目前用的spring security，它是在资源之前加个过滤器链，spring security oauth是如何来实现资源服务器的功能呢？它是在spring security过滤器链上加了一个新的过滤器：OAuth2AuthenticationProcessingFilter，这个过滤器会在请求中拿出你发出去的token，因为你发出去的token，第三方应用它在调你到rest服务的时候，一定会带着token过来，这个过滤器作用从那个请求中把带着的token拿出来，根据你配的存储策略去存储里找到token对应的用户信息，然后判断用户信息是否存在、是否有权限等等一系列判断来决定它最终是否能访问你的rest服务，这样就实现了资源服务器的功能</li>
+</ul>
+<p>在这个场景下面还要一个最终问题：我们不希望让用户去走这4种标准的授权模式的，比如说我的手机号和短信验证码登录方式，它跟这标准的4种授权模式是搭不上的，标准的授权模式是没有让你输入手机号、输入短信就发一个token给你，我们要做的额外事情就是让我们自定义这种认证方式，它也可以嫁接到认证服务器上去，让用户名+密码、手机号+短信验证码、第三方认证通过这些认证以后它也可以去调这个token生成的机制来生成token来，发给三方应用，一旦实现这个事情，我们整个流程就跑同了，我的第三方应用就可以引导用户走我们自定义到认证，成功了以后发一个token给第三方，第三方拿到这个token，每次去访问服务的时候，带着这个token，通过过滤器链上的过滤器来认证，来获取授权等…，这样前面描述的场景通过这种方式就实现了，在上面图中，绿色部分都是spring security实现好的，红色的部分是我们自己写的代码，我们自己写的代码里面，资源这一块是不用改的，它是标准的rest服务，要改的地方就是之前说的3种认证方式，把它做一个修改</p>
+<hr>
+<p>内容简介</p>
+<ul>
+<li>实现一个标准的oauth2协议中provider角色的主要功能</li>
+<li>重构之前三种认证方式的代码，使其支持token</li>
+<li>高级特性</li>
+</ul>
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/SpringSecurity/">SpringSecurity</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/spring-security-5.2.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【 五、OAuth 】 2.实现标准到OAuth服务器提供商</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/spring-security-4.1.html">
+                        <span class="hidden-mobile">【 四、Session 】 1.Session管理</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "【 五、OAuth 】 1.Spring Security OAuth简介&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

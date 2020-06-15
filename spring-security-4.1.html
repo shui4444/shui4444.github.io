@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="Shui">
+  <meta name="keywords" content="">
+  <title>【 四、Session 】 1.Session管理 - Shui&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Fluid</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2019-10-14 18:01">
+      2019年10月14日 晚上
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      4.6k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      62
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <h1 id="单机Session管理"><a href="#单机Session管理" class="headerlink" title="单机Session管理"></a>单机Session管理</h1><p>之前了解很多种登录方式，虽然它们的方式不同，但是它们有一个共同点，最终登录成功以后用户信息是放到服务器的session中的，在这里来介绍Session管理</p>
+<hr>
+<h2 id="Session超时处理"><a href="#Session超时处理" class="headerlink" title="Session超时处理"></a>Session超时处理</h2><p>session是有超时时间的，不同的应用session超时时间不一样，可能1小时、2小时，那么session干掉以后，用户在进行操作会怎么样？怎么来处理？</p>
+<hr>
+<p>yml：</p>
+<p>这里将超时时间设置为10秒，当用户10秒不进行操作，session就会失效</p>
+<pre><code class="hljs yml"><span class="hljs-attr">server:</span>
+  <span class="hljs-attr">session:</span>
+    <span class="hljs-attr">timeout:</span> <span class="hljs-number">10</span></code></pre>
+
+<p>下面来看一下实际情况，现在进行登录，然后10秒不操作，访问请求，任然可以访问，这就说明session没有失效，身份信息还在session中，那么为什么会出现这种情况，来看一下spring boot的代码，TomcatEmbeddedServletContainerFactory#configureSession：</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configureSession</span><span class="hljs-params">(Context context)</span> </span>&#123;
+		<span class="hljs-keyword">long</span> sessionTimeout = getSessionTimeoutInMinutes(); <span class="hljs-comment">//获取yml中配置的超时时间</span>
+		context.setSessionTimeout((<span class="hljs-keyword">int</span>) sessionTimeout);
+		<span class="hljs-keyword">if</span> (isPersistSession()) &#123;
+			Manager manager = context.getManager();
+			<span class="hljs-keyword">if</span> (manager == <span class="hljs-keyword">null</span>) &#123;
+				manager = <span class="hljs-keyword">new</span> StandardManager();
+				context.setManager(manager);
+			&#125;
+			configurePersistSession(manager);
+		&#125;
+		<span class="hljs-keyword">else</span> &#123;
+			context.addLifecycleListener(<span class="hljs-keyword">new</span> DisablePersistSessionListener());
+		&#125;
+	&#125;
+
+	<span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">long</span> <span class="hljs-title">getSessionTimeoutInMinutes</span><span class="hljs-params">()</span> </span>&#123;
+		<span class="hljs-keyword">long</span> sessionTimeout = getSessionTimeout();
+		<span class="hljs-keyword">if</span> (sessionTimeout &gt; <span class="hljs-number">0</span>) &#123;
+      <span class="hljs-comment">//将秒转换成了分钟数，然后它拿秒数转换的分钟数和1做比较，然后去取它的最大值，也就是你设置的过期时间最少要是1分钟，</span>
+			sessionTimeout = Math.max(TimeUnit.SECONDS.toMinutes(sessionTimeout), <span class="hljs-number">1L</span>); 
+		&#125;
+    <span class="hljs-comment">//它返回去的sessionTimeout是以分钟为单位的数值</span>
+		<span class="hljs-keyword">return</span> sessionTimeout;
+	&#125;</code></pre>
+
+<p>在spring boot里session的超时时间最少为1分钟，你设置的比1分钟少，它也会给你设置一分钟，这里我说了这么久，就是在拖这1分钟（嘻嘻），现在1分钟过期了后头在来访问，就会响应出：</p>
+<pre><code class="hljs json">&#123;
+<span class="hljs-attr">"content"</span>: <span class="hljs-string">"请引导用户跳转到登录页面"</span>
+&#125;</code></pre>
+
+<p>这就代表放到session里的用户信息没有了，说明session失效了</p>
+<hr>
+<p>在某些情况下，我们可能需要给用户一个特殊的提示，告诉用户你的session失效了所以你要重新登录，而上面的响应式不友好的，它这里没说明你是没有登录、还是登录了session过期了需要重新登录，这个它是区分不出来了，所以在这里做一个更细化的处理</p>
+<hr>
+<p>session过期之后，再次访问，会跳转到/session/invalid地址</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(HttpSecurity http)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+    http.sessionManagement()
+            .invalidSessionUrl(<span class="hljs-string">"/session/invalid"</span>)
+      
+        .antMatchers(
+                    <span class="hljs-string">"/session/invalid"</span>,</code></pre>
+
+<p>BrowserSecurityController：</p>
+<pre><code class="hljs java"><span class="hljs-meta">@GetMapping</span>(<span class="hljs-string">"/session/invalid"</span>)
+    <span class="hljs-meta">@ResponseStatus</span>(HttpStatus.UNAUTHORIZED)
+    <span class="hljs-function"><span class="hljs-keyword">public</span> McrSecurityVO <span class="hljs-title">sessionInvalid</span><span class="hljs-params">()</span> </span>&#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> McrSecurityVO(<span class="hljs-string">"sessions失效"</span>);
+    &#125;</code></pre>
+
+<p>这里直接重启服务器，session就全部失效了，响应内容：</p>
+<pre><code class="hljs json">&#123;
+    <span class="hljs-attr">"content"</span>: <span class="hljs-string">"sessions失效"</span>
+&#125;</code></pre>
+
+<h2 id="Session并发控制"><a href="#Session并发控制" class="headerlink" title="Session并发控制"></a>Session并发控制</h2><p>在有些网站可能会有这样的需求：用户在A机器上登录了以后，过了一段时间，他在B机器上也登录了，在B机器上登录了时候，如果A机器报退出，要把A机器的登录，session给是失效掉，也就是后面的session踢处前面的sesion</p>
+<hr>
+<p>为了方便测试，将过期时间改一下</p>
+<pre><code class="hljs yml"><span class="hljs-attr">server:</span>
+  <span class="hljs-attr">port:</span> <span class="hljs-number">80</span>
+  <span class="hljs-attr">session:</span>
+    <span class="hljs-attr">timeout:</span> <span class="hljs-number">600</span></code></pre>
+
+<hr>
+<pre><code class="hljs java">http.sessionManagement()
+              .invalidSessionUrl(<span class="hljs-string">"/session/invalid"</span>)
+              .maximumSessions(<span class="hljs-number">1</span>)</code></pre>
+
+<p>maximumSessions：最大的session数量，同一个用户，它后面的登录所产生的session，就会把之前登录所产生的session给失效掉，然后前面的用户再去访问会响应：</p>
+<pre><code class="hljs json">&#123;
+    <span class="hljs-attr">"content"</span>: <span class="hljs-string">"sessions失效"</span>
+&#125;</code></pre>
+
+<p>这里应该提示用户被其他地方登录，这里有是提供了相应的处理的</p>
+<p>这里可以在服务器端做一个记录，可以去实现<code>SessionInformationExpiredStrategy</code>接口，</p>
+<pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">SessionInformationExpiredStrategy</span> </span>&#123;
+
+	<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">onExpiredSessionDetected</span><span class="hljs-params">(SessionInformationExpiredEvent eventØ)</span></span>
+<span class="hljs-function">			<span class="hljs-keyword">throws</span> IOException, ServletException</span>;
+&#125;</code></pre>
+
+<p>SessionInformationExpiredStrategy接口实现类：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.browser.session;
+
+<span class="hljs-keyword">import</span> java.io.IOException;
+
+<span class="hljs-keyword">import</span> javax.servlet.ServletException;
+
+<span class="hljs-keyword">import</span> org.springframework.security.web.session.SessionInformationExpiredEvent;
+<span class="hljs-keyword">import</span> org.springframework.security.web.session.SessionInformationExpiredStrategy;
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">McrExpiredSessionStrategy</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">SessionInformationExpiredStrategy</span> </span>&#123;
+
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">onExpiredSessionDetected</span><span class="hljs-params">(SessionInformationExpiredEvent eventØ)</span> <span class="hljs-keyword">throws</span> IOException, ServletException </span>&#123;
+         eventØ.getResponse().setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+        eventØ.getResponse().getWriter().write(<span class="hljs-string">"并发登录！"</span>);
+    &#125;
+&#125;</code></pre>
+
+<hr>
+<p>BrowserSecurityConfig：</p>
+<pre><code class="hljs java">http.sessionManagement()
+         .invalidSessionUrl(<span class="hljs-string">"/session/invalid"</span>)
+         .maximumSessions(<span class="hljs-number">1</span>)
+         .expiredSessionStrategy(<span class="hljs-keyword">new</span> McrExpiredSessionStrategy())</code></pre>
+
+<hr>
+<p>现在拿2个浏览器登录同一个账号，前面一个相应：</p>
+<pre><code class="hljs plain">并发登录！</code></pre>
+
+<hr>
+<p>现在需求变了：不是把前面的T掉，而是不让第二个用户登录</p>
+<p>BrowserSecurityConfig：</p>
+<pre><code class="hljs java"><span class="hljs-comment">//当session达到最大的以后，阻止掉后来的登录行为  </span>
+.maximumSessions(<span class="hljs-number">1</span>).maxSessionsPreventsLogin(<span class="hljs-keyword">true</span>)</code></pre>
+
+<p>第2个用户登录时浏览器响应：</p>
+<pre><code class="hljs json">&#123;<span class="hljs-attr">"content"</span>:<span class="hljs-string">"Maximum sessions of 1 for this principal exceeded"</span>&#125;</code></pre>
+
+<h2 id="重构代码"><a href="#重构代码" class="headerlink" title="重构代码"></a>重构代码</h2><p>现在的代码：</p>
+<pre><code class="hljs java">http.sessionManagement()
+             .invalidSessionUrl(<span class="hljs-string">"/session/invalid"</span>)
+             .maximumSessions(<span class="hljs-number">1</span>).maxSessionsPreventsLogin(<span class="hljs-keyword">true</span>)
+             .expiredSessionStrategy(<span class="hljs-keyword">new</span> McrExpiredSessionStrategy())
+  <span class="hljs-comment">//..</span>
+    .antMatchers(
+                     <span class="hljs-string">"/session/invalid"</span>,</code></pre>
+
+<p>现在这样是不行的，因为这个代码是一个公共的模块，在使用者将这些代码导入它的工程中，是无法进行修改的，比如这里的<code>/session/invalid</code>,它返回的是json，那么使用者的项目可能没有使用前后分离，就没必要使用json，他跟希望这里的处理能跳转到一个页面上去，</p>
+<p>McrExpiredSessionStrategy响应的内容，他也无法去修改，这些都是不合理的，这里将这些进行重构</p>
+<hr>
+<p>首先将这些配置使用户通过yml进行控制：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.properties;
+
+<span class="hljs-keyword">import</span> lombok.Data;
+
+<span class="hljs-meta">@Data</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SessionProperties</span> </span>&#123;
+
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 同一个用户在系统中的最大session数，默认1</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> maximumSessions = <span class="hljs-number">1</span>;
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 达到最大session时是否阻止新的登录请求，默认为false，不阻止，新的登录会将老的登录失效掉</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">boolean</span> maxSessionsPreventsLogin;
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * session失效时跳转的地址</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-keyword">private</span> String sessionInvalidUrl = SecurityConstants.DEFAULT_SESSION_INVALID_URL;
+
+
+&#125;</code></pre>
+
+<p>BrowserSecurityProperties：</p>
+<pre><code class="hljs java"><span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * session相关配置</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-keyword">private</span> SessionProperties session = <span class="hljs-keyword">new</span> SessionProperties();</code></pre>
+
+<p>session失效、session并发：判断当前访问url的地址是不是.html结尾的，如果是，就跳转到指定的URL去，如果不是则响应json，它们2个分别配置invalidSessionStrategy和expiredSessionStrategy，它们两个的逻辑，因为在我们这里非常相识，所以我们这里先创建一个抽象类</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.browser.session;
+
+<span class="hljs-keyword">import</span> com.b4.mcr.auth.core.model.vo.McrSecurityVO;
+<span class="hljs-keyword">import</span> com.fasterxml.jackson.databind.ObjectMapper;
+<span class="hljs-keyword">import</span> org.apache.commons.lang.StringUtils;
+<span class="hljs-keyword">import</span> org.slf4j.Logger;
+<span class="hljs-keyword">import</span> org.slf4j.LoggerFactory;
+<span class="hljs-keyword">import</span> org.springframework.http.HttpStatus;
+<span class="hljs-keyword">import</span> org.springframework.security.web.DefaultRedirectStrategy;
+<span class="hljs-keyword">import</span> org.springframework.security.web.RedirectStrategy;
+<span class="hljs-keyword">import</span> org.springframework.security.web.util.UrlUtils;
+<span class="hljs-keyword">import</span> org.springframework.util.Assert;
+
+<span class="hljs-keyword">import</span> javax.servlet.http.HttpServletRequest;
+<span class="hljs-keyword">import</span> javax.servlet.http.HttpServletResponse;
+<span class="hljs-keyword">import</span> java.io.IOException;
+
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AbstractSessionStrategy</span> </span>&#123;
+
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Logger logger = LoggerFactory.getLogger(getClass());
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 跳转的url</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-keyword">private</span> String destinationUrl;
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 重定向策略</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-keyword">private</span> RedirectStrategy redirectStrategy = <span class="hljs-keyword">new</span> DefaultRedirectStrategy();
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 跳转前是否创建新的session</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">boolean</span> createNewSession = <span class="hljs-keyword">true</span>;
+
+    <span class="hljs-keyword">private</span> ObjectMapper objectMapper = <span class="hljs-keyword">new</span> ObjectMapper();
+
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * <span class="hljs-doctag">@param</span> invalidSessionUrl 跳转地址</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">AbstractSessionStrategy</span><span class="hljs-params">(String invalidSessionUrl)</span> </span>&#123;
+        Assert.isTrue(UrlUtils.isValidRedirectUrl(invalidSessionUrl), <span class="hljs-string">"url must start with '/' or with 'http(s)'"</span>);
+        <span class="hljs-keyword">this</span>.destinationUrl = invalidSessionUrl;
+    &#125;
+
+    <span class="hljs-comment">/*</span>
+<span class="hljs-comment">     * (non-Javadoc)</span>
+<span class="hljs-comment">     *</span>
+<span class="hljs-comment">     * @see org.springframework.security.web.session.InvalidSessionStrategy#</span>
+<span class="hljs-comment">     * onInvalidSessionDetected(javax.servlet.http.HttpServletRequest,</span>
+<span class="hljs-comment">     * javax.servlet.http.HttpServletResponse)</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">onSessionInvalid</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="hljs-keyword">throws</span> IOException </span>&#123;
+
+        <span class="hljs-keyword">if</span> (createNewSession) &#123;
+            request.getSession();
+        &#125;
+
+        String sourceUrl = request.getRequestURI();
+        String targetUrl;
+
+        <span class="hljs-keyword">if</span> (StringUtils.endsWithIgnoreCase(sourceUrl, <span class="hljs-string">".html"</span>)) &#123;
+            targetUrl = destinationUrl + <span class="hljs-string">".html"</span>;
+            logger.info(<span class="hljs-string">"session失效,跳转到"</span> + targetUrl);
+            redirectStrategy.sendRedirect(request, response, targetUrl);
+        &#125; <span class="hljs-keyword">else</span> &#123;
+            String message = <span class="hljs-string">"session已失效"</span>;
+            <span class="hljs-keyword">if</span> (isConcurrency()) &#123;
+                message = message + <span class="hljs-string">"，有可能是并发登录导致的"</span>;
+            &#125;
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            response.setContentType(<span class="hljs-string">"application/json;charset=UTF-8"</span>);
+            response.getWriter().write(objectMapper.writeValueAsString(<span class="hljs-keyword">new</span> McrSecurityVO(message)));
+        &#125;
+
+    &#125;
+
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * session失效是否是并发导致的</span>
+<span class="hljs-comment">     *</span>
+<span class="hljs-comment">     * <span class="hljs-doctag">@return</span></span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">isConcurrency</span><span class="hljs-params">()</span> </span>&#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+    &#125;
+
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * Determines whether a new session should be created before redirecting (to</span>
+<span class="hljs-comment">     * avoid possible looping issues where the same session ID is sent with the</span>
+<span class="hljs-comment">     * redirected request). Alternatively, ensure that the configured URL does</span>
+<span class="hljs-comment">     * not pass through the &#123;<span class="hljs-doctag">@code</span> SessionManagementFilter&#125;.</span>
+<span class="hljs-comment">     *</span>
+<span class="hljs-comment">     * <span class="hljs-doctag">@param</span> createNewSession defaults to &#123;<span class="hljs-doctag">@code</span> true&#125;.</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setCreateNewSession</span><span class="hljs-params">(<span class="hljs-keyword">boolean</span> createNewSession)</span> </span>&#123;
+        <span class="hljs-keyword">this</span>.createNewSession = createNewSession;
+    &#125;
+
+&#125;</code></pre>
+
+<p>session过期策略：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.browser.session;
+
+<span class="hljs-keyword">import</span> java.io.IOException;
+
+<span class="hljs-keyword">import</span> javax.servlet.ServletException;
+<span class="hljs-keyword">import</span> javax.servlet.http.HttpServletRequest;
+<span class="hljs-keyword">import</span> javax.servlet.http.HttpServletResponse;
+
+<span class="hljs-keyword">import</span> org.springframework.security.web.session.InvalidSessionStrategy;
+
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">McrInvalidSessionStrategy</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">AbstractSessionStrategy</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">InvalidSessionStrategy</span> </span>&#123;
+
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">McrInvalidSessionStrategy</span><span class="hljs-params">(String invalidSessionUrl)</span> </span>&#123;
+        <span class="hljs-keyword">super</span>(invalidSessionUrl);
+    &#125;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">onInvalidSessionDetected</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response)</span></span>
+<span class="hljs-function">            <span class="hljs-keyword">throws</span> IOException, ServletException </span>&#123;
+        onSessionInvalid(request, response);
+    &#125;
+
+&#125;</code></pre>
+
+<p>session并发策略：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.browser.session;
+
+<span class="hljs-keyword">import</span> java.io.IOException;
+
+<span class="hljs-keyword">import</span> javax.servlet.ServletException;
+
+<span class="hljs-keyword">import</span> org.springframework.security.web.session.SessionInformationExpiredEvent;
+<span class="hljs-keyword">import</span> org.springframework.security.web.session.SessionInformationExpiredStrategy;
+
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">McrExpiredSessionStrategy</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">AbstractSessionStrategy</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">SessionInformationExpiredStrategy</span> </span>&#123;
+
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">McrExpiredSessionStrategy</span><span class="hljs-params">(String invalidSessionUrl)</span> </span>&#123;
+        <span class="hljs-keyword">super</span>(invalidSessionUrl);
+    &#125;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">onExpiredSessionDetected</span><span class="hljs-params">(SessionInformationExpiredEvent event)</span> <span class="hljs-keyword">throws</span> IOException, ServletException </span>&#123;
+        onSessionInvalid(event.getRequest(), event.getResponse());
+    &#125;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">isConcurrency</span><span class="hljs-params">()</span> </span>&#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;
+    &#125;
+
+&#125;</code></pre>
+
+<p>这里的2个策略，不能直接配置在BrowserSecurityConfig中，因为可能我们提供的这2个策略不满足使用者的需求，这里通过ConditionalOnMissingBean注解去判断使用者是否有实现InvalidSessionStrategy类注入到IOC容器中，如果有就用使用者自己的，如果没有就用我们默认的</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.browser;
+
+<span class="hljs-keyword">import</span> com.b4.mcr.auth.browser.session.McrExpiredSessionStrategy;
+<span class="hljs-keyword">import</span> com.b4.mcr.auth.browser.session.McrInvalidSessionStrategy;
+<span class="hljs-keyword">import</span> com.b4.mcr.auth.core.properties.SecurityProperties;
+<span class="hljs-keyword">import</span> org.springframework.beans.factory.annotation.Autowired;
+<span class="hljs-keyword">import</span> org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+<span class="hljs-keyword">import</span> org.springframework.context.annotation.Bean;
+<span class="hljs-keyword">import</span> org.springframework.context.annotation.Configuration;
+<span class="hljs-keyword">import</span> org.springframework.security.web.session.InvalidSessionStrategy;
+<span class="hljs-keyword">import</span> org.springframework.security.web.session.SessionInformationExpiredStrategy;
+
+<span class="hljs-meta">@Configuration</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">BrowserSecurityBeanConfig</span> </span>&#123;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> SecurityProperties securityProperties;
+
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-meta">@ConditionalOnMissingBean</span>(InvalidSessionStrategy<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>
+<span class="hljs-class">    <span class="hljs-title">public</span> <span class="hljs-title">InvalidSessionStrategy</span> <span class="hljs-title">invalidSessionStrategy</span>() </span>&#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> McrInvalidSessionStrategy(securityProperties.getBrowser().getSession().getSessionInvalidUrl());
+    &#125;
+
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-meta">@ConditionalOnMissingBean</span>(SessionInformationExpiredStrategy<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>
+<span class="hljs-class">    <span class="hljs-title">public</span> <span class="hljs-title">SessionInformationExpiredStrategy</span> <span class="hljs-title">sessionInformationExpiredStrategy</span>() </span>&#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> McrExpiredSessionStrategy(securityProperties.getBrowser().getSession().getSessionInvalidUrl());
+    &#125;
+
+&#125;</code></pre>
+
+<p>BrowserSecurityConfig：</p>
+<pre><code class="hljs java"> <span class="hljs-keyword">private</span> InvalidSessionStrategy invalidSessionStrategy;
+    <span class="hljs-keyword">private</span> SessionInformationExpiredStrategy sessionInformationExpiredStrategy;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(HttpSecurity http)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+				<span class="hljs-comment">//...</span>
+           http.sessionManagement()
+                .invalidSessionStrategy(invalidSessionStrategy)
+                .maximumSessions(browser.getSession().getMaximumSessions()).maxSessionsPreventsLogin(browser.getSession().isMaxSessionsPreventsLogin())
+                .expiredSessionStrategy(sessionInformationExpiredStrategy)
+			<span class="hljs-comment">//...</span>
+&#125;</code></pre>
+
+<h1 id="集群Session管理"><a href="#集群Session管理" class="headerlink" title="集群Session管理"></a>集群Session管理</h1><p>在默认的情况下，我们的session是放在中间件服务器里面的，比如tomcat、websocket之类的服务器，那么当我们的系统部署成集群的时候就会有一些问题：比如前面负载均衡的时候，你的登录请求可能发到你集群的A机器上，然后他登录以后，把登录信息放到A机器的session上，后续的请求数据的服务它可能会发到B机器上，而B机器的session并没有你A机器里面的session登录信息，所以B机器会要求用户再登录</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567351628532.png" srcset="/img/loading.gif" alt="1567351628532"></p>
+<p>如何一个当用的软件，放在互联网上给用户用的时候，它都会至少部署2台机器，因为如果只部一台那么这太机器出问题了，你的服务就中断了，这对于大多数公司来说是一个很严重的生产事故，是不能接收的，所以会部一个集群，至少2台机器，前面有一个负载均衡，前面有一台机器down了，还有另一个还可以为用户提供服务，在这个环境下，基于session的身份认证就会有一个问题：用户的登录请求是发到Server1上的，那么session也是跟着服务器走的，所以当用户登录成功以后，它的经过认证的SecurityContext、Authentication都是放到Server1的session里面的，那么在后续的用户发送请求中，如果你前面的负载均衡没有做一些特殊处理，它可能会发到Server2上，那么当后面的请求发到Server2上的时候，你Server2上的session并没有你之前在Server1上放的那些经过认证的信息，那么Server2就会拒绝掉你的服务请求，让你再去登录一遍，这个就是我们就是要解决的一个问题：在集群环境下处理session，解决方案很简单：不把session放到服务器上，而把它抽取出来，就象图2那样，Server1、Server2依然是集群对外提供环境，但是我不在每一个服务器上单独去管理自己的session，而把session这些信息抽取出来放在独立测存储中，这样用户发了一个登录请求，发往Server1的时候，Server1经过认证以后它是把信息所对应的session放到了一个独立的存储里面，这事情后续的请求如果发到Server2上，Server2在校验用户请求的时候，它从session拿信息的时候，它也是从存储里面去找session信息，这时候就解决了图1的问题。</p>
+<hr>
+<p>在spring中专门有一个项目替我们来完成这个事情，在browser的pom.xml中的这个依赖：</p>
+<pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span>
+           <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.springframework.session<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span>
+           <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-session<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span>
+       <span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span></code></pre>
+
+<p>它的作用就是来完成上面说的工作，我们只需要告诉它你后面采用的存储是什么以及存储所在的地址和端口就可以了，spring session它支持哪些存储呢？</p>
+<pre><code class="hljs java"><span class="hljs-comment">/*</span>
+<span class="hljs-comment"> * Copyright 2012-2016 the original author or authors.</span>
+<span class="hljs-comment"> *</span>
+<span class="hljs-comment"> * Licensed under the Apache License, Version 2.0 (the "License");</span>
+<span class="hljs-comment"> * you may not use this file except in compliance with the License.</span>
+<span class="hljs-comment"> * You may obtain a copy of the License at</span>
+<span class="hljs-comment"> *</span>
+<span class="hljs-comment"> *      http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="hljs-comment"> *</span>
+<span class="hljs-comment"> * Unless required by applicable law or agreed to in writing, software</span>
+<span class="hljs-comment"> * distributed under the License is distributed on an "AS IS" BASIS,</span>
+<span class="hljs-comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="hljs-comment"> * See the License for the specific language governing permissions and</span>
+<span class="hljs-comment"> * limitations under the License.</span>
+<span class="hljs-comment"> */</span>
+
+<span class="hljs-keyword">package</span> org.springframework.boot.autoconfigure.session;
+
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * Supported Spring Session data store types.</span>
+<span class="hljs-comment"> *</span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@author</span> Tommy Ludwig</span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@author</span> Eddú Meléndez</span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@since</span> 1.4.0</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">enum</span> StoreType &#123;
+
+	<span class="hljs-comment">/**</span>
+<span class="hljs-comment">	 * Redis backed sessions.</span>
+<span class="hljs-comment">	 */</span>
+	REDIS,
+
+	<span class="hljs-comment">/**</span>
+<span class="hljs-comment">	 * Mongo backed sessions.</span>
+<span class="hljs-comment">	 */</span>
+	MONGO,
+
+	<span class="hljs-comment">/**</span>
+<span class="hljs-comment">	 * JDBC backed sessions.</span>
+<span class="hljs-comment">	 */</span>
+	JDBC,
+
+	<span class="hljs-comment">/**</span>
+<span class="hljs-comment">	 * Hazelcast backed sessions.</span>
+<span class="hljs-comment">	 */</span>
+	HAZELCAST,
+
+	<span class="hljs-comment">/**</span>
+<span class="hljs-comment">	 * Simple in-memory map of sessions.</span>
+<span class="hljs-comment">	 */</span>
+	HASH_MAP,
+
+	<span class="hljs-comment">/**</span>
+<span class="hljs-comment">	 * No session data-store.</span>
+<span class="hljs-comment">	 */</span>
+	NONE;
+
+&#125;</code></pre>
+
+<p>上面是spring session所支持的存储类型，这里我们使用redis来进行演示</p>
+<p>安装redis：</p>
+<pre><code class="hljs bash">docker run --name redis -p 6379:6379 -d redis:3.2</code></pre>
+
+<p>为什么要使用redis呢？因为session它是一个非常频繁访问的东西，因为spring security它的原理是在你请求之前加一个过滤器链，所有的请求都会过这个过滤器链，然后每个请求过这个过滤器链的时候都会从session里去读SecurityContext,那么如果这里使用JDBC，也就是数据里，那么这个读取的压力就非常大，因为每个请求都会去读数据，session它本身是有一个失效性的，如果你把session存到数据库里面，还要自己清理它，去维护里面的数据，而redis它本身带有一个超时的特性，你把数据带进去就可以设置超时时间，到了这个时间，数据就清了。虽然使用JDBC，spring session也会清，但是redis性能更好一些</p>
+<hr>
+<p> yml：</p>
+<pre><code class="hljs yml"><span class="hljs-attr">spring:</span>
+  <span class="hljs-attr">session:</span>
+    <span class="hljs-attr">store-type:</span> <span class="hljs-string">redis</span>
+  <span class="hljs-attr">redis:</span>
+    <span class="hljs-attr">host:</span> <span class="hljs-string">mcr.com</span></code></pre>
+
+<p>来到登录页的时候，会引发一个问题，图形验证码没出来。现在控制台上报了一个异常：</p>
+<pre><code class="hljs css"><span class="hljs-selector-tag">org</span><span class="hljs-selector-class">.springframework</span><span class="hljs-selector-class">.data</span><span class="hljs-selector-class">.redis</span><span class="hljs-selector-class">.serializer</span><span class="hljs-selector-class">.SerializationException</span>: <span class="hljs-selector-tag">Cannot</span> <span class="hljs-selector-tag">serialize</span>; <span class="hljs-selector-tag">nested</span> <span class="hljs-selector-tag">exception</span> <span class="hljs-selector-tag">is</span> <span class="hljs-selector-tag">org</span><span class="hljs-selector-class">.springframework</span><span class="hljs-selector-class">.core</span><span class="hljs-selector-class">.serializer</span><span class="hljs-selector-class">.support</span><span class="hljs-selector-class">.SerializationFailedException</span>: <span class="hljs-selector-tag">Failed</span> <span class="hljs-selector-tag">to</span> <span class="hljs-selector-tag">serialize</span> <span class="hljs-selector-tag">object</span> <span class="hljs-selector-tag">using</span> <span class="hljs-selector-tag">DefaultSerializer</span>; <span class="hljs-selector-tag">nested</span> <span class="hljs-selector-tag">exception</span> <span class="hljs-selector-tag">is</span> <span class="hljs-selector-tag">java</span><span class="hljs-selector-class">.lang</span><span class="hljs-selector-class">.IllegalArgumentException</span>: <span class="hljs-selector-tag">DefaultSerializer</span> <span class="hljs-selector-tag">requires</span> <span class="hljs-selector-tag">a</span> <span class="hljs-selector-tag">Serializable</span> <span class="hljs-selector-tag">payload</span> <span class="hljs-selector-tag">but</span> <span class="hljs-selector-tag">received</span> <span class="hljs-selector-tag">an</span> <span class="hljs-selector-tag">object</span> <span class="hljs-selector-tag">of</span> <span class="hljs-selector-tag">type</span> <span class="hljs-selector-attr">[com.b4.mcr.auth.core.model.dto.ImageCodeDTO]</span></code></pre>
+
+<p>这里说ImageCodeDTO序列化出了问题，它需要一个可序列化的类型，原因是ImageCodeDTO没有实现Serializable接口，为什么会报这个错，原因是session现在已经放到redis里面去管理了，生成图形验证码有一步是把生成的图形验证码放到session里面去，然后后面再发请求的时候再从session里拿出来验，这时候放到session实际上就是放到redis里</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567423581144.png" srcset="/img/loading.gif" alt="1567423581144"></p>
+<p>放到redis里的东西都需要是可序列化的，这里把ValidateCodeDTO、ImageCodeDTO实现Serializable接口</p>
+<pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ImageCodeDTO</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">ValidateCodeDTO</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Serializable</span> </span>
+<span class="hljs-class"></span>
+<span class="hljs-class"><span class="hljs-title">public</span> <span class="hljs-title">class</span> <span class="hljs-title">ValidateCodeDTO</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Serializable</span></span></code></pre>
+
+<p>实现Serializable接口以为，这里的属性也要实现Serializable接口，但是这里的ImageCodeDTO中用了一个BufferedImage的对象，这个对象是JDK提供的一个类：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">BufferedImage</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">java</span>.<span class="hljs-title">awt</span>.<span class="hljs-title">Image</span></span>
+<span class="hljs-class">                           <span class="hljs-keyword">implements</span> <span class="hljs-title">WritableRenderedImage</span>, <span class="hljs-title">Transparency</span></span></code></pre>
+
+<p>它本身没有实现Serializable接口，这个类在往redis里面放到的时候是放不进去的，怎么解决这个问题呢？这里想一下，我们放到redis（session）里面的数据是可以不需要放图片进去的，只要把生成的验证码字符串放进去就行，因为验的时候只要验字符串，那个图片只是生成的时候，给用户看的。</p>
+<p>这里改一下AbstractValidateCodeProcessor#save，</p>
+<pre><code class="hljs java"><span class="hljs-comment">/**</span>
+<span class="hljs-comment">    * 保存校验码</span>
+<span class="hljs-comment">    */</span>
+   <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">save</span><span class="hljs-params">(ServletWebRequest request, C validateCode)</span> </span>&#123;
+       ValidateCodeDTO validateCodeDTO = <span class="hljs-keyword">new</span> ValidateCodeDTO(validateCode.getCode(), validateCode.getExpireTime());
+       sessionStrategy.setAttribute(request, getSessionKey(), validateCodeDTO);
+   &#125;</code></pre>
+
+<p>这里如果validateCode参数是一个图片对象，session中保存的是一个validateCodeDTO对象，它里面并没有BufferedImage类型的属性，这样问题就解决了。</p>
+<hr>
+<p>现在同时启动2个这样的工厂，第一个工厂登录之后，第二个工厂就不用登录，可以直接访问我们写的rest api了，这就说明session是共享的，这样就实现了描述的集群场景</p>
+<h1 id="退出"><a href="#退出" class="headerlink" title="退出"></a>退出</h1><h2 id="点击退出"><a href="#点击退出" class="headerlink" title="点击退出"></a>点击退出</h2><p>index.html</p>
+<pre><code class="hljs html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">"en"</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">"UTF-8"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>index<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+index <span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"/logout"</span>&gt;</span>退出<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span></code></pre>
+
+<hr>
+<p>以上代码就完成了退出功能，这里的/logout处理的事情：</p>
+<ul>
+<li>使当前session失效</li>
+<li>清除与当前用户相关的remember-me记录</li>
+<li>清空当前的SecurityContext</li>
+<li>重定向到登录页</li>
+</ul>
+<p>这里退出跳转到登录页面的时候</p>
+<pre><code class="hljs http"><span class="hljs-attribute">http://www.pinzhi365.com/authentication/require?logout</span></code></pre>
+
+<p>后面会带上?logout</p>
+<hr>
+<p>以上就是spring security默认退出的处理，如果这里的默认处理不符合我们的需求，我们要如何来个性化呢？现在就来给读者们介绍一下相关的配置。</p>
+<p>不想使用<code>/logout</code>，使用<code>/signOut</code></p>
+<p>BrowserSecurityConfig:</p>
+<pre><code class="hljs java">http.logout()
+               .logoutUrl(<span class="hljs-string">"/signOut"</span>)</code></pre>
+
+<p>index.html</p>
+<pre><code class="hljs html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">"en"</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">"UTF-8"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>index<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+index <span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"/signOut"</span>&gt;</span>退出<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span></code></pre>
+
+
+
+<p>退出成功以后，默认的情况下是跳到登录页链接上的，在我们这跳到其他页面</p>
+<p>BrowserSecurityConfig:</p>
+<pre><code class="hljs java">http.logout()
+              .logoutSuccessUrl(<span class="hljs-string">"/mcr-logout.html"</span>)</code></pre>
+
+<p>mcr-logout.html：</p>
+<pre><code class="hljs html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">"en"</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">"UTF-8"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>Title<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">h2</span>&gt;</span>退出成功<span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span></code></pre>
+
+<h2 id="退出成功处理器"><a href="#退出成功处理器" class="headerlink" title="退出成功处理器"></a>退出成功处理器</h2><p>BrowserSecurityProperties:</p>
+<pre><code class="hljs java"><span class="hljs-comment">/**</span>
+<span class="hljs-comment">   * 退出之后调用的请求</span>
+<span class="hljs-comment">   */</span>
+  <span class="hljs-keyword">private</span> String signOutUrl;</code></pre>
+
+<blockquote>
+<p>这里完成一个功能，使用者配了signOutUrl，那么就跳到signOutUrl上去，如果没配，那么这里就它需要一个json格式的返回</p>
+</blockquote>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.browser.session.logout;
+
+<span class="hljs-keyword">import</span> com.b4.demo.core.model.vo.McrSecurityVO;
+<span class="hljs-keyword">import</span> com.fasterxml.jackson.databind.ObjectMapper;
+<span class="hljs-keyword">import</span> lombok.extern.slf4j.Slf4j;
+<span class="hljs-keyword">import</span> org.springframework.security.core.Authentication;
+<span class="hljs-keyword">import</span> org.springframework.security.web.DefaultRedirectStrategy;
+<span class="hljs-keyword">import</span> org.springframework.security.web.RedirectStrategy;
+<span class="hljs-keyword">import</span> org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+
+<span class="hljs-keyword">import</span> javax.servlet.ServletException;
+<span class="hljs-keyword">import</span> javax.servlet.http.HttpServletRequest;
+<span class="hljs-keyword">import</span> javax.servlet.http.HttpServletResponse;
+<span class="hljs-keyword">import</span> java.io.IOException;
+
+<span class="hljs-meta">@Slf</span>4j
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">McrLogoutSuccessHandler</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">LogoutSuccessHandler</span> </span>&#123;
+    <span class="hljs-keyword">private</span> RedirectStrategy redirectStrategy = <span class="hljs-keyword">new</span> DefaultRedirectStrategy();
+    <span class="hljs-keyword">private</span> ObjectMapper objectMapper = <span class="hljs-keyword">new</span> ObjectMapper();
+
+    <span class="hljs-keyword">private</span> String signOutUrl;
+
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">McrLogoutSuccessHandler</span><span class="hljs-params">(String signOutUrl)</span> </span>&#123;
+        <span class="hljs-keyword">this</span>.signOutUrl = signOutUrl;
+    &#125;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">onLogoutSuccess</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response, Authentication authentication)</span> <span class="hljs-keyword">throws</span> IOException, ServletException </span>&#123;
+        log.info(<span class="hljs-string">"用户-&gt;&#123;&#125;退出成功"</span>, authentication.getName());
+        <span class="hljs-keyword">if</span> (signOutUrl == <span class="hljs-keyword">null</span>) &#123;
+            response.setContentType(<span class="hljs-string">"application/json;charset=utf-8"</span>);
+            response.getWriter().write(objectMapper.writeValueAsString(<span class="hljs-keyword">new</span> McrSecurityVO(<span class="hljs-string">"退出成功"</span>)));
+        &#125; <span class="hljs-keyword">else</span> &#123;
+            redirectStrategy.sendRedirect(request, response, signOutUrl);
+        &#125;
+    &#125;
+&#125;</code></pre>
+
+<p>BrowserSecurityBeanConfig:</p>
+<pre><code class="hljs java"><span class="hljs-meta">@Bean</span>
+   <span class="hljs-meta">@ConditionalOnMissingBean</span>(LogoutSuccessHandler<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>
+<span class="hljs-class">   <span class="hljs-title">public</span> <span class="hljs-title">LogoutSuccessHandler</span> <span class="hljs-title">logoutSuccessHandler</span>() </span>&#123;
+       <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> McrLogoutSuccessHandler(securityProperties.getBrowser().getSignOutUrl());
+   &#125;</code></pre>
+
+<p>BrowserSecurityConfig</p>
+<pre><code class="hljs java">    <span class="hljs-keyword">private</span> LogoutSuccessHandler logoutSuccessHandler; 
+<span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(HttpSecurity http)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+        <span class="hljs-comment">//..  </span>
+
+http
+                .logout()
+<span class="hljs-comment">//                .logoutSuccessUrl("/mcr-logout.html")</span>
+                .logoutSuccessHandler(logoutSuccessHandler)</code></pre>
+
+<p>这一：这里如果写了退出跳转的页面，这里的处理器就不生效了，这里只能有一个</p>
+<hr>
+<p>退出的时候清除cookie</p>
+<pre><code class="hljs JAVA">http
+              .logout()
+              .deleteCookies(<span class="hljs-string">"JSESSIONID"</span>)</code></pre>
+
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/SpringSecurity/">SpringSecurity</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/spring-security-5.1.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【 五、OAuth 】 1.Spring Security OAuth简介</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/spring-security-3.3.html">
+                        <span class="hidden-mobile">【 三、Social 】 3.QQ登录</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "【 四、Session 】 1.Session管理&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

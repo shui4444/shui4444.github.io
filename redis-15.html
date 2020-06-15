@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="Shui">
+  <meta name="keywords" content="">
+  <title>【 Redis-学习笔记 】 15.开发运维常见坑 - Shui&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Fluid</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2019-10-17 21:15">
+      2019年10月17日 晚上
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      5.9k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      63
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <h1 id="Linux内核优化"><a href="#Linux内核优化" class="headerlink" title="Linux内核优化"></a>Linux内核优化</h1><h2 id="vm-overcommit-memory"><a href="#vm-overcommit-memory" class="headerlink" title="vm.overcommit_memory"></a>vm.overcommit_memory</h2><blockquote>
+<p>针对Redis申请内存，它针对操作系统申请内存的一些设置，这里主要关心Redis相关的申请内存的设置</p>
+</blockquote>
+<h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191110211518864-1573391851722.png" srcset="/img/loading.gif" alt="image-20191110211518864"></p>
+<p>如果说你给<code>overcommit_memory</code>设置为0，当你启动时，日志中它会警告</p>
+<p>提示你这个参数为0，但是如果你的内存在一个比较紧张的情况下，那可能bgsave、bgrewriteaof可能会失败，那修复这种问题呢它建议去将这个<code>overcommit_memory</code>设置为1并且写入到<code>/etc/sysctl.conf</code>这个文件上，这样的话即使在重启的情况下你这个<code>overcommit_memory</code>也会生效，也就是说设置为1，</p>
+<h3 id="overcommit含义"><a href="#overcommit含义" class="headerlink" title="overcommit含义"></a>overcommit含义</h3><p>它有3个值：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191110212118191.png" srcset="/img/loading.gif" alt="image-20191110212118191"></p>
+<p>前面为什么要将这里设置为1呢首先0表示如果内存足够，它就给你，1就是说我可能会超量的给你，这里有个含义：进程在申请内存的时候，它申请了4GB，但是它有时候并没有申请4GB就去用4GB，这里0表示一种保守的策略，1就不保守，可能有引起一些问题一些情况，我现在没有4GB，但是还是给你分配，那可能因为其他的人它申请了但没有去用，1就是为了解决这个问题；</p>
+<p>前面介绍部分的那张图，在你启动的时候建议你将它设置为1，它目的是为了保证bgsave、bgrewriteaof的成功，这个是为了防止bgsave、bgrewriteaof可能会产生一个阻塞，说了半天就是一个fork的失败，fork失败就意味着主线程可能会被阻塞</p>
+<h3 id="overcommit实践"><a href="#overcommit实践" class="headerlink" title="overcommit实践"></a>overcommit实践</h3><h4 id="获取和设置"><a href="#获取和设置" class="headerlink" title="获取和设置"></a>获取和设置</h4><pre><code class="hljs bash">获取：
+[root@mcr2 ~] cat /proc/sys/vm/overcommit_memory 
+0
+
+设置：
+[root@mcr2 ~] <span class="hljs-built_in">echo</span> <span class="hljs-string">"vm.overcommit_memory=1"</span> &gt;&gt; /etc/sysctl.conf
+[root@mcr2 ~] sysctl vm.overcommit_memory=1</code></pre>
+
+<h4 id="最佳实现"><a href="#最佳实现" class="headerlink" title="最佳实现"></a>最佳实现</h4><ol>
+<li>前面说了内存超量的使用，对于我们在生产环境中我们应该怎么去做呢？设计上我们对Redis设置合理的maxmemory，这样和之前将的内存管理的时候，给每个Redis设置maxmemory之和然后把当前的机器保留20%~30%的闲置内存，这样保证了足够的闲置内存然后就可以完成类似fork相关可能出现内存溢出的情况；</li>
+<li>集中化管理AOF重写和RDB的bgsave，重写我们知道这个如果你开了aof它重写是必然会产生的，为了防止aof文件过大，然后它就会执行重写这样的工作，那我们怎么防止重写集中化的爆发呢？其实我们可以做一个集中化的管理，比如说对当前机器我们去写一个程序或者做一个工具让它去遍历当前机器下所有的Redis，让它去看当前的aof是否达到重写的条件，让aof重写放到我们手中防止集中爆发；<br>RDB的bgsave有两点：<ul>
+<li>复制产生；</li>
+<li>在夜间做一个集中的备份，在集中备份的时候我们一定要做一个创建备份，不让当前机器下所有的Redis都做bgsave，<br>这里还有一个问题：我当前这个机器master比较多，</li>
+<li>如果master和slave之间长时间的断开，也有可能出现当前机器所有的主都会bgsave，这也是比较危险的，这个就涉及到我们在分配内存的时候跟分配主从关系的时候的一个分配算法，也就是说我们不要让过多的主节点放在一个机器中，可能如果主从之间机器发生断开的时候，可能会出现集中大量的bgsave</li>
+</ul>
+</li>
+<li>我们按照Redis的建议把这个值设置为1，这样其实是为了防止极端情况下会造成fork失败，这个相信了解参数含义的读者应该明白这个道理，笔者后面会对这个overcommit_memory这个参数进行演示带着大家看一下操作系统的相关设置，以及之前的日志内容</li>
+</ol>
+<pre><code class="hljs bash">[root@mcr2 config] <span class="hljs-built_in">pwd</span>
+/usr/src/redis/config
+[root@mcr2 config] vim 6379.conf 
+
+内容
+port 6379
+daemonize yes
+dir /usr/src/redis/data
+dbfilename 6379.rdb
+logfile 6379.log
+
+启动：
+[root@mcr2 config]<span class="hljs-comment"># redis-server ./6379.conf </span>
+
+
+查看6379节点的日志
+2669:M 11 Nov 06:13:31.937 <span class="hljs-comment"># WARNING overcommit_memory is set to 0! Background save may fail under low memory condition. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.</span>
+这段内容就是上面的那段提示了，这里说建议将overcommit_memory设置为1并且将它并且将它重定向到配置文件中
+
+查看overcommit_memory内容
+[root@mcr2 config] cat /proc/sys/vm/overcommit_memory 
+0
+
+设置为1
+[root@mcr2 config] <span class="hljs-built_in">echo</span> <span class="hljs-string">"vm.overcommit_memory=1"</span> &gt;&gt; /etc/sysctl.conf
+[root@mcr2 config] sysctl vm.overcommit_memory=1</code></pre>
+
+<h2 id="swappiness"><a href="#swappiness" class="headerlink" title="swappiness"></a>swappiness</h2><blockquote>
+<p>针对swappiness的一些设置</p>
+</blockquote>
+<h3 id="swappiness含义"><a href="#swappiness含义" class="headerlink" title="swappiness含义"></a>swappiness含义</h3><p>swappiness是操作系统在使用swappiness这个事情上的一个概率 or 倾向，它的默认值是60，它的最大值是100，当它达到100的时候就代表它会主动的使用swappiness，当它是60的时候它可能会你可以认为百分之的概率也就是60的值会使用swappiness，当它是0的时候使用概率会更小，但是Linux在不同的内核版本中它有一些不同的规定：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191111192035694.png" srcset="/img/loading.gif" alt="image-20191111192035694"></p>
+<p>对于Linux3.5以上版本的时候它会宁愿用OOM killer也不用swap，在低版本下它宁愿用一下swap也不希望被OOM killer进行杀掉，我们在对Redis这个东西，在Linux环境下会怎么去设置呢？我们当然给它设置为0，也就是说我们不希望Linux去使用swap，因为swap是非常慢的，我们Redis之所有非常快是因为它的所有数据放在了内存当中，当然也跟它的线程模型、数据结构优化有关，但实际上它本质快的原因因为它是一个全内存的一个数据库、缓存，这里当然不使用swap</p>
+<h3 id="swappiness实践"><a href="#swappiness实践" class="headerlink" title="swappiness实践"></a>swappiness实践</h3><h4 id="设置"><a href="#设置" class="headerlink" title="设置"></a>设置</h4><ol>
+<li>立即生效：echo {bestvalue} &gt; /proc/sys/vm/swappiness；</li>
+<li>永久生效：echo vm.swappiness={bestvalue} &gt;&gt; /etc/sysctl.conf。</li>
+</ol>
+<h4 id="最佳实践"><a href="#最佳实践" class="headerlink" title="最佳实践"></a>最佳实践</h4><p>如果Linux内核大于3.5，推荐设置：vm.swappiness=1，否则vm.swappiness=0，从而实现如下两个目标：</p>
+<ul>
+<li>物理内存充足时候，使Redis足够快，不让Linux去用swappiness；</li>
+<li>物理内存不足时候，避免Redis死掉，这个也不是绝对的，如果当前Redis为高可用，死掉比阻塞更好，因为死掉之后还有新的组从进行切换这个时候就不会出现Redis僵死的情况</li>
+</ul>
+<h2 id="THP-Transparent-huge-page"><a href="#THP-Transparent-huge-page" class="headerlink" title="THP(Transparent huge page)"></a>THP(Transparent huge page)</h2><blockquote>
+<p>针对fork，在子进程的时候可能会用到这个参数</p>
+</blockquote>
+<h3 id="介绍-1"><a href="#介绍-1" class="headerlink" title="介绍"></a>介绍</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191111193516660.png" srcset="/img/loading.gif" alt="image-20191111193516660"></p>
+<p>它和overcommit非常类似，假如它认为你的THP的值设置的值不是它认为很理想的值，它会给你打一串日志，上面这张图就是日志上的警告内容，它警告你当前的THP是在你Linux内核下开启的，首先来介绍一下什么是THP？——THP是为了加速fork，就是在做bgsave、bgwriteaof的时候都会有一个fork，它会加速fork，原来它的内存页是4kb，在THP特性开启时候它会达到2mb，就是说它扩大了512倍，它会大大加速Redis的fork速度，我们知道fork是在Redis下主线程执行的，加快速度就意味着你的主线程的阻塞时间比较短，它是一个非常好的东西，但是它还有很多问题，我们来看图中的第二句话，它说：你开启了这个特性可能会造成一些延迟甚至内存使用的问题，这里的延迟主要是指因为你内存页扩大了，那可能在内存页扩大发生这期间如果你做一些操作可能会对当前信息的阻塞，我们在线上遇到过一个情况，开启了THP属性，但写入量比较大的时候，甚至一个<code>incr</code>操作，一个不可能出现在慢查询列表的操作它出现在慢查询列表当中了，它就会造成慢查询，当然还有一个是内存使用的问题：这个体现在因为这个fork使用的是<code>copy on write</code>就是写时复制，假如你的写入量非常大，那你原来的一个4kb的内存页现在要变成2mb，你的写入量非常大，意味着它的<code>copy on write</code>量大，可能会造成内存暴增，假如你是1GB的Redis，由于内存页非常大但是并不是说Redis内存全都是连续的，内存页大量的复制<code>copy on write</code>可能会造成内存大量的产生，它会提示你修复这个问题建议你把这个特性关闭：echo never打印到指定的路径下，它还会建议你把它添加到<code>/etc/rc.local</code>中，及时在重启了THP的特效依然会被关闭掉</p>
+<h3 id="THP作用"><a href="#THP作用" class="headerlink" title="THP作用"></a>THP作用</h3><ol>
+<li>作用：加速fork；</li>
+<li>建议：禁用，可能产生更大的内存开销；</li>
+<li>设置方法： echo never&gt;/sys/kernel/mm/transparent_hugepage/enabled</li>
+<li>坑：源码是绝对路径，注意不同发行版本的区别<br><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191111195140272.png" srcset="/img/loading.gif" alt="image-20191111195140272"><br>它会fopen，这个路径下去找到这个THP有没有开启，其实这样写没什么问题，但是它没有预料到在不同的Linux发行版本像centos可能THP这个属性对应的路径是不一样的，比如用得红帽，它的路径上没有THP这个属性，它是类似于自己加了一个路径设置了THP，对于Redis启动的时候它只会检测绝对路径不会检测相对路径，就会出现它没有任何提醒但是你当前是在使用THP的情况，这里在你使用的时候一定要注意你的Linux的发行版本</li>
+</ol>
+<h2 id="OOM-killer"><a href="#OOM-killer" class="headerlink" title="OOM killer"></a>OOM killer</h2><blockquote>
+<p>Redis的是内存，如果内存使用不当、内存暴增、内存超过Linux本身内存的情况下可能有会有一个<code>OOM Killer</code>，Linux会选举一些不重要的一些进程进行删除</p>
+</blockquote>
+<ol>
+<li>作用：当前这个机器内存超量去使用了，操作系统会按照某些规则把一些不重要的进程kill掉</li>
+<li>配置方法：/proc/{progress_id}/oom_adj，oom_adj越小杀掉进程的概率越小。前面提到内存已经使用超出了，假如说当前有10个进程，它会从oom_adj中选择比较大的进程进行杀除，这里的杀除策略是非常复杂的，我们也不会进行详细的分析，我们知道需要知道oom_adj这个参数是控制它被杀的概率</li>
+<li>运维经验：对于Redis来说，我们可以将每一个Redis的进程的oom_adj设置比较小，在发生oom killer的时候不会被干掉，在实际生产中我们不会用这样的规则，首先一点我们当前机器下肯定是单机多部署，而且是部署一堆Redis，大部分情况不于其他应用混部实际上也是一个很不专业的行为，而且一个就是说不要过度依赖于此特性，应该合理管理内存。<ul>
+<li>有关OOM killer的详细细节，可以参考Linux源码：mm/oom_kill.c中oom_badness函数；</li>
+<li>笔者认为oom_adj参数只能起到辅助作用，合理地规划内存更为重要；</li>
+<li>通常在高可用情况下，被杀掉比僵死更好，因此不要过多依赖oom_adj配置。</li>
+</ul>
+</li>
+</ol>
+<h2 id="NTP（Net-Time-Protocol）"><a href="#NTP（Net-Time-Protocol）" class="headerlink" title="NTP（Net Time Protocol）"></a>NTP（Net Time Protocol）</h2><blockquote>
+<p>它是一个时间服务，可以实现一个公共的时间服务，相当于你可以看到它是一个标准的时间，然后其他的一些机器、一些服务去它那边去拿一个时间，让大家达到一个时间的一致性</p>
+</blockquote>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191112190022980.png" srcset="/img/loading.gif" alt="image-20191112190022980">它就是对时服务，你可以理解为它就是一个钟表，比如北京使用、某个区域的一个表，对于它下面的很多机器，比如说我们当前有很多机器，那我完全可以对每个机器执行一个定时认为，比如说让它每小时去跟NTP做一次同步，这样的话我们机器之间的时间是一致的，当时间一致的时候我们就在做一些分布式的时候就比较好有好处了，比如对于时间的一些判断是一致的，这样对于一些行为的规定一些处理这样的话达到一致的效果，对于我们Redis来说，我们当前的无论是RedisSentinel、RedisCluster，它做的选举是依赖与本地机器的时间，也就是说及时时间不一致也不会对当前集群的选举产生问题因为它依赖的是本地时间， 但是任然希望你把它做一个这样的NTP服务呢？不然说我们当前有N台机器，然后集群之间形成了一个集群，然后我们在排查一些问题的时候，如果发现你的时间点都是不一致的对于你排查问题的时候也不是非常的方便，所以这里任然会建议你去跟这个NTP服务做一个实时的定时任务</p>
+<h2 id="ulimit"><a href="#ulimit" class="headerlink" title="ulimit"></a>ulimit</h2><blockquote>
+<p>对于连接的限制</p>
+</blockquote>
+<h3 id="ulimit与Redis"><a href="#ulimit与Redis" class="headerlink" title="ulimit与Redis"></a>ulimit与Redis</h3><p>这个主要是对Linux文件句柄的限制进行一个设置，它于Redis的关系是什么？</p>
+<p>在你启动Redis的时候，日志中可以会出现：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191112191441944-1573557295700.png" srcset="/img/loading.gif" alt="image-20191112191441944"></p>
+<p>它会告诉你当前Redis的maxclients设置的最大客户端连接数是1W，你至少需要10032文件句柄，这是什么意思？就是说Redis默认的 maxclients是1W，它为什么需要1W和10032个文件句柄？是因为除了你的客户端连接以外Redis自身也需要很多文件句柄，它会告诉你当前Redis是不能把文件句柄设置成10032个，是因为当前没有权限，因为可能你在启动Redis的时候没有使用root用户（当然这里不建议你去使用root用户），它告诉你当前最大的文件句柄是4096个，也就是说它建议你把maxclients设置成4064个，实际上就是4096去减去32，那如果你想去设置更高的值，那你就把它执行一个<code>ulimit -n</code>，这样一个设置，把你当前的进程的文件句柄设置的更大一些这样可以满足Redis的一个需求。其实说了这么多就是Redis启动的时候是需要10032个句柄，你当前句柄数比较小，只有4096那建议你去进行一个设置，你在启动一定要给进程进行一个设置。</p>
+<h2 id="TCP-backlog"><a href="#TCP-backlog" class="headerlink" title="TCP backlog"></a>TCP backlog</h2><blockquote>
+<p>针对TCP网络的连接时，TCP3次握手会有一个async对列，针对那个东西进行一些设置</p>
+</blockquote>
+<h1 id="安全的Redis"><a href="#安全的Redis" class="headerlink" title="安全的Redis"></a><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191112192420855.png" srcset="/img/loading.gif" alt="image-20191112192420855">安全的Redis</h1><h2 id="全局crackit攻击"><a href="#全局crackit攻击" class="headerlink" title="全局crackit攻击"></a>全局crackit攻击</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191112193358968.png" srcset="/img/loading.gif" alt="image-20191112193358968"></p>
+<h3 id="被攻击的Redis特征"><a href="#被攻击的Redis特征" class="headerlink" title="被攻击的Redis特征"></a>被攻击的Redis特征</h3><ol>
+<li>Redis所在的机器有外网IP；</li>
+<li>Redis以默认端口6379为启动端口，并且是对外网开放的；</li>
+<li>Redis是以root用户启动的；</li>
+<li>Redis没有设置密码；</li>
+<li>Redis的bind设置为0.0.0.0或者“”。</li>
+</ol>
+<h3 id="攻击方式"><a href="#攻击方式" class="headerlink" title="攻击方式"></a>攻击方式</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191112193722132.png" srcset="/img/loading.gif" alt="image-20191112193722132"></p>
+<p>左边部分代表攻击的机器，右边是被攻击的机器，它当前是一个公网启动了一个Redis，这个Redis是以root启用的，而且绑定网卡是0.0.0，也就是它没有绑定，然后它端口也没有做限制，它允许公网的任何端口对外暴露，以6379启动；</p>
+<p>现在来看一下攻击步骤，很显然ssh root这台机器，这样是可以连通的，因为你没有密码，而且你没有授权，这个时候是连接不上的，这里我可以先连接Redis，因为Redis没有设置密码，没有做限制，连接之后我可以执行一个 <code>flushall</code>，当前就把你的Redis清除了，这其实不够坏，这样只影响了Redis没有影响机器本身，那我可以继续用Redis的特点 来完成下面的事情，首先设置一个key叫做crackitz这个key，然后我把它设置值是我当前的公钥的一个字符，然后我对当前这个Redis去执行<code>config set dir，</code>我给它设置一个新的dir，我把它设置成ssh目录下，然后我会执行``config set dbfilename`，也就是说我设置一个自己的一个dbfilename，就比如说是一个授权文件，然后执行save，那它就相当于在.ssh里面授权文件里面去添加了这台攻击机器A的公钥，这样的话我下面就可以免密码去访问这台机器干很多的坏事</p>
+<h2 id="Redis安全七法"><a href="#Redis安全七法" class="headerlink" title="Redis安全七法"></a>Redis安全七法</h2><h3 id="设置密码"><a href="#设置密码" class="headerlink" title="设置密码"></a>设置密码</h3><ol>
+<li>服务端设置：设置密码就是requirepass这个参数，需要注意的是我们要为从节点设置masterauth，这样的话从节点就能同步主节点命令，为了防止主从之间的切换，我们建议你把requirepass和masterauth在主从节点都进行一个设置，这样的话即使发生了主从切换，它任然可以完成各自的职责；</li>
+<li>客户端连接：auth命令和-a参数</li>
+<li>相关建议：<ul>
+<li>密码足够复杂，防止暴力破解；</li>
+<li>masterauth不要忘记；</li>
+<li>auth还是通过明文传输，意味着通过网络的一些监听，比如说对网络进行抓包，可以拿到中间可能产生的一系列密码，这样的话抓过来之后可以进行一个解析做很多的坏事，这个暂时没有太好的方法，一些云服务提供类似于SSL安全的一些方式进行文本协议的传输来减少这样的问题，但整体来说Redis是运行在内网中的，只要你保证它有密码，大部分情况下不会被挖取到</li>
+</ul>
+</li>
+</ol>
+<h3 id="伪装危险命令"><a href="#伪装危险命令" class="headerlink" title="伪装危险命令"></a>伪装危险命令</h3><ol>
+<li>服务端配置：rename-command，它可以将当前命令伪装成其他字符或者一个空，它有什么含义呢？假如我不希望客户端去使用<code>flushall</code>这样的命令，我可以将<code>flushall</code>伪装成也给空的字符串，把这个命令干脆禁掉或者伪装成随机字符串</li>
+<li>客户端连接：不可用或者使用指定随机字符；</li>
+<li>相关建议：<ul>
+<li>不支持config set动态设置；</li>
+<li>RDB和AOF如何包含rename-command之前的命令，将无法使用</li>
+<li>config命令本身是在Redis内核会使用到，不建议设置</li>
+</ul>
+</li>
+</ol>
+<h3 id="bind"><a href="#bind" class="headerlink" title="bind"></a>bind</h3><ol>
+<li>服务端配置：bind可以限制网卡的输入流量，假如说你有4个网卡或者4个ip地址，它可能限制当前的Redis流量是从哪个网卡去打入的，注意这里它不是限制客户端，这个很容易让刚刚接触它的人去迷惑的这个命令是限制某些网关的IP客户端能访问，它无法限制IP，它只能限制网卡的流量；</li>
+<li>相关建议：<ul>
+<li>bind不支持config set；</li>
+<li>bind 127.0.0.1需要谨慎，如果你设置127.0.0.1只能从本机去访问，这个不是很好，因为假如你Redis真是和你的应用放在一个机上，你可以这样设置，但实际中肯定有很多其它的流量去访问到Redis，而且很多Redis是做分布式的，它需要节点之间的通信，如果你设置这样一个选项的话会对分布式的使用有影响或者说干脆就使用不了；</li>
+<li>如果存在外网网卡，经量去设置这样的配置，它能保证你的流量不会从外网去打入进来；</li>
+</ul>
+</li>
+</ol>
+<h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><ol>
+<li>防火墙：杀手锏，你设置任何密码也不如你设置一个防火墙有用，但是防火墙的设置一定要注意，比如说像RedisCluster节点之间的通信或者你在做分布式的时候或者你对外网的一个访问，就是外网IP内网IP的一个访问的时候一定要设置清楚，否则出现网络不通的情况下可能对你Redis使用会有一定影响；</li>
+<li>定期备份，这个是根据前面讲的安全事件总结出来的，万一你的数据被删了，或者说主机被攻陷了，如果你有一个定期备份的数据，也不至于让Redis数据丢失；</li>
+<li>不太管用的方法，在个别情况下管用，不使用默认端口，防止被弱攻击杀掉；</li>
+<li>强制：使用非root用户启动，假如说攻击者拿到root用户权限，那危害是非常大的</li>
+</ol>
+<h1 id="热点Key发现"><a href="#热点Key发现" class="headerlink" title="热点Key发现"></a>热点Key发现</h1><h2 id="热点key的寻找方法"><a href="#热点key的寻找方法" class="headerlink" title="热点key的寻找方法"></a>热点key的寻找方法</h2><h3 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h3><blockquote>
+<p>因为客户端是访问Redis的数据来源，我们知道所有的请求是在哪里</p>
+</blockquote>
+<p>这里客户端来解决不是一个非常好的方法，例如我们可以写一个这样的东西，我们可以记录每分钟每个key的调用次数，然后我们在客户端去记录这样的东西，然后定期的去清理这个map中的访问次数，这样防止你的map过大，但是这里任然有一个问题：即使你只记录一分钟的可能你的map也非常大，而且客户端去记录这样的东西本身也会增加你客户端的业务逻辑，不建议去使用，假如你的key很少或者说你当前的情况下是允许这样做，建议你去设置，可以采用这样的思路</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191112212752956.png" srcset="/img/loading.gif" alt="image-20191112212752956"></p>
+<h3 id="代理端"><a href="#代理端" class="headerlink" title="代理端"></a>代理端</h3><blockquote>
+<p>使用codis这样的工具从代理端获取数据</p>
+</blockquote>
+<p>像使用codis，它是所有流量都打到代理上的，然后代理可以有一个权重量的一个统计，可以做类是的事情 ，但是仍然有那样的问题：一个是代理要增加代理的逻辑，实现复杂度的逻辑，还有就是在实际使用过程中代理可以是多个，因为代理的负载会很高，它需要满足底下很多Redis的规模然进行客户端的要求，所以代理会非常多，做这个也会很复杂</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191112213120406.png" srcset="/img/loading.gif" alt="image-20191112213120406"></p>
+<h3 id="服务端"><a href="#服务端" class="headerlink" title="服务端"></a>服务端</h3><blockquote>
+<p>通过Redis统计热点key在哪里</p>
+</blockquote>
+<p>使用monitor这样的命令解析Redis执行了哪些东西，通过monitor短暂的解析这个东西 ，比如使用它去分析近10W条Redis的命令并找出比如说哪些命令命令执行的比较多，是get-set还是hget-hset比较多，然后我们可以总结这10W条命令中哪些key的前缀出现的比较多，这样就有可能去找到对应的热点key，但是前面已经介绍了monitor的各种问题，所以在使用这种monitor的方式时候要尽量小心一点</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191112213522769.png" srcset="/img/loading.gif" alt="image-20191112213522769"></p>
+<h3 id="机器收集"><a href="#机器收集" class="headerlink" title="机器收集"></a>机器收集</h3><blockquote>
+<p>使用机器的抓包、对于数据协议的分析来找到对应的热点</p>
+</blockquote>
+<p>假设现在有很多Redis部署在多个机器或者一个机器上，我们可以通过对这太机器网络包的分析，我们可以抓取这些信息的Redis的一个TCP数据来对这个当前的机器上所有的流量进行分析，这样的话也可以找到对应的热点key。上述都提供了Redis抓取热点key、寻找热点key的思路，在实际生产过程中你要根据对应的一个使用场景或者Redis的规模、具体情况来进行分析</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191112213914768.png" srcset="/img/loading.gif" alt="image-20191112213914768"></p>
+<h2 id="四种方式总结"><a href="#四种方式总结" class="headerlink" title="四种方式总结"></a>四种方式总结</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191112213927833.png" srcset="/img/loading.gif" alt="image-20191112213927833"></p>
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E8%BF%90%E7%BB%B4/Redis/">Redis</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/linux-1.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【Linux】 Linux初始化必做的一些事情</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/redis-14.html">
+                        <span class="hidden-mobile">【 Redis-学习笔记 】 14.内存管理</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "【 Redis-学习笔记 】 15.开发运维常见坑&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

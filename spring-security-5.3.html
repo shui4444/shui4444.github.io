@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="Shui">
+  <meta name="keywords" content="">
+  <title>【 五、OAuth 】 3.Spring Security OAuth核心源码解析 - Shui&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Fluid</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2019-10-15 18:03">
+      2019年10月15日 晚上
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      3.2k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      36
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567511400096.png" srcset="/img/loading.gif" alt=""></p>
+<p>上一章通过2个注解实现了OAuth2标准的4种授权模式，之前提到过，这4种授权模式在实际业务场景是不能用的，比如说手机号码+验证码登录这种，后面笔者会带着大家去用我们之前的代码去嫁接到这写授权码模式中，在这之前，笔者会带着大家来读一度源码</p>
+<hr>
+<h1 id="流程"><a href="#流程" class="headerlink" title="流程"></a>流程</h1><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1234345624623dsafasfd.png" srcset="/img/loading.gif" alt=""></p>
+<blockquote>
+<p>这里绿色的方块代表实体类，蓝色的方块表示接口，接口中的括号表示实际上使用的实现类</p>
+</blockquote>
+<p>TokenEndpoint：它是整个流程的入口点，可以理解成controller，它来处理获取令牌的请求，它的postAccessToken方法是一个post请求，地址为/oauth/token，就是之前获取token的那个地址</p>
+<pre><code class="hljs java"><span class="hljs-meta">@RequestMapping</span>(value = <span class="hljs-string">"/oauth/token"</span>, method=RequestMethod.POST)
+	<span class="hljs-function"><span class="hljs-keyword">public</span> ResponseEntity&lt;OAuth2AccessToken&gt; <span class="hljs-title">postAccessToken</span><span class="hljs-params">(Principal principal, @RequestParam</span></span>
+<span class="hljs-function"><span class="hljs-params">	Map&lt;String, String&gt; parameters)</span> <span class="hljs-keyword">throws</span> HttpRequestMethodNotSupportedException </span>&#123;
+  &#125;</code></pre>
+
+<p>ClientDetailsService：用来读取第三方应用的信息的，之前发请求的时候都会带一个clientId和clientSecret来告诉它是哪个应用在请求授权，这个接口会根据第三方发送的clientId去读取相应的client的一些配置信息，例如之前在yml中配的client-id、client-secret，其实还有一些信息可以配置</p>
+<hr>
+<p>ClientDetails：ClientDetailsService读出来的这些配置信息都会写到ClientDetails这个对象的里面去，它存储的信息是第三方应用的信息</p>
+<hr>
+<p>TokenRequest：TokenEndpoint会创建一个TokenRequest的对象，这个对象封装了/oauth/token请求中其他参数的信息，例如grant_type、code、client_id…这些信息，然后它会把ClientDetails也同时放到TokenRequest里面，因为第三方应用的信息也是令牌请求的一部分</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567600898713.png" srcset="/img/loading.gif" alt="1567600898713"></p>
+<hr>
+<p>TokenGranter：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">TokenGranter</span> </span>&#123;
+
+	<span class="hljs-function">OAuth2AccessToken <span class="hljs-title">grant</span><span class="hljs-params">(String grantType, TokenRequest tokenRequest)</span></span>;
+
+&#125;</code></pre>
+
+<p>在TokenEndpoint132进行使用</p>
+<pre><code class="hljs java">OAuth2AccessToken token = getTokenGranter().grant(tokenRequest.getGrantType(), tokenRequest);</code></pre>
+
+<p>它是令牌授权者，在这个接口封装了4种授权模式实现和刷新令牌授权实现，在这个接口里面，它会根据第三方请求传上来的grant_type去挑一个具体实现来执行令牌生成逻辑，不管是哪个实现，在生成的过程中，都会产生2个对象：</p>
+<ol>
+<li>OAuth2Request：这个对象是ClientDetails和TokenRequest它们的信息整合，把这2个对象整合到一起，变为新的对象</li>
+<li>Authentication：这个接口封装了你当前授权用户的一些信息，谁在做授权，这里就是做授权的用户的信息，它里面的信息是通过UserDetailsService读出来的</li>
+</ol>
+<hr>
+<p>OAuth2Authentication：OAuth2Request对象和Authentication组合而成，它里面包含了：第三方授权的那个用户是哪一个第三方应用，然后在请求哪个用户给你授权，用的授权模式是什么，授权的参数是什么</p>
+<hr>
+<p>AuthorizationServerTokenServices：OAuth2Authentication会传给AuthorizationServerTokenServices接口的实现，这个接口是认证服务器的令牌服务，它拿到Authentication信息以后，它会最终给第三方生成一个OAuth2Authentication令牌。</p>
+<hr>
+<p>DefaultTokenServices：它是AuthorizationServerTokenServices接口的默认实现，它里面包含了：</p>
+<ul>
+<li>TokenStore：用来对token进行存储</li>
+<li>TokenEnhancer：令牌增强器，当令牌生成出以后，可以去改造令牌</li>
+</ul>
+<hr>
+<h1 id="Debug"><a href="#Debug" class="headerlink" title="Debug"></a>Debug</h1><p>断点位置：</p>
+<ul>
+<li>TokenEndpoint：95行</li>
+</ul>
+<hr>
+<p>这里以密码授权模式做演示，因为它的步骤就一个，不像授权码模式那样要2步，</p>
+<p>现在使用前面介绍的工具来进行发送</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567602161087.png" srcset="/img/loading.gif" alt="1567602161087"></p>
+<hr>
+<p>TokenEndpoint#postAccessToken：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567602341977.png" srcset="/img/loading.gif" alt="1567602341977"></p>
+<p>首先会从请求中获取clientId，然后通过clientId去调用ClientDetailsService#loadClientByClientId方法来获取第三方应用的详细配置，也就是ClientDetails</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567602469054.png" srcset="/img/loading.gif" alt="1567602469054"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567602693706.png" srcset="/img/loading.gif" alt="1567602693706"></p>
+<p>在这里可以看到它有很多配置的项，然后将这个ClientDetails，以及第三方发送的其他参数传给OAuth2RequestFactory#createTokenRequest方法去返回一个TokenRequest对象，拿到TokenRequest以后，会对它这个进行一系列判断</p>
+<pre><code class="hljs java"><span class="hljs-comment">//判断是否传递了clientId	</span>
+<span class="hljs-keyword">if</span> (clientId != <span class="hljs-keyword">null</span> &amp;&amp; !clientId.equals(<span class="hljs-string">""</span>)) &#123;
+		<span class="hljs-comment">//clientId是不是和配置的clientId是否匹配</span>
+			<span class="hljs-keyword">if</span> (!clientId.equals(tokenRequest.getClientId())) &#123;
+
+				<span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> InvalidClientException(<span class="hljs-string">"Given client ID does not match authenticated client"</span>);
+			&#125;
+		&#125;
+		
+		<span class="hljs-keyword">if</span> (authenticatedClient != <span class="hljs-keyword">null</span>) &#123;
+      <span class="hljs-comment">//检查scope，所谓的scope是第三方请求的到底是什么，之前说过client可以有很多配置项，其中就有client能发出去什么样的授权，如果你配了的话，它会去做这些检查，第三方当前请求的授权只能在第三方应用可以发的授权集合里面才能通过这个校验</span>
+			oAuth2RequestValidator.validateScope(tokenRequest, authenticatedClient);
+		&#125;
+		<span class="hljs-comment">//判断GrantType是否有值，</span>
+		<span class="hljs-keyword">if</span> (!StringUtils.hasText(tokenRequest.getGrantType())) &#123;
+			<span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> InvalidRequestException(<span class="hljs-string">"Missing grant type"</span>);
+		&#125;
+		<span class="hljs-comment">//如果传了GrantType,它这里会判断这个GrantType是不是简化模式，如果是简化模式它会抛异常，因为所谓的简化模式就是授权码模式里的简化，在用户在授权的时候直接放回令牌，所以在授权码模式里面是不会有第二步请求令牌这样服务被调用的，所以你在请求令牌的时候传的是简化模式，这是不支持的</span>
+		<span class="hljs-keyword">if</span> (tokenRequest.getGrantType().equals(<span class="hljs-string">"implicit"</span>)) &#123;
+			<span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> InvalidGrantException(<span class="hljs-string">"Implicit grant type not supported from token endpoint"</span>);
+		&#125;
+		<span class="hljs-comment">//判断当前是不是一个授权码模式的请求，之前演示中，授权码模式是2步，在授权码模式中你发出去的令牌它所包含的权限scope不是在发令牌这个请求里决定的，而是在给授权码里面决定的，就是在用户确认的时候，用户确认之后，服务器会给授权码，用户确认的时候它会给第三方读的权限，然后这个信息包含在授权码里面给到第三方，第三方在换访问令牌的时候，它就只能拿到读的权限，它不能说换令牌的时候，自己带个参数说要一个写的权限，这是不认的，所以在授权码模式的请求，那么这里就直接把token里的scope，就是第三方所要求的权限给变为空的，它会在后面以你之前发过授权码里面去找你之前的发出去的授权码，然后根据授权码里面重新把scope设上，而不会用你请求令牌里带的scope</span>
+		<span class="hljs-keyword">if</span> (isAuthCodeRequest(parameters)) &#123;
+			<span class="hljs-comment">// The scope was requested or determined during the authorization step</span>
+			<span class="hljs-keyword">if</span> (!tokenRequest.getScope().isEmpty()) &#123;
+				logger.debug(<span class="hljs-string">"Clearing scope of incoming token request"</span>);
+				tokenRequest.setScope(Collections.&lt;String&gt; emptySet());
+			&#125;
+		&#125;
+	<span class="hljs-comment">//判断是不是刷新令牌请求，因为刷新令牌它也有自己的默认的scope，所以在这里如果是刷新令牌请求，它会把scope重新设一下 </span>
+		<span class="hljs-keyword">if</span> (isRefreshTokenRequest(parameters)) &#123;
+			<span class="hljs-comment">// A refresh token has its own default scopes, so we should ignore any added by the factory here.</span>
+			tokenRequest.setScope(OAuth2Utils.parseParameterList(parameters.get(OAuth2Utils.SCOPE)));
+		&#125;</code></pre>
+
+<p>通过前面一系列检查以后，最终会把tokenRequest传给TokenGranter#grant方法来产生OAuth2AccessToken对象，然后通过内部的getResponse方法响应给前端</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567603732339.png" srcset="/img/loading.gif" alt="1567603732339"></p>
+<hr>
+<p>TokenGranter这个接口后面封装了4种授权模式加上刷新这种模式，一共5个模式来产生AccessToken，那么来进去看一下</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567604010304.png" srcset="/img/loading.gif" alt="1567604010304">现在在AuthorizationServerEndpointsConfigurer#tokenGranter方法中，这里会调用CompositeTokenGranter也就是TokenGranter实现类的grant方法</p>
+<hr>
+<p>CompositeTokenGranter#grant：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567604177639.png" srcset="/img/loading.gif" alt="1567604177639"></p>
+<p>这里它通过成员变量tokenGranters的TokenGranter泛型集合进行遍历，这里的tokenGranters的size为5，也就是说的4种授权模式+刷新授权，这里的方法中对这个集合进行遍历然后调用者5个实现类的grant方法：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567604529494.png" srcset="/img/loading.gif" alt="1567604529494"></p>
+<p>，这些实现类的grant方法会根据参数中传递的grantType的值去判断是不是要用自己的授权方式，如果不是则直接返回null，如果是则生成继续往下走</p>
+<hr>
+<p>这里根据clientId拿到我在yml中配置的信息封装成ClientDetails</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567604901778.png" srcset="/img/loading.gif" alt="1567604901778"></p>
+<p>然后将配置信息和grantType传递给validateGrantType方法进行校验</p>
+<hr>
+<p>最终返回值是调用了一个getAccessToken获取的</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">protected</span> OAuth2AccessToken <span class="hljs-title">getAccessToken</span><span class="hljs-params">(ClientDetails client, TokenRequest tokenRequest)</span> </span>&#123;
+	<span class="hljs-keyword">return</span> tokenServices.createAccessToken(getOAuth2Authentication(client, tokenRequest));
+&#125;</code></pre>
+
+<p>这里实际上调用了AuthorizationServerTokenServices的createAccessToken方法，createAccessToken方法中需要一个参数，这里的参数类型为OAuth2Authentication，这个OAuth2Authentication是由5种授权模式生成的，我现在这个例子中是密码模式，通过用户名密码来获取当前授权用户的信息，而在授权码模式里面，则要通过第一步发出去的授权码，发授权码的时候，它这里会记下来这个授权码对应的用户信息是什么，然后第三方拿这个授权码来换令牌的时候，这里根据授权码在把之前授权码对应的用户信息读出来，这些处理逻辑方式在不同的授权模式下是不一样的，所以这里的getOAuth2Authentication在不同的授权模式有不同的实现，那么现在例子中的是密码模式一个实现，</p>
+<p>ResourceOwnerPasswordTokenGranter#getOAuth2Authentication</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567605829832.png" srcset="/img/loading.gif" alt="1567605829832"></p>
+<p>在这里根据请求参数的用户名密码去实例化了一个之前反复说的UsernamePasswordAuthenticationToken，然后传递给AuthenticationManager去做认证，在这个认证的过程中，它实际会调用我们写的UserDetailsService实现，去数据库中的信息做认证，如果认证通过就代表这里的userAuth这个Authentication对象是正确的</p>
+<pre><code class="hljs java">OAuth2Request storedOAuth2Request = getRequestFactory().createOAuth2Request(client, tokenRequest);</code></pre>
+
+<p>然后将ClientDetails和TokenRequest合起来创建一个OAuth2Request，来看一下它是怎么拼出来的，实际上是调用了一个createOAuth2Request方法，把第三方应用的信息传给它就可以了，这块代码看一下，等会会把这些代码拷走，用一些代码自己来生成最后的token</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> OAuth2Request <span class="hljs-title">createOAuth2Request</span><span class="hljs-params">(ClientDetails client, TokenRequest tokenRequest)</span> </span>&#123;
+	<span class="hljs-keyword">return</span> tokenRequest.createOAuth2Request(client);
+&#125;</code></pre>
+
+<hr>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">protected</span> OAuth2AccessToken <span class="hljs-title">getAccessToken</span><span class="hljs-params">(ClientDetails client, TokenRequest tokenRequest)</span> </span>&#123;
+	<span class="hljs-keyword">return</span> tokenServices.createAccessToken(getOAuth2Authentication(client, tokenRequest));
+&#125;</code></pre>
+
+<p>前面的getAccessToken方法执行一旦成功了返回的OAuth2Authentication对象就去创建了一个AccessToken，然后响应出去，整个流程就结束了</p>
+<hr>
+<p>在结束之前来看看DefaultTokenServices是如何把AccessToken生成出来的</p>
+<p>断点：84行，createAccessToken方法中</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567606898774.png" srcset="/img/loading.gif" alt="1567606898774"></p>
+<p>首先方法第1行，将authentication放入TokenStore的getAccessToken方法中，这里的TokenStore就是之前说的同一个用户，如果令牌没有过期，在去拿取令牌时候它会把之前发的令牌再发给你，所以一来到第1行它会去找，当前的用户是不是发过令牌，然后判断这个令牌是不是空的，如果不为空，就说明在这个请求之前发给令牌给这个用户，然后判断之前发给用户的令牌是不是过期了，如果已经过期了，那么将会从TokenStore把相应的RefreshToken和AccessToken全都删掉，如果没过期，则重新把令牌存下来，因为可能是用另一种方式来访问这个令牌的，一开始请求这个令牌可能是拿授权码模式请求的，后来又用密码模式又请求了一次，这时候存的信息是不一样的，所以这个令牌没过期，但是这里还是会重写存一下，如果存的令牌不过期的话，那么就直接把这个存在的令牌在发回去，那么如果过期了或者它本身就没发过，第三方是第一次，那么就会接着往下走：</p>
+<pre><code class="hljs java"><span class="hljs-comment">//看refreshToken有没有，如果没有的话建立一个刷新令牌，然后拿取当前的用户</span>
+<span class="hljs-keyword">if</span> (refreshToken == <span class="hljs-keyword">null</span>) &#123;
+			refreshToken = createRefreshToken(authentication);
+		&#125;
+		<span class="hljs-comment">// But the refresh token itself might need to be re-issued if it has</span>
+		<span class="hljs-comment">// expired.</span>
+		<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (refreshToken <span class="hljs-keyword">instanceof</span> ExpiringOAuth2RefreshToken) &#123;
+			ExpiringOAuth2RefreshToken expiring = (ExpiringOAuth2RefreshToken) refreshToken;
+			<span class="hljs-keyword">if</span> (System.currentTimeMillis() &gt; expiring.getExpiration().getTime()) &#123;
+				refreshToken = createRefreshToken(authentication);
+			&#125;
+		&#125;
+		<span class="hljs-comment">//这里将authentication和refreshToken拼成一个accessToken</span>
+		OAuth2AccessToken accessToken = createAccessToken(authentication, refreshToken);
+		tokenStore.storeAccessToken(accessToken, authentication);
+		<span class="hljs-comment">// In case it was modified</span>
+		refreshToken = accessToken.getRefreshToken();
+		<span class="hljs-keyword">if</span> (refreshToken != <span class="hljs-keyword">null</span>) &#123;
+			tokenStore.storeRefreshToken(refreshToken, authentication);
+		&#125;
+		<span class="hljs-keyword">return</span> accessToken;</code></pre>
+
+<p>accessTokens生成逻辑：</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">private</span> OAuth2AccessToken <span class="hljs-title">createAccessToken</span><span class="hljs-params">(OAuth2Authentication authentication, OAuth2RefreshToken refreshToken)</span> </span>&#123;
+		DefaultOAuth2AccessToken token = <span class="hljs-keyword">new</span> DefaultOAuth2AccessToken(UUID.randomUUID().toString());
+		<span class="hljs-keyword">int</span> validitySeconds = getAccessTokenValiditySeconds(authentication.getOAuth2Request());
+		<span class="hljs-keyword">if</span> (validitySeconds &gt; <span class="hljs-number">0</span>) &#123;
+			token.setExpiration(<span class="hljs-keyword">new</span> Date(System.currentTimeMillis() + (validitySeconds * <span class="hljs-number">1000L</span>)));
+		&#125;
+		token.setRefreshToken(refreshToken);
+		token.setScope(authentication.getOAuth2Request().getScope());
+
+		<span class="hljs-keyword">return</span> accessTokenEnhancer != <span class="hljs-keyword">null</span> ? accessTokenEnhancer.enhance(token, authentication) : token;
+	&#125;</code></pre>
+
+<p>这里通过UUID当做构造函数的参数实例化一个DefaultOAuth2AccessToken，然后把相应的刷新令牌，过期时间、scope设上，然后调用之前介绍的TokenEnhancer#enhance增强方法，这里先判断是否配了</p>
+<p>TokenEnhancer，如果配置了就去把生成的token传进去，这里可以往token做一些自定义的东西</p>
+<hr>
+<p>回到DefaultTokenServices#createAccessToken方法中</p>
+<pre><code class="hljs java">OAuth2AccessToken accessToken = createAccessToken(authentication, refreshToken);
+	tokenStore.storeAccessToken(accessToken, authentication);
+	<span class="hljs-comment">// In case it was modified</span>
+	refreshToken = accessToken.getRefreshToken();
+	<span class="hljs-keyword">if</span> (refreshToken != <span class="hljs-keyword">null</span>) &#123;
+		tokenStore.storeRefreshToken(refreshToken, authentication);
+	&#125;</code></pre>
+
+<p>生成完令牌以后，通过TokenStore进行持久化，然后通过返回的令牌获取refreshToken，如果refreshToken不为空再用TokenStore把refreshToken存一下，然后把这个token返回回去，这里就是生成令牌的一个逻辑，这里涉及到2个东西：TokenStore、TokenEnhancer</p>
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/SpringSecurity/">SpringSecurity</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/spring-security-5.4.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【 五、OAuth 】 4.重构用户密码登录</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/spring-security-5.2.html">
+                        <span class="hidden-mobile">【 五、OAuth 】 2.实现标准到OAuth服务器提供商</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "【 五、OAuth 】 3.Spring Security OAuth核心源码解析&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

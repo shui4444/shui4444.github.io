@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="Shui">
+  <meta name="keywords" content="">
+  <title>【 五、OAuth 】 8.令牌配置 - Shui&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Fluid</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2019-10-15 18:08">
+      2019年10月15日 晚上
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.3k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      32
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <p>前面为止，将自定义的3重认证方式都已经嫁接到认证服务器上了，通过自定义的认证方式我们可以出去发OAuth令牌，现在这个token它现在和生成和存储都是spring默认的机制来做的，但是这个默认的机制并不符合我们的需求，在这里笔者会带着大家来如何来定制token，定制它的生成和存储</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567865190288.png" srcset="/img/loading.gif" alt="1567865190288"></p>
+<p>现在要做的事是token的处理，token的处理是在认证服务器去完成的，所以这里要做的事情</p>
+<h1 id="基本的Token参数配置"><a href="#基本的Token参数配置" class="headerlink" title="基本的Token参数配置"></a>基本的Token参数配置</h1><p>（1）修改McrAuthorizationServerConfig</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.app;
+<span class="hljs-meta">@Configuration</span>
+<span class="hljs-meta">@EnableAuthorizationServer</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">McrAuthorizationServerConfig</span>  <span class="hljs-keyword">extends</span> <span class="hljs-title">AuthorizationServerConfigurerAdapter</span> </span>&#123;
+    
+&#125;</code></pre>
+
+<p>这里的AuthorizationServerConfigurerAdapter有3个configure方法，分别表示安全、第三方客户端的配置、端点</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567865473251.png" srcset="/img/loading.gif" alt="1567865473251"></p>
+<p> McrAuthorizationServerConfig：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.app;
+<span class="hljs-meta">@Configuration</span>
+<span class="hljs-meta">@EnableAuthorizationServer</span>
+<span class="hljs-meta">@AllArgsConstructor</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">McrAuthorizationServerConfig</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">AuthorizationServerConfigurerAdapter</span> </span>&#123;
+    <span class="hljs-keyword">private</span> AuthenticationManager authenticationManager;
+
+    <span class="hljs-keyword">private</span> UserDetailsService userDetailsService;
+
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 对TokenEndpoint的属性和增强功能。</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(AuthorizationServerEndpointsConfigurer endpoints)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+        endpoints.authenticationManager(authenticationManager)
+                .userDetailsService(userDetailsService)
+        ;
+    &#125;
+
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * 跟客户端相关的配置，这里会覆盖掉在yml中的：</span>
+<span class="hljs-comment">     * security.oauth2.client.xxx的配置</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(ClientDetailsServiceConfigurer clients)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+        clients
+                <span class="hljs-comment">/*mcr*/</span>
+                .inMemory()
+                .withClient(<span class="hljs-string">"mcr"</span>)
+                .secret(<span class="hljs-string">"mcr"</span>)
+                .accessTokenValiditySeconds(<span class="hljs-number">7200</span>)
+                <span class="hljs-comment">//当前withClient指定的“mcr”这个应用所能支持的授权模式是哪些</span>
+                .authorizedGrantTypes(<span class="hljs-string">"refresh_token"</span>, <span class="hljs-string">"password"</span>)
+                <span class="hljs-comment">//如果这里写了，客户端在发请求的时候就可以不带scope参数，它不带scope参数以后，就是使用这里配置的，如果请求带了scope，一定要是在配置的scope之内，如果不在就会保存</span>
+                .scopes(<span class="hljs-string">"all"</span>, <span class="hljs-string">"read"</span>, <span class="hljs-string">"write"</span>)
+
+
+        ;
+    &#125;
+&#125;</code></pre>
+
+<p>测试一下，这里以密码模式为例：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567866797638.png" srcset="/img/loading.gif" alt="1567866797638"></p>
+<p>这里不传递scope，就使用了我们自己配的scoope，过期时间也是我们自己配的，没有问题</p>
+<p>使用简化模式登录：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567866911929.png" srcset="/img/loading.gif" alt="1567866911929"></p>
+<p>这里由于配置中不包含这个模式，所以就会出现这样的信息</p>
+<hr>
+<p>支持多个client端</p>
+<p>McrAuthorizationServerConfig</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(ClientDetailsServiceConfigurer clients)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+       clients
+               <span class="hljs-comment">/*mcr*/</span>
+               .inMemory()
+               .withClient(<span class="hljs-string">"mcr"</span>)
+               .secret(<span class="hljs-string">"mcr"</span>)
+               .accessTokenValiditySeconds(<span class="hljs-number">7200</span>)
+               .authorizedGrantTypes(<span class="hljs-string">"refresh_token"</span>, <span class="hljs-string">"password"</span>)
+               .scopes(<span class="hljs-string">"all"</span>, <span class="hljs-string">"read"</span>, <span class="hljs-string">"write"</span>)
+               .and()
+               <span class="hljs-comment">/*xxx*/</span>
+               .inMemory()
+               .withClient(<span class="hljs-string">"mcr"</span>)
+               .secret(<span class="hljs-string">"mcr"</span>)
+               .accessTokenValiditySeconds(<span class="hljs-number">7200</span>)
+               .authorizedGrantTypes(<span class="hljs-string">"refresh_token"</span>, <span class="hljs-string">"password"</span>)
+               .scopes(<span class="hljs-string">"all"</span>, <span class="hljs-string">"read"</span>, <span class="hljs-string">"write"</span>)
+       ;
+   &#125;</code></pre>
+
+<p>这里我们的目标是做一个可重用的模块，上面这样写是不能让使用者进行修改的，这里改为可以让使用者进行配置</p>
+<p>首先定义一个OAuth2ClientProperties类，将上面这些ClientDetailsServiceConfigurer类的方法，做为这个类的参数</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.properties;
+
+<span class="hljs-keyword">import</span> lombok.Data;
+
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * OAuth2客户端配置</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-meta">@Data</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">OAuth2ClientProperties</span> </span>&#123;
+    <span class="hljs-keyword">private</span> String clientId;
+    <span class="hljs-keyword">private</span> String clientSecret;
+    <span class="hljs-keyword">private</span> String[] authorizedGrantTypes = &#123;&#125;;<span class="hljs-comment">//授权类型</span>
+    <span class="hljs-keyword">private</span> String[] redirectUris = &#123;&#125;; <span class="hljs-comment">// 信任的回调域</span>
+    <span class="hljs-keyword">private</span> String[] scopes = &#123;&#125;;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> accessTokenValiditySeconds; <span class="hljs-comment">// token有效期 默认单位秒</span>
+&#125;</code></pre>
+
+<p>由于可以配置多个，这里的OAuth2Properties类中有一个OAuth2ClientProperties数组 </p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.properties;
+
+<span class="hljs-keyword">import</span> lombok.Data;
+
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * oauth2配置</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-meta">@Data</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">OAuth2Properties</span> </span>&#123;
+    <span class="hljs-keyword">private</span> OAuth2ClientProperties[] clients = &#123;&#125;;
+&#125;</code></pre>
+
+<p>SecurityProperties</p>
+<pre><code class="hljs java"><span class="hljs-keyword">private</span> OAuth2Properties oAuth2=<span class="hljs-keyword">new</span> OAuth2Properties();</code></pre>
+
+<p>yml</p>
+<pre><code class="hljs yml"><span class="hljs-comment">#security:</span>
+<span class="hljs-comment">#  oauth2:</span>
+<span class="hljs-comment">#    client:</span>
+<span class="hljs-comment">#      client-id: mcr</span>
+<span class="hljs-comment">#      client-secret: mcr</span>
+
+<span class="hljs-attr">mcr:</span>
+  <span class="hljs-attr">b4:</span>
+    <span class="hljs-attr">security:</span>
+      <span class="hljs-attr">oAuth2:</span>
+        <span class="hljs-attr">clients:</span>
+          <span class="hljs-bullet">-</span> <span class="hljs-attr">clientId:</span> <span class="hljs-string">mcr</span>
+            <span class="hljs-attr">clientSecret:</span> <span class="hljs-string">mcr</span>
+            <span class="hljs-attr">authorizedGrantTypes:</span> <span class="hljs-string">["refresh_token",</span> <span class="hljs-string">"password"</span><span class="hljs-string">]</span>
+            <span class="hljs-attr">scopes:</span> <span class="hljs-string">["all",</span> <span class="hljs-string">"read"</span><span class="hljs-string">]</span>
+            <span class="hljs-attr">accessTokenValiditySeconds:</span> <span class="hljs-number">7200</span>
+          <span class="hljs-bullet">-</span> <span class="hljs-attr">clientId:</span> <span class="hljs-string">test</span>
+            <span class="hljs-attr">clientSecret:</span> <span class="hljs-string">test</span>
+            <span class="hljs-attr">authorizedGrantTypes:</span> <span class="hljs-string">["refresh_token",</span> <span class="hljs-string">"password"</span><span class="hljs-string">]</span>
+            <span class="hljs-attr">scopes:</span> <span class="hljs-string">["all",</span> <span class="hljs-string">"read"</span><span class="hljs-string">]</span></code></pre>
+
+<p>McrAuthorizationServerConfig#configure</p>
+<pre><code class="hljs java">    <span class="hljs-keyword">private</span> SecurityProperties security;
+ 
+<span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(ClientDetailsServiceConfigurer clients)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+        OAuth2Properties oAuth2 = securityProperties.getOAuth2();
+        InMemoryClientDetailsServiceBuilder builder = clients.inMemory();
+
+        OAuth2ClientProperties[] oAuth2Clients = oAuth2.getClients();
+        <span class="hljs-keyword">if</span> (ArrayUtils.isNotEmpty(oAuth2.getClients())) &#123;
+            <span class="hljs-keyword">for</span> (OAuth2ClientProperties item : oAuth2Clients) &#123;
+                builder
+                        .withClient(item.getClientId())
+                        .secret(item.getClientSecret())
+                        .accessTokenValiditySeconds(item.getAccessTokenValiditySeconds())
+                        <span class="hljs-comment">//当前withClient指定的“mcr”这个应用所能支持的授权模式是哪些</span>
+                        .authorizedGrantTypes(item.getAuthorizedGrantTypes())
+                        <span class="hljs-comment">//如果这里写了，客户端在发请求的时候就可以不带scope参数，它不带scope参数以后，就是使用这里配置的，如果请求带了scope，一定要是在配置的scope之内，如果不在就会保存</span>
+                        .scopes(item.getScopes());
+                clients.setBuilder(builder);
+            &#125;
+        &#125;
+    &#125;</code></pre>
+
+<p>使用mcr登录</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567869976917.png" srcset="/img/loading.gif" alt="1567869976917"></p>
+<p>使用test登录</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567869997849.png" srcset="/img/loading.gif" alt="1567869997849"></p>
+<p>这里由于我没给test用户配置过期时间，所以0在这里表示永不过期，在实际开发中一定要给那个过期属性配默认值</p>
+<hr>
+<p>控制令牌存储</p>
+<p>现在令牌是存储在内存中的，一档服务重启，内存中就没有数据了，这里将存储改为redis，之前介绍过TokenStore是来做令牌存储的</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567870398556.png" srcset="/img/loading.gif" alt="1567870398556"></p>
+<p>TokenStore提供了几种实现类，这里使用RedisTokenSotre</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.app;
+
+
+<span class="hljs-keyword">import</span> org.springframework.context.annotation.Bean;
+<span class="hljs-keyword">import</span> org.springframework.context.annotation.Configuration;
+<span class="hljs-keyword">import</span> org.springframework.data.redis.connection.RedisConnectionFactory;
+<span class="hljs-keyword">import</span> org.springframework.security.oauth2.provider.token.TokenStore;
+<span class="hljs-keyword">import</span> org.springframework.security.oauth2.provider.token.store.redis.RedisTokenStore;
+
+<span class="hljs-keyword">import</span> javax.annotation.Resource;
+
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * redis存储token</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-meta">@Configuration</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TokenStoreConfig</span> </span>&#123;
+    <span class="hljs-meta">@Resource</span>
+    <span class="hljs-keyword">private</span> RedisConnectionFactory redisConnectionFactory;
+
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> TokenStore <span class="hljs-title">redisTokenStore</span><span class="hljs-params">()</span> </span>&#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> RedisTokenStore(redisConnectionFactory);
+    &#125;
+&#125;</code></pre>
+
+<p>McrAuthorizationServerConfig</p>
+<pre><code class="hljs java"><span class="hljs-keyword">private</span> TokenStore tokenStore;
+   <span class="hljs-comment">/**</span>
+<span class="hljs-comment">    * 对TokenEndpoint的属性和增强功能。</span>
+<span class="hljs-comment">    */</span>
+   <span class="hljs-meta">@Override</span>
+   <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(AuthorizationServerEndpointsConfigurer endpoints)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+       endpoints.authenticationManager(authenticationManager)
+               .userDetailsService(userDetailsService)
+               .tokenStore(tokenStore)
+       ;
+   &#125;</code></pre>
+
+<h1 id="使用JWT替换默认令牌"><a href="#使用JWT替换默认令牌" class="headerlink" title="使用JWT替换默认令牌"></a>使用JWT替换默认令牌</h1><p>OAuth2Properties</p>
+<pre><code class="hljs java"><span class="hljs-keyword">private</span> String jwtSignKey = <span class="hljs-string">"mcr"</span>;</code></pre>
+
+<p>TokenStoreConfig</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.app;
+
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * redis存储token</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-meta">@Configuration</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TokenStoreConfig</span> </span>&#123;
+    <span class="hljs-meta">@Resource</span>
+    <span class="hljs-keyword">private</span> RedisConnectionFactory redisConnectionFactory;
+
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-meta">@ConditionalOnProperty</span>(prefix = <span class="hljs-string">"mcr.b4.security.oAuth2"</span>, name = <span class="hljs-string">"storeType"</span>, havingValue = <span class="hljs-string">"redis"</span>)
+    <span class="hljs-function"><span class="hljs-keyword">public</span> TokenStore <span class="hljs-title">redisTokenStore</span><span class="hljs-params">()</span> </span>&#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> RedisTokenStore(redisConnectionFactory);
+    &#125;
+
+    <span class="hljs-meta">@Configuration</span>
+    <span class="hljs-meta">@AllArgsConstructor</span>
+    <span class="hljs-meta">@ConditionalOnProperty</span>(prefix = <span class="hljs-string">"mcr.b4.security.oAuth2.storeType"</span>, name = <span class="hljs-string">"storeType"</span>, havingValue = <span class="hljs-string">"jwt"</span>, matchIfMissing = <span class="hljs-keyword">true</span>)
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">JwtTokenConfig</span> </span>&#123;
+        <span class="hljs-keyword">private</span> SecurityProperties securityProperties;
+
+        <span class="hljs-meta">@Bean</span>
+        <span class="hljs-function"><span class="hljs-keyword">public</span> TokenStore <span class="hljs-title">jwtTokenStore</span><span class="hljs-params">()</span> </span>&#123;
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> JwtTokenStore(jwtAccessTokenConverter());
+        &#125;
+
+        <span class="hljs-comment">/**</span>
+<span class="hljs-comment">         * token生成处理</span>
+<span class="hljs-comment">         */</span>
+        <span class="hljs-meta">@Bean</span>
+        <span class="hljs-function"><span class="hljs-keyword">public</span> JwtAccessTokenConverter <span class="hljs-title">jwtAccessTokenConverter</span><span class="hljs-params">()</span> </span>&#123;
+            OAuth2Properties oAuth2 = securityProperties.getOAuth2();
+            JwtAccessTokenConverter jwtAccessTokenConverter = <span class="hljs-keyword">new</span> JwtAccessTokenConverter();
+            jwtAccessTokenConverter.setSigningKey(oAuth2.getJwtSignKey());
+            <span class="hljs-keyword">return</span> jwtAccessTokenConverter;
+        &#125;
+    &#125;
+&#125;</code></pre>
+
+<p>这里来介绍一下ConditionalOnProperty注解</p>
+<pre><code class="hljs java"><span class="hljs-meta">@ConditionalOnProperty</span>(prefix = <span class="hljs-string">"mcr.b4.security.oAuth2.storeType"</span>, name = <span class="hljs-string">"storeType"</span>, havingValue = <span class="hljs-string">"jwt"</span>, matchIfMissing = <span class="hljs-keyword">true</span>)</code></pre>
+
+<p>这里指的是yml、properties配置文件中配置了”mcr.b4.security.oAuth2.storeType的值为jwt，那么这个类的配置就会生效，这里的matchIfMissing属性为true表示如果yml没配置，也会生效</p>
+<hr>
+<p>McrAuthorizationServerConfig</p>
+<pre><code class="hljs java"><span class="hljs-meta">@Autowired</span>(required = <span class="hljs-keyword">false</span>)
+  <span class="hljs-keyword">private</span> JwtAccessTokenConverter jwtAccessTokenConverter;
+
+  <span class="hljs-comment">/**</span>
+<span class="hljs-comment">   * 对TokenEndpoint的属性和增强功能。</span>
+<span class="hljs-comment">   */</span>
+  <span class="hljs-meta">@Override</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(AuthorizationServerEndpointsConfigurer endpoints)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+      endpoints.authenticationManager(authenticationManager)
+              .userDetailsService(userDetailsService)
+              .tokenStore(tokenStore)
+      ;
+      <span class="hljs-keyword">if</span> (jwtAccessTokenConverter != <span class="hljs-keyword">null</span>) &#123;
+          endpoints.accessTokenConverter(jwtAccessTokenConverter);
+      &#125;
+  &#125;</code></pre>
+
+<p>登录响应的数据成这个样子：</p>
+<pre><code class="hljs json">&#123;
+<span class="hljs-attr">"access_token"</span>: <span class="hljs-string">"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiJyb290IiwiYXV0aG9yaXRpZXMiOlsiYWRtaW4iLCJST0xFX1VTRVIiXSwianRpIjoiNTVlNDVjNDUtZWM2ZC00NmMyLWI3NzgtZjY3MmYyYTAwNjFjIiwiY2xpZW50X2lkIjoidGVzdCIsInNjb3BlIjpbImFsbCJdfQ.oD1kF5KeQSKydVgZ6kAAwF0RMpOvXn_ttRQtjaZbEk8"</span>,
+<span class="hljs-attr">"token_type"</span>: <span class="hljs-string">"bearer"</span>,
+<span class="hljs-attr">"refresh_token"</span>: <span class="hljs-string">"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiJyb290Iiwic2NvcGUiOlsiYWxsIl0sImF0aSI6IjU1ZTQ1YzQ1LWVjNmQtNDZjMi1iNzc4LWY2NzJmMmEwMDYxYyIsImV4cCI6MTU3MDUyMjQzNywiYXV0aG9yaXRpZXMiOlsiYWRtaW4iLCJST0xFX1VTRVIiXSwianRpIjoiNmYxOWUwYTYtNTRmMi00ZDQ0LWEzMDYtODFkMWM1NDQ2MGNlIiwiY2xpZW50X2lkIjoidGVzdCJ9.MiapW2WqZGpntAraHeO2mJwt99de2xJhpLpA15MoIX0"</span>,
+<span class="hljs-attr">"scope"</span>: <span class="hljs-string">"all"</span>,
+<span class="hljs-attr">"jti"</span>: <span class="hljs-string">"55e45c45-ec6d-46c2-b778-f672f2a0061c"</span>
+&#125;</code></pre>
+
+<p>读者可以拿着access_token去在线解析jwt的网站： <a href="http://jwt.calebb.net/中查看内容：" target="_blank" rel="noopener">http://jwt.calebb.net/中查看内容：</a></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567930569350.png" srcset="/img/loading.gif" alt="1567930569350"></p>
+<p>访问<a href="http://localhost:80/user/me/v3响应内容是空的，原因是这里使用了@AuthenticationPrincipal注解，现在的Principal不是UserDetails，而是一个字符串，所以在这里拿不到" target="_blank" rel="noopener">http://localhost:80/user/me/v3响应内容是空的，原因是这里使用了@AuthenticationPrincipal注解，现在的Principal不是UserDetails，而是一个字符串，所以在这里拿不到</a></p>
+<pre><code class="hljs java"><span class="hljs-meta">@GetMapping</span>(<span class="hljs-string">"/me/v3"</span>)
+<span class="hljs-function"><span class="hljs-keyword">public</span> Object <span class="hljs-title">getCurrentUser</span><span class="hljs-params">(@AuthenticationPrincipal UserDetails authentication)</span> </span>&#123;
+    <span class="hljs-keyword">return</span> authentication;
+&#125;</code></pre>
+
+<p>需要改为这样</p>
+<pre><code class="hljs java"><span class="hljs-meta">@GetMapping</span>(<span class="hljs-string">"/me/v3"</span>)
+ <span class="hljs-function"><span class="hljs-keyword">public</span> Object <span class="hljs-title">getCurrentUser</span><span class="hljs-params">(Authentication authentication)</span> </span>&#123;
+     <span class="hljs-keyword">return</span> authentication;
+ &#125;</code></pre>
+
+<p>响应内容：</p>
+<pre><code class="hljs json">&#123;
+    <span class="hljs-attr">"authorities"</span>: [
+        &#123;
+            <span class="hljs-attr">"authority"</span>: <span class="hljs-string">"admin"</span>
+        &#125;,
+        &#123;
+            <span class="hljs-attr">"authority"</span>: <span class="hljs-string">"ROLE_USER"</span>
+        &#125;
+    ],
+    <span class="hljs-attr">"details"</span>: &#123;
+        <span class="hljs-attr">"remoteAddress"</span>: <span class="hljs-string">"0:0:0:0:0:0:0:1"</span>,
+        <span class="hljs-attr">"sessionId"</span>: <span class="hljs-literal">null</span>,
+        <span class="hljs-attr">"tokenValue"</span>: <span class="hljs-string">"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiJyb290IiwiYXV0aG9yaXRpZXMiOlsiYWRtaW4iLCJST0xFX1VTRVIiXSwianRpIjoiZWJhYTRkMDEtNDgwMy00ZjkyLWJhZGQtMWFjNTZhMjdmNzE0IiwiY2xpZW50X2lkIjoidGVzdCIsInNjb3BlIjpbImFsbCJdfQ.3mCvI7PYBsbRk3qirgTg-NaipfV3JyZljiiHc0fXk9w"</span>,
+        <span class="hljs-attr">"tokenType"</span>: <span class="hljs-string">"bearer"</span>,
+        <span class="hljs-attr">"decodedDetails"</span>: <span class="hljs-literal">null</span>
+    &#125;,
+    <span class="hljs-attr">"authenticated"</span>: <span class="hljs-literal">true</span>,
+    <span class="hljs-attr">"userAuthentication"</span>: &#123;
+        <span class="hljs-attr">"authorities"</span>: [
+            &#123;
+                <span class="hljs-attr">"authority"</span>: <span class="hljs-string">"admin"</span>
+            &#125;,
+            &#123;
+                <span class="hljs-attr">"authority"</span>: <span class="hljs-string">"ROLE_USER"</span>
+            &#125;
+        ],
+        <span class="hljs-attr">"details"</span>: <span class="hljs-literal">null</span>,
+        <span class="hljs-attr">"authenticated"</span>: <span class="hljs-literal">true</span>,
+        <span class="hljs-attr">"principal"</span>: <span class="hljs-string">"root"</span>,
+        <span class="hljs-attr">"credentials"</span>: <span class="hljs-string">"N/A"</span>,
+        <span class="hljs-attr">"name"</span>: <span class="hljs-string">"root"</span>
+    &#125;,
+    <span class="hljs-attr">"principal"</span>: <span class="hljs-string">"root"</span>,
+    <span class="hljs-attr">"oauth2Request"</span>: &#123;
+        <span class="hljs-attr">"clientId"</span>: <span class="hljs-string">"test"</span>,
+        <span class="hljs-attr">"scope"</span>: [
+            <span class="hljs-string">"all"</span>
+        ],
+        <span class="hljs-attr">"requestParameters"</span>: &#123;
+            <span class="hljs-attr">"client_id"</span>: <span class="hljs-string">"test"</span>
+        &#125;,
+        <span class="hljs-attr">"resourceIds"</span>: [
+        ],
+        <span class="hljs-attr">"authorities"</span>: [
+        ],
+        <span class="hljs-attr">"approved"</span>: <span class="hljs-literal">true</span>,
+        <span class="hljs-attr">"refresh"</span>: <span class="hljs-literal">false</span>,
+        <span class="hljs-attr">"redirectUri"</span>: <span class="hljs-literal">null</span>,
+        <span class="hljs-attr">"responseTypes"</span>: [
+        ],
+        <span class="hljs-attr">"extensions"</span>: &#123;
+        &#125;,
+        <span class="hljs-attr">"refreshTokenRequest"</span>: <span class="hljs-literal">null</span>,
+        <span class="hljs-attr">"grantType"</span>: <span class="hljs-literal">null</span>
+    &#125;,
+    <span class="hljs-attr">"credentials"</span>: <span class="hljs-string">""</span>,
+    <span class="hljs-attr">"clientOnly"</span>: <span class="hljs-literal">false</span>,
+    <span class="hljs-attr">"name"</span>: <span class="hljs-string">"root"</span>
+&#125;</code></pre>
+
+<p>这里的信息，它不是按照jwt来生成的，而这里的信息是按照spring security的Authentication来生成，如何自定义jwt的信息？比如我想在这里的json中加一个字段该怎么加？这里来实现下这个功能</p>
+<p>分析源码可知</p>
+<p>DefaultTokenServices#createAccessToken</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567931505416.png" srcset="/img/loading.gif" alt="1567931505416"></p>
+<p>这里的token是通过UUID生成的，而它这里的生成方法是私有的，所以无法通过实现、继承方式来重写生成逻辑，不过这里的最下方调用了TokenEnhancer这对象的enhance方法，这个方法用来增强的，之前有提到过，这里可以实现TokenEnhancer接口的enhance方法来对生成的token加字段进去</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.app.jwt;
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * 自定义token增强器</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">McrJwtTokenEnhancer</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">TokenEnhancer</span> </span>&#123;
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> OAuth2AccessToken <span class="hljs-title">enhance</span><span class="hljs-params">(OAuth2AccessToken accessToken, OAuth2Authentication authentication)</span> </span>&#123;
+        Map&lt;String, Object&gt; info = <span class="hljs-keyword">new</span> HashMap&lt;&gt;();
+        <span class="hljs-comment">// 需要增加的信息</span>
+        <span class="hljs-comment">// 所以如果是需要动态的话，只能在该方法中去调用业务方法添加动态参数信息</span>
+        info.put(<span class="hljs-string">"company"</span>, <span class="hljs-string">"mcr"</span>);
+        <span class="hljs-comment">// 设置附加信息</span>
+        ((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(info);
+        <span class="hljs-keyword">return</span> accessToken;
+    &#125;
+&#125;</code></pre>
+
+<p>TokenStoreConfig#JwtTokenConfig</p>
+<pre><code class="hljs java">  <span class="hljs-meta">@Bean</span>
+<span class="hljs-meta">@ConditionalOnMissingBean</span>(TokenEnhancer<span class="hljs-class">.<span class="hljs-keyword">class</span>)</span>
+<span class="hljs-class">    <span class="hljs-title">public</span> <span class="hljs-title">TokenEnhancer</span> <span class="hljs-title">jwtTokenEnhancer</span>() </span>&#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> McrJwtTokenEnhancer();
+    &#125;</code></pre>
+
+<p>McrAuthorizationServerConfig</p>
+<pre><code class="hljs java"> <span class="hljs-meta">@Autowired</span>(required = <span class="hljs-keyword">false</span>)
+   <span class="hljs-keyword">private</span> JwtAccessTokenConverter jwtAccessTokenConverter;
+   <span class="hljs-meta">@Autowired</span>(required = <span class="hljs-keyword">false</span>)
+   <span class="hljs-keyword">private</span> TokenEnhancer jwtTokenEnhancer;
+<span class="hljs-meta">@Override</span>
+   <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(AuthorizationServerEndpointsConfigurer endpoints)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
+       endpoints.authenticationManager(authenticationManager)
+               .userDetailsService(userDetailsService)
+               .tokenStore(tokenStore)
+       ;
+       <span class="hljs-keyword">if</span> (jwtAccessTokenConverter != <span class="hljs-keyword">null</span> &amp;&amp; jwtTokenEnhancer != <span class="hljs-keyword">null</span>) &#123;
+           TokenEnhancerChain enhancerChain = <span class="hljs-keyword">new</span> TokenEnhancerChain();
+           List&lt;TokenEnhancer&gt; enhancers = <span class="hljs-keyword">new</span> ArrayList&lt;&gt;();
+           enhancers.add(jwtTokenEnhancer);
+           enhancers.add(jwtAccessTokenConverter);
+           enhancerChain.setTokenEnhancers(enhancers);
+           endpoints
+                   .tokenEnhancer(enhancerChain)
+                   .accessTokenConverter(jwtAccessTokenConverter);
+       &#125;
+   &#125;</code></pre>
+
+<p>上面代码中使用了TokenEnhancerChain这么一个类，这个类的作用是将增强器连接起来，因为前面通过jwt转换器转换，而在这里又使用了增强器，所以需要用它将2个类相连起来，形成一个链</p>
+<p>现在重新登录，拿到token在到那个网站上去看：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567932671671.png" srcset="/img/loading.gif" alt="1567932671671"></p>
+<p>不过在我自己的<a href="http://localhost:80/user/me/v3" target="_blank" rel="noopener">http://localhost:80/user/me/v3</a> rest api是看不到这个字段的，现在就来实现一下这个功能，首先在demo模块加入一个依赖</p>
+<pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>io.jsonwebtoken<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>jjwt<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>0.9.1<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span></code></pre>
+
+<p>UserController</p>
+<pre><code class="hljs java">      <span class="hljs-meta">@Autowired</span>
+ <span class="hljs-keyword">private</span> SecurityProperties securityProperties;
+<span class="hljs-meta">@GetMapping</span>(<span class="hljs-string">"/me/v4"</span>)
+    <span class="hljs-function"><span class="hljs-keyword">public</span> Object <span class="hljs-title">getCurrentAuthentication2</span><span class="hljs-params">(Authentication authentication, HttpServletRequest request)</span> <span class="hljs-keyword">throws</span> UnsupportedEncodingException </span>&#123;
+        String authorization = request.getHeader(<span class="hljs-string">"Authorization"</span>);
+        String token = StringUtils.substringAfter(authorization, <span class="hljs-string">"bearer "</span>);
+        String jwtSigningKey = securityProperties.getOAuth2().getJwtSignKey();
+        <span class="hljs-comment">// 生成的时候使用的是 org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter</span>
+        <span class="hljs-comment">// 源码里面把signingkey变成utf8了</span>
+        <span class="hljs-comment">// JwtAccessTokenConverter类，解析出来是一个map</span>
+        <span class="hljs-comment">// 所以这个自带的JwtAccessTokenConverter对象也是可以直接用来解析的</span>
+        <span class="hljs-keyword">byte</span>[] bytes = jwtSigningKey.getBytes(StandardCharsets.UTF_8);
+        Claims body = Jwts.parser().setSigningKey(bytes).parseClaimsJws(token).getBody();
+        String company = (String) body.get(<span class="hljs-string">"company"</span>);
+        log.info(<span class="hljs-string">"公司名称:&#123;&#125;"</span>, company);
+        <span class="hljs-keyword">return</span> body;
+    &#125;</code></pre>
+
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567933366085.png" srcset="/img/loading.gif" alt="1567933366085"></p>
+<h1 id="TOKEN刷新"><a href="#TOKEN刷新" class="headerlink" title="TOKEN刷新"></a>TOKEN刷新</h1><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567933734791.png" srcset="/img/loading.gif" alt="1567933734791"></p>
+<p>这个过程可以在用户无感知的情况下去做，当用户访问app的时候，token过期了，客户端那边就会去请求上面这个地址，带上登录时拿到的refresh_token，对token进行刷新。这里要注意refresh_token也是有过期时间的，建议可以设置长一些，</p>
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/SpringSecurity/">SpringSecurity</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/spring-security-5.9.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【 五、OAuth 】 9.基于JWT实现SSO单点登录</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/spring-security-5.7.html">
+                        <span class="hidden-mobile">【 五、OAuth 】 7.重构注册逻辑</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "【 五、OAuth 】 8.令牌配置&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

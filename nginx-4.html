@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="Shui">
+  <meta name="keywords" content="">
+  <title>【Nginx】 4-深度学习篇 - Shui&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Fluid</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2020-02-12 21:59">
+      2020年2月12日 晚上
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      8.3k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      101
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <h1 id="动静分离"><a href="#动静分离" class="headerlink" title="动静分离"></a>动静分离</h1><h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><h3 id="什么是动静分离？"><a href="#什么是动静分离？" class="headerlink" title="什么是动静分离？"></a>什么是动静分离？</h3><p>通过中间件将动态请求和静态请求分离。</p>
+<h3 id="为什么要使用动静分离？"><a href="#为什么要使用动静分离？" class="headerlink" title="为什么要使用动静分离？"></a>为什么要使用动静分离？</h3><p>对于服务端而言减少不必要的请求消耗，我一些静态请求的资源不需要后端的CPU运算，对于客户端而言我请求静态资源不用复杂的运算了那么就可以减少请求的等待时间。</p>
+<p>没有动静分离的请求流程：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200213091855952-1581556745386.png" srcset="/img/loading.gif" alt="image-20200213091855952"></p>
+<p>一个请求首先去会去请求中间件，由中间件把请求转给程序框架执行对应的加载，程序框架去执行运算对应的程序获取相关的数据资源。如果每一次请求都需要这些关系对于请求的消耗和响应都会受到影响。</p>
+<p>对于静态请求而言其实不需要程序框架，通过中间件执行从硬盘里获取到这个静态资源就可以了。</p>
+<h2 id="场景演示"><a href="#场景演示" class="headerlink" title="场景演示"></a>场景演示</h2><p>这里准备了一个<code>Spring Boot</code>的jar包，提供了一个动态的请求</p>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.example.demo.web.controller;
+
+<span class="hljs-keyword">import</span> cn.hutool.core.util.RandomUtil;
+<span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.GetMapping;
+<span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.RequestMapping;
+<span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.RestController;
+
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@author</span> Shui</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-meta">@RestController</span>
+<span class="hljs-meta">@RequestMapping</span>(<span class="hljs-string">"/demo"</span>)
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">DemoController</span> </span>&#123;
+
+  <span class="hljs-meta">@GetMapping</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> Integer <span class="hljs-title">get</span><span class="hljs-params">()</span> </span>&#123;
+    <span class="hljs-keyword">return</span> RandomUtil.randomInt(<span class="hljs-number">999</span>);
+  &#125;
+&#125;</code></pre>
+
+<p>这里将它启动</p>
+<pre><code class="hljs bash">/opt/app&gt; ls
+cache  code1  code2  code3  demo.jar
+/opt/app&gt; nohup  java -jar demo.jar &gt; info.log &amp;</code></pre>
+
+<p>等会我们演示的时候会访问的页面，它的内容为：</p>
+<pre><code class="hljs html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">"en"</span> <span class="hljs-attr">xmlns</span>=<span class="hljs-string">"http://www.w3.org/1999/xhtml"</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">"UTF-8"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>动静分离测试<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">h1</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"dynamic"</span>&gt;</span>Load...<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"http://dev001.com/image/test.png"</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"https://code.jquery.com/jquery-3.4.1.min.js"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span>
+<span class="javascript">$(() =&gt; &#123;</span>
+<span class="javascript">  $.<span class="hljs-keyword">get</span>('http://dev001.com/demo', (data) =&gt; &#123;</span>
+<span class="javascript">    $(<span class="hljs-string">'#dynamic'</span>).text(data);</span>
+  &#125;, () =&gt; &#123;
+<span class="actionscript">    alert(<span class="hljs-string">'动态请求失败'</span>);</span>
+  &#125;);
+&#125;);
+<span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span></code></pre>
+
+<blockquote>
+<p>这里的img访问的属于静态资源，而通过jquery Ajajx访问的是动态资源,这个html文件放在<code>/opt/app/code</code>中</p>
+</blockquote>
+<p>上面这个页面的图片是在这里：</p>
+<pre><code class="hljs bash">/opt/app/code/image&gt; ls
+test.png</code></pre>
+
+<p>test_mysite.conf</p>
+<pre><code class="hljs nginx"><span class="hljs-section">server</span> &#123;
+    <span class="hljs-attribute">listen</span>       <span class="hljs-number">80</span> ;
+    <span class="hljs-attribute">server_name</span>  localhost;
+
+
+    <span class="hljs-attribute">access_log</span>  /var/log/nginx/host.access.log  main;
+    <span class="hljs-attribute">root</span> /opt/app/code;
+
+    <span class="hljs-attribute">location</span> <span class="hljs-regexp">~ ^/demo</span> &#123;
+        <span class="hljs-attribute">proxy_pass</span> http://localhost:8080;
+    &#125;
+
+    <span class="hljs-attribute">location</span> <span class="hljs-regexp">~ \.html$</span> &#123;
+
+    &#125;
+
+    <span class="hljs-attribute">location</span> <span class="hljs-regexp">~ \.(jpg|png|gif)$</span> &#123;
+        <span class="hljs-attribute">expires</span> <span class="hljs-number">1h</span>;
+        <span class="hljs-attribute">gzip</span> <span class="hljs-literal">on</span>;
+    &#125;
+&#125;</code></pre>
+
+<h1 id="Rewrite规则"><a href="#Rewrite规则" class="headerlink" title="Rewrite规则"></a>Rewrite规则</h1><h2 id="介绍-1"><a href="#介绍-1" class="headerlink" title="介绍"></a>介绍</h2><h3 id="作用"><a href="#作用" class="headerlink" title="作用"></a>作用</h3><p>实现url重写以及重定向</p>
+<h3 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h3><p>1）、URL访问跳转，支持开发设计</p>
+<ul>
+<li>页面跳转</li>
+<li>兼容性支持：版本升级的时候为支持老的版本为了兼容部分老的版本或者老的用户这个时候需要系统老的请求路径使得能访问到。</li>
+<li>展示效果等：对于复杂的URL如果展示的过于复杂这样对于页面展示路径就是大长串，我们可以使用<code>rewrite规则</code>将其精简缩略</li>
+</ul>
+<p>2）、SEO优化</p>
+<p>我们知道对于谷歌、百度这种搜索引擎优化，搜索的效率还排名是依赖与URL路径的，如果我们的路径过于复杂不符合谷歌、百度这些规则的话，这个时候对搜索引擎的录入存在一些问题，在这个时候我们可以依赖于<code>Nginx</code>来让我们后端的接口静态的改写以符合对应搜索引擎的搜索规范</p>
+<p>3）、维护</p>
+<p>后台维护、流量转发</p>
+<p>4）、安全</p>
+<p>我们用到<code>rewrite规则</code>可以实现伪静态，所谓伪静态就是将真实的动态页面进行伪装让黑客进行访问抓取的时候感觉不出来这是一个动态页面</p>
+<h3 id="配置语法"><a href="#配置语法" class="headerlink" title="配置语法"></a>配置语法</h3><p>对于<code>rewrite</code>它依赖于<code>ngx_http_rewrite_module</code>这个模块，详细的配置可以参考<a href="http://nginx.org/en/docs/http/ngx_http_rewrite_module.html" target="_blank" rel="noopener">文档</a>。核心的配置语法这里列出来如下：</p>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th><code>**rewrite** *regex* *replacement* [*flag*];</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>—</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>server</code>, <code>location</code>, <code>if</code></td>
+</tr>
+</tbody></table>
+<ul>
+<li>regex：正则表达式，需要去改写的路径</li>
+<li>replacement：目标要替换成哪个URL或者对应的路径</li>
+<li>flag：标识</li>
+</ul>
+<p>实例：</p>
+<pre><code class="hljs nginx"><span class="hljs-attribute">rewrite</span><span class="hljs-regexp"> ^(.*)$</span> /pages/maintain.html <span class="hljs-literal">break</span>;</code></pre>
+
+<blockquote>
+<p>这里意思是所有的请求都会重定向到<code>/pages/maintain.html</code>，后面的break是标识符</p>
+</blockquote>
+<h3 id="rewrite正则表达式"><a href="#rewrite正则表达式" class="headerlink" title="rewrite正则表达式"></a>rewrite正则表达式</h3><table>
+<thead>
+<tr>
+<th>符号</th>
+<th>介绍</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>.</td>
+<td>匹配除换行符以外的任意字符</td>
+</tr>
+<tr>
+<td>?</td>
+<td>重复0次或1次</td>
+</tr>
+<tr>
+<td>*</td>
+<td>最少链接数，哪个机器连接数少就分发</td>
+</tr>
+<tr>
+<td>\d</td>
+<td>匹配数字</td>
+</tr>
+<tr>
+<td>\D</td>
+<td>匹配一个非数字字符。等价于<code>[^0-9]</code>。</td>
+</tr>
+<tr>
+<td>\s</td>
+<td>匹配一个空白字符，包括空格、制表符、换页符和换行符</td>
+</tr>
+<tr>
+<td>\S</td>
+<td>匹配一个非空白字符</td>
+</tr>
+<tr>
+<td>\w</td>
+<td>匹配一个单字字符（字母、数字或者下划线），等价于 <code>[A-Za-z0-9_]</code></td>
+</tr>
+<tr>
+<td>\W</td>
+<td>匹配一个非单字字符,等价于 <code>[^A-Za-z0-9_]</code></td>
+</tr>
+<tr>
+<td>^</td>
+<td>匹配字符串的开始</td>
+</tr>
+<tr>
+<td>$</td>
+<td>匹配字符串的介绍</td>
+</tr>
+<tr>
+<td>{n}</td>
+<td>重复n次</td>
+</tr>
+<tr>
+<td>{n,}</td>
+<td>重复n次或更多次</td>
+</tr>
+<tr>
+<td>[c]</td>
+<td>匹配单个字符串c</td>
+</tr>
+<tr>
+<td>[a-z]</td>
+<td>匹配a-z小写字母的任意一个</td>
+</tr>
+<tr>
+<td>\</td>
+<td>转义字符。例如你想匹配<code>index.php</code>跳转到前端页面，就是这么来写：<code>rewrite index\.php$ /pages/maintain.html break;</code></td>
+</tr>
+<tr>
+<td>()</td>
+<td>用于匹配括号之间的内容，通过<code>$1</code>、<code>$2</code>调用。例如：<br /><code>rewrite ^(.*)$ /msie/$1 break;</code>，这里的括号部分的内容会放在<code>$1</code>中</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>由于正则表达式在编程语言中是通用的，想了解更多可以参考<code>Javascript</code>的<a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions" target="_blank" rel="noopener">正则表达式文档</a></p>
+</blockquote>
+<p>对于正则表达式，这里介绍一个Linux测试工具“pcretest”，它能够测试表达式，使用方式参考<a href="https://blog.csdn.net/xiao__jia__jia/article/details/84934552" target="_blank" rel="noopener">文章</a></p>
+<h3 id="rewrite规则中的flag"><a href="#rewrite规则中的flag" class="headerlink" title="rewrite规则中的flag"></a>rewrite规则中的flag</h3><p>flag能标记rewrite对应的类型，它的类型如下：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>介绍</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>last</td>
+<td>停止rewrite检测</td>
+</tr>
+<tr>
+<td>break</td>
+<td>停止rewrite检测</td>
+</tr>
+<tr>
+<td>redirect</td>
+<td>返回302临时重定向，地址栏会显示跳转后的地址</td>
+</tr>
+<tr>
+<td>permanent</td>
+<td>返回301永久重定向，地址栏会显示跳转后的地址</td>
+</tr>
+</tbody></table>
+<h2 id="last和break的区别"><a href="#last和break的区别" class="headerlink" title="last和break的区别"></a>last和break的区别</h2><p>test_rewrite.conf</p>
+<pre><code class="hljs nginx"><span class="hljs-section">server</span> &#123;
+    <span class="hljs-attribute">listen</span> <span class="hljs-number">80</span> default_server;
+    <span class="hljs-attribute">server_name</span> localhost;
+    <span class="hljs-attribute">access_log</span> /var/log/nginx/host.access.log main;
+    <span class="hljs-attribute">root</span> /opt/app/code;
+
+    <span class="hljs-attribute">location</span> <span class="hljs-regexp">~ ^/break</span> &#123;
+        <span class="hljs-attribute">rewrite</span><span class="hljs-regexp"> ^/break</span> /test/ <span class="hljs-literal">break</span>;
+    &#125;
+    <span class="hljs-attribute">location</span> <span class="hljs-regexp">~ ^/last</span> &#123;
+        <span class="hljs-attribute">rewrite</span><span class="hljs-regexp"> ^/last</span> /test/ <span class="hljs-literal">last</span>;
+    &#125;
+
+    <span class="hljs-attribute">location</span> /test/ &#123;
+        <span class="hljs-attribute">default_type</span> application/json;
+        <span class="hljs-attribute">return</span> <span class="hljs-number">200</span> <span class="hljs-string">'&#123;"status","success"&#125;'</span>;
+    &#125;
+&#125;</code></pre>
+
+<p>测试</p>
+<pre><code class="hljs bash">~&gt; curl localhost/<span class="hljs-built_in">test</span>/
+&#123;<span class="hljs-string">"status"</span>,<span class="hljs-string">"success"</span>&#125;
+
+~&gt; curl localhost/<span class="hljs-built_in">break</span>
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;404 Not Found&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;center&gt;&lt;h1&gt;404 Not Found&lt;/h1&gt;&lt;/center&gt;
+&lt;hr&gt;&lt;center&gt;nginx/1.16.1&lt;/center&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+
+~&gt; curl localhost/last
+&#123;<span class="hljs-string">"status"</span>,<span class="hljs-string">"success"</span>&#125;</code></pre>
+
+<p>上面可以看到访问这个<code>break</code>是404，它将会去<code>root</code>定义的<code>/opt/app/code</code>去查找对应的访问路径是否存在，在这个目录中是没有test这个目录的，所以它这里会出现404。</p>
+<p><code>last</code>这里则是新建一个请求，也就是说它会重新请求一次服务端的地址。</p>
+<h2 id="redirect和permanent的区别"><a href="#redirect和permanent的区别" class="headerlink" title="redirect和permanent的区别"></a>redirect和permanent的区别</h2><p>test_rewrite.conf中加入：</p>
+<pre><code class="hljs nginx"><span class="hljs-attribute">location</span> <span class="hljs-regexp">~ ^/redirect</span> &#123;
+      <span class="hljs-attribute">rewrite</span><span class="hljs-regexp"> ^/redirect</span> https://www.baidu.com <span class="hljs-literal">redirect</span>;
+  &#125;
+
+  <span class="hljs-attribute">location</span> <span class="hljs-regexp">~ ^/permanent</span> &#123;
+      <span class="hljs-attribute">rewrite</span><span class="hljs-regexp"> ^/permanent</span> https://www.baidu.com <span class="hljs-literal">permanent</span>;
+  &#125;</code></pre>
+
+<p>测试描述</p>
+<blockquote>
+<p>由于不太方便写，这里就来说一说它们的区别</p>
+</blockquote>
+<p>它们2个都能成功跳转到百度上去，当将Nginx关闭时，去访问<code>localhost/permanent</code>还是能够跳转到百度的，但是访问<code>localhost/redirect</code>会响应404，这是因为<code>permanent</code>会通过<code>Cookie</code>告诉客户端也就是浏览器该跳转到哪里，即使我们Nginx服务停掉了，浏览器下一次去访问<code>localhost/permanent</code>是直接跳转到百度上去的，而<code>localhost/redirect</code>则是需要先在Nginx发送一次请求而这个时候Nginx是关的。</p>
+<h2 id="场景实战"><a href="#场景实战" class="headerlink" title="场景实战"></a>场景实战</h2><h3 id="遇见多层级目录的页面"><a href="#遇见多层级目录的页面" class="headerlink" title="遇见多层级目录的页面"></a>遇见多层级目录的页面</h3><pre><code class="hljs bash">/opt/app/code/11/22/33&gt; ls
+<span class="hljs-built_in">test</span>-1.html
+...
+<span class="hljs-built_in">test</span>-233.html</code></pre>
+
+<blockquote>
+<p>假设我给Nginx的conf的<code>root</code>设置的是<code>/opt/app/code</code>那么用户想来访问这个<code>test-233.html</code>就需要这样：<code>localhost/11/22/33/test-233.html</code>，这里通过rewrite将它的访问修改一下吧</p>
+</blockquote>
+<p>test_rewrite2.conf</p>
+<pre><code class="hljs nginx"><span class="hljs-section">server</span> &#123;
+    <span class="hljs-attribute">listen</span> <span class="hljs-number">80</span> default_server;
+    <span class="hljs-attribute">server_name</span> localhost;
+    <span class="hljs-attribute">access_log</span> /var/log/nginx/host.access.log main;
+    <span class="hljs-attribute">root</span> /opt/app/code;
+
+    <span class="hljs-attribute">location</span> / &#123;
+        <span class="hljs-attribute">rewrite</span><span class="hljs-regexp"> ^/(\d+)-(\d+)-(\d+)-test-(\d+)\.html</span> /<span class="hljs-variable">$1</span>/<span class="hljs-variable">$2</span>/<span class="hljs-variable">$3</span>/test-<span class="hljs-variable">$4</span>.html <span class="hljs-literal">break</span>;
+    &#125;
+&#125;</code></pre>
+
+<p>结果</p>
+<pre><code class="hljs bash">curl http://dev001.com/11-22-33-test-233.html
+rewrite <span class="hljs-built_in">test</span></code></pre>
+
+<h3 id="如果是谷歌浏览器转发到百度上"><a href="#如果是谷歌浏览器转发到百度上" class="headerlink" title="如果是谷歌浏览器转发到百度上"></a>如果是谷歌浏览器转发到百度上</h3><p>test_rewrite2.conf</p>
+<pre><code class="hljs nginx"><span class="hljs-attribute">location</span> / &#123;
+        <span class="hljs-attribute">rewrite</span><span class="hljs-regexp"> ^/(\d+)-(\d+)-(\d+)-test-(\d+)\.html</span> /<span class="hljs-variable">$1</span>/<span class="hljs-variable">$2</span>/<span class="hljs-variable">$3</span>/test-<span class="hljs-variable">$4</span>.html <span class="hljs-literal">break</span>;
+
+        <span class="hljs-attribute">if</span> (<span class="hljs-variable">$http_user_agent</span> <span class="hljs-regexp">~* Chrome)</span>&#123;
+            <span class="hljs-attribute">rewrite</span><span class="hljs-regexp"> ^/nginx</span> https://www.baidu.com <span class="hljs-literal">redirect</span>;
+        &#125;
+
+    &#125;</code></pre>
+
+<h3 id="文件不存在处理"><a href="#文件不存在处理" class="headerlink" title="文件不存在处理"></a>文件不存在处理</h3><blockquote>
+<p>如果请求的文件路径存在就访问对应的文件，如果不存在就跳转百度上</p>
+</blockquote>
+<p>test_rewrite2.conf</p>
+<pre><code class="hljs nginx"><span class="hljs-attribute">location</span> / &#123;
+        <span class="hljs-comment">#...</span>
+        <span class="hljs-attribute">if</span> (!-f <span class="hljs-variable">$request_filename</span>) &#123;
+            <span class="hljs-attribute">rewrite</span><span class="hljs-regexp"> ^/(.*)$</span> https://www.baidu.com/s?wd=<span class="hljs-variable">$1</span> <span class="hljs-literal">redirect</span>;
+        &#125;
+
+    &#125;</code></pre>
+
+<p>结果：</p>
+<pre><code class="hljs bash">~&gt; curl http://dev001.com/11-22-33-test-233.html
+rewrite <span class="hljs-built_in">test</span>
+
+~&gt; curl http://dev001.com/11-22-33-hahah-100.html
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;302 Found&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;center&gt;&lt;h1&gt;302 Found&lt;/h1&gt;&lt;/center&gt;
+&lt;hr&gt;&lt;center&gt;nginx/1.16.1&lt;/center&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+<h2 id="rewrite规则书写"><a href="#rewrite规则书写" class="headerlink" title="rewrite规则书写"></a>rewrite规则书写</h2><h3 id="Rewrite规则优先级"><a href="#Rewrite规则优先级" class="headerlink" title="Rewrite规则优先级"></a>Rewrite规则优先级</h3><ol>
+<li>执行server块的rewrite指令：对于网站维护页，我们需要把所有请求都重定向到一个请求的时候，加在对应的server下面，或者http下面</li>
+<li>执行location匹配</li>
+<li>执行选定的location中的rewrite</li>
+</ol>
+<h3 id="优雅的Rewrite规则书写"><a href="#优雅的Rewrite规则书写" class="headerlink" title="优雅的Rewrite规则书写"></a>优雅的Rewrite规则书写</h3><p>在<code>Apache Tomcat</code>的规则里面，Nginx的写法也是可以支持的</p>
+<pre><code class="hljs nginx">RewriteCond %&#123;HTTP_HOST&#125; nginx.org
+<span class="hljs-attribute">RewriteRule</span> (.*)</code></pre>
+
+<p>在Nginx中的写法</p>
+<pre><code class="hljs nginx">server&#123;
+	<span class="hljs-attribute">listen</span> <span class="hljs-number">80</span>;
+  <span class="hljs-attribute">server_name</span> www.nginx.org nginx.org;
+  <span class="hljs-attribute">if</span> (<span class="hljs-variable">$http_host</span>=nginx.org) &#123;
+    <span class="hljs-attribute">rewrite</span> (.*) http://www.nginx.org<span class="hljs-variable">$1</span>;
+  &#125;
+	...
+&#125;</code></pre>
+
+<p>对于这种写法，官方更加推荐这样：</p>
+<pre><code class="hljs nginx">server&#123;
+  <span class="hljs-attribute">listen</span> <span class="hljs-number">80</span>;
+  <span class="hljs-attribute">server_name</span> nginx.org;
+  <span class="hljs-attribute">rewrite</span><span class="hljs-regexp"> ^</span> http://www.nginx.org<span class="hljs-variable">$request_uri</span>?;
+&#125;</code></pre>
+
+<blockquote>
+<p>这里只需要加1行就搞定了，对与rewrite规则，我们书写得优雅以及后端的性能书面整洁性都是非常有学问的</p>
+</blockquote>
+<h1 id="进阶高级模块"><a href="#进阶高级模块" class="headerlink" title="进阶高级模块"></a>进阶高级模块</h1><h2 id="secure-link"><a href="#secure-link" class="headerlink" title="secure_link"></a>secure_link</h2><h3 id="介绍-2"><a href="#介绍-2" class="headerlink" title="介绍"></a>介绍</h3><blockquote>
+<p>详细可以参考<a href="https://nginx.org/en/docs/http/ngx_http_secure_link_module.html" target="_blank" rel="noopener">官网文档</a></p>
+</blockquote>
+<p><strong>作用</strong></p>
+<ul>
+<li>制定并允许检查请求的链接的真实性以及保护资源免遭未经授权的访问</li>
+<li>限制链接生效周期</li>
+</ul>
+<hr>
+<p><strong>配置语法</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th><code>**secure_link** *expression*;</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>—</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>定义一个带有变量的字符串，从中将提取链接的校验和值和生存期。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th><code>**secure_link_md5** *expression*;</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>—</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code>, <code>location</code></td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>定义一个表达式，将为其计算MD5哈希值并将其与请求中传递的值进行比较。</p>
+</blockquote>
+<hr>
+<p><strong>常见场景</strong></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200213201449276.png" srcset="/img/loading.gif" alt="image-20200213201449276"></p>
+<ol>
+<li>客户端下载某个文件，第1步：点击下载按钮，这里会向服务端发起一次请求；</li>
+<li>服务端收到请求的时候，会生成一个下载地址响应给客户端，生成的这个地址是经过一串秘钥以及相应的信息和过期时间加密的，以图中的请求地址为例，这里用到了md5字符串的加密，它是不可匿的，所以客户端获取了加密串它也解密不出来，只有服务端才能对应匹配，这个请求地址中还有一个<code>expires</code>，这个是用于设置过期时间的，它这里是一个时间戳，代表这个请求会在什么时候过期；</li>
+<li>这个时候完成校验，如果校验通过了下载资源，如果没有通过就返回相关错误码。</li>
+</ol>
+<h3 id="实现资源请求验证"><a href="#实现资源请求验证" class="headerlink" title="实现资源请求验证"></a>实现资源请求验证</h3><p>这里准备了一个文件：</p>
+<pre><code class="hljs bash">~/opt/app/code/download&gt;  ls
+file.txt</code></pre>
+
+<p>md5url.sh：用于模拟服务端返回的加密下载请求地址</p>
+<pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">!/bin/bash</span>
+<span class="hljs-meta">#</span>
+<span class="hljs-meta">#</span><span class="bash">Auth:shui</span>
+servername="dev001.com"
+download_file="/download/file.txt"
+time_num=$(date -d "2020-10-18 00:00:00" +%s)
+secret_num="mcr"
+res=$(echo -n "$&#123;time_num&#125;$&#123;download_file&#125; $&#123;secret_num&#125;" | openssl md5 -binary | openssl base64 | tr +/ -_ | tr -d = )
+
+echo "http://$&#123;servername&#125;$&#123;download_file&#125;?md5=$&#123;res&#125;&amp;expires=$&#123;time_num&#125;"</code></pre>
+
+<p>test_safe_down.conf（nginx的配置）</p>
+<pre><code class="hljs nginx"><span class="hljs-section">server</span> &#123;
+    <span class="hljs-attribute">listen</span> <span class="hljs-number">80</span>;
+    <span class="hljs-attribute">server_name</span> localhost;
+    <span class="hljs-attribute">root</span> /opt/app/code;
+
+    <span class="hljs-attribute">location</span> / &#123;
+        <span class="hljs-attribute">secure_link</span> <span class="hljs-variable">$arg_md5</span>,<span class="hljs-variable">$arg_expires</span>;
+        <span class="hljs-attribute">secure_link_md5</span> <span class="hljs-string">"<span class="hljs-variable">$secure_link_expires</span><span class="hljs-variable">$uri</span> mcr"</span>;
+
+        <span class="hljs-attribute">if</span> (<span class="hljs-variable">$secure_link</span> = <span class="hljs-string">""</span>) &#123;
+            <span class="hljs-attribute">return</span> <span class="hljs-number">403</span>;
+        &#125;
+
+        <span class="hljs-attribute">if</span> (<span class="hljs-variable">$secure_link</span> = <span class="hljs-string">"0"</span>) &#123;
+            <span class="hljs-attribute">return</span> <span class="hljs-number">410</span>;
+        &#125;
+    &#125;
+&#125;</code></pre>
+
+<p>测试</p>
+<pre><code class="hljs bash">~&gt;./md5url.sh 
+http://dev001.com/download/file.txt?md5=xjbPG9i92jvZWIYZLWVdLQ&amp;expires=1602950400</code></pre>
+
+<blockquote>
+<p>将<code>md5url.sh</code> 中获取的地址拿到浏览器中运行看下结果是可以正常访问的，你试着改写它们的值看能否正常访问，如果访问失败就实现功能了</p>
+</blockquote>
+<h2 id="geoip"><a href="#geoip" class="headerlink" title="geoip"></a>geoip</h2><h3 id="介绍-3"><a href="#介绍-3" class="headerlink" title="介绍"></a>介绍</h3><p><strong>作用</strong></p>
+<p>比如这么个场景：一个企业有2个服务器，一个在国内一个在国外，它2个站点上是放着不同的信息，它想国内的用户访问的是国内服务器的IP，国外的用户去访问国外服务器的IP，这个时候就可以使用geoip来解决这个问题。它的作用：<strong>基于IP地址匹配MaxMind GeoIP二进制文件，读取IP所在地域信息。</strong></p>
+<p><code>MaxMind</code>在搜索引擎上就可以下载，geoip这个模块就是用来读取<code>MaxMind</code>开放的IP库信息，然后获取到基于IP对应的地域信息。</p>
+<p><strong>安装</strong></p>
+<blockquote>
+<p>暂无</p>
+</blockquote>
+<h1 id="HTTPS服务"><a href="#HTTPS服务" class="headerlink" title="HTTPS服务"></a>HTTPS服务</h1><h2 id="介绍-4"><a href="#介绍-4" class="headerlink" title="介绍"></a>介绍</h2><h3 id="为什么需要HTTPS？"><a href="#为什么需要HTTPS？" class="headerlink" title="为什么需要HTTPS？"></a>为什么需要HTTPS？</h3><p>原因：HTTP不安全</p>
+<ul>
+<li>传输数据被中间人盗用、信息泄露</li>
+<li>数据内容劫持、篡改</li>
+</ul>
+<h3 id="HTTPS协议的实现"><a href="#HTTPS协议的实现" class="headerlink" title="HTTPS协议的实现"></a>HTTPS协议的实现</h3><p>1）、对传输内容进行加密以及身份验证</p>
+<p>2）、对称加密和非对称加密</p>
+<p>对称加密：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200214111011728.png" srcset="/img/loading.gif" alt="image-20200214111011728"></p>
+<p>发送方进行数据的加密，接受放进行数据的解密，发送方用的是加密秘钥，接收方用的是解密的秘钥，这个就是对称加密，对称加密的特点是加密秘钥和解密秘钥可以是一样的，数据在发送方用同一个秘钥拿出来进行加密以后进行发送，传输的中间就是密文的，在通过接受方用到同一个密码串进行解密成为明文进行读取。对称加密的特点是加密秘钥和解密秘钥是一样的。</p>
+<p>非对称加密：</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200214111621080.png" srcset="/img/loading.gif" alt="image-20200214111621080"></p>
+<p>这里加密秘钥和解密秘钥是2个不一样的，但是只有我们常说公钥和私钥，公钥用于加密，私钥用于解密，一串公钥对应一串私钥只有通过公钥加密的东西才能与之对应规定的私钥才能解密，所以服务端（接收方）一般保留私钥，发送方保留公钥，所以可以知道非对称加密是2串不同的秘钥，这个就是和对称加密的区别</p>
+<hr>
+<p>3）、HTTPS加密协议原理</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200214112047266.png" srcset="/img/loading.gif" alt="image-20200214112047266"></p>
+<p>HTTPS同时用到了加密和对称加密、非对称加密。当用户端发起SSL连接的时候，它进行的是非对称加密，非对称加密将公钥发送给客户端以后，客户端用对应的公钥加密它接下来要进行对称加密的密码，用非对称加密的公钥加密这个密码并发送到服务端，这样的话它们前面这个非对称加密的作用就是为了对称加密后面传输数据进行前期的验证以及加密的传输。这里就有疑问了，为什么HTTPS要选择非对称和对称同时使用？</p>
+<p>—这个主要是对称加密和非对称加密的优缺点有关系，非对称加密往往对于连接要求更高，服务端发送一个公钥给客户端，如果多次连接的情况下这样对性能是有损耗的，对称加密对于性能来说更多简单，所以在第一次进行安全的验证以后，完全就可以利用到对称加密就可以了。</p>
+<hr>
+<p>4）、中间人伪装客户端和服务端</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200214114257164.png" srcset="/img/loading.gif" alt="image-20200214114257164"></p>
+<p>HTTPS对于中间人的劫持它是怎么防范的呢？</p>
+<p>有了对称加密和非对称加密按道理中间人是不会劫持到的，但是现在中间人的劫持手段是非常高明的，它既可以伪装客户端进行劫持也能伪装服务端对客户端的数据进行劫持，也就是说它可能在前边进行握手的时候完全对客户端向服务端发的数据包进行劫持伪装，并且在服务端发送给客户端数据的时候也能伪装服务端进行劫持，这样的话就能完全伪装中间人对多次连接进行劫持，这个的话是解决不了这种中间人技术的劫持的问题的。</p>
+<p>怎么办呢？这个时候就用到了HTTPS的CA证书</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200214114533277.png" srcset="/img/loading.gif" alt="image-20200214114533277"></p>
+<p>服务端向客户端之前是发送的公证，对于对称加密而言，对于HTTPS这个时候发给客户端的是一个<code>CA签名证书</code>，有了这个<code>CA签名证书</code>，中间人的劫持作用就没有了，因为客户端会另外对这个<code>CA签名证书</code>进行校验，中间人是无法生成一个能够进行匹配<code>CA签名证书</code>的校验的，因为客户端会<code>CA签名证书</code>进行校验，它将和第三方签名机构进行校验，如果校验成功就会利用对应的公钥加密，因为<code>CA签名证书</code>包含了对应的公钥，如果验证失败客户端将终止这一次会话，对于中间人这样的方式就无法实现了，因为这个签名的证书是放在服务端之前就已经和第三方机构进行对应的签名和对应的授权。客户端在真正的进行连接的时候还需要进行一次校验，中间人的劫持就无法实现。HTTPS它的安全性对于中间人劫持这种可能性就能完全预防掉，其原理就用到了<code>CA签名证书</code>。</p>
+<h3 id="证书签名生成CA证书"><a href="#证书签名生成CA证书" class="headerlink" title="证书签名生成CA证书"></a>证书签名生成CA证书</h3><blockquote>
+<p>这里介绍的是自签证书的类型，对于读者想去通过证书去寻求跟第三方公司或者公司进行签发的对应的证书在后面的章节会去介绍流程的，为什么呢？1、因为实际的场景不太符合，因为我们去找公司去签发的话是需要对应的要出钱，每个公司提交的信息是不太一样的，是需要一定时间的，所以这个章节没有讲到关于公司的签发；2、我们需要公司的签发证书的话不是一个非常难的事情，只要我们学会了整体证书的秘钥的生成以及请求文件的生成以自签文件的过程和HTTPS的原理，我们想去寻求任意一家公司进行公司证书的签名这是非常简单的事情。</p>
+</blockquote>
+<p>1）、生成秘钥和CA证书</p>
+<p>准备工作：</p>
+<p>首先确认系统中是否有openssl</p>
+<pre><code class="hljs bash">~&gt; openssl  version
+OpenSSL 1.0.2k-fips  26 Jan 2017</code></pre>
+
+<p>确认Nginx是否有http_ssl_module </p>
+<pre><code class="hljs bash">~&gt; nginx -V
+--with-http_ssl_module</code></pre>
+
+<p>步骤：</p>
+<ul>
+<li>生成key秘钥</li>
+<li>生成证书签名请求文件（csr文件）</li>
+</ul>
+<blockquote>
+<p>有了csr文件以后就可以将秘钥和csr文件一并打包发送对应的签名机构，关于你的网站域名以及对应相关公司的信息，去进行CA证书的签名，让第三方的结构来给你进行对应的签名，它将返回给你对应的CA证书</p>
+</blockquote>
+<ul>
+<li>对于目前学习阶段没有必要去向第三方结构签名的情况，这里就自己来签名生成这个签名文件（CA文件）</li>
+</ul>
+<h2 id="场景演示-1"><a href="#场景演示-1" class="headerlink" title="场景演示"></a>场景演示</h2><p>生成HTTPS签名证书</p>
+<pre><code class="hljs bash">/etc/nginx&gt; mkdir ssl_key
+
+<span class="hljs-comment">#mcr.key:key文件名</span>
+<span class="hljs-comment">#1024：位数越高精度就越高</span>
+/etc/nginx/ssl_key&gt; openssl genrsa -idea -out mcr.key 1024
+Enter pass phrase <span class="hljs-keyword">for</span> mcr.key: 123456
+Verifying - Enter pass phrase <span class="hljs-keyword">for</span> mcr.key: 123456
+
+
+/etc/nginx/ssl_key&gt; ls
+mcr.key</code></pre>
+
+<p>存储HTTPS签名证书密码文件</p>
+<pre><code class="hljs bash">/etc/nginx/ssl_key&gt; <span class="hljs-built_in">echo</span> 123456 &gt; mcr.pass</code></pre>
+
+<p>生成csr证书签名请求文件</p>
+<pre><code class="hljs bash">/etc/nginx/ssl_key&gt; openssl   req -new -key mcr.key  -out mcr.csr
+Enter pass phrase <span class="hljs-keyword">for</span> mcr.key: 123456
+
+<span class="hljs-comment">#这里如果是给三方结构做签名要按照要求来写，因为这里我们是自签名的，所以比较随意</span>
+Country Name (2 letter code) [XX]: CN
+State or Province Name (full name) []:beijing
+Locality Name (eg, city) [Default City]:beijing
+Organization Name (eg, company) [Default Company Ltd]:CN
+Organizational Unit Name (eg, section) []:mcr
+Common Name (eg, your name or your server<span class="hljs-string">'s hostname) []: dev001.com</span>
+<span class="hljs-string">Email Address []:shui@163.com</span>
+<span class="hljs-string"></span>
+<span class="hljs-string">#csr文件如果要进行更改，另外的一个密码，如果没严格要求的话，可以不输入</span>
+<span class="hljs-string">A challenge password []: </span>
+<span class="hljs-string">An optional company name []:mcr</span>
+<span class="hljs-string"></span>
+<span class="hljs-string"></span>
+<span class="hljs-string">/etc/nginx/ssl_key&gt;  ls</span>
+<span class="hljs-string">mcr.csr  mcr.key	mcr.pass</span></code></pre>
+
+<p>将这2个文件2包发送给签名机构进行对应的权威签名请求，对于公司而言大部分是这么做的，对于个人而言是基于这2个文件来建立自签名证书</p>
+<pre><code class="hljs bash"><span class="hljs-comment">#-days：表示签名证书过期时间，对于过期时间而言如果默认没有写的话是在一个月左右就会过期，当你的网站上线以后很多客户端也有了对应的证书的请求，通过相应的证书文件，你的CA证书过期了这是非常有问题的，这样就会导致你的小问题一个参数没加导致因为过期了就需要重新发送版本，这对于企业来说是需要避免的，所以读者在实际的情况下面一定要加入好自己的过期时间</span>
+/etc/nginx/ssl_key&gt; openssl  x509 -req -days 3650 -<span class="hljs-keyword">in</span>  mcr.csr  -signkey mcr.key  -out mcr.crt
+  Enter pass phrase <span class="hljs-keyword">for</span> mcr.key: 123456
+
+/etc/nginx/ssl_key&gt;  ls
+mcr.crt  mcr.csr  mcr.key	mcr.pass</code></pre>
+
+<p>就下来就是需要Nginx进行配置了，这里列出它相关核心的配置语法：</p>
+<ul>
+<li>开启SSL</li>
+</ul>
+<p>| Syntax:  | <code>**ssl** on | off;</code> |<br>| :——- | ——————- |<br>| Default: | <code>ssl off;</code>          |<br>| Context: | <code>http</code>, <code>server</code>    |</p>
+<ul>
+<li>SSL证书文件</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th><code>**ssl_certificate** *file*;</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>—</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code></td>
+</tr>
+</tbody></table>
+<ul>
+<li>SSL证书密码文件</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th><code>**ssl_certificate_key** *file*;</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>—</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code></td>
+</tr>
+</tbody></table>
+<ul>
+<li>http签名证书 的密码文件</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">Syntax:</th>
+<th><code>**ssl_password_file** *file*;</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default:</td>
+<td>—</td>
+</tr>
+<tr>
+<td align="left">Context:</td>
+<td><code>http</code>, <code>server</code></td>
+</tr>
+</tbody></table>
+<p>test_https.conf</p>
+<pre><code class="hljs nginx"><span class="hljs-section">server</span> &#123;
+    <span class="hljs-attribute">listen</span> <span class="hljs-number">443</span> ssl;
+    <span class="hljs-attribute">server_name</span> <span class="hljs-number">192.168.202.151</span> dev001.com
+    ssl <span class="hljs-literal">on</span>;
+    <span class="hljs-attribute">ssl_certificate</span> /etc/nginx/ssl_key/mcr.crt;
+    <span class="hljs-attribute">ssl_certificate_key</span> /etc/nginx/ssl_key/mcr.key;
+    <span class="hljs-attribute">ssl_password_file</span> /etc/nginx/ssl_key/mcr.pass;
+    <span class="hljs-attribute">index</span> index.html;
+
+    <span class="hljs-attribute">location</span> / &#123;
+        <span class="hljs-attribute">root</span> /opt/app/code;
+    &#125;
+
+&#125;</code></pre>
+
+<h2 id="配置苹果要求的openssl后台HTTPS服务"><a href="#配置苹果要求的openssl后台HTTPS服务" class="headerlink" title="配置苹果要求的openssl后台HTTPS服务"></a>配置苹果要求的openssl后台HTTPS服务</h2><p>配置苹果要求的证书</p>
+<ul>
+<li>服务器所有的连接使用TLS1.2以上版本（openssl 1.0.2）</li>
+<li>HTTPS证书必须使用SHA256以上的哈希算法签名</li>
+<li>HTTPS证书必须使用RSA 2048位或者ECC 256位以上公钥算法</li>
+<li>使用前向加密技术</li>
+</ul>
+<p>查看openssl版本是否满足要求，这里如果不满足自行搜索引擎升级下</p>
+<pre><code class="hljs bash">~&gt; oenssl version
+OpenSSL 1.0.2k-fips  26 Jan 2017</code></pre>
+
+<p>查看当前自签证书加密算法类型</p>
+<pre><code class="hljs bash">~&gt; openssl x509 -noout -text -<span class="hljs-keyword">in</span> ./mcr.crt
+Signature Algorithm: sha256WithRSAEncryption
+ Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                Public-Key: (1024 bit)</code></pre>
+
+<blockquote>
+<p>这里使用的是<code>sha2</code>算法类型所以没有满足苹果的要求，另外位数也没有满足这里是1024</p>
+</blockquote>
+<p>所以这里需要重新生成一个自签证书，这里有另一种方式生成，不需要一步一步的去生成了，而且这种方式Nginx是不需要配置<code>ssl_password_file</code>的</p>
+<pre><code class="hljs bash">/etc/nginx/ssl_key&gt; openssl req -days 36500 -x509 -sha256  -nodes -newkey rsa:2048 -keyout mcr.key -out mcr_apple.crt</code></pre>
+
+<p>test_https.conf</p>
+<pre><code class="hljs nginx"><span class="hljs-section">server</span> &#123;
+    <span class="hljs-attribute">listen</span> <span class="hljs-number">443</span> ssl;
+    <span class="hljs-attribute">server_name</span> <span class="hljs-number">192.168.202.151</span> dev001.com
+    ssl <span class="hljs-literal">on</span>;
+    <span class="hljs-attribute">ssl_certificate</span> /etc/nginx/ssl_key/mcr_apple.crt;
+    <span class="hljs-attribute">ssl_certificate_key</span> /etc/nginx/ssl_key/mcr.key;
+    <span class="hljs-attribute">index</span> index.html;
+
+    <span class="hljs-attribute">location</span> / &#123;
+        <span class="hljs-attribute">root</span> /opt/app/code;
+    &#125;
+&#125;</code></pre>
+
+<p>现在即使不配置<code>ssl_password_file</code>在<code>nginx reload</code>的时候也不需要输入密码，这个密码是干嘛呢？这里来说明下：</p>
+<pre><code class="hljs bash">openssl req -days 36500 -x509 -sha256  -nodes -newkey rsa:2048 -keyout mcr.key -out mcr_apple.crt</code></pre>
+
+<p>这个配置中加了一个<code>-keyout</code>选项，它会同时生成一个新的<code>mcr.key</code></p>
+<pre><code class="hljs bash">/etc/nginx/ssl_key&gt; ll
+-rw-r--r--. 1 root root 1387 2月  14 19:47 mcr_apple.crt
+-rw-r--r--. 1 root root 1704 2月  14 19:47 mcr.key
+...</code></pre>
+
+<p>从上面的shell终端中可以看到它们生成的时间是一样的，重新生成新的文件，对应于上一章节一个个生成，单独生成key文件的方式，我们如果想直接生成一个没有保护码的怎么办呢？</p>
+<pre><code class="hljs bash">/etc/nginx/ssl_key&gt; openssl  rsa -<span class="hljs-keyword">in</span> ./mcr.key -out ./mcr_new.key</code></pre>
+
+<blockquote>
+<p>这里通过拷贝的方式去掉密码</p>
+</blockquote>
+<h2 id="HTTPS服务优化"><a href="#HTTPS服务优化" class="headerlink" title="HTTPS服务优化"></a>HTTPS服务优化</h2><p>对比HTTP，HTTPS的劣势，前面章节提到HTTPS的建立原理，HTTPS的建立是需要在HTTP之前建立SSL握手，SSL认证就会多一次连接，对于服务端就会需要对应的认证，这个是消耗服务端CPU资源和IO资源的，所以服务端而言我轻量级服务论性能上更愿意去处理HTTP请求，为什么大家还要去推荐HTTPS呢？因为我们后端的服务新型的架构不断的产生，对于Nginx我们可以进行水平的扩容以及负载均衡的出现，服务器的硬件的提升，导致我们对于性能的损耗往往不会特别关注，而是更多的去权衡安全，安全是更为重要的，所以在这种权衡关系下面，HTTPS得到了广泛的应用，但是我们也需要去考虑性能的优化，让单个服务器承载更多的并发，处理更多的请求。</p>
+<p>优化方式：</p>
+<ul>
+<li>激活keepalive长连接：一次连接能够处理更多的请求这样的话建立握手的次数就会少，这对于服务端的性能就能有效的优化</li>
+<li>设置ssl session缓存：把部分的信息内容放到缓存里面去，这样的话让服务器处理起来CPU的资源更少和处理更加快速</li>
+</ul>
+<p>test_https.conf</p>
+<pre><code class="hljs nginx"><span class="hljs-section">server</span> &#123;
+    <span class="hljs-attribute">listen</span> <span class="hljs-number">443</span> ssl;
+    <span class="hljs-attribute">server_name</span> <span class="hljs-number">192.168.202.151</span> dev001.com
+    ssl <span class="hljs-literal">on</span>;
+  	<span class="hljs-comment">#共享缓存配置10兆，大约能够存储8k-10k的session会话</span>
+    <span class="hljs-attribute">ssl_session_cache</span> shared:SSL:<span class="hljs-number">10m</span>;
+  	<span class="hljs-comment">#session会话过期时间：10分钟</span>
+    <span class="hljs-attribute">ssl_session_timeout</span> <span class="hljs-number">10m</span>;
+    
+
+
+    <span class="hljs-attribute">ssl_certificate</span> /etc/nginx/ssl_key/mcr_apple.crt;
+    <span class="hljs-attribute">ssl_certificate_key</span> /etc/nginx/ssl_key/mcr.key;
+    <span class="hljs-attribute">index</span> index.html;
+
+    <span class="hljs-attribute">location</span> / &#123;
+        <span class="hljs-attribute">root</span> /opt/app/code;
+    &#125;
+
+&#125;</code></pre>
+
+<h1 id="与Lua的开发"><a href="#与Lua的开发" class="headerlink" title="与Lua的开发"></a>与Lua的开发</h1><h2 id="介绍-5"><a href="#介绍-5" class="headerlink" title="介绍"></a>介绍</h2><h3 id="Lua"><a href="#Lua" class="headerlink" title="Lua"></a>Lua</h3><p>是一个简洁、轻量、可扩展的脚本语言。它的解释器比shell还小，它依赖与C语言的扩展性，所以只要用C语言封装的对应模块都可以实现它的封装扩展</p>
+<h3 id="Nginx-Lua优势"><a href="#Nginx-Lua优势" class="headerlink" title="Nginx+Lua优势"></a>Nginx+Lua优势</h3><p>在大部分功能需求上面，我们用Nginx、Java、PHP都能实现对应的功能场景，但是结合Nginx+Lua我觉得最主要的要求就是提高高并发的场景。Nginx是利用内核epo模型，它是非阻塞IO方式，利用这种方式能够快速增大请求并发，Lua是一个轻量级脚本语言实现，功能单一，而且高并发这种接口我们选择Nginx+Lua开发十分常见，比如说我们前端需要统计用户IP地址信息，需要统计每个用户的访问次数，需要做对应安全的功能，都可以用Nginx+Lua来实现。 </p>
+<h3 id="Lua的基本语法"><a href="#Lua的基本语法" class="headerlink" title="Lua的基本语法"></a>Lua的基本语法</h3><p>首先需要确保系统上面有lua的解释器</p>
+<pre><code class="hljs bash">~&gt; yum install lua</code></pre>
+
+<p>它的注释分为2种</p>
+<ul>
+<li>行注释：–</li>
+<li>块注释：–[[  代码块  ]]</li>
+</ul>
+<p>对于变量的话它支持：</p>
+<ul>
+<li>a=’alo\n123”’</li>
+<li>a=”alo\n123&quot;“</li>
+<li>a=‘\97lo\10\04923”’</li>
+<li>a= [[alo123”]]</li>
+</ul>
+<p>对于布尔类型只有nil和false是false，数字0啊，‘’空字符串(‘\0’)都是true</p>
+<p>lua中的变量如果没有特殊说明，全是全局变量</p>
+<p>语句介绍</p>
+<p>while</p>
+<pre><code class="hljs lua">sum = <span class="hljs-number">0</span>
+num = <span class="hljs-number">1</span>
+<span class="hljs-keyword">while</span> num &lt;= <span class="hljs-number">100</span> <span class="hljs-keyword">do</span>
+    sum = sum + num
+    num = num + <span class="hljs-number">1</span>
+<span class="hljs-keyword">end</span>
+<span class="hljs-built_in">print</span>(<span class="hljs-string">"sum="</span>, sum)</code></pre>
+
+<p>for</p>
+<pre><code class="hljs lua">sum = <span class="hljs-number">0</span>
+<span class="hljs-keyword">for</span> i = <span class="hljs-number">1</span>, <span class="hljs-number">100</span> <span class="hljs-keyword">do</span>
+    sum = sum + i
+<span class="hljs-keyword">end</span>
+<span class="hljs-built_in">print</span>(sum)</code></pre>
+
+<p>if-else</p>
+<pre><code class="hljs lua"><span class="hljs-keyword">if</span> age == <span class="hljs-number">40</span> <span class="hljs-keyword">and</span> sex == <span class="hljs-string">"Male"</span> <span class="hljs-keyword">then</span>
+    <span class="hljs-built_in">print</span>(<span class="hljs-string">"大于40男人"</span>)
+<span class="hljs-keyword">elseif</span> age &gt; <span class="hljs-number">60</span> <span class="hljs-keyword">and</span> sex ~= <span class="hljs-string">"Female"</span> <span class="hljs-keyword">then</span>
+    <span class="hljs-built_in">print</span>(<span class="hljs-string">"非女儿而其大于60"</span>)
+
+<span class="hljs-keyword">else</span>
+    <span class="hljs-keyword">local</span> age = <span class="hljs-built_in">io</span>.<span class="hljs-built_in">read</span>()
+    <span class="hljs-built_in">print</span>(<span class="hljs-string">"你的年龄:"</span> .. age)
+<span class="hljs-keyword">end</span></code></pre>
+
+<h2 id="Nginx与Lua的开发环境"><a href="#Nginx与Lua的开发环境" class="headerlink" title="Nginx与Lua的开发环境"></a>Nginx与Lua的开发环境</h2><p>对于Nginx而言，Nginx默认是不知道Lua扩展模块的</p>
+<ul>
+<li>LuaJIT：跟Lua一样是一个解释器，只是它比Lua跟高效些</li>
+<li>ngx_devel_kit和lua-nginx-module</li>
+<li>重新 编译Nginx</li>
+</ul>
+<p>扩展模块步骤：</p>
+<blockquote>
+<p>这里博主没有搭建成功，这里博主不再使用官网提供的Nginx，而是参考<a href="https://openresty.org/cn/" target="_blank" rel="noopener">官网</a>搭建的，它这里的Nginx默认支持Lua</p>
+</blockquote>
+<h2 id="Nginx调用Lua的指令及Nginx的Luaaip接口"><a href="#Nginx调用Lua的指令及Nginx的Luaaip接口" class="headerlink" title="Nginx调用Lua的指令及Nginx的Luaaip接口"></a>Nginx调用Lua的指令及Nginx的Luaaip接口</h2><p>对于一个请求过来，首先是通过Nginx服务，Nginx服务再来调用对应的Lua指令，这个章节来说下有哪些常见得调用Lua指令。</p>
+<p>Nginx的可插拔模块坏加载执行，共11个处理阶段，在每个阶段都可以调用Lua的指令，对于能调用的指令如下：</p>
+<table>
+<thead>
+<tr>
+<th>指令</th>
+<th>介绍</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>set_by_lua<br />set_by_lua_file</td>
+<td>设置Nginx变量，可以实现复杂的赋值逻辑</td>
+</tr>
+<tr>
+<td>access_by_lua<br />access_by_lua_file</td>
+<td>请求访问阶段处理，用于访问控制</td>
+</tr>
+<tr>
+<td>content_by_lua<br />content_by_lua_file</td>
+<td>内容处理器，接受请求处理并输出响应</td>
+</tr>
+</tbody></table>
+<p>Lua在交互过程中也需要去调用Lua指令，通过Nginx的Lua API：</p>
+<table>
+<thead>
+<tr>
+<th>api</th>
+<th>介绍</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ngx.var</td>
+<td>nginx变量</td>
+</tr>
+<tr>
+<td>ngx.req.get_hearders</td>
+<td>获取请求头</td>
+</tr>
+<tr>
+<td>ngx.req.get_uri_args</td>
+<td>获取url请求参数</td>
+</tr>
+<tr>
+<td>ngx.redirect</td>
+<td>重定向</td>
+</tr>
+<tr>
+<td>ngx.print</td>
+<td>输出响应内容体</td>
+</tr>
+<tr>
+<td>ngx.say</td>
+<td>通ngx.print，但是会最后输出一个换行符</td>
+</tr>
+<tr>
+<td>ngx.header</td>
+<td>输出响应头</td>
+</tr>
+<tr>
+<td>…</td>
+<td></td>
+</tr>
+</tbody></table>
+<h2 id="实战场景-灰度发布"><a href="#实战场景-灰度发布" class="headerlink" title="实战场景-灰度发布"></a>实战场景-灰度发布</h2><h3 id="什么是灰度发布？"><a href="#什么是灰度发布？" class="headerlink" title="什么是灰度发布？"></a>什么是灰度发布？</h3><p>按照一定的关系区别,分部分的代码进行上线，使代码的发布能平滑过渡上线，所以灰度发布就是让部分、少量的用户能够先体验到，这样不至于影响整体，所以按照什么关系来进行灰度发布是很重要的。</p>
+<h3 id="灰度发布方式"><a href="#灰度发布方式" class="headerlink" title="灰度发布方式"></a>灰度发布方式</h3><p>1）、用户的信息cookie等信息区别</p>
+<p>指定某一个用户可以访问，其他的用户就访问不同的场景，这个是基于用户不同信息进行对应的区分</p>
+<p>2）、根据用户的ip地址</p>
+<p>获取到对应的ip做区分，但是ip地址颗粒度会跟广一些，因为有很多局域网是共用一个ip</p>
+<p>…</p>
+<h3 id="实现步骤"><a href="#实现步骤" class="headerlink" title="实现步骤"></a>实现步骤</h3><p>这里选择使用ip的方式来实现，这里我会准备2个<code>spring boot</code>打包的<code>jar</code>：</p>
+<p>服务1：8080</p>
+<p>服务2：9090</p>
+<p>它们两分别放一部分代码，对于服务1而言，放的是相关测试的代码，就是我们要准备新更改的一部分代码，服务器2而言放的是老的代码，我们新更改代码在服务1做的更改以后我们只允许部分的IP来进行对应的访问，如果它是匹配的话，它是按照IP地址进行匹配，如果匹配让它访问服务1的<code>spring boot jar</code>。</p>
+<p>对于以上这个逻辑是怎么实现的呢？就是通过Nginx+Lua来实现的，所以Nginx和Lua需要存储用户IP的关系，它需要去调用一个列表，然后判断这个IP和用户过来的IP是否匹配，如果匹配的话才让它去访问对应新功能的代码，所以这里要存储对应的IP列表的话，可以选择使用<code>Memcache</code>，这里通过Lua去调用<code>Memcache</code>去取IP列表，看用户的IP是否是<code>Memcache</code>所存的列表里面，如果已存在就让这个用户就访问服务器1，如果不匹配就让这个用户去访问服务2。</p>
+<h3 id="实现具体步骤"><a href="#实现具体步骤" class="headerlink" title="实现具体步骤"></a>实现具体步骤</h3><p>在开始之前来介绍一下服务1和服务2的区别，</p>
+<p>服务器1：</p>
+<pre><code class="hljs bash">~&gt; curl localhost:8080/demo
+1
+~&gt; curl localhost:8080/demo/v2
+2
+
+~&gt; curl localhost:8080
+8080</code></pre>
+
+<p>服务2：</p>
+<pre><code class="hljs bash">~&gt; curl localhost:9090/demo
+9
+~&gt; curl localhost:9090/demo/v2
+&#123;<span class="hljs-string">"timestamp"</span>:<span class="hljs-string">"2020-02-16T12:42:53.563+0000"</span>,<span class="hljs-string">"status"</span>:404,<span class="hljs-string">"error"</span>:<span class="hljs-string">"Not Found"</span>,<span class="hljs-string">"message"</span>:<span class="hljs-string">"No message available"</span>,<span class="hljs-string">"path"</span>:<span class="hljs-string">"/demo/v2"</span>&#125;
+
+~&gt; curl localhost:9090
+9090</code></pre>
+
+<blockquote>
+<p>服务器有中能够正常访问<code>/demo/v2</code>，它这里的代码属于最新的，访问<code>/demo</code>响应的是1，在老的代码中，也就是9090这个端口服务2，访问它这里的<code>/demo</code>响应9，并且在它这里是没有<code>/demo/v2</code>接口的，这个接口是新加上去的</p>
+</blockquote>
+<hr>
+<p>这里我使用redis来存储IP列表，安装的方式可以在我Redis第一章中找到，这里不做太多的介绍。</p>
+<p>首先将本地IP存储到Redis中，值给的是1</p>
+<pre><code class="hljs bash">~&gt; redis-cli <span class="hljs-built_in">set</span> 127.0.0.1 1</code></pre>
+
+<p>这里是关于Nginx的配置，dep.conf：</p>
+<pre><code class="hljs nginx"><span class="hljs-section">server</span> &#123;
+    <span class="hljs-attribute">listen</span>       <span class="hljs-number">8081</span>;
+    <span class="hljs-attribute">server_name</span>  localhost;
+    <span class="hljs-attribute">location</span> /hello &#123;
+        <span class="hljs-attribute">default_type</span> <span class="hljs-string">'text/plain'</span>;
+        <span class="hljs-attribute">content_by_lua</span> <span class="hljs-string">'ngx.say("hello,lua")'</span>;
+    &#125;
+
+    <span class="hljs-attribute">location</span> /myip &#123;
+        <span class="hljs-attribute">default_type</span> <span class="hljs-string">'text/plain'</span>;
+        <span class="hljs-attribute">content_by_lua</span> <span class="hljs-string">'</span>
+<span class="hljs-string">        clientIP=ngx.req.get_headers()["Host"];</span>
+<span class="hljs-string">        ngx.say("IP:",clientIP)'</span>;
+    &#125;
+
+
+    <span class="hljs-attribute">location</span> / &#123;
+        <span class="hljs-attribute">default_type</span> <span class="hljs-string">'text/html'</span>;
+        <span class="hljs-attribute">content_by_lua_file</span> /opt/app/lua/dep.lua;
+        <span class="hljs-comment">#        add_after_body $http_x_forwarded_for;</span>
+    &#125;
+
+    <span class="hljs-attribute">location</span> <span class="hljs-variable">@server</span>&#123;
+        <span class="hljs-attribute">proxy_pass</span> http://127.0.0.1:9090;
+    &#125;
+
+    <span class="hljs-attribute">location</span> <span class="hljs-variable">@server_test</span>&#123;
+        <span class="hljs-attribute">proxy_pass</span> http://127.0.0.1:8080;
+    &#125;
+&#125;</code></pre>
+
+<p>这里的<code>/</code>中引入了一个<code>dep.lua</code>文件，它的内容如下：</p>
+<pre><code class="hljs lua">clientIP = ngx.req.get_headers()[<span class="hljs-string">"X-Real-IP"</span>];
+
+<span class="hljs-keyword">if</span> clientIP == <span class="hljs-literal">nil</span> <span class="hljs-keyword">then</span>
+    clientIP = ngx.req.get_headers()[<span class="hljs-string">"http_x_forwarded_for"</span>]
+<span class="hljs-keyword">end</span>
+
+<span class="hljs-keyword">if</span> clientIP == <span class="hljs-literal">nil</span> <span class="hljs-keyword">then</span>
+    clientIP = ngx.var.remote_addr
+<span class="hljs-keyword">end</span>
+
+<span class="hljs-keyword">local</span> redis = <span class="hljs-built_in">require</span>(<span class="hljs-string">"resty.redis"</span>);
+<span class="hljs-comment">--local redis = require "redis"</span>
+<span class="hljs-comment">-- 创建一个redis对象实例。在失败，返回nil和描述错误的字符串的情况下</span>
+<span class="hljs-keyword">local</span> redis_instance = redis:new();
+<span class="hljs-comment">--设置后续操作的超时（以毫秒为单位）保护，包括connect方法</span>
+redis_instance:set_timeout(<span class="hljs-number">1000</span>)
+<span class="hljs-comment">--建立连接</span>
+<span class="hljs-keyword">local</span> ip = <span class="hljs-string">'127.0.0.1'</span>
+<span class="hljs-keyword">local</span> port = <span class="hljs-number">6379</span>
+<span class="hljs-comment">--尝试连接到redis服务器正在侦听的远程主机和端口</span>
+<span class="hljs-keyword">local</span> ok, err = redis_instance:connect(ip, port)
+<span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> ok <span class="hljs-keyword">then</span>
+    ngx.say(<span class="hljs-string">"connect redis error : "</span>, err)
+    <span class="hljs-keyword">return</span> close_redis(redis_instance);
+<span class="hljs-keyword">end</span>
+
+<span class="hljs-comment">--Redis身份验证</span>
+<span class="hljs-comment">--local auth,err = redis_instance:auth("");</span>
+<span class="hljs-comment">--if not auth then</span>
+<span class="hljs-comment">--    ngx.say("failed to authenticate : ",err)</span>
+<span class="hljs-comment">--end</span>
+<span class="hljs-keyword">local</span> res, <span class="hljs-built_in">error</span> = redis_instance:get(clientIP)
+
+<span class="hljs-keyword">if</span> res == <span class="hljs-string">"1"</span> <span class="hljs-keyword">then</span>
+    ngx.exec(<span class="hljs-string">"@server_test"</span>)
+    <span class="hljs-keyword">return</span>
+<span class="hljs-keyword">end</span>
+
+ngx.exec(<span class="hljs-string">"@server"</span>)</code></pre>
+
+<blockquote>
+<p>上面这些代码的逻辑是这样的：</p>
+<ol>
+<li>获取发请求的客户端IP</li>
+<li>通过这个IP在Redis中进行查询</li>
+<li>如果查询到了为1就去执行<code>@server_test</code>,没查询到则去执行<code>@server</code>，这里的<code>@server_test、@server</code>也就是dep.conf中定义的location，它会被执行，这样一来就实现了前面所介绍的场景了</li>
+</ol>
+</blockquote>
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E8%BF%90%E7%BB%B4/Nginx/">Nginx</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/linux-3.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【Linux】 Linux中的一些命令</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/linux-2.html">
+                        <span class="hidden-mobile">【Linux】 Linux中的常见问题</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "【Nginx】 4-深度学习篇&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

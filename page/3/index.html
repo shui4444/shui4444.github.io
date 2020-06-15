@@ -697,6 +697,29 @@ RBAC详细原理请度娘，这里只是涉及到企业权限的功能级权限�
   
 
   
+    <!-- APlayer 音乐播放器 -->
+    <div id="aplayer"></div>
+    <script defer src="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.js" ></script>
+<link  rel="stylesheet" href="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.css" />
+<script type="text/javascript">
+  var oldLoadAp = window.onload;
+  window.onload = function () {
+    oldLoadAp && oldLoadAp();
+
+    new APlayer({
+      container: document.getElementById('aplayer'),
+      fixed: true,
+      autoplay: 'false' === 'true',
+      loop: 'all',
+      order: 'random',
+      theme: '#b7daff',
+      preload: 'none',
+      audio: [{"name":"雨 因你而下，于你而止","artist":"Seto","url":"http://m10.music.126.net/20200616014247/f67fb39bfcb4fc680ec04b7c1d4a6638/yyaac/040f/045e/5352/3e7dcc1661341c26e414d8fdac5ef67d.m4a","cover":"http://p2.music.126.net/HWWDEP0eU8_cFsx5qKGZzA==/109951164212297851.jpg?param=130y130"}]
+    });
+  }
+</script>
+
+  
 
   
 

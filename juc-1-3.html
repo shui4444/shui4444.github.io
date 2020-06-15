@@ -246,13 +246,7 @@
 <li>在<code>Running</code>正常结束之后线程是可以终结的，<code>Blocked</code>抢锁的时候你将它打断了，比如通过<code>wait</code>进行打断，它也可能会线程进入终结状态。</li>
 <li>在<code>Runnable</code>过程中死了，也有可能出现终结状态</li>
 </ul>
-<h1 id="start方法源码剖析"><a href="#start方法源码剖析" class="headerlink" title="start方法源码剖析"></a>start方法源码剖析</h1><script src="https://utteranc.es/client.js"
-        repo="shui4444/shui-blog-utterances"
-        issue-term="pathname"
-        theme="github-light"
-        crossorigin="anonymous"
-        async>
-</script>
+<h1 id="start方法源码剖析"><a href="#start方法源码剖析" class="headerlink" title="start方法源码剖析"></a>start方法源码剖析</h1>
             </article>
             <hr>
             <div>
@@ -306,28 +300,23 @@
               <div class="comments" id="comments">
                 
                 
-  <div class="disqus" style="width:100%">
-    <div id="disqus_thread"></div>
-    <script type="text/javascript">
-      function loadDisqus() {
-        var disqus_config = function () {
-          this.page.url = 'http://yoursite.com/juc-1-3.html';
-          this.page.identifier = '/juc-1-3.html';
-        };
-        (function () {
-          var d = document,
-            s = d.createElement('script');
-          s.src = '//' + '' + '.disqus.com/embed.js';
-          s.setAttribute('data-timestamp', new Date());
-          (d.head || d.body).appendChild(s);
-        })();
-      }
-      createObserver(loadDisqus, 'disqus_thread');
-    </script>
-    <noscript>Please enable JavaScript to view the
-      <a href="https://disqus.com/?ref_noscript" target="_blank" rel="nofollow noopener noopener">comments powered by Disqus.</a>
-    </noscript>
-  </div>
+  <script type="text/javascript">
+    function loadUtterances() {
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.defer = false
+      s.setAttribute('repo', 'shui4444/shui-blog-utterances');
+      s.setAttribute('issue-term', 'pathname');
+      
+      s.setAttribute('label', 'utterances');
+      
+      s.setAttribute('theme', 'github-light');
+      s.setAttribute('crossorigin', 'anonymous');
+      var e = document.getElementsByTagName('script')[0];
+      e.parentNode.insertBefore(s, e);
+    }
+    createObserver(loadUtterances, 'comments')
+  </script>
 
 
               </div>

@@ -876,28 +876,23 @@ Adding password <span class="hljs-keyword">for</span> user shui</code></pre>
               <div class="comments" id="comments">
                 
                 
-  <div class="disqus" style="width:100%">
-    <div id="disqus_thread"></div>
-    <script type="text/javascript">
-      function loadDisqus() {
-        var disqus_config = function () {
-          this.page.url = 'http://yoursite.com/nginx-2.html';
-          this.page.identifier = '/nginx-2.html';
-        };
-        (function () {
-          var d = document,
-            s = d.createElement('script');
-          s.src = '//' + '' + '.disqus.com/embed.js';
-          s.setAttribute('data-timestamp', new Date());
-          (d.head || d.body).appendChild(s);
-        })();
-      }
-      createObserver(loadDisqus, 'disqus_thread');
-    </script>
-    <noscript>Please enable JavaScript to view the
-      <a href="https://disqus.com/?ref_noscript" target="_blank" rel="nofollow noopener noopener">comments powered by Disqus.</a>
-    </noscript>
-  </div>
+  <script type="text/javascript">
+    function loadUtterances() {
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.defer = false
+      s.setAttribute('repo', 'shui4444/shui-blog-utterances');
+      s.setAttribute('issue-term', 'pathname');
+      
+      s.setAttribute('label', 'utterances');
+      
+      s.setAttribute('theme', 'github-light');
+      s.setAttribute('crossorigin', 'anonymous');
+      var e = document.getElementsByTagName('script')[0];
+      e.parentNode.insertBefore(s, e);
+    }
+    createObserver(loadUtterances, 'comments')
+  </script>
 
 
               </div>

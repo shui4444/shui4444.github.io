@@ -4,7 +4,7 @@
   
   
   <entry>
-    <title>【JUC 一、基础知识】3.线程的声明周期以及start方法源码剖析</title>
+    <title>3.线程的声明周期以及start方法源码剖析</title>
     <link href="/juc-1-3.html"/>
     <url>/juc-1-3.html</url>
     
@@ -33,7 +33,7 @@
   
   
   <entry>
-    <title>【JUC 一、基础知识】2.创建并启动线程</title>
+    <title>2.创建并启动线程</title>
     <link href="/juc-1-2.html"/>
     <url>/juc-1-2.html</url>
     
@@ -62,7 +62,7 @@
   
   
   <entry>
-    <title>【JUC 一、基础知识】1.简单介绍什么是线程</title>
+    <title>1.简单介绍什么是线程</title>
     <link href="/juc-1-1.html"/>
     <url>/juc-1-1.html</url>
     

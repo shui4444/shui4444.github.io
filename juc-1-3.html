@@ -163,7 +163,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      860 字
+      1.4k 字
     </span>
   
 
@@ -173,7 +173,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      9
+      15
        分钟
     </span>
   
@@ -246,7 +246,66 @@
 <li>在<code>Running</code>正常结束之后线程是可以终结的，<code>Blocked</code>抢锁的时候你将它打断了，比如通过<code>wait</code>进行打断，它也可能会线程进入终结状态。</li>
 <li>在<code>Runnable</code>过程中死了，也有可能出现终结状态</li>
 </ul>
-<h1 id="start方法源码剖析"><a href="#start方法源码剖析" class="headerlink" title="start方法源码剖析"></a>start方法源码剖析</h1>
+<h1 id="start方法源码剖析"><a href="#start方法源码剖析" class="headerlink" title="start方法源码剖析"></a>start方法源码剖析</h1><h2 id="JDK文档的介绍的实验"><a href="#JDK文档的介绍的实验" class="headerlink" title="JDK文档的介绍的实验"></a>JDK文档的介绍的实验</h2><p>导致该线程开始执行；java虚拟机调用这个线程的 run方法。<br>结果是，两个线程同时运行：当前线程（返回从电话到start法）和其他的线程（执行run法）。重复启动一个线程是不合法的。特别是，一个线程可能不会被重新启动，一旦它完成了执行</p>
+<hr>
+<p>1</p>
+<p>上面说结果出现2个线程同时运行，是说你在<code>run main</code>的时候产生一个线程，然后你在 对<code>Thread</code>对象的<code>start</code>的时候也会算一个线程，在这个时候就会出现2个，比如说执行以下代码：</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;
+  Instant start = Instant.now();
+  Thread t1 = <span class="hljs-keyword">new</span> Thread(<span class="hljs-string">"readDatabase"</span>) &#123;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;
+      print(Thread.currentThread().getName());
+    &#125;
+
+  &#125;;
+  Thread t2 = <span class="hljs-keyword">new</span> Thread(<span class="hljs-string">"writeFile"</span>) &#123;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;
+      print(Thread.currentThread().getName());
+    &#125;
+
+  &#125;;
+  t1.start();
+  t2.start();
+
+  Instant end = Instant.now();
+  print(<span class="hljs-string">"main:"</span>+Thread.currentThread().getName());
+  print(<span class="hljs-string">"耗时-&gt;"</span> + Duration
+      .between(start, end)
+      .getSeconds() + <span class="hljs-string">"s"</span>);
+&#125;</code></pre>
+
+<p>结果：</p>
+<pre><code class="hljs avrasm"><span class="hljs-symbol">main:</span>main
+writeFile
+readDatabase</code></pre>
+
+<hr>
+<p>2</p>
+<p>重复启动一个线程是不合法的。特别是，一个线程可能不会被重新启动，如果重复<code>start</code>结果：<code>IllegalThreadStateException</code>  -如果线程已经启动。 </p>
+<pre><code class="hljs java">t1.start();
+t2.start();
+t2.start();</code></pre>
+
+<p>结果：</p>
+<pre><code class="hljs css"><span class="hljs-selector-tag">readDatabase</span>
+<span class="hljs-selector-tag">writeFile</span>
+<span class="hljs-selector-tag">Exception</span> <span class="hljs-selector-tag">in</span> <span class="hljs-selector-tag">thread</span> "<span class="hljs-selector-tag">main</span>" <span class="hljs-selector-tag">java</span><span class="hljs-selector-class">.lang</span><span class="hljs-selector-class">.IllegalThreadStateException</span>
+	<span class="hljs-selector-tag">at</span> <span class="hljs-selector-tag">java</span><span class="hljs-selector-class">.lang</span><span class="hljs-selector-class">.Thread</span><span class="hljs-selector-class">.start</span>(<span class="hljs-selector-tag">Thread</span><span class="hljs-selector-class">.java</span><span class="hljs-selector-pseudo">:708)</span>
+	<span class="hljs-selector-tag">at</span> <span class="hljs-selector-tag">com</span><span class="hljs-selector-class">.shui</span><span class="hljs-selector-class">.juc</span><span class="hljs-selector-class">.chapter1</span><span class="hljs-selector-class">.TryConcurrency</span><span class="hljs-selector-class">.main</span>(<span class="hljs-selector-tag">TryConcurrency</span><span class="hljs-selector-class">.java</span><span class="hljs-selector-pseudo">:39)</span></code></pre>
+
+<h2 id="直接调用run"><a href="#直接调用run" class="headerlink" title="直接调用run"></a>直接调用run</h2><p>如果是直接调用run方法，它就会被视为一个普通类调用方法是一个意思，它不会像调用<code>start</code>那样去创建线程</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><ol>
+<li>Java应用程序的main函数是一一个线程，是被JVM启动的时候调用，线程的名字叫main</li>
+<li>实现一个线程，必须创建<code>Thread</code>实例， <code>override run</code>方法， 并且调用<code>start</code>方法</li>
+<li>在JVM启动后，实际上有多个线程，但是至少有一个非守护线程</li>
+<li>当你调用一个线程<code>start</code>方法的时候，此时至少有两个线程，一个是调用你的线程，还有一个执行<code>run</code>方法的线程</li>
+<li>线程的生命周期分为：<code>new, runnable, running, block, terminated</code></li>
+</ol>
+
             </article>
             <hr>
             <div>

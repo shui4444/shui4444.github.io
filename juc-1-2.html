@@ -319,7 +319,10 @@
 写文件结束<span class="hljs-comment">---</span>
 读取数据库结束<span class="hljs-comment">---</span></code></pre>
 
-<p>TIPS这里耗时0秒的原因是 main也是一个线程，对于它而言，它已经执行完了，从 “读取数据库开始—    \n 写文件开始—” 可以看到这里它没有等数据库结束才开始执行 写文件，而是直接执行了自己的。</p>
+<div class="note note-warning">
+            <p>WARNING</p><p>这里耗时0秒的原因是 main也是一个线程，对于它而言，它已经执行完了，从 “读取数据库开始—    \n 写文件开始—” 可以看到这里它没有等数据库结束才开始执行 写文件，而是直接执行了自己的。</p>
+          </div>
+
 <h1 id="Thread"><a href="#Thread" class="headerlink" title="Thread"></a>Thread</h1><blockquote>
 <p>通过上面的案例，认识了Thread类，通过它可以简单的实现并行执行，它这里有很多的学问，这里就来进一步的认识</p>
 </blockquote>

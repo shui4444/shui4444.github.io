@@ -210,7 +210,7 @@
     <span class="hljs-attr">enabled:</span> <span class="hljs-literal">false</span></code></pre>
 
 <p>现在在浏览器中访问，会出现以下弹框</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566728660810.png" srcset="/img/loading.gif" alt="1566728660810"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1566728660810.png" srcset="/img/loading.gif" alt="1566728660810"></p>
 <p>这个是<code>spring security</code>的默认配置，这些配置写在<code>WebSecurityConfigurerAdapter</code>中</p>
 <pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(HttpSecurity http)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
 		logger.debug(<span class="hljs-string">"Using default configure(HttpSecurity). If subclassed this will potentially override subclass configure(HttpSecurity)."</span>);
@@ -224,7 +224,7 @@
 	&#125;</code></pre>
 
 <p>我们来登录一下，这里的密码可以在控制台中找到，账号是固定user，密码就是控制台上看见的这个</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566729135804.png" srcset="/img/loading.gif" alt="1566729135804"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1566729135804.png" srcset="/img/loading.gif" alt="1566729135804"></p>
 <p>表单登录：</p>
 <pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.browser;
 
@@ -248,9 +248,9 @@
 <p>这里的代码是针对浏览器来的配置，所以是编写在browser模块中的</p>
 </blockquote>
 <p>现在访问接口时会是这样子：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566729509366.png" srcset="/img/loading.gif" alt="1566729509366"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1566729509366.png" srcset="/img/loading.gif" alt="1566729509366"></p>
 <p>原理：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566723514793.png" srcset="/img/loading.gif" alt="1566723514793"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1566723514793.png" srcset="/img/loading.gif" alt="1566723514793"></p>
 <p><code>spring secrutiy</code>中最核心是一组过滤器链，之前通过过滤器来拦截<code>rest api</code>，<code>spring security</code>也是通过这种方式来做的，这些过滤器在系统启动的时候<code>spring boot</code>会自动把它都配进去，首先来详细介绍最主要的几个过滤器,最核心的就是图上的绿色过滤器：</p>
 <ul>
 <li>UsernamePasswordAuthenticationFilter：处理表单登录</li>
@@ -260,7 +260,7 @@
 <hr>
 <p>下面debug来到这几个过滤器上加断点</p>
 <p>这个是等会我访问的接口</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566729706574.png" srcset="/img/loading.gif" alt="1566729706574"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1566729706574.png" srcset="/img/loading.gif" alt="1566729706574"></p>
 <hr>
 <p>断点位置：</p>
 <ul>
@@ -271,18 +271,18 @@
 </ul>
 <p>访问<a href="http://localhost:8080/user" target="_blank" rel="noopener">http://localhost:8080/user</a></p>
 <p>现在它来到了：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566730453087.png" srcset="/img/loading.gif" alt="1566730453087"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1566730453087.png" srcset="/img/loading.gif" alt="1566730453087"></p>
 <p>因为访问这个<code>/user</code>，没带登录信息，所以前面的过滤器都不起作用，一直跑到<code>FilterSecurityInterceptor</code>里面，由这个断点位置的代码做判断：能不能访问<code>/user</code>接口</p>
 <p>然后接着执行完这里的代码，它抛出了一个异常，这个异常会抛到<code>ExceptionTranslationFilter</code>过滤器中</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566730671953.png" srcset="/img/loading.gif" alt="1566730671953"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1566730671953.png" srcset="/img/loading.gif" alt="1566730671953"></p>
 <p>然后根据异常做处理，因为没登录，所以会重定向到登录页面上去，我这里填写正确的账号和密码进行登录，这个时候会停在<code>UsernamePasswordAuthenticationFilter</code>，它获取用户填写的信息进行登录</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566730843749.png" srcset="/img/loading.gif" alt="1566730843749"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1566730843749.png" srcset="/img/loading.gif" alt="1566730843749"></p>
 <p>接着往下走</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566731054715.png" srcset="/img/loading.gif" alt="1566731054715"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1566731054715.png" srcset="/img/loading.gif" alt="1566731054715"></p>
 <p>它在这里又来验证请求是否能访问，再往下</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566731095879.png" srcset="/img/loading.gif" alt="1566731095879"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1566731095879.png" srcset="/img/loading.gif" alt="1566731095879"></p>
 <p>这回它没抛异常了，来执行了<code>fi.getChain().doFilter(fi.getRequest(), fi.getResponse());</code>代码，这里实际上也就是调用<code>/user</code></p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566731157388.png" srcset="/img/loading.gif" alt="1566731157388"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1566731157388.png" srcset="/img/loading.gif" alt="1566731157388"></p>
 
             </article>
             <hr>

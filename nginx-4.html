@@ -207,7 +207,7 @@
               <h1 id="动静分离"><a href="#动静分离" class="headerlink" title="动静分离"></a>动静分离</h1><h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><h3 id="什么是动静分离？"><a href="#什么是动静分离？" class="headerlink" title="什么是动静分离？"></a>什么是动静分离？</h3><p>通过中间件将动态请求和静态请求分离。</p>
 <h3 id="为什么要使用动静分离？"><a href="#为什么要使用动静分离？" class="headerlink" title="为什么要使用动静分离？"></a>为什么要使用动静分离？</h3><p>对于服务端而言减少不必要的请求消耗，我一些静态请求的资源不需要后端的CPU运算，对于客户端而言我请求静态资源不用复杂的运算了那么就可以减少请求的等待时间。</p>
 <p>没有动静分离的请求流程：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200213091855952-1581556745386.png" srcset="/img/loading.gif" alt="image-20200213091855952"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20200213091855952-1581556745386.png" srcset="/img/loading.gif" alt="image-20200213091855952"></p>
 <p>一个请求首先去会去请求中间件，由中间件把请求转给程序框架执行对应的加载，程序框架去执行运算对应的程序获取相关的数据资源。如果每一次请求都需要这些关系对于请求的消耗和响应都会受到影响。</p>
 <p>对于静态请求而言其实不需要程序框架，通过中间件执行从硬盘里获取到这个静态资源就可以了。</p>
 <h2 id="场景演示"><a href="#场景演示" class="headerlink" title="场景演示"></a>场景演示</h2><p>这里准备了一个<code>Spring Boot</code>的jar包，提供了一个动态的请求</p>
@@ -625,7 +625,7 @@ rewrite <span class="hljs-built_in">test</span>
 </blockquote>
 <hr>
 <p><strong>常见场景</strong></p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200213201449276.png" srcset="/img/loading.gif" alt="image-20200213201449276"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20200213201449276.png" srcset="/img/loading.gif" alt="image-20200213201449276"></p>
 <ol>
 <li>客户端下载某个文件，第1步：点击下载按钮，这里会向服务端发起一次请求；</li>
 <li>服务端收到请求的时候，会生成一个下载地址响应给客户端，生成的这个地址是经过一串秘钥以及相应的信息和过期时间加密的，以图中的请求地址为例，这里用到了md5字符串的加密，它是不可匿的，所以客户端获取了加密串它也解密不出来，只有服务端才能对应匹配，这个请求地址中还有一个<code>expires</code>，这个是用于设置过期时间的，它这里是一个时间戳，代表这个请求会在什么时候过期；</li>
@@ -689,23 +689,23 @@ http://dev001.com/download/file.txt?md5=xjbPG9i92jvZWIYZLWVdLQ&amp;expires=16029
 <h3 id="HTTPS协议的实现"><a href="#HTTPS协议的实现" class="headerlink" title="HTTPS协议的实现"></a>HTTPS协议的实现</h3><p>1）、对传输内容进行加密以及身份验证</p>
 <p>2）、对称加密和非对称加密</p>
 <p>对称加密：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200214111011728.png" srcset="/img/loading.gif" alt="image-20200214111011728"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20200214111011728.png" srcset="/img/loading.gif" alt="image-20200214111011728"></p>
 <p>发送方进行数据的加密，接受放进行数据的解密，发送方用的是加密秘钥，接收方用的是解密的秘钥，这个就是对称加密，对称加密的特点是加密秘钥和解密秘钥可以是一样的，数据在发送方用同一个秘钥拿出来进行加密以后进行发送，传输的中间就是密文的，在通过接受方用到同一个密码串进行解密成为明文进行读取。对称加密的特点是加密秘钥和解密秘钥是一样的。</p>
 <p>非对称加密：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200214111621080.png" srcset="/img/loading.gif" alt="image-20200214111621080"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20200214111621080.png" srcset="/img/loading.gif" alt="image-20200214111621080"></p>
 <p>这里加密秘钥和解密秘钥是2个不一样的，但是只有我们常说公钥和私钥，公钥用于加密，私钥用于解密，一串公钥对应一串私钥只有通过公钥加密的东西才能与之对应规定的私钥才能解密，所以服务端（接收方）一般保留私钥，发送方保留公钥，所以可以知道非对称加密是2串不同的秘钥，这个就是和对称加密的区别</p>
 <hr>
 <p>3）、HTTPS加密协议原理</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200214112047266.png" srcset="/img/loading.gif" alt="image-20200214112047266"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20200214112047266.png" srcset="/img/loading.gif" alt="image-20200214112047266"></p>
 <p>HTTPS同时用到了加密和对称加密、非对称加密。当用户端发起SSL连接的时候，它进行的是非对称加密，非对称加密将公钥发送给客户端以后，客户端用对应的公钥加密它接下来要进行对称加密的密码，用非对称加密的公钥加密这个密码并发送到服务端，这样的话它们前面这个非对称加密的作用就是为了对称加密后面传输数据进行前期的验证以及加密的传输。这里就有疑问了，为什么HTTPS要选择非对称和对称同时使用？</p>
 <p>—这个主要是对称加密和非对称加密的优缺点有关系，非对称加密往往对于连接要求更高，服务端发送一个公钥给客户端，如果多次连接的情况下这样对性能是有损耗的，对称加密对于性能来说更多简单，所以在第一次进行安全的验证以后，完全就可以利用到对称加密就可以了。</p>
 <hr>
 <p>4）、中间人伪装客户端和服务端</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200214114257164.png" srcset="/img/loading.gif" alt="image-20200214114257164"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20200214114257164.png" srcset="/img/loading.gif" alt="image-20200214114257164"></p>
 <p>HTTPS对于中间人的劫持它是怎么防范的呢？</p>
 <p>有了对称加密和非对称加密按道理中间人是不会劫持到的，但是现在中间人的劫持手段是非常高明的，它既可以伪装客户端进行劫持也能伪装服务端对客户端的数据进行劫持，也就是说它可能在前边进行握手的时候完全对客户端向服务端发的数据包进行劫持伪装，并且在服务端发送给客户端数据的时候也能伪装服务端进行劫持，这样的话就能完全伪装中间人对多次连接进行劫持，这个的话是解决不了这种中间人技术的劫持的问题的。</p>
 <p>怎么办呢？这个时候就用到了HTTPS的CA证书</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200214114533277.png" srcset="/img/loading.gif" alt="image-20200214114533277"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20200214114533277.png" srcset="/img/loading.gif" alt="image-20200214114533277"></p>
 <p>服务端向客户端之前是发送的公证，对于对称加密而言，对于HTTPS这个时候发给客户端的是一个<code>CA签名证书</code>，有了这个<code>CA签名证书</code>，中间人的劫持作用就没有了，因为客户端会另外对这个<code>CA签名证书</code>进行校验，中间人是无法生成一个能够进行匹配<code>CA签名证书</code>的校验的，因为客户端会<code>CA签名证书</code>进行校验，它将和第三方签名机构进行校验，如果校验成功就会利用对应的公钥加密，因为<code>CA签名证书</code>包含了对应的公钥，如果验证失败客户端将终止这一次会话，对于中间人这样的方式就无法实现了，因为这个签名的证书是放在服务端之前就已经和第三方机构进行对应的签名和对应的授权。客户端在真正的进行连接的时候还需要进行一次校验，中间人的劫持就无法实现。HTTPS它的安全性对于中间人劫持这种可能性就能完全预防掉，其原理就用到了<code>CA签名证书</code>。</p>
 <h3 id="证书签名生成CA证书"><a href="#证书签名生成CA证书" class="headerlink" title="证书签名生成CA证书"></a>证书签名生成CA证书</h3><blockquote>
 <p>这里介绍的是自签证书的类型，对于读者想去通过证书去寻求跟第三方公司或者公司进行签发的对应的证书在后面的章节会去介绍流程的，为什么呢？1、因为实际的场景不太符合，因为我们去找公司去签发的话是需要对应的要出钱，每个公司提交的信息是不太一样的，是需要一定时间的，所以这个章节没有讲到关于公司的签发；2、我们需要公司的签发证书的话不是一个非常难的事情，只要我们学会了整体证书的秘钥的生成以及请求文件的生成以自签文件的过程和HTTPS的原理，我们想去寻求任意一家公司进行公司证书的签名这是非常简单的事情。</p>

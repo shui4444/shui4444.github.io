@@ -204,10 +204,10 @@
           <div class="post-content mx-auto" id="post">
             
             <article class="markdown-body">
-              <p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567511400096.png" srcset="/img/loading.gif" alt=""></p>
+              <p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567511400096.png" srcset="/img/loading.gif" alt=""></p>
 <p>上一章通过2个注解实现了OAuth2标准的4种授权模式，之前提到过，这4种授权模式在实际业务场景是不能用的，比如说手机号码+验证码登录这种，后面笔者会带着大家去用我们之前的代码去嫁接到这写授权码模式中，在这之前，笔者会带着大家来读一度源码</p>
 <hr>
-<h1 id="流程"><a href="#流程" class="headerlink" title="流程"></a>流程</h1><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1234345624623dsafasfd.png" srcset="/img/loading.gif" alt=""></p>
+<h1 id="流程"><a href="#流程" class="headerlink" title="流程"></a>流程</h1><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1234345624623dsafasfd.png" srcset="/img/loading.gif" alt=""></p>
 <blockquote>
 <p>这里绿色的方块代表实体类，蓝色的方块表示接口，接口中的括号表示实际上使用的实现类</p>
 </blockquote>
@@ -222,7 +222,7 @@
 <p>ClientDetails：ClientDetailsService读出来的这些配置信息都会写到ClientDetails这个对象的里面去，它存储的信息是第三方应用的信息</p>
 <hr>
 <p>TokenRequest：TokenEndpoint会创建一个TokenRequest的对象，这个对象封装了/oauth/token请求中其他参数的信息，例如grant_type、code、client_id…这些信息，然后它会把ClientDetails也同时放到TokenRequest里面，因为第三方应用的信息也是令牌请求的一部分</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567600898713.png" srcset="/img/loading.gif" alt="1567600898713"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567600898713.png" srcset="/img/loading.gif" alt="1567600898713"></p>
 <hr>
 <p>TokenGranter：</p>
 <pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">TokenGranter</span> </span>&#123;
@@ -257,13 +257,13 @@
 <hr>
 <p>这里以密码授权模式做演示，因为它的步骤就一个，不像授权码模式那样要2步，</p>
 <p>现在使用前面介绍的工具来进行发送</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567602161087.png" srcset="/img/loading.gif" alt="1567602161087"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567602161087.png" srcset="/img/loading.gif" alt="1567602161087"></p>
 <hr>
 <p>TokenEndpoint#postAccessToken：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567602341977.png" srcset="/img/loading.gif" alt="1567602341977"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567602341977.png" srcset="/img/loading.gif" alt="1567602341977"></p>
 <p>首先会从请求中获取clientId，然后通过clientId去调用ClientDetailsService#loadClientByClientId方法来获取第三方应用的详细配置，也就是ClientDetails</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567602469054.png" srcset="/img/loading.gif" alt="1567602469054"></p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567602693706.png" srcset="/img/loading.gif" alt="1567602693706"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567602469054.png" srcset="/img/loading.gif" alt="1567602469054"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567602693706.png" srcset="/img/loading.gif" alt="1567602693706"></p>
 <p>在这里可以看到它有很多配置的项，然后将这个ClientDetails，以及第三方发送的其他参数传给OAuth2RequestFactory#createTokenRequest方法去返回一个TokenRequest对象，拿到TokenRequest以后，会对它这个进行一系列判断</p>
 <pre><code class="hljs java"><span class="hljs-comment">//判断是否传递了clientId	</span>
 <span class="hljs-keyword">if</span> (clientId != <span class="hljs-keyword">null</span> &amp;&amp; !clientId.equals(<span class="hljs-string">""</span>)) &#123;
@@ -301,19 +301,19 @@
 		&#125;</code></pre>
 
 <p>通过前面一系列检查以后，最终会把tokenRequest传给TokenGranter#grant方法来产生OAuth2AccessToken对象，然后通过内部的getResponse方法响应给前端</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567603732339.png" srcset="/img/loading.gif" alt="1567603732339"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567603732339.png" srcset="/img/loading.gif" alt="1567603732339"></p>
 <hr>
 <p>TokenGranter这个接口后面封装了4种授权模式加上刷新这种模式，一共5个模式来产生AccessToken，那么来进去看一下</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567604010304.png" srcset="/img/loading.gif" alt="1567604010304">现在在AuthorizationServerEndpointsConfigurer#tokenGranter方法中，这里会调用CompositeTokenGranter也就是TokenGranter实现类的grant方法</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567604010304.png" srcset="/img/loading.gif" alt="1567604010304">现在在AuthorizationServerEndpointsConfigurer#tokenGranter方法中，这里会调用CompositeTokenGranter也就是TokenGranter实现类的grant方法</p>
 <hr>
 <p>CompositeTokenGranter#grant：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567604177639.png" srcset="/img/loading.gif" alt="1567604177639"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567604177639.png" srcset="/img/loading.gif" alt="1567604177639"></p>
 <p>这里它通过成员变量tokenGranters的TokenGranter泛型集合进行遍历，这里的tokenGranters的size为5，也就是说的4种授权模式+刷新授权，这里的方法中对这个集合进行遍历然后调用者5个实现类的grant方法：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567604529494.png" srcset="/img/loading.gif" alt="1567604529494"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567604529494.png" srcset="/img/loading.gif" alt="1567604529494"></p>
 <p>，这些实现类的grant方法会根据参数中传递的grantType的值去判断是不是要用自己的授权方式，如果不是则直接返回null，如果是则生成继续往下走</p>
 <hr>
 <p>这里根据clientId拿到我在yml中配置的信息封装成ClientDetails</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567604901778.png" srcset="/img/loading.gif" alt="1567604901778"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567604901778.png" srcset="/img/loading.gif" alt="1567604901778"></p>
 <p>然后将配置信息和grantType传递给validateGrantType方法进行校验</p>
 <hr>
 <p>最终返回值是调用了一个getAccessToken获取的</p>
@@ -323,7 +323,7 @@
 
 <p>这里实际上调用了AuthorizationServerTokenServices的createAccessToken方法，createAccessToken方法中需要一个参数，这里的参数类型为OAuth2Authentication，这个OAuth2Authentication是由5种授权模式生成的，我现在这个例子中是密码模式，通过用户名密码来获取当前授权用户的信息，而在授权码模式里面，则要通过第一步发出去的授权码，发授权码的时候，它这里会记下来这个授权码对应的用户信息是什么，然后第三方拿这个授权码来换令牌的时候，这里根据授权码在把之前授权码对应的用户信息读出来，这些处理逻辑方式在不同的授权模式下是不一样的，所以这里的getOAuth2Authentication在不同的授权模式有不同的实现，那么现在例子中的是密码模式一个实现，</p>
 <p>ResourceOwnerPasswordTokenGranter#getOAuth2Authentication</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567605829832.png" srcset="/img/loading.gif" alt="1567605829832"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567605829832.png" srcset="/img/loading.gif" alt="1567605829832"></p>
 <p>在这里根据请求参数的用户名密码去实例化了一个之前反复说的UsernamePasswordAuthenticationToken，然后传递给AuthenticationManager去做认证，在这个认证的过程中，它实际会调用我们写的UserDetailsService实现，去数据库中的信息做认证，如果认证通过就代表这里的userAuth这个Authentication对象是正确的</p>
 <pre><code class="hljs java">OAuth2Request storedOAuth2Request = getRequestFactory().createOAuth2Request(client, tokenRequest);</code></pre>
 
@@ -341,7 +341,7 @@
 <hr>
 <p>在结束之前来看看DefaultTokenServices是如何把AccessToken生成出来的</p>
 <p>断点：84行，createAccessToken方法中</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567606898774.png" srcset="/img/loading.gif" alt="1567606898774"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567606898774.png" srcset="/img/loading.gif" alt="1567606898774"></p>
 <p>首先方法第1行，将authentication放入TokenStore的getAccessToken方法中，这里的TokenStore就是之前说的同一个用户，如果令牌没有过期，在去拿取令牌时候它会把之前发的令牌再发给你，所以一来到第1行它会去找，当前的用户是不是发过令牌，然后判断这个令牌是不是空的，如果不为空，就说明在这个请求之前发给令牌给这个用户，然后判断之前发给用户的令牌是不是过期了，如果已经过期了，那么将会从TokenStore把相应的RefreshToken和AccessToken全都删掉，如果没过期，则重新把令牌存下来，因为可能是用另一种方式来访问这个令牌的，一开始请求这个令牌可能是拿授权码模式请求的，后来又用密码模式又请求了一次，这时候存的信息是不一样的，所以这个令牌没过期，但是这里还是会重写存一下，如果存的令牌不过期的话，那么就直接把这个存在的令牌在发回去，那么如果过期了或者它本身就没发过，第三方是第一次，那么就会接着往下走：</p>
 <pre><code class="hljs java"><span class="hljs-comment">//看refreshToken有没有，如果没有的话建立一个刷新令牌，然后拿取当前的用户</span>
 <span class="hljs-keyword">if</span> (refreshToken == <span class="hljs-keyword">null</span>) &#123;

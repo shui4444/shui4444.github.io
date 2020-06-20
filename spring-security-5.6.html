@@ -206,9 +206,9 @@
             <article class="markdown-body">
               <h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>之前做browser走的是一个标准的OAuth流程，但是现在在App的环境下，架构就变成了用户访问的硬赢是一个App，这时候用户在app中去到点击QQ登录，实际上它不是访问我们业务系统中的请求路径，而是一个服务提供商的SDK，这个SDK会引导用户完成授权流程，不同的服务商对于SDK它的实现是不一样的，选的授权模式也不一样的，一般情况下会有2种模式：</p>
 <p>（1）简化模式：SDK将用户导向认证服务器，然后用户授权以后，它返回的不是授权码，返回的是accessToken或者openid，到这一步时，app就知道用户它的openId了，这时候，app可以用openId或者accessToken直接去资源服务器获取用户信息的，但是它并不能拿这2个来访问我们自己的后端应用服务，因为这里的accessToken是服务提供商发的，而它要访问我们这里的应用服务，需要我们发的令牌，在这种场景下，我作为后端应用来说需要给app提供一个服务，让它可以用openId来换我们这的令牌，对于现在的业务场景，其实和前面的短信验证码登录差不多，只不过这里验的是openId，拿这个openId去数据库里查对应的用户信息，然后存在就生成令牌给用户，如果不存就响应错误</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567846953327.png" srcset="/img/loading.gif" alt="1567846953327"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567846953327.png" srcset="/img/loading.gif" alt="1567846953327"></p>
 <p>（2）标准授权码模式：服务提供商提供的app sdk它走的是标准的授权码流程，在app上做完授权，它拿到的是授权码，这里需要把授权码给服务器，由服务器来申请令牌，服务提供商的认证服务器把令爱给第三方应用以后，第三方应用服务它去拿着令牌读用户数据，如果能读到用户数据，根据用户信息它去生成一个令牌给app，在这个流程下面，我们不需要做任何事的，因为在标准流程里面，我们是有这个 服务的，接受认证服务器返回的请求，然后提取里面的授权码再去发令牌，我们是有这么一个服务来处理这个请求的，在这个环境下的请求它发到的是手机app上去，app要做的是把请求原封不动转发到我们的服务器就可以了，或者把里面携带的授权码拿出来</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567849217792.png" srcset="/img/loading.gif" alt="1567849217792"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567849217792.png" srcset="/img/loading.gif" alt="1567849217792"></p>
 <h1 id="简化模式"><a href="#简化模式" class="headerlink" title="简化模式"></a>简化模式</h1><p>McrResourceServerConfig：</p>
 <pre><code class="hljs java">   <span class="hljs-keyword">private</span> SpringSocialConfigurer mcrSpringSocialConfigurer;
 <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(HttpSecurity http)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
@@ -488,9 +488,9 @@
 <h1 id="标准授权码模式"><a href="#标准授权码模式" class="headerlink" title="标准授权码模式"></a>标准授权码模式</h1><p>现在先来看下什么都不做的效果，不过现在由于没法拿到授权码，在这里我把mcr-demo模块中依赖的app先改为browser，在获取授权码的地方打上断点，然后进行QQ登录的操作，拿到授权码在切换回使用app依赖，将授权码输入上去</p>
 <p> 断点位置：</p>
 <p>OAuth2AuthenticationService的98行</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567850144540.png" srcset="/img/loading.gif" alt="1567850144540"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567850144540.png" srcset="/img/loading.gif" alt="1567850144540"></p>
 <p>然后进行QQ登录操作，这个时候在IDE中就能看到授权码的值了</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567850994429.png" srcset="/img/loading.gif" alt="1567850994429"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567850994429.png" srcset="/img/loading.gif" alt="1567850994429"></p>
 <p>这里不要把断点放走，将这里的授权码复制出来，然后把mcr-demo模块中的browser切换回app，进行重启</p>
 <hr>
 <p>笔者正在补充~</p>

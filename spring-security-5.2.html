@@ -265,11 +265,11 @@
 &#125;</code></pre>
 
 <p>在启动中，控制台上会多出/oauth/xx的地址</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567518323763.png" srcset="/img/loading.gif" alt="1567518323763"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567518323763.png" srcset="/img/loading.gif" alt="1567518323763"></p>
 <p>现在来访问/oauth/authorize路径，这个方法它是需要一些参数的，这里笔者来<a href="https://oauth.net/2/" target="_blank" rel="noopener">OAuth2官方网</a>中看一下参数的介绍，在网站中的第4章。现在根据官方网来填写参数，来访问现在来访问<a href="http://localhost:8080/oauth/authorize?response_type=code&amp;client_id=b4c44489-0061-437f-b2c6-5a156251269a&amp;redirect_uri=http://example.com&amp;scope=all，这里的client_id再控制台上打印了" target="_blank" rel="noopener">http://localhost:8080/oauth/authorize?response_type=code&amp;client_id=b4c44489-0061-437f-b2c6-5a156251269a&amp;redirect_uri=http://example.com&amp;scope=all，这里的client_id再控制台上打印了</a></p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567518956135.png" srcset="/img/loading.gif" alt="1567518956135"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567518956135.png" srcset="/img/loading.gif" alt="1567518956135"></p>
 <p>现在浏览器中会出现这个弹框：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567519655298.png" srcset="/img/loading.gif" alt="1567519655298"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567519655298.png" srcset="/img/loading.gif" alt="1567519655298"></p>
 <p>现在我这里扮演了一个服务提供商的角色，这里的client_id是提供给给第三方让它去引导用户来授权的，作为我来说我需要知道三件事：</p>
 <ul>
 <li>哪个应用在请求授权，这里的client_id就是来区分的，每个应用在我这来注册时，我都分一个不同的client_id给他们</li>
@@ -305,7 +305,7 @@
 &#125;</code></pre>
 
 <p>上面代码中，密码一定要是123，账号是随便填的，在对话框中按照这个来填，然后浏览器想显示的内容：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567519813050.png" srcset="/img/loading.gif" alt="1567519813050"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567519813050.png" srcset="/img/loading.gif" alt="1567519813050"></p>
 <p>在默认情况下，在UserDetailsService中返回的UserDetails需要有user这样的角色才行，这里在McrUserDetailsService中修改一下</p>
 <pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">private</span> SocialUser <span class="hljs-title">buildUser</span><span class="hljs-params">(String username)</span> </span>&#123;
      String password = passwordEncoder.encode(<span class="hljs-string">"123"</span>);
@@ -321,17 +321,17 @@
       <span class="hljs-attr">client-secret:</span> <span class="hljs-string">mcr</span></code></pre>
 
 <p>现在访问<a href="http://localhost:8080/oauth/authorize?response_type=code&amp;client_id=mcr&amp;redirect_uri=http://example.com&amp;scope=all，浏览器显示：" target="_blank" rel="noopener">http://localhost:8080/oauth/authorize?response_type=code&amp;client_id=mcr&amp;redirect_uri=http://example.com&amp;scope=all，浏览器显示：</a></p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567520336913.png" srcset="/img/loading.gif" alt="1567520336913"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567520336913.png" srcset="/img/loading.gif" alt="1567520336913"></p>
 <p>这只是Oauth授权的页面，这相对于我们之前用QQ授权看到的那个QQ的页面，在这里可以决定同意授权和拒绝授权，在这里它问mcr请求你给它all这样的权限，这里选择第一个单选按钮同意，点击Authorize按钮确认，在这里就会跳转到redirect_uri的页面上去并且在url上带了授权码，这个页面可以理解为第三方的页面，它拿到了授权码以后，它应该去拿这个授权码来换accessToken</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567521410778.png" srcset="/img/loading.gif" alt="1567521410778"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567521410778.png" srcset="/img/loading.gif" alt="1567521410778"></p>
 <p>换取认证码需要通过post请求方式访问<code>/oauth/token</code>地址并带上授权码参数，这里使用之前介绍的 工具或使用post man来访问这个地址，在这里的请求头中需要给Authorization填写以下内容：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567521606320.png" srcset="/img/loading.gif" alt="1567521606320"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567521606320.png" srcset="/img/loading.gif" alt="1567521606320"></p>
 <p>然弹出这个，Username根据在yml中配置的client-id配置，密码根据client-secret的配置，我在yml中这2个都配的是mcr，所以就都填mcr</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567521634226.png" srcset="/img/loading.gif" alt="1567521634226"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567521634226.png" srcset="/img/loading.gif" alt="1567521634226"></p>
 <p>然后根据之前说的OAuth2官方文章填写相关的参数</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567521749036.png" srcset="/img/loading.gif" alt="1567521749036"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567521749036.png" srcset="/img/loading.gif" alt="1567521749036"></p>
 <p>在这里面填写</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567521766712.png" srcset="/img/loading.gif" alt="1567521766712"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567521766712.png" srcset="/img/loading.gif" alt="1567521766712"></p>
 <p>然后点击Send提交，响应出这么一段json</p>
 <pre><code class="hljs json">&#123;
 <span class="hljs-attr">"access_token"</span>: <span class="hljs-string">"f776ca27-ee02-4b90-b7ad-0fc2b0d9d539"</span>,
@@ -342,7 +342,7 @@
 &#125;</code></pre>
 
 <p>这样的授权码模式授权的流程就走完了，下面来介绍密码授权模式，它访问的地址后前面访问的地址是一样的，也是<code>/oauth/token</code>，这里的请求头中也要带上Authorization信息，但是它这里的参数是不一样的：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567522099570.png" srcset="/img/loading.gif" alt="1567522099570"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567522099570.png" srcset="/img/loading.gif" alt="1567522099570"></p>
 <p>在密码模式中，用户是把服务提供商上的用户名和密码告诉第三方，然后第三方拿着用户名密码告诉他的用户名密码去到服务提供商那说用户给了我授权了，那么这里服务提供商是没法判断，这用户名密码是用户真正给你的还是自己偷的，在一个互联网的场景下，比如说我和QQ之间，那么使用这种模式是有问题的，因为QQ不能判断你的用户名密码到底是怎么来的，但是在我们这个场景里，这种授权方式是可用的，因为在我这个场景里，我是扮演服务提供商的角色，而扮演第三方的角色是自己公司的App，我们之间是一伙的，我是可以让用户把用户名密码告诉App，然后他们拿着用户名密码换token，所以这个授权模式在自己公司的app和自己公司的服务器之间采用这种授权模式换token是可行的，现在会到工具里，发送请求的响应：</p>
 <pre><code class="hljs json">&#123;
 <span class="hljs-attr">"access_token"</span>: <span class="hljs-string">"f776ca27-ee02-4b90-b7ad-0fc2b0d9d539"</span>,
@@ -370,10 +370,10 @@
 <blockquote>
 <p>先来来访问之前写的rest api：<a href="http://localhost:8080/user/me，响应内容：" target="_blank" rel="noopener">http://localhost:8080/user/me，响应内容：</a></p>
 </blockquote>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567523445358.png" srcset="/img/loading.gif" alt="1567523445358"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567523445358.png" srcset="/img/loading.gif" alt="1567523445358"></p>
 <p>在这里的状态码是401，意思是没有做身份认证，那么要做身份认证的话就要把刚才的token带上就行了，但是现在不能用之前拿到的token，因为现在没有配token的存储模式，实际上默认情况下它是存在内存里的，刚刚因为加了一个类，我重启了服务器，内存中的信息都已经清掉了，所以要重新在请求一下<code>/oauth/token</code>来获取新的<code>access_token</code>，将这个信息填写到要访问的<code>rest api</code>的header中，key为:Authorization，值的话光是一个<code>access_token</code>还不行，前面还要加上获取的<code>token_type</code>的值</p>
 <p>就像这样：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567523833496.png" srcset="/img/loading.gif" alt="1567523833496"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567523833496.png" srcset="/img/loading.gif" alt="1567523833496"></p>
 <p>然后再去发送，就能正常的拿到信息了</p>
 <hr>
 <p>oauth的流程发token，然后用token来效验身份，访问服务，这样一个流程就已经走通了，现在虽然流程走通了，但是我们是按照oauth协议标准的规范和spring security的默认实现来走的，这里面存在很多问题，首先我的认证方式只能是oauth协议规定的这4种授权模式，比如我现在想通过手机号码+短信验证码来登录，输入这些之后，在我们服务器中进行验证，验证成功以后，发他一个access_token，这个在默认设置和实现里面我是实现不了的，其他的比如说现在access_token是存在内存里的，服务器已重启就没了，服务器发出去的token它的这个样子是随机生成的串，那么能不能去定制它，比如用现在流行的jwt来做我们这里的token，等等一系列问题，在后面的章节去 介绍给大家</p>

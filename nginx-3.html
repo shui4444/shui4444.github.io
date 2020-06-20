@@ -204,7 +204,7 @@
           <div class="post-content mx-auto" id="post">
             
             <article class="markdown-body">
-              <h1 id="Nginx作为静态资源web服务"><a href="#Nginx作为静态资源web服务" class="headerlink" title="Nginx作为静态资源web服务"></a>Nginx作为静态资源web服务</h1><h2 id="静态资源类型"><a href="#静态资源类型" class="headerlink" title="静态资源类型"></a>静态资源类型</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200127224411585.png" srcset="/img/loading.gif" alt="image-20200127224411585"></p>
+              <h1 id="Nginx作为静态资源web服务"><a href="#Nginx作为静态资源web服务" class="headerlink" title="Nginx作为静态资源web服务"></a>Nginx作为静态资源web服务</h1><h2 id="静态资源类型"><a href="#静态资源类型" class="headerlink" title="静态资源类型"></a>静态资源类型</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20200127224411585.png" srcset="/img/loading.gif" alt="image-20200127224411585"></p>
 <p> nginx可以作为静态服务，它能接收客户端静态资源的请求，像html、flv、jpg这些都是可以的，它能返回给客户端相应内容。这种方式经常会用在处理请求、动静分离的场景；</p>
 <p><strong>静态资源类型：</strong></p>
 <table>
@@ -232,7 +232,7 @@
 </tr>
 </tbody></table>
 <h2 id="CDN场景"><a href="#CDN场景" class="headerlink" title="CDN场景"></a>CDN场景</h2><p>CDN：内容分发网络，这里的网络是内容分发的逻辑性网络。</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200127225519660.png" srcset="/img/loading.gif" alt="image-20200127225519660"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20200127225519660.png" srcset="/img/loading.gif" alt="image-20200127225519660"></p>
 <p><strong>什么是CDN？</strong><br>北京的一个用户想要请求一个文件，这个文件放在新疆的机器上，新疆离北京的距离是非常远的，那么想获取这个文件就需要一定时间了；怎么办？假设这个存储中心在新疆，这里就用到CDN分发网路技术，把那个请求的文件进行分发，发送给不同的地区机器，每个不同地区机器装一个代理，北京用户来说，通过智能DNS技术把它的请求动态定位到背景的代理上进行请求，这样就不用请求之前新疆的节点了，这个地方对于用户来说就节省了很多的时间，对于CDN技术来说我们要求的是这个传输 延时的最小化。静态资源适用于这种场景，所以nginx作为每一个节点，资源存储中心节点以及代理前端节点起了一个非常承上启下的web server作用</p>
 <h2 id="配置语法"><a href="#配置语法" class="headerlink" title="配置语法"></a>配置语法</h2><h3 id="文件读取"><a href="#文件读取" class="headerlink" title="文件读取"></a>文件读取</h3><p>Syntax：sendfile on | off;<br>Default：sendfile off;<br>Context：http，server，location，if in location</p>
 <blockquote>
@@ -282,9 +282,9 @@ bg.png</code></pre>
         &#125;</code></pre>
 
 <p>没开启gzip的图片的响应头</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200128135354132.png" srcset="/img/loading.gif" alt="image-20200128135354132"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20200128135354132.png" srcset="/img/loading.gif" alt="image-20200128135354132"></p>
 <p>开启之后</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200128135631040.png" srcset="/img/loading.gif" alt="image-20200128135631040"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20200128135631040.png" srcset="/img/loading.gif" alt="image-20200128135631040"></p>
 <h3 id="2-文件压缩"><a href="#2-文件压缩" class="headerlink" title="(2)文件压缩"></a>(2)文件压缩</h3><p>nginx.conf#server</p>
 <pre><code class="hljs nginx"><span class="hljs-attribute">location</span> <span class="hljs-regexp">~ .*\.(txt|xml)$</span> &#123;
                 <span class="hljs-comment">#gzip on;                               </span>
@@ -296,9 +296,9 @@ bg.png</code></pre>
 &#125;</code></pre>
 
 <p>未使用gzip的文件大小</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200128140435370.png" srcset="/img/loading.gif" alt="image-20200128140435370"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20200128140435370.png" srcset="/img/loading.gif" alt="image-20200128140435370"></p>
 <p>使用gzip的文件大小</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200128140501065.png" srcset="/img/loading.gif" alt="image-20200128140501065"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20200128140501065.png" srcset="/img/loading.gif" alt="image-20200128140501065"></p>
 <h3 id="3-预压缩"><a href="#3-预压缩" class="headerlink" title="(3)预压缩"></a>(3)预压缩</h3><pre><code class="hljs bash">/opt/app/code/download&gt; ls
 bg.png
 
@@ -423,9 +423,9 @@ bg.png.gz</code></pre>
 <p>192.168.202.151：只允许通过这个IP来访问</p>
 </blockquote>
 <p>在浏览器中访问<a href="http://dev001.com/test.html的结果：" target="_blank" rel="noopener">http://dev001.com/test.html的结果：</a></p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200205110046152.png" srcset="/img/loading.gif" alt="image-20200205110046152"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20200205110046152.png" srcset="/img/loading.gif" alt="image-20200205110046152"></p>
 <p>在浏览器中访问<a href="http://192.168.202.151/test.html的结果" target="_blank" rel="noopener">http://192.168.202.151/test.html的结果</a></p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200205110124230.png" srcset="/img/loading.gif" alt="image-20200205110124230"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20200205110124230.png" srcset="/img/loading.gif" alt="image-20200205110124230"></p>
 <h1 id="Nginx作为代理服务"><a href="#Nginx作为代理服务" class="headerlink" title="Nginx作为代理服务"></a>Nginx作为代理服务</h1><h2 id="介绍-2"><a href="#介绍-2" class="headerlink" title="介绍"></a>介绍</h2><p>1）什么是代理？</p>
 <p>办一些事情无法直接去和对应的人员去联系，这个时候就需要一个第三方的代理服务或者人员来帮我们实现，代理在我们日常生活中必不可少。比如说我们有很多的钱，我们需要去谈金融这一块，往往会找一个第三方的代理公司来代理理财；代理收货，比如说我们在淘宝上买了很多东西，我们不在家的时候，快递员会把物品放到驿站、收货柜里面，等我们回来再去取，这样就是代理收货。</p>
 <hr>
@@ -433,7 +433,7 @@ bg.png.gz</code></pre>
 <p>在互联网的请求里面也是一样的道理，客户端无法向服务端直接发起请求的时候它就需要用到代理，代理就实现了客户端和服务端之间的一个通信，客户端首先会请求代理， 代理会把请求给服务端，服务端再通过代理返回。</p>
 <hr>
 <p>3）Nginx实现代理服务</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200205130951441.png" srcset="/img/loading.gif" alt="image-20200205130951441"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20200205130951441.png" srcset="/img/loading.gif" alt="image-20200205130951441"></p>
 <p>Nginx来实现代理服务就可以实现很多协议的代理例如图中的：</p>
 <ul>
 <li>HTTP</li>
@@ -443,11 +443,11 @@ bg.png.gz</code></pre>
 </ul>
 <hr>
 <p>4）正向代理</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200205132746368.png" srcset="/img/loading.gif" alt="image-20200205132746368"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20200205132746368.png" srcset="/img/loading.gif" alt="image-20200205132746368"></p>
 <p> 客户端请求代理服务，代理服务请求服务端。正向代理会用到哪些场景？比如一个公司所有电脑没法上网，但是只有一台机器可以上网的时候我们往往会在浏览器里面需要配置一个代理的地址，通过这台代理的服务器去向公网，这个是早期公司里面经常会这么去做，另外一个常见的是翻墙了，去通过国外的代理去搜索想要看的网站或者信息等等。Nginx就可以作为正向代理服务。</p>
 <hr>
 <p>5）反向代理</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200205132805413.png" srcset="/img/loading.gif" alt="image-20200205132805413"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20200205132805413.png" srcset="/img/loading.gif" alt="image-20200205132805413"></p>
 <p>客户端往往去请求网站的时候，那么你不知道它后端有多少个服务器，那么请求的往往是一个代理，这个代理会发给对应的服务器，这个服务器再返回给客户端</p>
 <hr>
 <p>6）代理区别</p>
@@ -555,12 +555,12 @@ bg.png.gz</code></pre>
 <hr>
 <p>2）GSLB</p>
 <p>说到负载均衡这里按照范围分为一个类：GSLB与SLB</p>
-<p> <img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200209165634931.png" srcset="/img/loading.gif" alt="image-20200209165634931"></p>
+<p> <img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20200209165634931.png" srcset="/img/loading.gif" alt="image-20200209165634931"></p>
 <p>GSLB是按照影响范围来定的，GSLB是一个全局负载均衡，它的节点比较庞大，地域范围非常广，往往按照国家、省为单位来进行全局负载均衡。举个例子：比如张三这个用户在北京，它不可能都去请求<code>应用服务中心节点</code>，它先去请求调度节点，调度节点返回给张三对应的地址，张三请求对应的应用服务，这里的应用服务也就集中在北京，所以这是一个边缘的应用服务节点，而没有去请求这个<code>应用服务中心节点</code>，这样的话张三既满足了访问请求也没有给服务端造成了很大的压力。</p>
 <p>另外一个新疆的用户也是同样的道理，它只访问对应的应用服务，通过调度的节点来实现整体的负载均衡，调度节点又会有整体的调度节点进行控制，所以全局的负载均衡有了这2套中心的节点，加上边缘的调度节点和应用服务节点就能完成一个<code>GSLB全局负载均衡</code>的实现</p>
 <hr>
 <p>3）SLB</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200209171100105.png" srcset="/img/loading.gif" alt="image-20200209171100105"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20200209171100105.png" srcset="/img/loading.gif" alt="image-20200209171100105"></p>
 <p>往往接触最多的是<code>SLB</code>，SLB在地域里面区分或者逻辑单元区分它是非常小的，往往这个调度节点和它的服务节点在一个逻辑单元里面或者是说在一个地域里面，那么它的小的逻辑地域决定它对部分服务的实时性、响应性是非常好的；在海量用户的请求过来以后它同样是请求调度节点，调度节点把它的请求转发给后端对应的服务节点，服务节点再转发给调度节点，调度节点再响应给客户，这样也能实现一个均衡的作用，Nginx就是一个典型的<code>SLB</code></p>
 <p>4）分为四层负载均衡和七层负载均衡</p>
 <p>往往企业也不好用到<code>GSLB</code>而会用到一些云服务或者第三方设备，但是对于<code>SLB</code> 来说我们会需要用到。</p>
@@ -568,7 +568,7 @@ bg.png.gz</code></pre>
 <p>对应的就是7层负载均衡，它是在应用层，所以它可以完成应用方面的协议的请求，比如说http的负载均衡它可以实现http信息的改写、头信息的改写、安全应用规则的控制以及转发Layer等规则， 所以在应用层的服务里面我们可以在里面做的内容就更多。Nginx就是一个典型的7层负载均衡的SLB</p>
 <hr>
 <p>5）Nginx负载均衡</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/asdfzxc-1581257182079.png" srcset="/img/loading.gif" alt="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/asdfzxc.png"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/asdfzxc-1581257182079.png" srcset="/img/loading.gif" alt="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/asdfzxc.png"></p>
 <p>Nginx在实现负载均衡原理就是用到了<code>proxy_pass</code>，proxy_pass就是上一章讲过的代理模块的和核心配置，它把所有请求代理转发到对应后端服务器上，只这里实现负载均衡是它不是转发到一台而是一组虚拟的服务池，它称为<code>upstream server</code>，<code>upstream server</code>可以定义它所有的服务器的单元，比如这个<code>upstream server</code>组里面有服务1、2、3，它们3个都可以提供类似的服务，所以我们将它们放到一个虚拟的<code>upstream server</code>组里面来，在这个<code>upstream server</code>组里面它实现了对于3台服务器不断的轮询，这样所有用户过来请求的时候就会通过<code>upstream</code>模块分发到不同的服务上实现负载均衡这样的一个概念，所以在proxy_pass和upstream是2个核心的配置语法</p>
 <hr>
 <p>6）配置语法</p>
@@ -840,13 +840,13 @@ Server:1  Url:1</code></pre>
 </tbody></table>
 <p>注意：This directive appeared in version 1.7.2.</p>
 <p>想实现这个场景，我们需要在服务端加一个判断语句把对应的值用正则表达式提取出来，然后把自定义的进行hash就可以了</p>
-<h1 id="Nginx作为缓存服务"><a href="#Nginx作为缓存服务" class="headerlink" title="Nginx作为缓存服务"></a>Nginx作为缓存服务</h1><h2 id="介绍-5"><a href="#介绍-5" class="headerlink" title="介绍"></a>介绍</h2><h3 id="缓存类型"><a href="#缓存类型" class="headerlink" title="缓存类型"></a>缓存类型</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200211221403716.png" srcset="/img/loading.gif" alt="image-20200211221403716"></p>
+<h1 id="Nginx作为缓存服务"><a href="#Nginx作为缓存服务" class="headerlink" title="Nginx作为缓存服务"></a>Nginx作为缓存服务</h1><h2 id="介绍-5"><a href="#介绍-5" class="headerlink" title="介绍"></a>介绍</h2><h3 id="缓存类型"><a href="#缓存类型" class="headerlink" title="缓存类型"></a>缓存类型</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20200211221403716.png" srcset="/img/loading.gif" alt="image-20200211221403716"></p>
 <p>如果缓存放在服务端称呼它为<code>服务端缓存</code> ，服务端缓存最常用的就是<code>Redis、Memcached</code>来存储<code>key-value</code>类型数据。</p>
 <p>当缓存放到代理、中间件上面就称呼为代理缓存，它的内容是同服务端获取到的，然后在缓存到本地直接给客户端使用，这样的话缓存是放在Nginx这一端。</p>
 <p>客户端缓存是缓存再浏览器上面，浏览器上面的缓存是从服务端过来的，只是说给前端缓存了一份，让用户自己就能访问自己，所以我们称呼为客户端缓存。</p>
 <hr>
 <h3 id="代理缓存"><a href="#代理缓存" class="headerlink" title="代理缓存"></a>代理缓存</h3><p>Nginx代理缓存的流程是什么样子的呢？请看下图：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200211221904322.png" srcset="/img/loading.gif" alt="image-20200211221904322"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20200211221904322.png" srcset="/img/loading.gif" alt="image-20200211221904322"></p>
 <p>首先客户端先去请求Nginx，第一次请求的时候如果Nginx中没有缓存，那么它会向服务器发起请求服务器返回对应的数据，Nginx对服务器返回的这个数据进行缓存，然后再返回给客户端，这是在没有缓存的情况下，当用户再一次发起同一个url的请求的时候，那么请求这个数据a，Nginx已经缓存过这个数据了，所以它就直接可以返回给客户端，而不需要去服务端进行请求了，这个就是代理缓存的模式。</p>
 <h3 id="配置语法-2"><a href="#配置语法-2" class="headerlink" title="配置语法"></a>配置语法</h3><h4 id="proxy-cache"><a href="#proxy-cache" class="headerlink" title="proxy_cache"></a>proxy_cache</h4><p>在定义<code>proxy_cache</code>之前先要定义<code>proxy_cache_path</code></p>
 <p>| Syntax:  | <code>**proxy_cache_path** *path* [levels=*levels*] [use_temp_path=on|off] keys_zone=*name*:*size* [inactive=*time*] [max_size=*size*] [manager_files=*number*] [manager_sleep=*time*] [manager_threshold=*time*] [loader_files=*number*] [loader_sleep=*time*] [loader_threshold=*time*] [purger=on|off] [purger_files=*number*] [purger_sleep=*time*] [purger_threshold=*time*];</code> |<br>| :——- | ———————————————————— |<br>| Default: | —                                                            |<br>| Context: | <code>http</code>                                                       |</p>
@@ -1038,7 +1038,7 @@ Server:1  Url:3</code></pre>
 </tbody></table>
 <p>slice size：表示我对一个大文件请求的时候我要切割成多大小的碎片去均匀的请求后端。</p>
 <p>请求图示如下：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20200212125648461.png" srcset="/img/loading.gif" alt="image-20200212125648461"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20200212125648461.png" srcset="/img/loading.gif" alt="image-20200212125648461"></p>
 <p>前端请求过来，它会把这个文件第一次请求后端去获取到这个文件的大小，然后根据这个大小以及我们定义<code>size</code>大小然后进行切片以分割成不同小的请求同时去请求后端，这样的话就形成了一个一个小的请求形成到前端的话就是一个个独立的缓存文件。</p>
 <p>优势：</p>
 <p>每个子请求收到的数据都会形成一个独立文件，一个请求断了，其它请求不受影响</p>

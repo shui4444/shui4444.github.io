@@ -207,11 +207,11 @@
               <h1 id="授权概念"><a href="#授权概念" class="headerlink" title="授权概念"></a>授权概念</h1><p>权限系统通常要解决认证和授权</p>
 <p>认证，即在应用中谁能证明他就是他本人。一般提供如他们的身份ID一些标识信息来表明他就是他本人，如提供身份证，用户名/密码来证明。<br>授权，也叫访问控制，即在应用中控制谁能访问哪些资源（如访问页面/编辑数据/页面操作等）。<br>前面我们分析的都是认证，即你是谁问题？</p>
 <p>这篇我们来分析你能做什么的问题。</p>
-<h1 id="授权分析"><a href="#授权分析" class="headerlink" title="授权分析"></a>授权分析</h1><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/2019050520550057.png" srcset="/img/loading.gif" alt=""></p>
+<h1 id="授权分析"><a href="#授权分析" class="headerlink" title="授权分析"></a>授权分析</h1><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/2019050520550057.png" srcset="/img/loading.gif" alt=""></p>
 <p>权限是某个资源能否杯用户访问，而并不是能否显示的问题。</p>
 <h1 id="权限场景"><a href="#权限场景" class="headerlink" title="权限场景"></a>权限场景</h1><p>通常公司的系统分对外系统 权限场景比较简单，而内部管理系统权限场景比较复杂（业务及需求经常变动）</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/20190505205813292.png" srcset="/img/loading.gif" alt=""></p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/20190505205850305.png" srcset="/img/loading.gif" alt=""></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/20190505205813292.png" srcset="/img/loading.gif" alt=""></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/20190505205850305.png" srcset="/img/loading.gif" alt=""></p>
 <h1 id="权限控制"><a href="#权限控制" class="headerlink" title="权限控制"></a>权限控制</h1><p>权限控制是基于用户-角色-权限这套体系，这个我在后面详细介绍。其实我们前面的浏览器项目已经有权限控制了我们再来看下</p>
 <p>com.b4.mcr.auth.browser.BrowserSecurityConfig#configure</p>
 <pre><code class="hljs java">.antMatchers(
@@ -233,7 +233,7 @@
        <span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span></code></pre>
 
 <p>在登录页面进行登录之后访问：<a href="http://www.pinzhi365.com/user/me" target="_blank" rel="noopener">http://www.pinzhi365.com/user/me</a></p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568550118535.png" srcset="/img/loading.gif" alt="1568550118535"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1568550118535.png" srcset="/img/loading.gif" alt="1568550118535"></p>
 <p>页面会响应403，这里的意思是没有权限，这里是因为在之前写的McrUserDetailsService类中给用户的角色：</p>
 <pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">private</span> SocialUser <span class="hljs-title">buildUser</span><span class="hljs-params">(String username)</span> </span>&#123;
         String password = passwordEncoder.encode(<span class="hljs-string">"123"</span>);

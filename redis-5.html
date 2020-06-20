@@ -237,7 +237,7 @@
 <h1 id="AOF阻塞"><a href="#AOF阻塞" class="headerlink" title="AOF阻塞"></a>AOF阻塞</h1><h2 id="AOF追加阻塞"><a href="#AOF追加阻塞" class="headerlink" title="AOF追加阻塞"></a>AOF追加阻塞</h2><p>如果我们使用<code>AOF</code>的策略，我们通常使用每秒刷盘的策略，刷盘策略流程图如下，首先主线程写入<code>AOF</code>缓冲区，同时它有一个<code>AOF</code>同步线程负责每秒去同步刷盘的动作，它还会记录最近一次的同步时间，主线程还会负责对你上次AOF同步的时间，如果距离上次同步时间在2秒之内，主线程就会返回，如果距离上次同步时间超过2秒，那么主线程会阻塞，直到同步完成，实际上也是为了保证AOF安全性的一种策略，主线程为了达到每秒刷盘的效果，它会阻塞直到同步完成，这里会产生2个问题：</p>
 <p>（1）主线程不能阻塞，因为它要负责我们的日常命令的处理，它是非常宝贵的资源；</p>
 <p>（2）每秒刷盘的策略不会真正只丢1秒的数据，它可能会丢2秒的东西。</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571475697141.png" srcset="/img/loading.gif" alt="1571475697141"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571475697141.png" srcset="/img/loading.gif" alt="1571475697141"></p>
 <h2 id="AOF阻塞定位"><a href="#AOF阻塞定位" class="headerlink" title="AOF阻塞定位"></a>AOF阻塞定位</h2><p>Redis日志：</p>
 <pre><code class="hljs vim">Asynchronous aoF fsync <span class="hljs-keyword">is</span> taking too long(disk <span class="hljs-keyword">is</span> busy
 Writing the aof <span class="hljs-keyword">buffer</span> without waiting <span class="hljs-keyword">for</span> fsync <span class="hljs-keyword">to</span> <span class="hljs-built_in">complete</span>,
@@ -251,7 +251,7 @@ aof delayed fsync: 100</code></pre>
 
 <hr>
 <p>通过硬盘观察，执行Linux的top命令，是否有发生IO资源比较紧张的时候</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571477131262.png" srcset="/img/loading.gif" alt="1571477131262"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571477131262.png" srcset="/img/loading.gif" alt="1571477131262"></p>
 
             </article>
             <hr>

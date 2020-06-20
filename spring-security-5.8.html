@@ -205,7 +205,7 @@
             
             <article class="markdown-body">
               <p>前面为止，将自定义的3重认证方式都已经嫁接到认证服务器上了，通过自定义的认证方式我们可以出去发OAuth令牌，现在这个token它现在和生成和存储都是spring默认的机制来做的，但是这个默认的机制并不符合我们的需求，在这里笔者会带着大家来如何来定制token，定制它的生成和存储</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567865190288.png" srcset="/img/loading.gif" alt="1567865190288"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567865190288.png" srcset="/img/loading.gif" alt="1567865190288"></p>
 <p>现在要做的事是token的处理，token的处理是在认证服务器去完成的，所以这里要做的事情</p>
 <h1 id="基本的Token参数配置"><a href="#基本的Token参数配置" class="headerlink" title="基本的Token参数配置"></a>基本的Token参数配置</h1><p>（1）修改McrAuthorizationServerConfig</p>
 <pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.app;
@@ -216,7 +216,7 @@
 &#125;</code></pre>
 
 <p>这里的AuthorizationServerConfigurerAdapter有3个configure方法，分别表示安全、第三方客户端的配置、端点</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567865473251.png" srcset="/img/loading.gif" alt="1567865473251"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567865473251.png" srcset="/img/loading.gif" alt="1567865473251"></p>
 <p> McrAuthorizationServerConfig：</p>
 <pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.app;
 <span class="hljs-meta">@Configuration</span>
@@ -260,10 +260,10 @@
 &#125;</code></pre>
 
 <p>测试一下，这里以密码模式为例：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567866797638.png" srcset="/img/loading.gif" alt="1567866797638"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567866797638.png" srcset="/img/loading.gif" alt="1567866797638"></p>
 <p>这里不传递scope，就使用了我们自己配的scoope，过期时间也是我们自己配的，没有问题</p>
 <p>使用简化模式登录：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567866911929.png" srcset="/img/loading.gif" alt="1567866911929"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567866911929.png" srcset="/img/loading.gif" alt="1567866911929"></p>
 <p>这里由于配置中不包含这个模式，所以就会出现这样的信息</p>
 <hr>
 <p>支持多个client端</p>
@@ -370,14 +370,14 @@
     &#125;</code></pre>
 
 <p>使用mcr登录</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567869976917.png" srcset="/img/loading.gif" alt="1567869976917"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567869976917.png" srcset="/img/loading.gif" alt="1567869976917"></p>
 <p>使用test登录</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567869997849.png" srcset="/img/loading.gif" alt="1567869997849"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567869997849.png" srcset="/img/loading.gif" alt="1567869997849"></p>
 <p>这里由于我没给test用户配置过期时间，所以0在这里表示永不过期，在实际开发中一定要给那个过期属性配默认值</p>
 <hr>
 <p>控制令牌存储</p>
 <p>现在令牌是存储在内存中的，一档服务重启，内存中就没有数据了，这里将存储改为redis，之前介绍过TokenStore是来做令牌存储的</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567870398556.png" srcset="/img/loading.gif" alt="1567870398556"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567870398556.png" srcset="/img/loading.gif" alt="1567870398556"></p>
 <p>TokenStore提供了几种实现类，这里使用RedisTokenSotre</p>
 <pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.app;
 
@@ -494,7 +494,7 @@
 &#125;</code></pre>
 
 <p>读者可以拿着access_token去在线解析jwt的网站： <a href="http://jwt.calebb.net/中查看内容：" target="_blank" rel="noopener">http://jwt.calebb.net/中查看内容：</a></p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567930569350.png" srcset="/img/loading.gif" alt="1567930569350"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567930569350.png" srcset="/img/loading.gif" alt="1567930569350"></p>
 <p>访问<a href="http://localhost:80/user/me/v3响应内容是空的，原因是这里使用了@AuthenticationPrincipal注解，现在的Principal不是UserDetails，而是一个字符串，所以在这里拿不到" target="_blank" rel="noopener">http://localhost:80/user/me/v3响应内容是空的，原因是这里使用了@AuthenticationPrincipal注解，现在的Principal不是UserDetails，而是一个字符串，所以在这里拿不到</a></p>
 <pre><code class="hljs java"><span class="hljs-meta">@GetMapping</span>(<span class="hljs-string">"/me/v3"</span>)
 <span class="hljs-function"><span class="hljs-keyword">public</span> Object <span class="hljs-title">getCurrentUser</span><span class="hljs-params">(@AuthenticationPrincipal UserDetails authentication)</span> </span>&#123;
@@ -571,7 +571,7 @@
 <p>这里的信息，它不是按照jwt来生成的，而这里的信息是按照spring security的Authentication来生成，如何自定义jwt的信息？比如我想在这里的json中加一个字段该怎么加？这里来实现下这个功能</p>
 <p>分析源码可知</p>
 <p>DefaultTokenServices#createAccessToken</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567931505416.png" srcset="/img/loading.gif" alt="1567931505416"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567931505416.png" srcset="/img/loading.gif" alt="1567931505416"></p>
 <p>这里的token是通过UUID生成的，而它这里的生成方法是私有的，所以无法通过实现、继承方式来重写生成逻辑，不过这里的最下方调用了TokenEnhancer这对象的enhance方法，这个方法用来增强的，之前有提到过，这里可以实现TokenEnhancer接口的enhance方法来对生成的token加字段进去</p>
 <pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.app.jwt;
 <span class="hljs-comment">/**</span>
@@ -622,7 +622,7 @@
 
 <p>上面代码中使用了TokenEnhancerChain这么一个类，这个类的作用是将增强器连接起来，因为前面通过jwt转换器转换，而在这里又使用了增强器，所以需要用它将2个类相连起来，形成一个链</p>
 <p>现在重新登录，拿到token在到那个网站上去看：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567932671671.png" srcset="/img/loading.gif" alt="1567932671671"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567932671671.png" srcset="/img/loading.gif" alt="1567932671671"></p>
 <p>不过在我自己的<a href="http://localhost:80/user/me/v3" target="_blank" rel="noopener">http://localhost:80/user/me/v3</a> rest api是看不到这个字段的，现在就来实现一下这个功能，首先在demo模块加入一个依赖</p>
 <pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span>
     <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>io.jsonwebtoken<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span>
@@ -649,8 +649,8 @@
         <span class="hljs-keyword">return</span> body;
     &#125;</code></pre>
 
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567933366085.png" srcset="/img/loading.gif" alt="1567933366085"></p>
-<h1 id="TOKEN刷新"><a href="#TOKEN刷新" class="headerlink" title="TOKEN刷新"></a>TOKEN刷新</h1><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567933734791.png" srcset="/img/loading.gif" alt="1567933734791"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567933366085.png" srcset="/img/loading.gif" alt="1567933366085"></p>
+<h1 id="TOKEN刷新"><a href="#TOKEN刷新" class="headerlink" title="TOKEN刷新"></a>TOKEN刷新</h1><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567933734791.png" srcset="/img/loading.gif" alt="1567933734791"></p>
 <p>这个过程可以在用户无感知的情况下去做，当用户访问app的时候，token过期了，客户端那边就会去请求上面这个地址，带上登录时拿到的refresh_token，对token进行刷新。这里要注意refresh_token也是有过期时间的，建议可以设置长一些，</p>
 
             </article>

@@ -254,9 +254,9 @@
  &#125;</code></pre>
 
 <p>启动，访问：<a href="http://localhost:8080/user.html" target="_blank" rel="noopener">http://localhost:8080/user.html</a></p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566906164555.png" srcset="/img/loading.gif" alt="1566906164555"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1566906164555.png" srcset="/img/loading.gif" alt="1566906164555"></p>
 <p>这是怎么回事？——因为现在<code>spring security</code>跳转的到了<code>mcr-login.html</code>，而它也是受保护的，所以会继续跳转，而跳转的页面是<code>mcr-login.html</code>，这样就会出现多次跳转的情况</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566906354466.png" srcset="/img/loading.gif" alt="1566906354466"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1566906354466.png" srcset="/img/loading.gif" alt="1566906354466"></p>
 <p> <code>mcr-login.html</code>不需要保护</p>
 <pre><code class="hljs java"><span class="hljs-meta">@Override</span>
  <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(HttpSecurity http)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
@@ -273,7 +273,7 @@
  &#125;</code></pre>
 
 <p>现在自定义的页面是出来了，进行登录时：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566907097168.png" srcset="/img/loading.gif" alt="1566907097168"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1566907097168.png" srcset="/img/loading.gif" alt="1566907097168"></p>
 <p>这是因为在默认情况下，<code>spring security</code>提供了跨域请求的防护，这里需要关闭防护</p>
 <pre><code class="hljs java"><span class="hljs-meta">@Override</span>
    <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">configure</span><span class="hljs-params">(HttpSecurity http)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;
@@ -353,7 +353,7 @@
 
 
 <h1 id="处理不同请求"><a href="#处理不同请求" class="headerlink" title="处理不同请求"></a>处理不同请求</h1><p>这里实现以下图中的功能：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566914744512.png" srcset="/img/loading.gif" alt="1566914744512"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1566914744512.png" srcset="/img/loading.gif" alt="1566914744512"></p>
 <p>对响应提示信息进行封装</p>
 <pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.model.vo;
 
@@ -468,7 +468,7 @@
 &#125;</code></pre>
 
 <h1 id="认证流程源码详情"><a href="#认证流程源码详情" class="headerlink" title="认证流程源码详情"></a>认证流程源码详情</h1><p>流程图：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566918955707.png" srcset="/img/loading.gif" alt="1566918955707"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1566918955707.png" srcset="/img/loading.gif" alt="1566918955707"></p>
 <ul>
 <li><p>UsernamePasswordAuthenticationFilter:表单用户名登陆过滤器</p>
 </li>
@@ -485,12 +485,12 @@
 </li>
 </ul>
 <p>UsernamePasswordAuthenticationFilter :</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566919161314.png" srcset="/img/loading.gif" alt="1566919161314"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1566919161314.png" srcset="/img/loading.gif" alt="1566919161314"></p>
 <p>通过用户填写的表单信息封装成UsernamePasswordAuthenticationToken  </p>
 <p>UsernamePasswordAuthenticationToken  ：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566919277796.png" srcset="/img/loading.gif" alt="1566919277796"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1566919277796.png" srcset="/img/loading.gif" alt="1566919277796"></p>
 <p>这里它首先调用了自己的父类构造方法，传递了一个null</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566919334433.png" srcset="/img/loading.gif" alt="1566919334433"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1566919334433.png" srcset="/img/loading.gif" alt="1566919334433"></p>
 <p>这个实际上就是刚刚讲的UserDetails中的权限信息，由于现在还在做认证处理，没确定用户的账号和密码是否正确，所以这里还没有给定权限信息，接着它将账号和密码赋给自己的本地变量上，最后的：<code>setAuthenticated(false);</code>这个方法的意思是当前用户信息是否经过了身份认证，这里还在认证，所以传false</p>
 <hr>
 <p>回到<code>UsernamePasswordAuthenticationFilter#attemptAuthentication</code>方法，继续往下看，它然后执行了这么一段代码，传递了request和前面的<code>UsernamePasswordAuthenticationToken</code>对象</p>
@@ -504,17 +504,17 @@
 &#125;</code></pre>
 
 <p>来看看<code>authenticationDetailsSource.buildDetails(request)</code>是的返回结构</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566919792395.png" srcset="/img/loading.gif" alt="1566919792395"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1566919792395.png" srcset="/img/loading.gif" alt="1566919792395"></p>
 <p>这里就是将ip地址和<code>sessionId</code>设置给<code>UsernamePasswordAuthenticationToken</code>对象</p>
 <hr>
 <p>回到<code>UsernamePasswordAuthenticationFilter</code></p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566919884046.png" srcset="/img/loading.gif" alt="1566919884046"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1566919884046.png" srcset="/img/loading.gif" alt="1566919884046"></p>
 <p>这里将token交给了<code>AuthenticationManager</code></p>
 <hr>
 <p><code>ProviderManager#authenticate</code>,这里的<code>ProviderManager</code>，实现了<code>AuthenticationManager</code>接口，实际上用得是它</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566920015141.png" srcset="/img/loading.gif" alt="1566920015141"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1566920015141.png" srcset="/img/loading.gif" alt="1566920015141"></p>
 <p>这里它会拿取所有的<code>AuthenticationProvider</code>来进行遍历，调用每个<code>AuthenticationProvider</code>的<code>supports</code>方法并传递<code>token</code>，这里的<code>supports</code>方法会根据<code>token</code>，查看自己是否对这个<code>token</code>支持认证，如果支持就会调用自己的<code>authenticate</code>方法，将<code>token</code>传递进去</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566920224819.png" srcset="/img/loading.gif" alt="1566920224819"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1566920224819.png" srcset="/img/loading.gif" alt="1566920224819"></p>
 <p>来看下<code>AuthenticationProvider#authenticate</code>，它的<code>authenticate</code>方法属于它的父类的</p>
 <p><code>AbstractUserDetailsAuthenticationProvider#authenticate</code></p>
 <pre><code class="hljs java">UserDetails user = <span class="hljs-keyword">this</span>.userCache.getUserFromCache(username);
@@ -551,7 +551,7 @@
 &#125;</code></pre>
 
 <p>在这里这一段            <code>loadedUser = this.getUserDetailsService().loadUserByUsername(username);</code>实际上调用的就是我之前编写的<code>McrUserDetailsService#loadUserByUsername</code></p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566920666268.png" srcset="/img/loading.gif" alt="1566920666268"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1566920666268.png" srcset="/img/loading.gif" alt="1566920666268"></p>
 <p>回到<code>AbstractUserDetailsAuthenticationProvider#authenticate</code></p>
 <pre><code class="hljs java"><span class="hljs-keyword">try</span> &#123;
 			preAuthenticationChecks.check(user);
@@ -917,7 +917,7 @@
     <span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">tr</span>&gt;</span></code></pre>
 
-<h2 id="图形验证码验证"><a href="#图形验证码验证" class="headerlink" title="图形验证码验证"></a>图形验证码验证</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566723514793.png" srcset="/img/loading.gif" alt=""></p>
+<h2 id="图形验证码验证"><a href="#图形验证码验证" class="headerlink" title="图形验证码验证"></a>图形验证码验证</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1566723514793.png" srcset="/img/loading.gif" alt=""></p>
 <p>图形验证码是比用户的账号密码先效验的，所以我会在<code>UsernamePasswordAuthenticationFilter</code>前面加一个验证用户填的验证码是否正确的过滤器，如果验证不通过就抛出异常，这里的异常我希望可以让<code>spring security</code>捕获，可以自定义一个类继承<code>AuthenticationException</code> ，或者直接抛出<code>AuthenticationException</code> 的异常，这里我就自定义一个</p>
 <pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.validate.code;
 
@@ -1059,7 +1059,7 @@
     <span class="hljs-tag">&lt;/<span class="hljs-name">table</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">form</span>&gt;</span></code></pre>
 
-<h2 id="手机登录验证"><a href="#手机登录验证" class="headerlink" title="手机登录验证"></a>手机登录验证</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567003728157.png" srcset="/img/loading.gif" alt="1567003728157"></p>
+<h2 id="手机登录验证"><a href="#手机登录验证" class="headerlink" title="手机登录验证"></a>手机登录验证</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567003728157.png" srcset="/img/loading.gif" alt="1567003728157"></p>
 <p>手机登录，1是手机号码，2是手机收到的验证码，这里的验证与前面的图形验证码验证是不同的，它不能通过<code>UsernamePasswordAuthenticationFilter</code>去做验证，在这里就需要自己自定义一个<code>AtuehtncationFilter</code>，然后还需要一个做验证的<code>Provider</code>也是需要自己来做的，读者不用担心很复杂，笔者这里是通过复制这些源码，来进行修改完成的，实际上不会太难</p>
 <hr>
 <p>SmsCodeAuthenticationToken：</p>
@@ -1739,7 +1739,7 @@ imageValidateCodeFilter.afterPropertiesSet();</code></pre>
 <h2 id="手机验证码"><a href="#手机验证码" class="headerlink" title="手机验证码"></a>手机验证码</h2><p>现在使用者希望生成的短信验证码是6位数，我们之前因为给的是一个无法修改的长度，使用者来说是无法修改的，这些进行重构</p>
 <hr>
 <p>在这里开始之前，来看看以UML图：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567164661098.png" srcset="/img/loading.gif" alt="1567164661098"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567164661098.png" srcset="/img/loading.gif" alt="1567164661098"></p>
 <p>这里可以看到<code>SmsCodeDTO</code>和<code>ImageCodeDTO</code>的属性有3个是相同的，这里可以通过继承关系来减少代码，<code>ImageCodeDTO</code>继承<code>SmsCodeDTO</code>就OK了，这里将<code>SmsCodeDTO</code>的名字修改为<code>ValidateCodeDTO</code>，这样才更像一个父类；</p>
 <p>ImageCodeDTO</p>
 <pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.auth.core.model.dto;
@@ -2404,9 +2404,9 @@ imageValidateCodeFilter.afterPropertiesSet();</code></pre>
     <span class="hljs-tag">&lt;/<span class="hljs-name">table</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">form</span>&gt;</span></code></pre>
 
-<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567436120008.png" srcset="/img/loading.gif" alt="1567436120008"></p>
+<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567436120008.png" srcset="/img/loading.gif" alt="1567436120008"></p>
 <p>UsernamePasswordAuthenticationFilter认证成功处理以后，它会调用一个RememberMeServices服务，这这个服务中有一个TokenRepository，这个服务它会生成一个token，将这个token写入浏览器到浏览器的cookie里面，同时它会用这个TokenRepository把生成的token写到到数据库里面，因为这个动作是在身份认证成功以后做的，所以它在 token写入数据库的时候，会把认证成功的用户名同时写进去，数据库中token和用户名是一一对应的，比如过了一天用户又来访问系统，他就不需要登录了，他就可以直接访问收保护的服务，那么这个请求经过过滤器链的时候会经过RememberMeAuthenticationFilter过滤器，它会读取cookie中的 token，因为用户在登录成功的时候，就是把一个token写入到浏览器的cookie里，那么在这个过滤器它会把这个token从cookie里读出来，交给RememberMeServices，RememberMeServices会用TokenRepository到数据库里去查这个token我数据库里有没有记录，如果数据库里有记录，那么就把对应的用户名取出来，取出来用户名以后，它会去调用UserDetailsService，然后去获取用户的信息，把当前获取到的用户信息放到SecurityContext里面，这样就把用户登录上了</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567436147796.png" srcset="/img/loading.gif" alt="1567436147796"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567436147796.png" srcset="/img/loading.gif" alt="1567436147796"></p>
 <p>这里的RememberMeAuthenticationFilter它在过滤器链上绿色部分的倒数第2个位置，前面是一些其他认证过滤器，其他认证都没法认证用户信息的时候，它会去尝试去做认证</p>
 
             </article>

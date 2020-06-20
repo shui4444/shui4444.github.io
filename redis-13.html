@@ -258,7 +258,7 @@ OK
 
 <p>从这个例子中，如果在设计key的时候，把key控制在一定长度的内，这样可以达到内存节省的一定效果，在Redis4中它做了一些改变，因为它会Jedis内部的一个字符串实现做了一些优化，这个时候它只要小于44个字节就好了，但是在Redis3中是要小于39个字节的</p>
 <p>Redis3 embstr测试</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191104200407985.png" srcset="/img/loading.gif" alt="image-20191104200407985"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191104200407985.png" srcset="/img/loading.gif" alt="image-20191104200407985"></p>
 <h2 id="Value设计"><a href="#Value设计" class="headerlink" title="Value设计"></a>Value设计</h2><h3 id="拒绝bigkey"><a href="#拒绝bigkey" class="headerlink" title="拒绝bigkey"></a>拒绝bigkey</h3><p>定义</p>
 <ul>
 <li>string类型控制在10KB以内，超过了就算是bigkey；</li>
@@ -267,11 +267,11 @@ OK
 </ul>
 </li>
 </ul>
-<h3 id="bigkey的危害"><a href="#bigkey的危害" class="headerlink" title="bigkey的危害"></a>bigkey的危害</h3><h4 id="网络阻塞"><a href="#网络阻塞" class="headerlink" title="网络阻塞"></a>网络阻塞</h4><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191104202723564.png" srcset="/img/loading.gif" alt="image-20191104202723564"></p>
+<h3 id="bigkey的危害"><a href="#bigkey的危害" class="headerlink" title="bigkey的危害"></a>bigkey的危害</h3><h4 id="网络阻塞"><a href="#网络阻塞" class="headerlink" title="网络阻塞"></a>网络阻塞</h4><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191104202723564.png" srcset="/img/loading.gif" alt="image-20191104202723564"></p>
 <p>我的一个机器可能现在部了很多Redis，因为Redis是单线程的，无论是一些云厂商或者一些公司实际上都是在单机部署多个Redis实例，由于使用Redis，可能会有一些千兆网卡，说是千兆网卡，实际上它要除以8，对应的128MB字节，这个时候如果我们Redis存在了bigkey，比如我的Redis里有一个key是5MB，意味着我这个key的QPS达到了30，它就会瞬间超过最大的带宽，那会有什么问题呢？它会将当前Redis阻塞掉，因为我们去共享一份机器总共的带宽的，还有一个问题：单机多部署的话那你会影响其他Redis带宽，这么小的一个QPS由于你这么一个bigkey或者大对象的存在，它会将Redis阻塞而影响其他Redis，那就意味着影响很多业务，就这么小的东西可能会有致命的灾难，假如我们一个key是10KB，对于一些热点key，像新浪微博发布的一些重要消息、一些明星发布的重要消息，假如你的key只有1KB,那比如说QPS非常高，达到了1千、1万、10万、100万这样的级别可能危害就更大了，一瞬间将你机器带宽吃满，影响其他业务，影响自己，这个危害是非常大的；</p>
-<h4 id="慢查询"><a href="#慢查询" class="headerlink" title="慢查询"></a>慢查询</h4><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191104202708182.png" srcset="/img/loading.gif" alt="image-20191104202708182"></p>
+<h4 id="慢查询"><a href="#慢查询" class="headerlink" title="慢查询"></a>慢查询</h4><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191104202708182.png" srcset="/img/loading.gif" alt="image-20191104202708182"></p>
 <p>hgetall、lrange、zrange（例如几十万）：它在做一些全量操作的时候可能会比较慢，它除了说这个网络流量比较大，它还有就是比较慢，Redis是一个单线程的设计模式，你这一个bigkey的命令可能会阻塞其他命令，因为你的hgetall几百万个元素上去执行，它的速度是非常慢的，我们这里不考虑它的一个网络阻塞的问题，只单纯去看命令的问题它也是非常慢的，意外着如果我们QPS非常高，比如QPS是3万，然后我这一个命令执行了2秒，那就意味着你这1秒的3万个命令全都会被阻塞掉；</p>
-<h4 id="节点数据不均衡"><a href="#节点数据不均衡" class="headerlink" title="节点数据不均衡"></a>节点数据不均衡</h4><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191104202818862.png" srcset="/img/loading.gif" alt="image-20191104202818862"></p>
+<h4 id="节点数据不均衡"><a href="#节点数据不均衡" class="headerlink" title="节点数据不均衡"></a>节点数据不均衡</h4><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191104202818862.png" srcset="/img/loading.gif" alt="image-20191104202818862"></p>
 <p>对于一些使用RedisCluster集群这种分布式的形式，如果你的数据相当于分配到多个Redis节点上，因为我们的key只能落在一个节点上，那如果存在bigkey的情况下，那可能会出现像图中这种，各各节点的对象数差不多，但是它的内存使用量是不一样的，有一个节点的内存它的使用量明显会大于其他节点，对于我们管理Redis集群来说是非常不方便的，因为我们在管理的时候希望用一个通用的模式，比如说我们需要64GB的内存，可能就是8x8的节点，甚至16x4节点的分配，这样会对我们的管理造成影响</p>
 <h4 id="反序列化消耗"><a href="#反序列化消耗" class="headerlink" title="反序列化消耗"></a>反序列化消耗</h4><p>这是一个不是很常见的问题</p>
 <ol>
@@ -286,30 +286,30 @@ OK
 </li>
 <li><p>scan+debug object： 如果上面工具没有达到要求，比如一些定制化的参数，我们可以自己去实现，比如使用scan+debug object</p>
 </li>
-<li><p>主动报警：网络流量监控、客户端监控<br><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191104204606546.png" srcset="/img/loading.gif" alt="image-20191104204606546"></p>
+<li><p>主动报警：网络流量监控、客户端监控<br><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191104204606546.png" srcset="/img/loading.gif" alt="image-20191104204606546"></p>
 </li>
-<li><p>内核热点Key问题优化<br><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191104204833399.png" srcset="/img/loading.gif" alt="image-20191104204833399"></p>
+<li><p>内核热点Key问题优化<br><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191104204833399.png" srcset="/img/loading.gif" alt="image-20191104204833399"></p>
 </li>
 </ul>
-<h2 id="应用方发现"><a href="#应用方发现" class="headerlink" title="应用方发现"></a>应用方发现</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191104204144087-1572871319822-1572871749637.png" srcset="/img/loading.gif" alt="image-20191104204144087"></p>
-<h2 id="redis-cli-–bigkeys"><a href="#redis-cli-–bigkeys" class="headerlink" title="redis-cli –bigkeys"></a>redis-cli –bigkeys</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191104204214452-1572871773909.png" srcset="/img/loading.gif" alt="image-20191104204214452"></p>
+<h2 id="应用方发现"><a href="#应用方发现" class="headerlink" title="应用方发现"></a>应用方发现</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191104204144087-1572871319822-1572871749637.png" srcset="/img/loading.gif" alt="image-20191104204144087"></p>
+<h2 id="redis-cli-–bigkeys"><a href="#redis-cli-–bigkeys" class="headerlink" title="redis-cli –bigkeys"></a>redis-cli –bigkeys</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191104204214452-1572871773909.png" srcset="/img/loading.gif" alt="image-20191104204214452"></p>
 <blockquote>
 <p>但是它这里不能设定多大是bigkey，这行这个命令的时候建议在slave节点上执行，因为它本身是去做一些扫描和一些计算的，最好是在本地执行，这样执行速度会很快，用网络一台机器扫描另一台机器的话仍然是需要消耗很多时间的</p>
 </blockquote>
-<h2 id="scan-debug-object"><a href="#scan-debug-object" class="headerlink" title="scan + debug object"></a>scan + debug object</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191104204541652-1572872169550.png" srcset="/img/loading.gif" alt="image-20191104204541652"></p>
+<h2 id="scan-debug-object"><a href="#scan-debug-object" class="headerlink" title="scan + debug object"></a>scan + debug object</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191104204541652-1572872169550.png" srcset="/img/loading.gif" alt="image-20191104204541652"></p>
 <p>对于上面图中的演示，有一个问题就是说我们无法定义比如1KB以上的是bigkey还是10KB以上bigkey，还有它的元素个数多大的bigkey，它是没法定义的，这里就可以使用一些Redis命令来实现</p>
-<h2 id="主动报警"><a href="#主动报警" class="headerlink" title="主动报警"></a>主动报警</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191104205633736.png" srcset="/img/loading.gif" alt="image-20191104205633736"></p>
+<h2 id="主动报警"><a href="#主动报警" class="headerlink" title="主动报警"></a>主动报警</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191104205633736.png" srcset="/img/loading.gif" alt="image-20191104205633736"></p>
 <p>对Redis所有的info信息做一个收集，比如一分钟收集一次、秒级监控然后存在到我们对应的位置，或者直接实时做一个监控，当它超出我们的预期，比如说像输出流量超出我们的预期了，就会可能出现类似bigkey流量的问题，这个时候可以去重点关注一下，当我们手里的证据越多，那我们发现问题就更快，因为我们发现有些人解决问题比较快，当然它的理论知识很强，也可能是因为他手里有更多的证据或者它有更好的工具</p>
 <h2 id="内核统计"><a href="#内核统计" class="headerlink" title="内核统计"></a>内核统计</h2><p>这个可能会涉及更加深一点，其实原理很简单，在Redis内部去设置一个类似于堆的概念，通过它去完成top key的问题，最大的10多20个，我们可以设置这样的参数，每次当有key变更的时候我们去维护这个堆，这样我们也可以找到那些bigkey，它有一个优势：我们前面通过扫描它的过程比较慢，因为我们每次都要去扫描，然后拿一个结果，非常非常慢，如果有几亿个key就不用说快了，它达不到一个效果就是说我们在对所有Redis进行集中管理，比如现在有一万个Redis节点，我希望每小时去拿到bigkey的信息，基本上对于这种情况是无法完成的，因为每次任务就非常长而且Redis实例非常多，这个你做一个调度系统也很难去完成这样的任务，那假如说我Redis内部就可以吐出这样的信息，不需要每次都做很复杂的计算，这样会有很好的优势，当然这对Redis本身的维护成本会高一些，因为你需要对Redis源码进行修改，这里会涉及到很多问题，一个是你修改的靠不靠谱，另一个就是说你更官方的毕竟是不一样的，这样在后期维护上会有一些问题，尤其是当我们管理的Redis比较多如果你只管一个Redis那你可以进行修改，可能管理一万个、1千个可能你一个小的改动、一个小的错误会影响大部分的业务，这个时候你要考虑一个问题，要不要做那样的事情 </p>
 <h1 id="bigkey删除"><a href="#bigkey删除" class="headerlink" title="bigkey删除"></a>bigkey删除</h1><h2 id="阻塞"><a href="#阻塞" class="headerlink" title="阻塞"></a>阻塞</h2><blockquote>
 <p>注意隐性删除（过期、rename等）</p>
 </blockquote>
 <p>前面了解了bigkey的危害以及如何去发现它，当我们确定要对bigkey进行删除的时候，我们要做很多的操作，有人说直接将它del掉就可以了，因为Redis中所有的kv删除命令都是del操作，但其实这里有一个问题：当你的bigkey非常大的时候它的删除速度会非常慢，</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191104220646084.png" srcset="/img/loading.gif" alt="image-20191104220646084"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191104220646084.png" srcset="/img/loading.gif" alt="image-20191104220646084"></p>
 <p>上面这张表是通过测试得出来的结论，这里以一个例子来说，假如要删除的类型是hahs，现在有100万个field和value，每一个field和value是128字节这其实对应图中，就是说删除这一个hash，可能需要2000毫秒，为什么这么慢呢？因为它的删除要将field和value一个个进行删除的，其实Redis中hash可以是hashtable、ziplist，但是它元素非常多的时候肯定是hashtable，实际上和我们删除Redis是一样的，因为Redis本身就是一个hashtable，它删除速度非常慢，那就有一个问题：Redis是单线程的，你删除这么一个键就会阻塞掉很多Redis访问；还有一个问题：一些隐性删除（过期、rename等），隐形删除是什么意思？这是以前碰到的例子，假如说我没有手动去删除这个过期件，而是通过Redis自动来完成的，比如说像过期，假如我们给Redis的一个hahs设置过期时间，这个hash的field有100万、200万，比如让它每天晚上去过期，其实过期是一样的，无论是你通过Redis的主动过期还是被动过期去将它删除掉都是要进行一个删除操作的，它背后也对应的是一个del操作，它会在那个时间点会阻塞掉你的Redis；而且这里还有一个更严重的问题：过期删除这个命令本本身它不会记录在Redis慢查询当中，因为Redis慢查询是记录客户端产生的行为，而这个只是记录在Redis的延迟事件类型中，但是有一个好处就是它会将删除的命令同步给从节点，因为从节点对应Redis它是一个伪装的客户端，你这个时候通过从节点的慢查询找到这样的数据然后去定位这样的问题，所以这里你要做的就是主从节点计量的要收集它的慢查询；</p>
 <h2 id="Redis-4-0：lazy-delete-（unlink命令）"><a href="#Redis-4-0：lazy-delete-（unlink命令）" class="headerlink" title="Redis 4.0：lazy delete （unlink命令）"></a>Redis 4.0：lazy delete （unlink命令）</h2><p>它可以将所有的删除命令做一个后台删除，相当于删除一bigkey的时候我们可以执行一个后台删除，后台会单独有一个线程去帮我们做这样的事情，它就不会阻塞掉Redis主线程，如果你想使用这样的功能，可以把Redis更新到4.0版本</p>
 <h2 id="bigkey删除方法"><a href="#bigkey删除方法" class="headerlink" title="bigkey删除方法"></a>bigkey删除方法</h2><p>对于Redis4.0以下的版本，我们怎么去做呢？这里可以通过scan来完成</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191104222834988.png" srcset="/img/loading.gif" alt="image-20191104222834988"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191104222834988.png" srcset="/img/loading.gif" alt="image-20191104222834988"></p>
 <p>无论是hash的hscan或者是set的scan我们都可以扫描这样的bigkey，然后对它做一个子删除，比如说像hash的hdel，包括像set的sremove这样的操作，最后我们循环遍历这样的bigkey，最终当它的游标设置为0的时候就将它返回，但是这里要注意：最终要删除这个bigkey</p>
 <h2 id="bigkey预防"><a href="#bigkey预防" class="headerlink" title="bigkey预防"></a>bigkey预防</h2><h3 id="优化数据结构"><a href="#优化数据结构" class="headerlink" title="优化数据结构"></a>优化数据结构</h3><p>假如说我们真的要在Redis中有这样的bigkey，如果你真的删除不了，我们可以考虑将它做一个拆分，比如说我们可以按让日期拆分，假如有的人存了一个大的list，实际上它是按天来存的，它有个时间戳的属性，那这个时候我们完全可以给它做一个二级拆分比如说按天、按小时这样就不会有bigkey的问题，甚至像hash这样的类型，我们可以做一些二级hash的处理，后面讲Redis使用合理数据结构的时候会介绍一个类似的例子；</p>
 <h3 id="物理隔离或者万兆网卡：不是治标方案"><a href="#物理隔离或者万兆网卡：不是治标方案" class="headerlink" title="物理隔离或者万兆网卡：不是治标方案"></a>物理隔离或者万兆网卡：不是治标方案</h3><p>还有一些方法的话，它不是解决根本问题的方法，比如说我们可以对有bigkey的Redis做一些物理隔离，甚至让它使用万兆网卡，这样的话可以减轻像网络阻塞的问题，但是任然这里不是解决问题的根本方法</p>
@@ -327,12 +327,12 @@ OK
 <li>选择数据库的编码，我们希望能达到某种类型的一个内存，比如内存和性能的最大化</li>
 </ul>
 <p>首先来看第一个问题，这个用一个例子说明：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191104224658186.png" srcset="/img/loading.gif" alt="image-20191104224658186"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191104224658186.png" srcset="/img/loading.gif" alt="image-20191104224658186"></p>
 <p>假如现在我的数据表是这样的，一个用户数据表有4个属性，分别是它的邮件、名字、密码、序号，它对应我们一个选择数据结构的时候可能会有2种设计，</p>
-<p>第一种：<br><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191104224545458.png" srcset="/img/loading.gif" alt="image-20191104224545458"></p>
+<p>第一种：<br><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191104224545458.png" srcset="/img/loading.gif" alt="image-20191104224545458"></p>
 <p>我们给每个属性也就是user：1然后它的name设置一个名字，然后user：1的age设置一个属性类似于这样；</p>
 <p>第二种：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191104224648877.png" srcset="/img/loading.gif" alt="image-20191104224648877"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191104224648877.png" srcset="/img/loading.gif" alt="image-20191104224648877"></p>
 <p> 使用hash，将关系型数据库进行倒装，比如说我们将它的每一列作为field，它的每一个值作为我们的value，然后它的数据库名或者表名作为它的key，然后它的id作为它的keyt的后缀，相当于我前缀对应数据库名+表名然后一个冒号然后再加上它的id，在设计这种数据结构的时候我们通常会使用第二种，使用hash会有几个好处：</p>
 <ul>
 <li>保证key不是一个松散的，user：1是一个完全的整体，如果使用上面这种情况下它不是一个整体，而且我们在使用像hash的时候如果使用了像ziplist,满足ziplist的条件还可以达到节省内存的效果</li>
@@ -345,20 +345,20 @@ OK
 </ul>
 <p>来看下这3种方案的内存使用</p>
 <p>方案1：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191104225828520.png" srcset="/img/loading.gif" alt="image-20191104225828520"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191104225828520.png" srcset="/img/loading.gif" alt="image-20191104225828520"></p>
 <p>第一种很明显，张图图可以看出来，就是key和value的字符串类型，当我们设置100万个的时候：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191104225834735.png" srcset="/img/loading.gif" alt="image-20191104225834735"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191104225834735.png" srcset="/img/loading.gif" alt="image-20191104225834735"></p>
 <p>方案2：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191104225852146.png" srcset="/img/loading.gif" alt="image-20191104225852146"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191104225852146.png" srcset="/img/loading.gif" alt="image-20191104225852146"></p>
 <p>这种方式很明显就是一个bigkey，一个100万个元素的hash，</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191104225927443.png" srcset="/img/loading.gif" alt="image-20191104225927443"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191104225927443.png" srcset="/img/loading.gif" alt="image-20191104225927443"></p>
 <p>这样非常占用内存，它的设计方案也很有问题。</p>
 <p>方案3：</p>
 <p>拆分成这样：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191104230054990.png" srcset="/img/loading.gif" alt="image-20191104230054990"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191104230054990.png" srcset="/img/loading.gif" alt="image-20191104230054990"></p>
 <p>每一个hash key有100个field和和value，这样我可以将一百万个picId和userId拆成一万个小的hash就是这样的设计模式，key就是100万个picId每个picId除以100，field就是picId去取一百的余，这样就可以将这个大的picId和userId拆成若干个小的hash，内存使用量：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191104230328603.png" srcset="/img/loading.gif" alt="image-20191104230328603"></p>
-<h3 id="3种方案内存对比"><a href="#3种方案内存对比" class="headerlink" title="3种方案内存对比"></a>3种方案内存对比</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191104230411636.png" srcset="/img/loading.gif" alt="image-20191104230411636"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191104230328603.png" srcset="/img/loading.gif" alt="image-20191104230328603"></p>
+<h3 id="3种方案内存对比"><a href="#3种方案内存对比" class="headerlink" title="3种方案内存对比"></a>3种方案内存对比</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191104230411636.png" srcset="/img/loading.gif" alt="image-20191104230411636"></p>
 <p>第1种和第2种是类似的，第3种它可以达到很惊人的内存使用效果，甚至可以达到缩小4-5倍的效果</p>
 <h3 id="3种方案内存分析"><a href="#3种方案内存分析" class="headerlink" title="3种方案内存分析"></a>3种方案内存分析</h3><p>为什么第3种方案占用内存比较小？</p>
 <p>对于Redis来说它支持很多内存优化方案，对于hash类型的话，它对外是hash类似，它内部有很多编码，比如hashtable、ziplist</p>
@@ -368,15 +368,15 @@ OK
 <li>hash-max-ziplist-value 64</li>
 </ul>
 <p>ziplist</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191104230718916.png" srcset="/img/loading.gif" alt="image-20191104230718916"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191104230718916.png" srcset="/img/loading.gif" alt="image-20191104230718916"></p>
 <p>连续内存存储，减少了很多指针以及连续内存产生的碎片的问题，而且它是一个连续存储之后，它首先会节省很多内存，但是它会有一个问题，它的操作复杂度会比较高，它的读写指针的位移并且你新增添加删除的时候会有一个内存的重分配，还有你寻找会比较慢，这种数据结构的话是有一个权衡，在使用这种数据结构的时候要考虑元素个数，如果元素个数少，或者一个大的一个value的时候，那它的一个内存和性能做一个平衡，我们宁可用更少的内存稍微多一点性能来换取内存的最大化，其实对应上面2个配置，也就是当我们元素少于512并且filed value没有大于64字节的元素的时候，那我们Redis会默认选择使用ziplist来存储这样的hash结构，也就说我们会用更少的内存来存储hash结构，对于刚才例子中看到了每一个field-value是100个它是满足512个的，然后64个字节也一样，我的每个filed-value字节数比较少的，当然这个你是可以动态调整的，比如config set来进行调整，但是一定要注意：我们在性能和内存上一定要做一个均衡，不能说我给它设置成5120，这样的话我们是使用了ziplist，但是它的性能会下降，会导致QPS不是很高而且CPU使用非常高的情况</p>
-<h3 id="3种方案优缺点对比"><a href="#3种方案优缺点对比" class="headerlink" title="3种方案优缺点对比"></a>3种方案优缺点对比</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191104231550306.png" srcset="/img/loading.gif" alt="image-20191104231550306"></p>
+<h3 id="3种方案优缺点对比"><a href="#3种方案优缺点对比" class="headerlink" title="3种方案优缺点对比"></a>3种方案优缺点对比</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191104231550306.png" srcset="/img/loading.gif" alt="image-20191104231550306"></p>
 <h1 id="键值生命周期的管理"><a href="#键值生命周期的管理" class="headerlink" title="键值生命周期的管理"></a>键值生命周期的管理</h1><h2 id="Redis不是垃圾桶"><a href="#Redis不是垃圾桶" class="headerlink" title="Redis不是垃圾桶"></a>Redis不是垃圾桶</h2><p>Redis对于开发人员是非常好用的，它可以将hash、set、zset、list这样的数据结构和开发语言中的数据结构做一个完美的映射，它非常方便，造成很多开发人员使用Redis的时候会胡乱使用，比如：什么东西都往Redis放，而且他还不会控制Redis生命周期给key设置过期时间，比如Redis缓存一个key应该是要在一定时间进行删除的，或者在一定时间都没有用了但是它因为没有设置过期时间这样造成Redis一直保留那些数据，不仅包括说Redis去要不断的去扩容，这样的话它的量非常大，还有它使用的时候会比较混乱。</p>
 <hr>
 <p>对于生命周期的数据，我们需要对周期数据做一个缓存或者过期时间的设置，Redis支持expire这样的命令，但如果我们对一个现有的Redis，希望找到多少年多少月多少周期使用的数据，这样的数据我们可以利用<code>object idle time</code>命令找到key-value的闲置时间，比如有一个数据30天没使用了，我们可以利用这个报告发送给开发人员或者开发人员自身去扫描scan这样的key，自身去进行优化，这对于管理Redis是非常有帮助的</p>
 <hr>
 <p>在设置过期时间的时候，比如都设置在3小时后过期或者每3小时过期一次，然后过期之后通过数据库进行重建，这样很可能产生缓存穿透和雪崩问题，过期在集中产生的时候可能会集中去访问数据库或者底层数据源，这样会造成缓存集中去穿透，造成底层数据源无法承受这么大的并发量造成雪崩</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191105193911373.png" srcset="/img/loading.gif" alt="image-20191105193911373"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191105193911373.png" srcset="/img/loading.gif" alt="image-20191105193911373"></p>
 <p>上面这张图显示的是一个数据库，它有在周期的时间内会发现负载非常高，这里就可能是因为过期时间设置比较集中造成的</p>
 <h1 id="命令优化技巧"><a href="#命令优化技巧" class="headerlink" title="命令优化技巧"></a>命令优化技巧</h1><h2 id="【推荐】0-N-以上命令关注N的数量"><a href="#【推荐】0-N-以上命令关注N的数量" class="headerlink" title="【推荐】0(N)以上命令关注N的数量"></a>【推荐】0(N)以上命令关注N的数量</h2><ul>
 <li>例如：hgetall、lrange、smembers、zrange、sinter等并非不能使用，但是需要明确N的值，假如你的N是几百或者一千以下实际上也没有太大的影响，其实如果你的键值或者filed和value非常大的时候你要考虑一个问题：能不能使用一些命令来进行遍历，比如使用hscan、sscan、zscan进行代替，这里意思是说使用大的命令时你要关注你使用的命令是不是一个真的大命令；</li>
@@ -396,7 +396,7 @@ OK
 <li>“- ERR eval/evalsha command keys must in same slot\r\n”；</li>
 </ul>
 <p>建议不要过分去使用Lua，如果你真的需要去过分使用建议单独去开一个Redis来做这样的事情，而且不要使用集群来降低Lua对Redis造成的危害</p>
-<h2 id="【建议】必要情况下使用monitor命令时，要注意不要长时间使用"><a href="#【建议】必要情况下使用monitor命令时，要注意不要长时间使用" class="headerlink" title="【建议】必要情况下使用monitor命令时，要注意不要长时间使用"></a>【建议】必要情况下使用monitor命令时，要注意不要长时间使用</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191105201307817.png" srcset="/img/loading.gif" alt="image-20191105201307817"></p>
+<h2 id="【建议】必要情况下使用monitor命令时，要注意不要长时间使用"><a href="#【建议】必要情况下使用monitor命令时，要注意不要长时间使用" class="headerlink" title="【建议】必要情况下使用monitor命令时，要注意不要长时间使用"></a>【建议】必要情况下使用monitor命令时，要注意不要长时间使用</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191105201307817.png" srcset="/img/loading.gif" alt="image-20191105201307817"></p>
 <p>monitor可以将Redis的命令实时监控，比如像Redis执行了哪些命令，我们可以使用monitor命令进行监控，这样的话可以监控是哪个IP执行的、执行哪些命令在什么时候执行的，但是要注意一个问题，上面这张图就是Redis monitor的一个模型，任何客户端在Redis执行命令都会同步给monitor客户端，如果我们并发量非常高，所有的命令都打到monitor客户端上就会造成问题，monitor命令它无法实时去消费所有命令，就会造成monitor客户端它也是一个普通的Redis客户端的一个输出缓冲区，它的输出缓冲区会暴增，这个输入缓冲区会占用Redis的内存，也是说它可能会将Redis内存撑爆，所以不建议使用这样的东西，如果你真的要去使用它，那建议去短时间去使用，比如你使用几秒、一分钟，最重要的是你要在本地去执行，这样可以提高我们客户端消费速度不至于出现内存暴增的情况。</p>
 <h1 id="客户端优化"><a href="#客户端优化" class="headerlink" title="客户端优化"></a>客户端优化</h1><blockquote>
 <p>这里使用Java客户端来进行说明</p>
@@ -410,7 +410,7 @@ OK
 <p>正例：不相干的业务拆分，像刚才那2个业务A和B其实2个业务没有任何关系，那我其实就不需要用同一个Redis，还有一种可能：不去用多个数据库，而是用多个实例，比如可以开更多的Redis，因为Redis是单线程的，我们会在一个机器上去开多个Redis实例，让Redis去充分利用好多个服务器上的多核，这样就会有更好的优势业务与业务之间不会受到干扰，当然这里还有就是公共的数据要做服务化，假如现在有10个业务全都用到公共信息，这里以一个视频网站，比如说优酷、爱奇艺都有一些视频信息，视频信息就是这些网站的公共数据，基本是你做任何业务都离不开这样的公共数据，这样的公共数据我们不可能将它去存在一个Redis实例或者MySQL实例中，有可能会存，但对于这种方式我们不可能让每一个业务都去调MySQL、Redis实例，而是说我们做更好的是做一个公共的服务，像现在说的微服务、服务话的名词，这里至于服务的底层用的是Redis还是MySQL存储的这个是你自己的事情，对于多个业务使用同一个数据的时候是通过像一些http接口、其他协议的接口来对外提供服务，这样的话不会Redis实例进行干扰，因为这份公共数据全部会在一个比较权威的项目或者组内，然后它对外提供的是一个公共的数据服务</p>
 <hr>
 <p>在使用Java客户端或者其他客户端的时候建议去使用连接池，其实连接时有一个标准的使用方式：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191105203315653.png" srcset="/img/loading.gif" alt="image-20191105203315653"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191105203315653.png" srcset="/img/loading.gif" alt="image-20191105203315653"></p>
 <p>在try-catch-finally外面去定义Jedis对象，Jedis对象去通过JedisPool这个连接池去获取连接，然后去执行对应的命令，在catch里面去捕获异常，捕获异常要注意一个点：假如你现在操作一个命令，执行这个命令会有key，这里在异常中打印出来，然后再加上异常异常，在finally中去关闭Jedis连接，这里的关闭不是说关闭连接，如果关闭连接其实使用连接池就没有意义，因为使用连接池就是为了使用长连接，这样的话会减少每次tcp三次握手，它并不会真的进行关闭，它会在JedisPool模式，比如说你现在使用JedisPool中获取的连接，它会把Jedis的连接归还给连接池，也就是说它会判断你的连接是从连接池取出来的还是普通实例化出来的连接，如果实例化的连接它会对它进行关闭处理；</p>
 <p>那么说了这么多，这么做有什么好处？</p>
 <ul>
@@ -418,7 +418,7 @@ OK
 <li>异常的时候能打印出它的key，可以判断出这个key对应的节点，比如说我们使用的是RedisCluster，如果不打印出来它连接的地址前提下，我们可以打印key，通过key来知道对应的IP和端口，我们可以通过redis-cli获取到它的host；</li>
 <li>通过异常的捕获还可以做其他的事情，比如像log4j这样的东西，然后去写一些append，这个append只收集想Redis的问题，这样就可以针对Jedis来做很多独立的统计，比如统计一分钟内发生多少异常，每种异常的类型是什么？</li>
 </ul>
-<h2 id="连接池参数说明"><a href="#连接池参数说明" class="headerlink" title="连接池参数说明"></a>连接池参数说明</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191105204618121.png" srcset="/img/loading.gif" alt="image-20191105204618121"></p>
+<h2 id="连接池参数说明"><a href="#连接池参数说明" class="headerlink" title="连接池参数说明"></a>连接池参数说明</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191105204618121.png" srcset="/img/loading.gif" alt="image-20191105204618121"></p>
 <h2 id="如何预估最大连接池"><a href="#如何预估最大连接池" class="headerlink" title="如何预估最大连接池"></a>如何预估最大连接池</h2><p>对于连接池，最重要的参数是maxTotal，它值的是最大连接数是多少，这个是非常有讲究的，我从线上来看，之前维护的业务包括我了解的业务也比较多，发现这个配置千奇百怪，每个人的配置都有不同的理解，甚至很多其他配置，有人配置几千甚至上万都见过，但是在你不懂它的含义的之前或者说不你不理解去预估参数之前，这些设置都是没有任何道理的，那么maxTotal怎么去设置呢？这里建议你将maxIdle和maxTotal接近，我们的最大空闲数和最大连接数是一样的，这样是什么目的呢？其实主要为了防止maxIdle到MaxTotal它们相差的期间，创建新的连接，当创建新的连接就是类似等待的效果，这是一个非常不好的手段；</p>
 <p>来看下maxTotal考虑的因素：</p>
 <ul>

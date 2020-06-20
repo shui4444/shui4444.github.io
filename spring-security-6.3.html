@@ -206,14 +206,14 @@
             <article class="markdown-body">
               <h1 id="权限表达式"><a href="#权限表达式" class="headerlink" title="权限表达式"></a>权限表达式</h1><p>通过源码分析可知，最终的配置都会转成<strong>ExpressionUrlAuthorizationConfigurer.AuthorizedUrl</strong>并进行投票决定。</p>
 <p>常见表达式如下：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568559383045.png" srcset="/img/loading.gif" alt="1568559383045"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1568559383045.png" srcset="/img/loading.gif" alt="1568559383045"></p>
 <p>如何写联合表达式呢？就是既满足A条件，也满足B条件</p>
 <pre><code class="hljs java">.antMatchers(<span class="hljs-string">"xx"</span>).access(<span class="hljs-string">"hasRole('ROLE_USER') and hasRole('ROLE_SUPER')"</span>)</code></pre>
 
 <p> 这个都是spring自己的权限表达式，那么我们是否可以自定义实现自己的权限规则呢？可以的！这个我们下一章再看怎么实现。</p>
-<h1 id="权限业务配置分离"><a href="#权限业务配置分离" class="headerlink" title="权限业务配置分离"></a>权限业务配置分离</h1><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568559938142.png" srcset="/img/loading.gif" alt="1568559938142"></p>
+<h1 id="权限业务配置分离"><a href="#权限业务配置分离" class="headerlink" title="权限业务配置分离"></a>权限业务配置分离</h1><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1568559938142.png" srcset="/img/loading.gif" alt="1568559938142"></p>
 <p>这里的代码不应该是写在browser中的，这里的代码应该由demo模块也就是使用者来编写，那么如何将权限模块配置和业务模块配置想分离呢？下面就来满足这个业务场景</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568560039993.png" srcset="/img/loading.gif" alt="1568560039993"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1568560039993.png" srcset="/img/loading.gif" alt="1568560039993"></p>
 <p>实现思路如下：</p>
 <p>提供AuthorizeConfigProvider接口，提供权限设置<br>权限模块的通用配置实现该接口，然后进行配置，业务模块按需也实现该接口进行配置<br>最后使用 AuthorizeConfigManager类来管理所有的AuthorizeConfigProvider实现<br>拿到所有的配置后，进行统一设置</p>
 <hr>

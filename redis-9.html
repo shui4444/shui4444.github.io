@@ -204,7 +204,7 @@
           <div class="post-content mx-auto" id="post">
             
             <article class="markdown-body">
-              <h1 id="集群缩容"><a href="#集群缩容" class="headerlink" title="集群缩容"></a>集群缩容</h1><h2 id="伸缩原理"><a href="#伸缩原理" class="headerlink" title="伸缩原理"></a>伸缩原理</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572147297362.png" srcset="/img/loading.gif" alt="1572147297362"></p>
+              <h1 id="集群缩容"><a href="#集群缩容" class="headerlink" title="集群缩容"></a>集群缩容</h1><h2 id="伸缩原理"><a href="#伸缩原理" class="headerlink" title="伸缩原理"></a>伸缩原理</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572147297362.png" srcset="/img/loading.gif" alt="1572147297362"></p>
 <p>伸就是加节点，缩就是某些节点不需要了，需要将他们进行下线</p>
 <h2 id="扩容集群"><a href="#扩容集群" class="headerlink" title="扩容集群"></a>扩容集群</h2><h3 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h3><ul>
 <li>准备新节点；</li>
@@ -221,14 +221,14 @@
 redis-server conf/redis-6386.conf</code></pre>
 
 <p>启动之后的效果</p>
-<img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572147740859.png" srcset="/img/loading.gif" alt="1572147740859" style="zoom:50%;" />
+<img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572147740859.png" srcset="/img/loading.gif" alt="1572147740859" style="zoom:50%;" />
 
 </li>
 </ul>
 <h3 id="加入集群"><a href="#加入集群" class="headerlink" title="加入集群"></a>加入集群</h3><pre><code class="hljs bash">127.0.0.1:6379&gt; cluster meet 127.0.0.1 6385
 127.0.0.1:6379&gt; cluster meet 127.0.0.1 6386</code></pre>
 
-<p>加入之后的效果：<img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572147701603.png" srcset="/img/loading.gif" alt="1572147701603" style="zoom: 50%;" /></p>
+<p>加入之后的效果：<img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572147701603.png" srcset="/img/loading.gif" alt="1572147701603" style="zoom: 50%;" /></p>
 <p>作用：</p>
 <ul>
 <li>为它迁移槽和数据实现扩容；</li>
@@ -248,14 +248,14 @@ redis-server conf/redis-6386.conf</code></pre>
 <li>迁移数据</li>
 <li>添加从节点</li>
 </ul>
-<h3 id="迁移计划"><a href="#迁移计划" class="headerlink" title="迁移计划"></a>迁移计划</h3><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572148492017.png" srcset="/img/loading.gif" alt="1572148492017"  />
+<h3 id="迁移计划"><a href="#迁移计划" class="headerlink" title="迁移计划"></a>迁移计划</h3><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572148492017.png" srcset="/img/loading.gif" alt="1572148492017"  />
 
 <h3 id="迁移数据"><a href="#迁移数据" class="headerlink" title="迁移数据"></a>迁移数据</h3><p>步骤</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572149049846.png" srcset="/img/loading.gif" alt="1572149049846"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572149049846.png" srcset="/img/loading.gif" alt="1572149049846"></p>
 <p>流程图</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572149126364.png" srcset="/img/loading.gif" alt="1572149126364"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572149126364.png" srcset="/img/loading.gif" alt="1572149126364"></p>
 <p>伪代码</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572149146990.png" srcset="/img/loading.gif" alt="1572149146990"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572149146990.png" srcset="/img/loading.gif" alt="1572149146990"></p>
 <h2 id="集群扩容演示"><a href="#集群扩容演示" class="headerlink" title="集群扩容演示"></a>集群扩容演示</h2><p>加入2个节点：7006、7007，7007是7006的从</p>
 <p>首先添加2个配置，并启动</p>
 <pre><code class="hljs bash">[root@mcr2 config] sed <span class="hljs-string">'s/7000/7006/g'</span> redis-7000.conf  &gt; redis-7006.conf
@@ -325,13 +325,13 @@ Do you want to proceed with the proposed reshard plan (yes/no)? yes
       2) (<span class="hljs-built_in">integer</span>) 7007
 <span class="hljs-comment">#...</span></code></pre>
 
-<h2 id="缩容集群"><a href="#缩容集群" class="headerlink" title="缩容集群"></a>缩容集群</h2><h3 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572157852975.png" srcset="/img/loading.gif" alt="1572157852975"></p>
+<h2 id="缩容集群"><a href="#缩容集群" class="headerlink" title="缩容集群"></a>缩容集群</h2><h3 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572157852975.png" srcset="/img/loading.gif" alt="1572157852975"></p>
 <p>集群缩容和扩容有很多相似的地方，例如需要将槽的数据进行迁移，就是上面这张图。</p>
 <p>缩容要对节点进行下线，然后再进行3个步骤：</p>
 <ol>
-<li><p>下线迁移槽：前提是当前下线节点是否有槽，如果没有就不用，                                                    <img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572157887160.png" srcset="/img/loading.gif" alt="1572157887160" style="zoom:33%;" />下线迁移槽和前面说的扩容是一样的，扩容：其他节点往迁移slot，下线槽：将下线节点的所有槽均匀迁移给其他节点；</p>
+<li><p>下线迁移槽：前提是当前下线节点是否有槽，如果没有就不用，                                                    <img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572157887160.png" srcset="/img/loading.gif" alt="1572157887160" style="zoom:33%;" />下线迁移槽和前面说的扩容是一样的，扩容：其他节点往迁移slot，下线槽：将下线节点的所有槽均匀迁移给其他节点；</p>
 </li>
-<li><p>忘记节点：Redis Cluster集群这些节点需要忘记它，因为集群节点之间                                                          是共享消息的，你要告诉每个节点去忘记它，<br>命令：<code>redis&gt;cli cluster forget {downNodeId}</code><br><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572158164591.png" srcset="/img/loading.gif" alt="1572158164591"></p>
+<li><p>忘记节点：Redis Cluster集群这些节点需要忘记它，因为集群节点之间                                                          是共享消息的，你要告诉每个节点去忘记它，<br>命令：<code>redis&gt;cli cluster forget {downNodeId}</code><br><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572158164591.png" srcset="/img/loading.gif" alt="1572158164591"></p>
 <p>这里的有效时间是60秒，在60秒之内有一个节点没有忘记它，仍然会有消息，所以说你要想让一个节点真正的下线你需要对所有节点去忘记；</p>
 </li>
 <li><p>关闭节点：当所有节点都忘记它之后再对节点进行关闭。</p>
@@ -400,8 +400,8 @@ not connected&gt; <span class="hljs-built_in">exit</span>
 <h1 id="客户端路由"><a href="#客户端路由" class="headerlink" title="客户端路由"></a>客户端路由</h1><h2 id="moved重定向"><a href="#moved重定向" class="headerlink" title="moved重定向"></a>moved重定向</h2><ol>
 <li>客户端发送向任意节点发送命令</li>
 <li>服务端计算key的ARC16哈希值，更16383去取余，算出它的槽，<ul>
-<li>如果这个数据的哈希算出来的槽是自身的，直接会返回执行结果；<br><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572163727292.png" srcset="/img/loading.gif" alt="1572163727292"></li>
-<li>如果不是，返回moved异常并告诉客户端这个key属于哪个节点的，客户端拿到这个异常，根据异常去重定向发送给对应的节点去执行<br><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572163776375.png" srcset="/img/loading.gif" alt="1572163776375"></li>
+<li>如果这个数据的哈希算出来的槽是自身的，直接会返回执行结果；<br><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572163727292.png" srcset="/img/loading.gif" alt="1572163727292"></li>
+<li>如果不是，返回moved异常并告诉客户端这个key属于哪个节点的，客户端拿到这个异常，根据异常去重定向发送给对应的节点去执行<br><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572163776375.png" srcset="/img/loading.gif" alt="1572163776375"></li>
 </ul>
 </li>
 </ol>
@@ -428,7 +428,7 @@ OK
 (error) MOVED 9244 127.0.0.1:7001</code></pre>
 
 <h2 id="ask重定向"><a href="#ask重定向" class="headerlink" title="ask重定向"></a>ask重定向</h2><p>前面介绍了集群的伸缩，在集群伸缩的过程中就有一个问题：对槽迁移，这个对于客户端来说是一个挑战，因为在客户端中记录的是原节点，当前节点告诉客户端数据的位置在原节点，但是在访问的时候发现key迁移到了目标节点，这个时候就需要考虑设计一种方案解决这个问题，Redis Cluster就考虑了这个问题，下面看下它的实现演示</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572168669668.png" srcset="/img/loading.gif" alt="1572168669668"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572168669668.png" srcset="/img/loading.gif" alt="1572168669668"></p>
 <ol>
 <li>假如说source节点和target节点正在迁移一个槽；</li>
 <li>这个时候客户端发送一条命令；</li>
@@ -446,7 +446,7 @@ OK
 <li>将cluster slots的结果映射到本地，为每个节点创建JedisPool；</li>
 <li>准备执行命令。</li>
 </ol>
-<h3 id="执行命令基本步骤"><a href="#执行命令基本步骤" class="headerlink" title="执行命令基本步骤"></a>执行命令基本步骤</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572179020424.png" srcset="/img/loading.gif" alt="1572179020424"></p>
+<h3 id="执行命令基本步骤"><a href="#执行命令基本步骤" class="headerlink" title="执行命令基本步骤"></a>执行命令基本步骤</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572179020424.png" srcset="/img/loading.gif" alt="1572179020424"></p>
 <p>JedisCluster内部缓存了slot和节点的关系，而且对于key和slot的关系它是可以知道的，因为这个关系是公开的，它是一个CRC16去对key做一个哈希算出一个16383的模，也就是对应的槽就能找到目标节点，如果在发送命令的时候连接出错，客户端会将它理解为错误的节点，这里会随机选择一个节点，对这个节点发送命令，然后返回moved异常，这个大多数情况下是moved，因为我们在一个很大的集群执行随机节点去执行key肯定会返回moved，然后会重新初始化slot和node的关系再去目标节点发送命令，然后知道响应结果，如果这样的过程超过5次它就会返回一个错误：<code>Too many cluster redirection！</code>，</p>
 <h3 id="JedisCluster执行源码分析"><a href="#JedisCluster执行源码分析" class="headerlink" title="JedisCluster执行源码分析"></a>JedisCluster执行源码分析</h3><p>JedisCluster</p>
 <pre><code class="hljs java"><span class="hljs-meta">@Override</span>
@@ -614,28 +614,28 @@ Map&lt;String, JedisPool&gt; jedisPoolMap=jedisCLuster.getClusterNodes();
 <p>在RedisCluster中执行批量操作有一个问题：mget、mset必须在一个槽，下面介绍4种方法对这种问题进行优化</p>
 </blockquote>
 <h3 id="串行mget"><a href="#串行mget" class="headerlink" title="串行mget"></a>串行mget</h3><p>执行<code>megt</code>时，我们写一个for循环来执行，通过RedisCluster执行每个key，例如下面这张图：左边的是要执行的批量操作，右边是3个redis节点，这种方法比较简单，当效率是非常差的，它需要n次网络时间</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572188972006-1572188977000.png" srcset="/img/loading.gif" alt="1572188972006"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572188972006-1572188977000.png" srcset="/img/loading.gif" alt="1572188972006"></p>
 <h3 id="串行IO"><a href="#串行IO" class="headerlink" title="串行IO"></a>串行IO</h3><p>它对上面的<code>串行mget</code>方案进行了优化</p>
 <p> 左边仍然是<code>meget</code>操作，右边仍然是对应的3个节点，它有一个不同是在客户端本地做一个内聚，我现在知道所有的key，通过本地的<code>CRC16</code>然后对<code>16383</code>去取余，算出它的槽，知道本地的槽和节点的对应关系就可以将这些key进行分组，这个分组就是按照节点进行分组，给它成立一个字节，各各<code>master</code>节点一个子集，当我们有这个子集之后，我们只需要执行3次<code>pipeline</code>就可以完成对应的<code>mget</code>操作，这样就变成了nodes次网络时间，大大降低网络开销</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572189341535-1572189466437.png" srcset="/img/loading.gif" alt="1572189341535"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572189341535-1572189466437.png" srcset="/img/loading.gif" alt="1572189341535"></p>
 <h3 id="并行IO"><a href="#并行IO" class="headerlink" title="并行IO"></a>并行IO</h3><p>并行IO是对串行IO方案的优化，利用多线程，分别在3个线程下去获取对应节点<code>pipeline</code>的返回值</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572189489205.png" srcset="/img/loading.gif" alt="1572189489205"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572189489205.png" srcset="/img/loading.gif" alt="1572189489205"></p>
 <h3 id="hash-tag"><a href="#hash-tag" class="headerlink" title="hash_tag"></a>hash_tag</h3><p>这是更加极端的方案，将key做一个hash_tag的包装，将tag值用一个大括号去括起来，这样保证所有的key都落到一个redis节点，这样每次mget只需要是一个节点去写就好了</p>
-<h3 id="四种方案优缺点"><a href="#四种方案优缺点" class="headerlink" title="四种方案优缺点"></a>四种方案优缺点</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572189600178.png" srcset="/img/loading.gif" alt="1572189600178"></p>
+<h3 id="四种方案优缺点"><a href="#四种方案优缺点" class="headerlink" title="四种方案优缺点"></a>四种方案优缺点</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572189600178.png" srcset="/img/loading.gif" alt="1572189600178"></p>
 <h1 id="故障转移"><a href="#故障转移" class="headerlink" title="故障转移"></a>故障转移</h1><h2 id="故障发现"><a href="#故障发现" class="headerlink" title="故障发现"></a>故障发现</h2><ul>
 <li>通过ping/pong消息实现故障发现：不需要sentinel</li>
 <li>主观下线和客观下线；</li>
 </ul>
 <h3 id="主观下线"><a href="#主观下线" class="headerlink" title="主观下线"></a>主观下线</h3><ul>
 <li>定义：某个节点认为另一个节点不可用“偏见”，这是某一个节点的认知，不代表所有节点的认知；</li>
-<li>主观下线流程：<img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572265817397.png" srcset="/img/loading.gif" alt="1572265817397"><br>这里抽象2个节点的模型观察，现在有节点1和节点2，节点1会定期发送一个ping消息给节点2，如果发送成功就是代表ping通了， 然后节点2会回复pong消息，节点1会更新与节点2最后的通信时间，如果这个ping失败了，这个通信异常就会断开连接，再下一次触发ping消息的时候，它依然会执行ping/pong这个过程，当它发现与节点2的最后时间超过了<code>node-timeout</code>，我们之前配置的<code>cluster-node-timeout</code>，就会将它标记为<code>pfail</code>,<code>pfail</code>就是主观下线，以上内容就是主观下线的基本流程；</li>
+<li>主观下线流程：<img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572265817397.png" srcset="/img/loading.gif" alt="1572265817397"><br>这里抽象2个节点的模型观察，现在有节点1和节点2，节点1会定期发送一个ping消息给节点2，如果发送成功就是代表ping通了， 然后节点2会回复pong消息，节点1会更新与节点2最后的通信时间，如果这个ping失败了，这个通信异常就会断开连接，再下一次触发ping消息的时候，它依然会执行ping/pong这个过程，当它发现与节点2的最后时间超过了<code>node-timeout</code>，我们之前配置的<code>cluster-node-timeout</code>，就会将它标记为<code>pfail</code>,<code>pfail</code>就是主观下线，以上内容就是主观下线的基本流程；</li>
 </ul>
 <h3 id="客观下线"><a href="#客观下线" class="headerlink" title="客观下线"></a>客观下线</h3><ul>
 <li>定义：当半数以上持有槽的节点都标记某节点主观下线，这里的半数以上是防止网络分区的情况，而且还要是主节点，这是因为在集群模式才有资格进行读写的请求以及进行槽的相关维护，而从节点只负责复制；</li>
-<li>客观下线逻辑流程：<img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572266269416.png" srcset="/img/loading.gif" alt="1572266269416"><br>它接受到其他节点发来的ping消息，如果它包含了pfail消息（主观下线），然后它会将主观下线的消息内容添加到自身的故障列表中，这个故障列表中包含了当前节点收到每个节点的对其他节点的信息，假如我当前是节点2，我的故障列表里面有节点1一直到节点n这样为列，故障n为行这样的矩阵列表能知道每个节点对每个节点的看法，这样当它添加之后它会去尝试做客观下线，因为它这个列表中维护了所有故障列表，这个列表也是有周期的，这个周期需要在<code>cluster-node-timeout * 2</code>范围内，这样是为了保证一个很久之前的故障消息不会在我这里很久是有效的，保证了客观下线的公平性和有效性；</li>
+<li>客观下线逻辑流程：<img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572266269416.png" srcset="/img/loading.gif" alt="1572266269416"><br>它接受到其他节点发来的ping消息，如果它包含了pfail消息（主观下线），然后它会将主观下线的消息内容添加到自身的故障列表中，这个故障列表中包含了当前节点收到每个节点的对其他节点的信息，假如我当前是节点2，我的故障列表里面有节点1一直到节点n这样为列，故障n为行这样的矩阵列表能知道每个节点对每个节点的看法，这样当它添加之后它会去尝试做客观下线，因为它这个列表中维护了所有故障列表，这个列表也是有周期的，这个周期需要在<code>cluster-node-timeout * 2</code>范围内，这样是为了保证一个很久之前的故障消息不会在我这里很久是有效的，保证了客观下线的公平性和有效性；</li>
 </ul>
 <h3 id="尝试客观下线"><a href="#尝试客观下线" class="headerlink" title="尝试客观下线"></a>尝试客观下线</h3><p><strong>流程</strong></p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572266968180.png" srcset="/img/loading.gif" alt="1572266968180"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572266968180.png" srcset="/img/loading.gif" alt="1572266968180"></p>
 <p>它会统计有效下线列表报告中的数量，如果小于集群中持有槽主节点的一半则退出，如果下线报告大于主节点数量一半时会标记故障节点为一个客观下线状态，也就是图中右边部分，并向集群中发送广播通知所有节点将故障节点标识为客观下线</p>
 <ul>
 <li>通知集群内所有节点标记故障节点为客观下线；</li>
@@ -654,7 +654,7 @@ Map&lt;String, JedisPool&gt; jedisPoolMap=jedisCLuster.getClusterNodes();
 <li>cluster-node-timeout：默认时间是15秒；</li>
 <li>cluster-slave-validity-factor：默认是10，如果都使用默认值的话相当于150秒，每个从节点检查与故障主节点的断线时间超过个150秒就没有资格成为主节点的可能性。</li>
 </ul>
-<h3 id="准备选举时间"><a href="#准备选举时间" class="headerlink" title="准备选举时间"></a>准备选举时间</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572268020906.png" srcset="/img/loading.gif" alt="1572268020906"></p>
+<h3 id="准备选举时间"><a href="#准备选举时间" class="headerlink" title="准备选举时间"></a>准备选举时间</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572268020906.png" srcset="/img/loading.gif" alt="1572268020906"></p>
 <p>当从节点符合故障转移资格之后，需要更新触发故障选举的时间，只有达到该时间才有可能触发后续的流程，这一步其实是为了保证偏移量比较大的从节点有更小的延迟达到所谓的一个选举时间，为了保证数据的一致性会更高，因为当前主节点已经发生了故障，只有偏移量最大的更接近原来的主节点，它更有可能成为未来的master节点，所有我们会给它更小的选举时间，让它首先去达到这个选举时间，然后完成为未来的选举，让它获得更高的票数，最终成为master节点，从节点拿到选举时间之后它会对主节点发起一个选举，让主节点发起一个选举然后主节点给它进行投票，它的一个优先级更高也就是它的偏移量更大它的选举时间会更短，就是它获得选举时间越短它就更可能获得更多的票数，例如现在这个图中的slave1由于它的偏移量比较大，它获得了更多的票数，然后slave2可能是稍后拿到选举的时间，它只获得了1票，然后这个RedisCluster会规定当你获取了这个集群中主节点的2分之1再加1这个数字之后就可以做一个替换主节点的工作了；</p>
 <h3 id="替换主节点"><a href="#替换主节点" class="headerlink" title="替换主节点"></a>替换主节点</h3><ol>
 <li>当前从节点取消复制变为主节点（slaveof no none）；</li>
@@ -670,59 +670,59 @@ Map&lt;String, JedisPool&gt; jedisPoolMap=jedisCLuster.getClusterNodes();
 <li>观察各个节点的日志。</li>
 </ol>
 <h3 id="开始"><a href="#开始" class="headerlink" title="开始"></a>开始</h3><p>（1）客户端打印日志存放的目录</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572276083100.png" srcset="/img/loading.gif" alt="1572276083100"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572276083100.png" srcset="/img/loading.gif" alt="1572276083100"></p>
 <hr>
 <p>（2）这是一个简单的while死循环</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572276112807.png" srcset="/img/loading.gif" alt="1572276112807"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572276112807.png" srcset="/img/loading.gif" alt="1572276112807"></p>
 <hr>
 <p>（3）查看客户端的日志</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572276191669.png" srcset="/img/loading.gif" alt="1572276191669"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572276191669.png" srcset="/img/loading.gif" alt="1572276191669"></p>
 <hr>
 <p>（4）这个时候将服务端使用kill关闭7000端口</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572276152318.png" srcset="/img/loading.gif" alt="1572276152318"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572276152318.png" srcset="/img/loading.gif" alt="1572276152318"></p>
 <hr>
 <p>（5）这个时候就会收到很多异常信息</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572276220715.png" srcset="/img/loading.gif" alt="1572276220715"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572276220715.png" srcset="/img/loading.gif" alt="1572276220715"></p>
 <hr>
 <p>（6）稍等一会，会发现恢复正常了</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572276268731.png" srcset="/img/loading.gif" alt="1572276268731"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572276268731.png" srcset="/img/loading.gif" alt="1572276268731"></p>
 <hr>
 <p>（7）这里恢复时间大概20多秒左右，这里包含了主观下线、客观下线和选举的时间，对于一般的应用来说还是可以容忍的，如果你在客户端做了一些对故障容忍的熔断措施，这个故障时间还是比较小的，如果你不容忍这些时间你可以把<code>cluseter-node-timeout</code>调小一些，但是在后面的开发运维场景问题的时候会提到这个参数会影响到带宽的一个传播的速率，就是这个消息传输的频率，可能会加重带宽，所以这个参数是比较综合的参数</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572276323869.png" srcset="/img/loading.gif" alt="1572276323869"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572276323869.png" srcset="/img/loading.gif" alt="1572276323869"></p>
 <hr>
 <p>（8）然后看一下节点的变化，之前的7000被kill了之后7000的从节点7003变为了master，7000已经成为了slave节点</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572276640360.png" srcset="/img/loading.gif" alt="1572276640360"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572276640360.png" srcset="/img/loading.gif" alt="1572276640360"></p>
 <p>（9）这个时候启动7000，</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572276817565.png" srcset="/img/loading.gif" alt="1572276817565"></p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572276838894.png" srcset="/img/loading.gif" alt="1572276838894"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572276817565.png" srcset="/img/loading.gif" alt="1572276817565"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572276838894.png" srcset="/img/loading.gif" alt="1572276838894"></p>
 <p>（10）接下来对日志做分析，首先看一下7000</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572276892421.png" srcset="/img/loading.gif" alt="1572276892421"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572276892421.png" srcset="/img/loading.gif" alt="1572276892421"></p>
 <p>这里由于使用的是kill操作，所以不会留下日志，只会留下启动和复制master日志</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572276978705.png" srcset="/img/loading.gif" alt="1572276978705"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572276978705.png" srcset="/img/loading.gif" alt="1572276978705"></p>
 <hr>
 <p>看7003</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572277091059.png" srcset="/img/loading.gif" alt="1572277091059"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572277091059.png" srcset="/img/loading.gif" alt="1572277091059"></p>
 <p>收到了它主节点下线的消息</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572277134120.png" srcset="/img/loading.gif" alt="1572277134120"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572277134120.png" srcset="/img/loading.gif" alt="1572277134120"></p>
 <p>选举时间，这里由于搭建的是一主已从的结构，所以只有它能变成主节点</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572277219789.png" srcset="/img/loading.gif" alt="1572277219789"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572277219789.png" srcset="/img/loading.gif" alt="1572277219789"></p>
 <p>成为master</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572277280574.png" srcset="/img/loading.gif" alt="1572277280574"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572277280574.png" srcset="/img/loading.gif" alt="1572277280574"></p>
 <p>清除原来主节点的信息</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572277295453.png" srcset="/img/loading.gif" alt="1572277295453"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572277295453.png" srcset="/img/loading.gif" alt="1572277295453"></p>
 <hr>
 <p>7002的日志</p>
 <p>标识原来主节点的状态：failing</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572277350341.png" srcset="/img/loading.gif" alt="1572277350341"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572277350341.png" srcset="/img/loading.gif" alt="1572277350341"></p>
 <p>它包含了原理主节点的状态，这里进行清除</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572277439124.png" srcset="/img/loading.gif" alt="1572277439124"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572277439124.png" srcset="/img/loading.gif" alt="1572277439124"></p>
 <h1 id="集群开发运维常见问题"><a href="#集群开发运维常见问题" class="headerlink" title="集群开发运维常见问题"></a>集群开发运维常见问题</h1><h2 id="集群完整性"><a href="#集群完整性" class="headerlink" title="集群完整性"></a>集群完整性</h2><p>之前介绍的cluster-require-full-coverage默认为yes，是否需要所有集群节点都是在线状态，而且1684个槽都在一个服务的状态，才会认为集群是完整的对外同服务</p>
 <ul>
 <li>集群中16384个槽全部可用：保证集群完整性；</li>
 <li>节点故障或者正在故障转移：（error） CLUSETRDOWN The cluster is down。</li>
 </ul>
 <p>大多数业务无法容忍，cluster-require-full-coverage建议设置为no</p>
-<h2 id="带宽消耗"><a href="#带宽消耗" class="headerlink" title="带宽消耗"></a>带宽消耗</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572352974418.png" srcset="/img/loading.gif" alt="1572352974418"></p>
+<h2 id="带宽消耗"><a href="#带宽消耗" class="headerlink" title="带宽消耗"></a>带宽消耗</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572352974418.png" srcset="/img/loading.gif" alt="1572352974418"></p>
 <p>Redis Cluster会定期交换Gossip消息以及做一些心跳检测</p>
 <ul>
 <li>官方建议：节点不要超过1000个节点；</li>
@@ -757,16 +757,16 @@ Map&lt;String, JedisPool&gt; jedisPoolMap=jedisCLuster.getClusterNodes();
 <hr>
 <p>举一个例子来看下对集群节点发布消息会怎么样</p>
 <p>7000对cluster_pubsub_test频道发布hello</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572354891479.png" srcset="/img/loading.gif" alt="1572354891479"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572354891479.png" srcset="/img/loading.gif" alt="1572354891479"></p>
 <p>7001主节点与它的从节点7003订阅cluster_pubsub_test频道</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572354993873.png" srcset="/img/loading.gif" alt="1572354993873"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572354993873.png" srcset="/img/loading.gif" alt="1572354993873"></p>
 <h2 id="集群倾斜"><a href="#集群倾斜" class="headerlink" title="集群倾斜"></a>集群倾斜</h2><blockquote>
 <p>对于分布式数据库来说存在倾斜问题是比较常见的，来看下RedisCluster它的倾斜问题</p>
 </blockquote>
 <h3 id="数据倾斜"><a href="#数据倾斜" class="headerlink" title="数据倾斜"></a>数据倾斜</h3><blockquote>
 <p>内存不均，一个节点比其他节点使用的内存多，例如下面这张图的情况，假如这里是3个主从，这是3个主节点，第2个主节点内存使用是比较高的，但是它的对象数又没有太多，那可能就有一些问题</p>
 </blockquote>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572355147510.png" srcset="/img/loading.gif" alt="1572355147510"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572355147510.png" srcset="/img/loading.gif" alt="1572355147510"></p>
 <p>它是由这4种情况造成的：</p>
 <ul>
 <li>节点和槽分配不均：假如现在有3个节点，16384进行平均分，假如有一个节点分了1W个槽，它的数据量会到大一些，这是比较正常的情况 ；</li>
@@ -819,14 +819,14 @@ Map&lt;String, JedisPool&gt; jedisPoolMap=jedisCLuster.getClusterNodes();
 </li>
 </ul>
 <p>首先在7000执行写命令</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572357983112.png" srcset="/img/loading.gif" alt="1572357983112"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572357983112.png" srcset="/img/loading.gif" alt="1572357983112"></p>
 <p>对7003的slave去执行度命令</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572358024669.png" srcset="/img/loading.gif" alt="1572358024669"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572358024669.png" srcset="/img/loading.gif" alt="1572358024669"></p>
 <blockquote>
 <p>这里它不会去执行读的命令</p>
 </blockquote>
 <p>这里先执行readonly，在去读，它就会自己去执行，它可以承担读的工作，但是你需要每次去写readonly</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572358044173.png" srcset="/img/loading.gif" alt="1572358044173"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572358044173.png" srcset="/img/loading.gif" alt="1572358044173"></p>
 <ul>
 <li>如果想完成读写分离是很复杂的<ul>
 <li>首先要面临单机节点的问题 ，单机主从会有问题，例如复制延迟、读取过期数据、从节点故障</li>
@@ -853,16 +853,16 @@ Map&lt;String, JedisPool&gt; jedisPoolMap=jedisCLuster.getClusterNodes();
 <p>这里只演示官方工具：</p>
 </blockquote>
 <p>现在有一个单节点，现在想把这里面的数据迁移到集群上</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572359118991.png" srcset="/img/loading.gif" alt="1572359118991"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572359118991.png" srcset="/img/loading.gif" alt="1572359118991"></p>
 <p>通过<code>redis-trib.rb import</code>进行迁移，</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572359216532.png" srcset="/img/loading.gif" alt="1572359216532"></p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572359287984.png" srcset="/img/loading.gif" alt="1572359287984"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572359216532.png" srcset="/img/loading.gif" alt="1572359216532"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572359287984.png" srcset="/img/loading.gif" alt="1572359287984"></p>
 <p>，在迁移期间在这个单节点去写数据，等会去对比它是否是一个在线的迁移</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572359258889.png" srcset="/img/loading.gif" alt="1572359258889"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572359258889.png" srcset="/img/loading.gif" alt="1572359258889"></p>
 <p>大小</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572359369595.png" srcset="/img/loading.gif" alt="1572359369595"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572359369595.png" srcset="/img/loading.gif" alt="1572359369595"></p>
 <p>迁移完成之后来看一下集群的信息，这里可以看到它的大小是10002，而之前是100003，因为在这期间迁移数据，此时在原理的单机节点加入数据是不会同步的，为什么是10002呢？因为<code>redis-trib.rb import</code>使用的是一个scan模式，它是对这个原节点使用scan进行扫描，因为在scan期间加入数据正好被它scan到了被加入进来，有的数据过了scan的一个游标所以它没有进行插入，总之不管它在插入期间进行插入但是呢我们现在再去对原节点操作的时候原节点已经收不到对应的信息了，这个对很多场景是无法容忍的，这个时候可以用上面介绍的2款工具</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572359420312.png" srcset="/img/loading.gif" alt="1572359420312"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572359420312.png" srcset="/img/loading.gif" alt="1572359420312"></p>
 <h2 id="集群vs单机"><a href="#集群vs单机" class="headerlink" title="集群vs单机"></a>集群vs单机</h2><h3 id="集群限制"><a href="#集群限制" class="headerlink" title="集群限制"></a>集群限制</h3><ul>
 <li>key批量操作支持有限：例如mget、mset必须在一个slot，在后面介绍缓存优化与设计会使用一些方法来模拟出mget、mset完成这样的效果，在一定程度上去支持这样的命令，但无法达到原子性；</li>
 <li>key事务和Lua支持有限：例如我们使用事务或者Lua必须将这整个过程中使用key必须在一个节点上，当然这里可以使用像hash_tag让它去到一个节点，但是它使用来说还是会受限的；</li>

@@ -207,11 +207,11 @@
               <h1 id="Linux内核优化"><a href="#Linux内核优化" class="headerlink" title="Linux内核优化"></a>Linux内核优化</h1><h2 id="vm-overcommit-memory"><a href="#vm-overcommit-memory" class="headerlink" title="vm.overcommit_memory"></a>vm.overcommit_memory</h2><blockquote>
 <p>针对Redis申请内存，它针对操作系统申请内存的一些设置，这里主要关心Redis相关的申请内存的设置</p>
 </blockquote>
-<h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191110211518864-1573391851722.png" srcset="/img/loading.gif" alt="image-20191110211518864"></p>
+<h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191110211518864-1573391851722.png" srcset="/img/loading.gif" alt="image-20191110211518864"></p>
 <p>如果说你给<code>overcommit_memory</code>设置为0，当你启动时，日志中它会警告</p>
 <p>提示你这个参数为0，但是如果你的内存在一个比较紧张的情况下，那可能bgsave、bgrewriteaof可能会失败，那修复这种问题呢它建议去将这个<code>overcommit_memory</code>设置为1并且写入到<code>/etc/sysctl.conf</code>这个文件上，这样的话即使在重启的情况下你这个<code>overcommit_memory</code>也会生效，也就是说设置为1，</p>
 <h3 id="overcommit含义"><a href="#overcommit含义" class="headerlink" title="overcommit含义"></a>overcommit含义</h3><p>它有3个值：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191110212118191.png" srcset="/img/loading.gif" alt="image-20191110212118191"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191110212118191.png" srcset="/img/loading.gif" alt="image-20191110212118191"></p>
 <p>前面为什么要将这里设置为1呢首先0表示如果内存足够，它就给你，1就是说我可能会超量的给你，这里有个含义：进程在申请内存的时候，它申请了4GB，但是它有时候并没有申请4GB就去用4GB，这里0表示一种保守的策略，1就不保守，可能有引起一些问题一些情况，我现在没有4GB，但是还是给你分配，那可能因为其他的人它申请了但没有去用，1就是为了解决这个问题；</p>
 <p>前面介绍部分的那张图，在你启动的时候建议你将它设置为1，它目的是为了保证bgsave、bgrewriteaof的成功，这个是为了防止bgsave、bgrewriteaof可能会产生一个阻塞，说了半天就是一个fork的失败，fork失败就意味着主线程可能会被阻塞</p>
 <h3 id="overcommit实践"><a href="#overcommit实践" class="headerlink" title="overcommit实践"></a>overcommit实践</h3><h4 id="获取和设置"><a href="#获取和设置" class="headerlink" title="获取和设置"></a>获取和设置</h4><pre><code class="hljs bash">获取：
@@ -263,7 +263,7 @@ logfile 6379.log
 <p>针对swappiness的一些设置</p>
 </blockquote>
 <h3 id="swappiness含义"><a href="#swappiness含义" class="headerlink" title="swappiness含义"></a>swappiness含义</h3><p>swappiness是操作系统在使用swappiness这个事情上的一个概率 or 倾向，它的默认值是60，它的最大值是100，当它达到100的时候就代表它会主动的使用swappiness，当它是60的时候它可能会你可以认为百分之的概率也就是60的值会使用swappiness，当它是0的时候使用概率会更小，但是Linux在不同的内核版本中它有一些不同的规定：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191111192035694.png" srcset="/img/loading.gif" alt="image-20191111192035694"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191111192035694.png" srcset="/img/loading.gif" alt="image-20191111192035694"></p>
 <p>对于Linux3.5以上版本的时候它会宁愿用OOM killer也不用swap，在低版本下它宁愿用一下swap也不希望被OOM killer进行杀掉，我们在对Redis这个东西，在Linux环境下会怎么去设置呢？我们当然给它设置为0，也就是说我们不希望Linux去使用swap，因为swap是非常慢的，我们Redis之所有非常快是因为它的所有数据放在了内存当中，当然也跟它的线程模型、数据结构优化有关，但实际上它本质快的原因因为它是一个全内存的一个数据库、缓存，这里当然不使用swap</p>
 <h3 id="swappiness实践"><a href="#swappiness实践" class="headerlink" title="swappiness实践"></a>swappiness实践</h3><h4 id="设置"><a href="#设置" class="headerlink" title="设置"></a>设置</h4><ol>
 <li>立即生效：echo {bestvalue} &gt; /proc/sys/vm/swappiness；</li>
@@ -277,13 +277,13 @@ logfile 6379.log
 <h2 id="THP-Transparent-huge-page"><a href="#THP-Transparent-huge-page" class="headerlink" title="THP(Transparent huge page)"></a>THP(Transparent huge page)</h2><blockquote>
 <p>针对fork，在子进程的时候可能会用到这个参数</p>
 </blockquote>
-<h3 id="介绍-1"><a href="#介绍-1" class="headerlink" title="介绍"></a>介绍</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191111193516660.png" srcset="/img/loading.gif" alt="image-20191111193516660"></p>
+<h3 id="介绍-1"><a href="#介绍-1" class="headerlink" title="介绍"></a>介绍</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191111193516660.png" srcset="/img/loading.gif" alt="image-20191111193516660"></p>
 <p>它和overcommit非常类似，假如它认为你的THP的值设置的值不是它认为很理想的值，它会给你打一串日志，上面这张图就是日志上的警告内容，它警告你当前的THP是在你Linux内核下开启的，首先来介绍一下什么是THP？——THP是为了加速fork，就是在做bgsave、bgwriteaof的时候都会有一个fork，它会加速fork，原来它的内存页是4kb，在THP特性开启时候它会达到2mb，就是说它扩大了512倍，它会大大加速Redis的fork速度，我们知道fork是在Redis下主线程执行的，加快速度就意味着你的主线程的阻塞时间比较短，它是一个非常好的东西，但是它还有很多问题，我们来看图中的第二句话，它说：你开启了这个特性可能会造成一些延迟甚至内存使用的问题，这里的延迟主要是指因为你内存页扩大了，那可能在内存页扩大发生这期间如果你做一些操作可能会对当前信息的阻塞，我们在线上遇到过一个情况，开启了THP属性，但写入量比较大的时候，甚至一个<code>incr</code>操作，一个不可能出现在慢查询列表的操作它出现在慢查询列表当中了，它就会造成慢查询，当然还有一个是内存使用的问题：这个体现在因为这个fork使用的是<code>copy on write</code>就是写时复制，假如你的写入量非常大，那你原来的一个4kb的内存页现在要变成2mb，你的写入量非常大，意味着它的<code>copy on write</code>量大，可能会造成内存暴增，假如你是1GB的Redis，由于内存页非常大但是并不是说Redis内存全都是连续的，内存页大量的复制<code>copy on write</code>可能会造成内存大量的产生，它会提示你修复这个问题建议你把这个特性关闭：echo never打印到指定的路径下，它还会建议你把它添加到<code>/etc/rc.local</code>中，及时在重启了THP的特效依然会被关闭掉</p>
 <h3 id="THP作用"><a href="#THP作用" class="headerlink" title="THP作用"></a>THP作用</h3><ol>
 <li>作用：加速fork；</li>
 <li>建议：禁用，可能产生更大的内存开销；</li>
 <li>设置方法： echo never&gt;/sys/kernel/mm/transparent_hugepage/enabled</li>
-<li>坑：源码是绝对路径，注意不同发行版本的区别<br><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191111195140272.png" srcset="/img/loading.gif" alt="image-20191111195140272"><br>它会fopen，这个路径下去找到这个THP有没有开启，其实这样写没什么问题，但是它没有预料到在不同的Linux发行版本像centos可能THP这个属性对应的路径是不一样的，比如用得红帽，它的路径上没有THP这个属性，它是类似于自己加了一个路径设置了THP，对于Redis启动的时候它只会检测绝对路径不会检测相对路径，就会出现它没有任何提醒但是你当前是在使用THP的情况，这里在你使用的时候一定要注意你的Linux的发行版本</li>
+<li>坑：源码是绝对路径，注意不同发行版本的区别<br><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191111195140272.png" srcset="/img/loading.gif" alt="image-20191111195140272"><br>它会fopen，这个路径下去找到这个THP有没有开启，其实这样写没什么问题，但是它没有预料到在不同的Linux发行版本像centos可能THP这个属性对应的路径是不一样的，比如用得红帽，它的路径上没有THP这个属性，它是类似于自己加了一个路径设置了THP，对于Redis启动的时候它只会检测绝对路径不会检测相对路径，就会出现它没有任何提醒但是你当前是在使用THP的情况，这里在你使用的时候一定要注意你的Linux的发行版本</li>
 </ol>
 <h2 id="OOM-killer"><a href="#OOM-killer" class="headerlink" title="OOM killer"></a>OOM killer</h2><blockquote>
 <p>Redis的是内存，如果内存使用不当、内存暴增、内存超过Linux本身内存的情况下可能有会有一个<code>OOM Killer</code>，Linux会选举一些不重要的一些进程进行删除</p>
@@ -301,18 +301,18 @@ logfile 6379.log
 <h2 id="NTP（Net-Time-Protocol）"><a href="#NTP（Net-Time-Protocol）" class="headerlink" title="NTP（Net Time Protocol）"></a>NTP（Net Time Protocol）</h2><blockquote>
 <p>它是一个时间服务，可以实现一个公共的时间服务，相当于你可以看到它是一个标准的时间，然后其他的一些机器、一些服务去它那边去拿一个时间，让大家达到一个时间的一致性</p>
 </blockquote>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191112190022980.png" srcset="/img/loading.gif" alt="image-20191112190022980">它就是对时服务，你可以理解为它就是一个钟表，比如北京使用、某个区域的一个表，对于它下面的很多机器，比如说我们当前有很多机器，那我完全可以对每个机器执行一个定时认为，比如说让它每小时去跟NTP做一次同步，这样的话我们机器之间的时间是一致的，当时间一致的时候我们就在做一些分布式的时候就比较好有好处了，比如对于时间的一些判断是一致的，这样对于一些行为的规定一些处理这样的话达到一致的效果，对于我们Redis来说，我们当前的无论是RedisSentinel、RedisCluster，它做的选举是依赖与本地机器的时间，也就是说及时时间不一致也不会对当前集群的选举产生问题因为它依赖的是本地时间， 但是任然希望你把它做一个这样的NTP服务呢？不然说我们当前有N台机器，然后集群之间形成了一个集群，然后我们在排查一些问题的时候，如果发现你的时间点都是不一致的对于你排查问题的时候也不是非常的方便，所以这里任然会建议你去跟这个NTP服务做一个实时的定时任务</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191112190022980.png" srcset="/img/loading.gif" alt="image-20191112190022980">它就是对时服务，你可以理解为它就是一个钟表，比如北京使用、某个区域的一个表，对于它下面的很多机器，比如说我们当前有很多机器，那我完全可以对每个机器执行一个定时认为，比如说让它每小时去跟NTP做一次同步，这样的话我们机器之间的时间是一致的，当时间一致的时候我们就在做一些分布式的时候就比较好有好处了，比如对于时间的一些判断是一致的，这样对于一些行为的规定一些处理这样的话达到一致的效果，对于我们Redis来说，我们当前的无论是RedisSentinel、RedisCluster，它做的选举是依赖与本地机器的时间，也就是说及时时间不一致也不会对当前集群的选举产生问题因为它依赖的是本地时间， 但是任然希望你把它做一个这样的NTP服务呢？不然说我们当前有N台机器，然后集群之间形成了一个集群，然后我们在排查一些问题的时候，如果发现你的时间点都是不一致的对于你排查问题的时候也不是非常的方便，所以这里任然会建议你去跟这个NTP服务做一个实时的定时任务</p>
 <h2 id="ulimit"><a href="#ulimit" class="headerlink" title="ulimit"></a>ulimit</h2><blockquote>
 <p>对于连接的限制</p>
 </blockquote>
 <h3 id="ulimit与Redis"><a href="#ulimit与Redis" class="headerlink" title="ulimit与Redis"></a>ulimit与Redis</h3><p>这个主要是对Linux文件句柄的限制进行一个设置，它于Redis的关系是什么？</p>
 <p>在你启动Redis的时候，日志中可以会出现：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191112191441944-1573557295700.png" srcset="/img/loading.gif" alt="image-20191112191441944"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191112191441944-1573557295700.png" srcset="/img/loading.gif" alt="image-20191112191441944"></p>
 <p>它会告诉你当前Redis的maxclients设置的最大客户端连接数是1W，你至少需要10032文件句柄，这是什么意思？就是说Redis默认的 maxclients是1W，它为什么需要1W和10032个文件句柄？是因为除了你的客户端连接以外Redis自身也需要很多文件句柄，它会告诉你当前Redis是不能把文件句柄设置成10032个，是因为当前没有权限，因为可能你在启动Redis的时候没有使用root用户（当然这里不建议你去使用root用户），它告诉你当前最大的文件句柄是4096个，也就是说它建议你把maxclients设置成4064个，实际上就是4096去减去32，那如果你想去设置更高的值，那你就把它执行一个<code>ulimit -n</code>，这样一个设置，把你当前的进程的文件句柄设置的更大一些这样可以满足Redis的一个需求。其实说了这么多就是Redis启动的时候是需要10032个句柄，你当前句柄数比较小，只有4096那建议你去进行一个设置，你在启动一定要给进程进行一个设置。</p>
 <h2 id="TCP-backlog"><a href="#TCP-backlog" class="headerlink" title="TCP backlog"></a>TCP backlog</h2><blockquote>
 <p>针对TCP网络的连接时，TCP3次握手会有一个async对列，针对那个东西进行一些设置</p>
 </blockquote>
-<h1 id="安全的Redis"><a href="#安全的Redis" class="headerlink" title="安全的Redis"></a><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191112192420855.png" srcset="/img/loading.gif" alt="image-20191112192420855">安全的Redis</h1><h2 id="全局crackit攻击"><a href="#全局crackit攻击" class="headerlink" title="全局crackit攻击"></a>全局crackit攻击</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191112193358968.png" srcset="/img/loading.gif" alt="image-20191112193358968"></p>
+<h1 id="安全的Redis"><a href="#安全的Redis" class="headerlink" title="安全的Redis"></a><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191112192420855.png" srcset="/img/loading.gif" alt="image-20191112192420855">安全的Redis</h1><h2 id="全局crackit攻击"><a href="#全局crackit攻击" class="headerlink" title="全局crackit攻击"></a>全局crackit攻击</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191112193358968.png" srcset="/img/loading.gif" alt="image-20191112193358968"></p>
 <h3 id="被攻击的Redis特征"><a href="#被攻击的Redis特征" class="headerlink" title="被攻击的Redis特征"></a>被攻击的Redis特征</h3><ol>
 <li>Redis所在的机器有外网IP；</li>
 <li>Redis以默认端口6379为启动端口，并且是对外网开放的；</li>
@@ -320,7 +320,7 @@ logfile 6379.log
 <li>Redis没有设置密码；</li>
 <li>Redis的bind设置为0.0.0.0或者“”。</li>
 </ol>
-<h3 id="攻击方式"><a href="#攻击方式" class="headerlink" title="攻击方式"></a>攻击方式</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191112193722132.png" srcset="/img/loading.gif" alt="image-20191112193722132"></p>
+<h3 id="攻击方式"><a href="#攻击方式" class="headerlink" title="攻击方式"></a>攻击方式</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191112193722132.png" srcset="/img/loading.gif" alt="image-20191112193722132"></p>
 <p>左边部分代表攻击的机器，右边是被攻击的机器，它当前是一个公网启动了一个Redis，这个Redis是以root启用的，而且绑定网卡是0.0.0，也就是它没有绑定，然后它端口也没有做限制，它允许公网的任何端口对外暴露，以6379启动；</p>
 <p>现在来看一下攻击步骤，很显然ssh root这台机器，这样是可以连通的，因为你没有密码，而且你没有授权，这个时候是连接不上的，这里我可以先连接Redis，因为Redis没有设置密码，没有做限制，连接之后我可以执行一个 <code>flushall</code>，当前就把你的Redis清除了，这其实不够坏，这样只影响了Redis没有影响机器本身，那我可以继续用Redis的特点 来完成下面的事情，首先设置一个key叫做crackitz这个key，然后我把它设置值是我当前的公钥的一个字符，然后我对当前这个Redis去执行<code>config set dir，</code>我给它设置一个新的dir，我把它设置成ssh目录下，然后我会执行``config set dbfilename`，也就是说我设置一个自己的一个dbfilename，就比如说是一个授权文件，然后执行save，那它就相当于在.ssh里面授权文件里面去添加了这台攻击机器A的公钥，这样的话我下面就可以免密码去访问这台机器干很多的坏事</p>
 <h2 id="Redis安全七法"><a href="#Redis安全七法" class="headerlink" title="Redis安全七法"></a>Redis安全七法</h2><h3 id="设置密码"><a href="#设置密码" class="headerlink" title="设置密码"></a>设置密码</h3><ol>
@@ -362,23 +362,23 @@ logfile 6379.log
 <p>因为客户端是访问Redis的数据来源，我们知道所有的请求是在哪里</p>
 </blockquote>
 <p>这里客户端来解决不是一个非常好的方法，例如我们可以写一个这样的东西，我们可以记录每分钟每个key的调用次数，然后我们在客户端去记录这样的东西，然后定期的去清理这个map中的访问次数，这样防止你的map过大，但是这里任然有一个问题：即使你只记录一分钟的可能你的map也非常大，而且客户端去记录这样的东西本身也会增加你客户端的业务逻辑，不建议去使用，假如你的key很少或者说你当前的情况下是允许这样做，建议你去设置，可以采用这样的思路</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191112212752956.png" srcset="/img/loading.gif" alt="image-20191112212752956"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191112212752956.png" srcset="/img/loading.gif" alt="image-20191112212752956"></p>
 <h3 id="代理端"><a href="#代理端" class="headerlink" title="代理端"></a>代理端</h3><blockquote>
 <p>使用codis这样的工具从代理端获取数据</p>
 </blockquote>
 <p>像使用codis，它是所有流量都打到代理上的，然后代理可以有一个权重量的一个统计，可以做类是的事情 ，但是仍然有那样的问题：一个是代理要增加代理的逻辑，实现复杂度的逻辑，还有就是在实际使用过程中代理可以是多个，因为代理的负载会很高，它需要满足底下很多Redis的规模然进行客户端的要求，所以代理会非常多，做这个也会很复杂</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191112213120406.png" srcset="/img/loading.gif" alt="image-20191112213120406"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191112213120406.png" srcset="/img/loading.gif" alt="image-20191112213120406"></p>
 <h3 id="服务端"><a href="#服务端" class="headerlink" title="服务端"></a>服务端</h3><blockquote>
 <p>通过Redis统计热点key在哪里</p>
 </blockquote>
 <p>使用monitor这样的命令解析Redis执行了哪些东西，通过monitor短暂的解析这个东西 ，比如使用它去分析近10W条Redis的命令并找出比如说哪些命令命令执行的比较多，是get-set还是hget-hset比较多，然后我们可以总结这10W条命令中哪些key的前缀出现的比较多，这样就有可能去找到对应的热点key，但是前面已经介绍了monitor的各种问题，所以在使用这种monitor的方式时候要尽量小心一点</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191112213522769.png" srcset="/img/loading.gif" alt="image-20191112213522769"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191112213522769.png" srcset="/img/loading.gif" alt="image-20191112213522769"></p>
 <h3 id="机器收集"><a href="#机器收集" class="headerlink" title="机器收集"></a>机器收集</h3><blockquote>
 <p>使用机器的抓包、对于数据协议的分析来找到对应的热点</p>
 </blockquote>
 <p>假设现在有很多Redis部署在多个机器或者一个机器上，我们可以通过对这太机器网络包的分析，我们可以抓取这些信息的Redis的一个TCP数据来对这个当前的机器上所有的流量进行分析，这样的话也可以找到对应的热点key。上述都提供了Redis抓取热点key、寻找热点key的思路，在实际生产过程中你要根据对应的一个使用场景或者Redis的规模、具体情况来进行分析</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191112213914768.png" srcset="/img/loading.gif" alt="image-20191112213914768"></p>
-<h2 id="四种方式总结"><a href="#四种方式总结" class="headerlink" title="四种方式总结"></a>四种方式总结</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191112213927833.png" srcset="/img/loading.gif" alt="image-20191112213927833"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191112213914768.png" srcset="/img/loading.gif" alt="image-20191112213914768"></p>
+<h2 id="四种方式总结"><a href="#四种方式总结" class="headerlink" title="四种方式总结"></a>四种方式总结</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191112213927833.png" srcset="/img/loading.gif" alt="image-20191112213927833"></p>
 
             </article>
             <hr>

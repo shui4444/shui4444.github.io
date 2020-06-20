@@ -208,10 +208,10 @@
 <blockquote>
 <p><a href="http://www.cnblogs.com/ywlaker/p/6113927.html" target="_blank" rel="noopener">单点登录与简单实现</a></p>
 </blockquote>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567946533501.png" srcset="/img/loading.gif" alt="1567946533501"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567946533501.png" srcset="/img/loading.gif" alt="1567946533501"></p>
 <p>现在有这么一个业务场景：现在有A网站和B网站，用户在登录了A网站，然后用户再访问B网站时候就不用登录了，笔者在这里以阿里的淘宝、天猫网站为例：</p>
 <p>现在我流浪这2个网站，都是未登录状态的</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567949712176.png" srcset="/img/loading.gif" alt="1567949712176"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567949712176.png" srcset="/img/loading.gif" alt="1567949712176"></p>
 <p>在这里我先登录天猫，然后到淘宝上刷新的时候，就已经是登录状态了，你可以理解为这个就是单点登录</p>
 <hr>
 <p>以上面流程图为例，来介绍一下工作流程：</p>
@@ -236,7 +236,7 @@
 <li>mcr–auth-sso-client1：应用A</li>
 <li>mcr–auth-sso-client2：应用B</li>
 </ol>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567947011810.png" srcset="/img/loading.gif" alt="1567947011810"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567947011810.png" srcset="/img/loading.gif" alt="1567947011810"></p>
 <p>mcr-auth-sso-server的pom.xml</p>
 <pre><code class="hljs xml"><span class="hljs-meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
 <span class="hljs-tag">&lt;<span class="hljs-name">project</span> <span class="hljs-attr">xmlns</span>=<span class="hljs-string">"http://maven.apache.org/POM/4.0.0"</span></span>
@@ -430,11 +430,11 @@
 
 <hr>
 <p>现在访问client1，会跳转到认证服务器上弹出一个用户密码的表单，登录完成以后会跳转到认证服务器上显示这样的页面</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567953316166.png" srcset="/img/loading.gif" alt="1567953316166"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567953316166.png" srcset="/img/loading.gif" alt="1567953316166"></p>
 <p>这里选择授权按钮，之后就能访问clien1的index页面了</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567953377669.png" srcset="/img/loading.gif" alt="1567953377669"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567953377669.png" srcset="/img/loading.gif" alt="1567953377669"></p>
 <p>现在点击这个A链接，也就是要跳转到client2，这个时候会直接到认证服务器中显示这样的页面</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567953427420.png" srcset="/img/loading.gif" alt="1567953427420"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567953427420.png" srcset="/img/loading.gif" alt="1567953427420"></p>
 <p>在这里client2并没有像之前那样要求需要用户输入用户名密码，而是直接跳转到了认证服务器，以上就实现了前面所说的业务场景</p>
 <hr>
 <p>前面演示的流程中，最核心的功能已经实现了：只需要登录一次，同时访问应用A、B，在这个过程中有让笔者不爽的地方：在认证服务器上登录的时候，是一个http basic的弹框让用户去输入用户名密码，这里肯定是需要展示一个漂亮的登录页面，另外就是在第一次访问应用A或B它都会让我做一个授权，我要点一下授权按钮，但是在我自己两个网站上是不需要授权的，你只要登录就是了，下面就来细化这个场景</p>

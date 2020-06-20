@@ -345,7 +345,7 @@ OK
 127.0.0.1:6382&gt; TYPE k
 string</code></pre>
 
-<h3 id="数据结构和内部编码"><a href="#数据结构和内部编码" class="headerlink" title="数据结构和内部编码"></a>数据结构和内部编码</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1570946588148.png" srcset="/img/loading.gif" alt="1570946588148"></p>
+<h3 id="数据结构和内部编码"><a href="#数据结构和内部编码" class="headerlink" title="数据结构和内部编码"></a>数据结构和内部编码</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1570946588148.png" srcset="/img/loading.gif" alt="1570946588148"></p>
 <p>对于<code>redis</code>内部来说，它有自己的内部编码；</p>
 <p>举个例子：</p>
 <p>看图中的<code>hash</code>，它对用户来说它是一个<code>hash</code>，但对于它内部来说，可能是<code>hashtable</code>、<code>ziplist</code>，那么<code>redis</code>为什么要这么做呢？</p>
@@ -367,36 +367,36 @@ string</code></pre>
 </ul>
 </li>
 </ul>
-<h2 id="字符串"><a href="#字符串" class="headerlink" title="字符串"></a>字符串</h2><h3 id="incr、decr、incrby、decrby"><a href="#incr、decr、incrby、decrby" class="headerlink" title="incr、decr、incrby、decrby"></a>incr、decr、incrby、decrby</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1835062274102102.png" srcset="/img/loading.gif" alt="incr、decr、incrby、decrby"></p>
-<h3 id="set、setnx、setxx"><a href="#set、setnx、setxx" class="headerlink" title="set、setnx、setxx"></a>set、setnx、setxx</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/18040409055744.png" srcset="/img/loading.gif" alt="incr、decr、incrby、decrby"></p>
-<h3 id="mget、mset"><a href="#mget、mset" class="headerlink" title="mget、mset"></a>mget、mset</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1570953277140.png" srcset="/img/loading.gif" alt="1570953277140"></p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1570953443449.png" srcset="/img/loading.gif" alt="1570953443449"></p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1570953459051.png" srcset="/img/loading.gif" alt="1570953459051"></p>
-<h3 id="getset、append、strlen"><a href="#getset、append、strlen" class="headerlink" title="getset、append、strlen"></a>getset、append、strlen</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1570953545704.png" srcset="/img/loading.gif" alt="1570953545704"></p>
-<h3 id="incrbyfloat、getrange、setrange"><a href="#incrbyfloat、getrange、setrange" class="headerlink" title="incrbyfloat、getrange、setrange"></a>incrbyfloat、getrange、setrange</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1570953706510.png" srcset="/img/loading.gif" alt="1570953706510"></p>
-<h2 id="hash"><a href="#hash" class="headerlink" title="hash"></a>hash</h2><h3 id="hget、hset、hdel"><a href="#hget、hset、hdel" class="headerlink" title="hget、hset、hdel"></a>hget、hset、hdel</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1570954168175.png" srcset="/img/loading.gif" alt="1570954168175"></p>
-<h3 id="hexists、hlen"><a href="#hexists、hlen" class="headerlink" title="hexists、hlen"></a>hexists、hlen</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1570954337386.png" srcset="/img/loading.gif" alt="1570954337386"></p>
-<h3 id="hmget、hmset"><a href="#hmget、hmset" class="headerlink" title="hmget、hmset"></a>hmget、hmset</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1570954768771.png" srcset="/img/loading.gif" alt="1570954768771"></p>
-<h3 id="hgetall、hvals、hkeys"><a href="#hgetall、hvals、hkeys" class="headerlink" title="hgetall、hvals、hkeys"></a>hgetall、hvals、hkeys</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1570955042992.png" srcset="/img/loading.gif" alt="1570955042992"></p>
-<h3 id="hsetnx、hincrby、hincrbyfloat"><a href="#hsetnx、hincrby、hincrbyfloat" class="headerlink" title="hsetnx、hincrby、hincrbyfloat"></a>hsetnx、hincrby、hincrbyfloat</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1570955599297.png" srcset="/img/loading.gif" alt="1570955599297"></p>
-<h3 id="相似的API"><a href="#相似的API" class="headerlink" title="相似的API"></a>相似的API</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1570955212178.png" srcset="/img/loading.gif" alt="1570955212178"></p>
-<h2 id="list"><a href="#list" class="headerlink" title="list"></a>list</h2><h3 id="增-rpush"><a href="#增-rpush" class="headerlink" title="增-rpush"></a>增-rpush</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1570956073816.png" srcset="/img/loading.gif" alt="1570956073816"></p>
-<h3 id="增-lpush"><a href="#增-lpush" class="headerlink" title="增-lpush"></a>增-lpush</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1570956130261.png" srcset="/img/loading.gif" alt="1570956130261"></p>
-<h3 id="增-linsert"><a href="#增-linsert" class="headerlink" title="增-linsert"></a>增-linsert</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1570956211897.png" srcset="/img/loading.gif" alt="1570956211897"></p>
-<h3 id="删-lpop"><a href="#删-lpop" class="headerlink" title="删-lpop"></a>删-lpop</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1570956226489.png" srcset="/img/loading.gif" alt="1570956226489"></p>
-<h3 id="删-rpop"><a href="#删-rpop" class="headerlink" title="删-rpop"></a>删-rpop</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1570956245391.png" srcset="/img/loading.gif" alt="1570956245391"></p>
-<h3 id="删-lrem"><a href="#删-lrem" class="headerlink" title="删-lrem"></a>删-lrem</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1570956295624.png" srcset="/img/loading.gif" alt="1570956295624"></p>
+<h2 id="字符串"><a href="#字符串" class="headerlink" title="字符串"></a>字符串</h2><h3 id="incr、decr、incrby、decrby"><a href="#incr、decr、incrby、decrby" class="headerlink" title="incr、decr、incrby、decrby"></a>incr、decr、incrby、decrby</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1835062274102102.png" srcset="/img/loading.gif" alt="incr、decr、incrby、decrby"></p>
+<h3 id="set、setnx、setxx"><a href="#set、setnx、setxx" class="headerlink" title="set、setnx、setxx"></a>set、setnx、setxx</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/18040409055744.png" srcset="/img/loading.gif" alt="incr、decr、incrby、decrby"></p>
+<h3 id="mget、mset"><a href="#mget、mset" class="headerlink" title="mget、mset"></a>mget、mset</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1570953277140.png" srcset="/img/loading.gif" alt="1570953277140"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1570953443449.png" srcset="/img/loading.gif" alt="1570953443449"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1570953459051.png" srcset="/img/loading.gif" alt="1570953459051"></p>
+<h3 id="getset、append、strlen"><a href="#getset、append、strlen" class="headerlink" title="getset、append、strlen"></a>getset、append、strlen</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1570953545704.png" srcset="/img/loading.gif" alt="1570953545704"></p>
+<h3 id="incrbyfloat、getrange、setrange"><a href="#incrbyfloat、getrange、setrange" class="headerlink" title="incrbyfloat、getrange、setrange"></a>incrbyfloat、getrange、setrange</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1570953706510.png" srcset="/img/loading.gif" alt="1570953706510"></p>
+<h2 id="hash"><a href="#hash" class="headerlink" title="hash"></a>hash</h2><h3 id="hget、hset、hdel"><a href="#hget、hset、hdel" class="headerlink" title="hget、hset、hdel"></a>hget、hset、hdel</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1570954168175.png" srcset="/img/loading.gif" alt="1570954168175"></p>
+<h3 id="hexists、hlen"><a href="#hexists、hlen" class="headerlink" title="hexists、hlen"></a>hexists、hlen</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1570954337386.png" srcset="/img/loading.gif" alt="1570954337386"></p>
+<h3 id="hmget、hmset"><a href="#hmget、hmset" class="headerlink" title="hmget、hmset"></a>hmget、hmset</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1570954768771.png" srcset="/img/loading.gif" alt="1570954768771"></p>
+<h3 id="hgetall、hvals、hkeys"><a href="#hgetall、hvals、hkeys" class="headerlink" title="hgetall、hvals、hkeys"></a>hgetall、hvals、hkeys</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1570955042992.png" srcset="/img/loading.gif" alt="1570955042992"></p>
+<h3 id="hsetnx、hincrby、hincrbyfloat"><a href="#hsetnx、hincrby、hincrbyfloat" class="headerlink" title="hsetnx、hincrby、hincrbyfloat"></a>hsetnx、hincrby、hincrbyfloat</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1570955599297.png" srcset="/img/loading.gif" alt="1570955599297"></p>
+<h3 id="相似的API"><a href="#相似的API" class="headerlink" title="相似的API"></a>相似的API</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1570955212178.png" srcset="/img/loading.gif" alt="1570955212178"></p>
+<h2 id="list"><a href="#list" class="headerlink" title="list"></a>list</h2><h3 id="增-rpush"><a href="#增-rpush" class="headerlink" title="增-rpush"></a>增-rpush</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1570956073816.png" srcset="/img/loading.gif" alt="1570956073816"></p>
+<h3 id="增-lpush"><a href="#增-lpush" class="headerlink" title="增-lpush"></a>增-lpush</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1570956130261.png" srcset="/img/loading.gif" alt="1570956130261"></p>
+<h3 id="增-linsert"><a href="#增-linsert" class="headerlink" title="增-linsert"></a>增-linsert</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1570956211897.png" srcset="/img/loading.gif" alt="1570956211897"></p>
+<h3 id="删-lpop"><a href="#删-lpop" class="headerlink" title="删-lpop"></a>删-lpop</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1570956226489.png" srcset="/img/loading.gif" alt="1570956226489"></p>
+<h3 id="删-rpop"><a href="#删-rpop" class="headerlink" title="删-rpop"></a>删-rpop</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1570956245391.png" srcset="/img/loading.gif" alt="1570956245391"></p>
+<h3 id="删-lrem"><a href="#删-lrem" class="headerlink" title="删-lrem"></a>删-lrem</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1570956295624.png" srcset="/img/loading.gif" alt="1570956295624"></p>
 <pre><code class="hljs bash">lrem listkey 0 a	<span class="hljs-comment">#删除所有等于a的元素</span>
 lrem listkey -1 c	<span class="hljs-comment">#从右边开始，把最右边的c删除</span></code></pre>
 
-<h3 id="删-ltrim"><a href="#删-ltrim" class="headerlink" title="删-ltrim"></a>删-ltrim</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1570956626328.png" srcset="/img/loading.gif" alt="1570956626328">     </p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1570956651183.png" srcset="/img/loading.gif" alt="1570956651183"></p>
+<h3 id="删-ltrim"><a href="#删-ltrim" class="headerlink" title="删-ltrim"></a>删-ltrim</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1570956626328.png" srcset="/img/loading.gif" alt="1570956626328">     </p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1570956651183.png" srcset="/img/loading.gif" alt="1570956651183"></p>
 <pre><code class="hljs bash">ltrim listkye 1 4	<span class="hljs-comment">#保留1-4的数据</span></code></pre>
 
-<h3 id="查-lrange"><a href="#查-lrange" class="headerlink" title="查-lrange"></a>查-lrange</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1570956744153.png" srcset="/img/loading.gif" alt="1570956744153"></p>
-<h3 id="查-lindex"><a href="#查-lindex" class="headerlink" title="查-lindex"></a>查-lindex</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1570956823765.png" srcset="/img/loading.gif" alt="1570956823765"></p>
-<h3 id="lset"><a href="#lset" class="headerlink" title="lset"></a>lset</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1570957349048.png" srcset="/img/loading.gif" alt="1570957349048"></p>
-<h3 id="blpop、brpop"><a href="#blpop、brpop" class="headerlink" title="blpop、brpop"></a>blpop、brpop</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1570957222653.png" srcset="/img/loading.gif" alt="1570957222653"></p>
+<h3 id="查-lrange"><a href="#查-lrange" class="headerlink" title="查-lrange"></a>查-lrange</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1570956744153.png" srcset="/img/loading.gif" alt="1570956744153"></p>
+<h3 id="查-lindex"><a href="#查-lindex" class="headerlink" title="查-lindex"></a>查-lindex</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1570956823765.png" srcset="/img/loading.gif" alt="1570956823765"></p>
+<h3 id="lset"><a href="#lset" class="headerlink" title="lset"></a>lset</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1570957349048.png" srcset="/img/loading.gif" alt="1570957349048"></p>
+<h3 id="blpop、brpop"><a href="#blpop、brpop" class="headerlink" title="blpop、brpop"></a>blpop、brpop</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1570957222653.png" srcset="/img/loading.gif" alt="1570957222653"></p>
 <h3 id="TIPS"><a href="#TIPS" class="headerlink" title="TIPS"></a>TIPS</h3><ul>
 <li>LRPUSH+LPOP=Stack</li>
 <li>LPUSH+RPOP=Queue</li>

@@ -204,11 +204,11 @@
           <div class="post-content mx-auto" id="post">
             
             <article class="markdown-body">
-              <p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567224896676.png" srcset="/img/loading.gif" alt="1567224896676"></p>
+              <p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567224896676.png" srcset="/img/loading.gif" alt="1567224896676"></p>
 <p>上一章了解到<code>OAuth</code>协议实际上就是授权协议，它的目的是让用户在不交服务提供商的用户名和密码交给第三方应用的情况下，让第三方应用可以有权限去访问用户存在的服务提供商上的一些资源，这个是<code>OAuth</code>协议存在的目的，那么这个授权协议和我们要实现的第三方登录是什么关系呢？先来说下这个问题，在上一章例子中，我们走完这个授权协议拿到令牌以后，说的场景是拿用户的自拍数据，但是如果我不去拿用户的自拍数据，而是拿用户的基本信息，比如它的昵称、头像，我拿到了这些数据信息以后，我根据用户信息构建<code>Authentication</code>，放进<code>SecurityContext</code>里面，这里2个类之前说过了，读者应该还有印象，当你往<code>SecurityContext</code>里面放入经过验证的<code>Authentication</code>实例的时候，实际对<code>SpringSecurity</code>来说已经登录成功了，如果我们引导用户走完这个流程实际上就相当于用户使用了它在服务提供商上的用户基本信息登录了我们的第三方应用，这个就是所谓的第三方登录（QQ、微信登录），它的一个实现基本原理和流程，那么<code>SpringSocial</code>是干什么的呢？它实际上就是把这个流程，给你封装起来实现了</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567224268835.png" srcset="/img/loading.gif" alt="1567224268835"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567224268835.png" srcset="/img/loading.gif" alt="1567224268835"></p>
 <p><code>SpringSocial</code>它把整个流程封装到了<code>SocialAuthenticationFilter</code>过滤器里面，然后把这个过滤器加到了<code>SpringSecurity</code>的过滤器链上，这样当你访问每一个请求的时候，<code>SocialAuthenticationFilter</code>会把这个请求拦下来，然后带着你把图1的流程走完，实际上也就是实现了微信、QQ登录，这个就是它的核心事情</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567227175116.png" srcset="/img/loading.gif" alt="1567227175116"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567227175116.png" srcset="/img/loading.gif" alt="1567227175116"></p>
 <p>图1是一个逻辑图，现在来看一下在<code>SpringSocial</code>它是如何把这样一个流程封装到<code>SpringSocial</code>特有的一些接口和类里面的。</p>
 <hr>
 <p>首先介绍一下<code>ServiceProvider</code>，它是图1中服务提供商的抽象，针对每一个具体的服务提供商，比如QQ、微信、新浪，你都需要提供一个<code>ServiceProvider</code>的实现类，<code>SpringSocial</code>给我们 提供了一个<code>AbstractOAuth2ServiceProvider</code>，这样一个抽象类，它给我们实现了一些共有的东西，比如你想实现QQ服务提供商实现的时候，我们只要继承这个抽象类就OK了。</p>
@@ -228,7 +228,7 @@
 </ol>
 <hr>
 <p>这里就介绍完了，需要注意： 这里的概念都是在开发中我们自己要写代码的时候涉及到的一些概念，就像之前说的登录成功的逻辑，我们会实现一个接口，叫<code>AuthenticationSuccessHandler</code>，与那个意思类似，现在将的是一些零散的接口，我们要自己去实现它，这样我们才能把QQ登录、微信登录的逻辑架在这个<code>SpringSocial</code>上，但是实际上<code>SpringSocial</code>已经把绝大部分第三方登录逻辑所需要实现的代码都实现了，我们在这只是介绍了跟我们自己要做的事情相关的一些东西，我们把这些东西实现以后，我们就能把整个流程跑起来，那么把整个流程跑起来以后，我们在进到<code>SpringSocial</code>代码里面跟着流程，在这个过程会看到<code>SpringSocial</code>提我们去实现，不用去管的那些代码它到底都做了什么，了解这是知识，我们就可以开始动手写一个第3方登录了，在动手之前来看一下<code>Spring</code>的<a href="https://projects.spring.io/spring-social/" target="_blank" rel="noopener">官方网站</a></p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/spring-social.png" srcset="/img/loading.gif" alt=""></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/spring-social.png" srcset="/img/loading.gif" alt=""></p>
 <p>它这里提供了一些实现，如果你想连<code>FaceBook</code>，就引到自己的工程中就OK了，它把整个需要实现的东西都提供了，直接用就OK了</p>
 
             </article>

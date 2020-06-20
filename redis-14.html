@@ -209,13 +209,13 @@
 <p>Redis作为非常好的kv缓存、存储它给我们提供这样的信息，通过<code>info memory</code>来查看Redis使用状况</p>
 </blockquote>
 <p>内存使用统计：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191106193830684.png" srcset="/img/loading.gif" alt="image-20191106193830684"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191106193830684.png" srcset="/img/loading.gif" alt="image-20191106193830684"></p>
 <p>假如现在<code>redis-cli</code>执行了一个<code>info memory</code></p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191106194219160.png" srcset="/img/loading.gif" alt="image-20191106194219160"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191106194219160.png" srcset="/img/loading.gif" alt="image-20191106194219160"></p>
 <h2 id="内存消耗划分"><a href="#内存消耗划分" class="headerlink" title="内存消耗划分"></a>内存消耗划分</h2><blockquote>
 <p>对Redis做一个更加细分的一个分析，上面这种方式只是能获取全局的内存使用，但是对于每一个细节的地方它做的还不够细，在新的Redis 4.0版本里已经提供了这样的功能，但是我们这里主要还是讲线上、公司用的比较多的版本：3.2版本，这里为什么不讲最新的？其实是这样，对于Redis这种存储来说，假如我们公司有几万个节点，那我能不能一下从Redis3升级成Redis4呢？其实这是非常难的，为什么？因为我们做的是数据，这里面的数据会涉及到迁移，迁移的话可以会影响其他的业务甚至在迁移的时候会发生很多问题，所有在你当前这个版本能够满足你大部分功能的前提下你做不做升级其实不是很重要，比如说可能新的版本的特性能解决一个痛点或者能极大提升效率这种情况下可以考虑做升级，当然新的版本肯定是最好的，我们这里主要还是介绍用的比较多的主流版本：Redis3</p>
 </blockquote>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191106194241995-1573041430182.png" srcset="/img/loading.gif" alt="image-20191106194241995"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191106194241995-1573041430182.png" srcset="/img/loading.gif" alt="image-20191106194241995"></p>
 <p>对于used_memory来说它分为4个部分，自身一个内存：你启动以一个Redis它肯定会有一些自身的内存的开销，因为它本来有一些共享变量这样的一些东西，当然这些占用内存非常低，一般也就几百KB根据不同版本可能不太一样，这里的部分内存基本不用你去担心；</p>
 <p>这里的重头戏就是2个部分：</p>
 <ul>
@@ -229,7 +229,7 @@
 </li>
 </ul>
 <hr>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191106200207592-1573041728497.png" srcset="/img/loading.gif" alt="image-20191106200207592"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191106200207592-1573041728497.png" srcset="/img/loading.gif" alt="image-20191106200207592"></p>
 <p>这里来看一个更加详细的内存消耗，第一部分自身内存，前面提到过了，也就几百K或者更多一点根据不同版本，这里相对来说是固定的，这里比较主要的就是缓冲内存它是比较复杂的，它包括3个部分：</p>
 <ul>
 <li>客户端缓冲区：Redis客户端执行get、set一些命令的时候甚至像memory这样的命令的时候它都会有一个缓冲区，Redis无论是客户端发送命令还是返回结果它都会有一个缓冲区来缓冲这部分内存；</li>
@@ -295,7 +295,7 @@ mem_allocator:jemalloc-3.6.0</code></pre>
 <p>刚才说的那3种都是输出缓冲区，那么输入缓冲区是什么意思？就是我现在有很多客户端去发送给Redis命令，无论是get、set这些东西，从图中看到有3个客户端分别执行了很多命令，这些命令发送给Redis之前它会放到各自客户端的缓冲区当中，可以简单的认为就是一个对列的东西去发送到Redis中瞬间去执行，这个是非常快的，你放到缓冲区中可能就会立刻被Redis执行，但有一个问题如果Redis非常忙，这个时候你发送的字节数非常非常大，比如set一个hello它的value有几百兆，我们知道Redis预期是512兆，你设置非常大可能它的缓冲区就会被暂时阻塞掉，所以大部分情况下你看到的输入缓冲区可能都是0，但是可能你设置非常大的值的时候可能会被卡主或者Redis忙的时候可能发生变动，但一般说还好，其实Redis允许的一个最大的客户端缓冲区是1G，如果你超过1G的情况下会有什么问题？你的客户端会直接被服务端干掉，对于客户端来说这个连接就已经断了，所以这个也是一个问题，通常来说输入缓冲区也没有太多问题，当然你出现类似这种问题的时候你可以用刚才我们info命令中的统计可以看到这些信息，稍后会给读者们去看一下。</p>
 <hr>
 <p>我们重点去看输出缓冲区，输出缓冲区主要是针对命令返回，刚才是把命令发送了，现在是把命令返回，因为我们知道有3类：普通客户端、从节点的slave客户端、pubsub客户端，它针对这3种类型可以灵活的配置，它和上一类输入缓冲区不一样一点就是它可以进行配置，上一个必须要求你不能超过个1G，这里就可以进行配置</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191106205416410.png" srcset="/img/loading.gif" alt="image-20191106205416410"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191106205416410.png" srcset="/img/loading.gif" alt="image-20191106205416410"></p>
 <p>这里的<code>hard limit</code>可以设置为0，表示无论多大都不会关闭，这样可以保证客户端不会被关闭，但是可能会产生一个问题：它会占额外内存，因为我们知道used_memory里面它是有一项客户端缓冲区的，<code>soft limit</code>和<code>soft seconds</code>是一个组合选项，这个是什么意思？它会发现你的客户端在这个<code>soft limit</code>值中，比如我们设置了64M，我们超过64M达到了60秒，这个时候我们可能就会将客户端进行关闭，它是和<code>hard limit</code>相对应的东西，2方面进行限制，一个是软限制另一个是硬限制。</p>
 <h2 id="普通客户端缓冲区"><a href="#普通客户端缓冲区" class="headerlink" title="普通客户端缓冲区"></a>普通客户端缓冲区</h2><p>这里是根据输出缓冲区进行的设置：</p>
 <ol>
@@ -304,7 +304,7 @@ mem_allocator:jemalloc-3.6.0</code></pre>
 <li><p>上面的配置意思是默认没有对客户端输出缓冲区进行限制</p>
 </li>
 <li><p>这里有2个问题其实前面已经提到了，这样设置的目的是什么？其实就是Redis为了保证客户端连接不会被干掉，但是这样做有一个坏处：当执行非常大的命令，比如一次<code>hgetall</code>，然后在一个几百万的哈希这样的key-value去执行这样的命令或者执行很频繁的时候我们必然会发现我们普通客户端的输入缓冲区会被阻塞，因为它的每次返回结果非常大，还有一种情况像monitor这样的命令，所有客户端执行的命令在monitor端都可以监控到，它是有一个非常好的地方它可以监控Redis当前到底执行了什么命令然后是哪些客户端执行的？它的坏处也很明显，当你的Redis客户端非常多而且每个客户端它执行的并发量非常大，就是说所有的命令都会打到monitor客户端上，然后就会出现一个问题：monitor的输入缓冲区会很大，因为它无法及时消费所有的命令的结构</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191106210724039.png" srcset="/img/loading.gif" alt="image-20191106210724039"><br>，它是一个非常有帮助的命令，但是如果你使用不当，比如你不是在当前Redis上使用的而是在其他机器远程连接，这样会降低消费速度，在使用这样的命令会比较危险，它会让你输入缓冲区瞬间可能出现暴增的情况，我们后面会做一个例子来模拟这样的问题，这里还关于monitor设置的问题，后面也会进行说明</p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191106210724039.png" srcset="/img/loading.gif" alt="image-20191106210724039"><br>，它是一个非常有帮助的命令，但是如果你使用不当，比如你不是在当前Redis上使用的而是在其他机器远程连接，这样会降低消费速度，在使用这样的命令会比较危险，它会让你输入缓冲区瞬间可能出现暴增的情况，我们后面会做一个例子来模拟这样的问题，这里还关于monitor设置的问题，后面也会进行说明</p>
 </li>
 </ol>
 <h2 id="slave客户端缓冲区"><a href="#slave客户端缓冲区" class="headerlink" title="slave客户端缓冲区"></a>slave客户端缓冲区</h2><p>slave缓冲区就是同步主节点的写命令来实现一个主从同步</p>
@@ -348,9 +348,9 @@ id=2 addr=127.0.0.1:54212 fd=6 name= age=5937 idle=0 flags=N db=0 sub=0 psub=0 m
 <p>omem为0的过滤掉进行查询，可能就能查询到出现有问题的，然后进行问题的查询</p>
 </li>
 </ul>
-<h1 id="缓冲内存"><a href="#缓冲内存" class="headerlink" title="缓冲内存"></a>缓冲内存</h1><h2 id="复制缓冲区"><a href="#复制缓冲区" class="headerlink" title="复制缓冲区"></a>复制缓冲区</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191107202202656.png" srcset="/img/loading.gif" alt="image-20191107202202656"></p>
+<h1 id="缓冲内存"><a href="#缓冲内存" class="headerlink" title="缓冲内存"></a>缓冲内存</h1><h2 id="复制缓冲区"><a href="#复制缓冲区" class="headerlink" title="复制缓冲区"></a>复制缓冲区</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191107202202656.png" srcset="/img/loading.gif" alt="image-20191107202202656"></p>
 <p>在学习之前的章节，会讲到一部分关于复制的内容，其实复制缓冲区就是<code>repl_back_buffer</code>这个配置，这个配置主要是用来设置复制缓冲区的大小，它主要是将这个缓冲区master节点的一些命令写入到缓冲区内，为了防止slave节点和master节点出现临时的网络抖动而造成不必要的全量复制，主要是做这部分内容的；这里不会多说它的详细配置因为在之前课程中已经介绍过了，这里再次强调一点，它的默认值是<code>1MB</code>，下面我们应该给它设置比较大的值，比如设置为<code>100MB</code>，注意一下这部分内存实际上也是一个独立的，就相当于一个master节点有buffer这个东西，然后我们可以适当给它调大然后牺牲一部分内存来减少不必要的全量复制；上面这张图是全量复制的演示图；</p>
-<h2 id="AOF缓冲区"><a href="#AOF缓冲区" class="headerlink" title="AOF缓冲区"></a>AOF缓冲区</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191107202434669.png" srcset="/img/loading.gif" alt="image-20191107202434669"></p>
+<h2 id="AOF缓冲区"><a href="#AOF缓冲区" class="headerlink" title="AOF缓冲区"></a>AOF缓冲区</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191107202434669.png" srcset="/img/loading.gif" alt="image-20191107202434669"></p>
 <p>如果你开启了AOF,AOF这种持久化方式无论你是使用哪种刷盘策略，它都是将命令写到一个buffer当中，然后再做一个刷盘的动作，所以这个buffer就是AOF的缓冲区；我们在做AOF重写的时候如果你对上面这张图还有印象的话，它就是做重写的内容，AOF在的重写的时候这期间产生的<code>aof buffer</code> 是不是要做一个单独的记录，如果进行一个单独的记录的话就会有一个额外的aof重写的buffer，它也是aof的buffer，这个也是需要注意的，这个值是没有固定的限制的，它也没有容量的限制，在这一块的话需要注意一下，但是一般来说这块也不会有太大问题，只需要知道这个内存也会由这部分来组成就好了，不必须过渡去关系，除非写量非常大，刷盘刷的有问题这个时候就会放到buffer里。</p>
 <h1 id="内存消耗-1"><a href="#内存消耗-1" class="headerlink" title="内存消耗"></a>内存消耗</h1><h2 id="对象内存"><a href="#对象内存" class="headerlink" title="对象内存"></a>对象内存</h2><p>对象内存是由2部分组成：</p>
 <ol>
@@ -371,9 +371,9 @@ id=2 addr=127.0.0.1:54212 fd=6 name= age=5937 idle=0 flags=N db=0 sub=0 psub=0 m
 <li>动态调整内存上限，这个内容和上面是相关的；</li>
 <li>内存回收策略，这个和最大内存也是相关的，当你的Redis设置了4GB内存，但是你已经使用或者超过4GB内存的时候，之后你写入的时候要采用什么策略，是把原来的数据踢掉，还是是单纯的写进去还是使用其他的什么策略，至于踢掉哪些数据也有相关不同的策略</li>
 </ul>
-<h2 id="设置内存上限"><a href="#设置内存上限" class="headerlink" title="设置内存上限"></a>设置内存上限</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191107211253752.png" srcset="/img/loading.gif" alt="image-20191107211253752"></p>
+<h2 id="设置内存上限"><a href="#设置内存上限" class="headerlink" title="设置内存上限"></a>设置内存上限</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191107211253752.png" srcset="/img/loading.gif" alt="image-20191107211253752"></p>
 <p>现在上面这张图中是一个Linux，我们有24GB，它有4个Redis进程，Redis1-4，每个是4GB，我们要给这个机器空闲一些内存去做AOF重写、BGSAVE这样产生的fork内存，当然对于Linux自身也要预留一部分内存，对于配置来说就是一个<code>max-memory</code>一个选项来给Redis设置一个最大内存，这样的好处在于我们可以对每个Redis使用内存进行限制，当限制之后我们可以对机器内存的使用进行合理的管理，假如我们现在启动了很多Redis，但是没有对它们设置最大内存，如果无法控制Redis内存的使用量可能会超过单机就会影响其他的实例，这东西对于Redis管理来说是一个很致命的问题，这里还要提到一点：我们要预留百分30，这个是需要根据你公司的实际情况来决定，可能你们机器比较多，而且使用上比较宽长一些，可能会预留多一些，当然预留的越多你产生的危险就越小，因为我们都知道，它可能会产生一些额外的开销，比如像客户端缓冲区的暴增，客户端缓冲区是无法通过<code>max-memory</code>限制的，<code>max-memory</code>是说当你的<code>used-memory</code>超过<code>max-memory</code>是对于<code>key-value</code>的管理，对于这种客户端缓冲区的暴增它是无法限制的，针对于这类问题甚至一些fork产生的内存这些额外内存以外的问题你预留的内存越多可能这种产生内存溢出的可能就会越小，如果你们公司当前机器比较紧张一些可能预留的会少一些，如果你把内存监控做的足够好，可能产生内存溢出的可能性就越小；</p>
-<h2 id="设置内存上限-1"><a href="#设置内存上限-1" class="headerlink" title="设置内存上限"></a>设置内存上限</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191107211801815.png" srcset="/img/loading.gif" alt="image-20191107211801815"></p>
+<h2 id="设置内存上限-1"><a href="#设置内存上限-1" class="headerlink" title="设置内存上限"></a>设置内存上限</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191107211801815.png" srcset="/img/loading.gif" alt="image-20191107211801815"></p>
 <pre><code class="hljs bash">redis&gt; config <span class="hljs-built_in">set</span> maxmemory 6GB
 redis&gt; config <span class="hljs-built_in">set</span> maxmemory 2GB
 redis&gt; config rewrite</code></pre>
@@ -386,7 +386,7 @@ redis&gt; config rewrite</code></pre>
 <li><p>惰性删除：在说惰性删除之前可以说一些Redis内核源码它对于key-value的一个管理它是这样的：对于多个key-value它会单独用一个hashtable进行一个存储，过期的key它也会使用一个单独的hashtable进行存储，也就是说我们get一个hello的时候它首先会去过期hashtable或者字典里面去查一下看这个key有没有过期，如果过期了它会将这个key删除，而且它还会做一件事情：把这个key返回一个空；如果在过期表里没有，它会从原生的hashtable里面去获取；</p>
 </li>
 <li><p>定时删除：为什么要做定时删除？有种可能我的key过期了，但是我下次没有去访问它，它会造成这个过期这个表会不断的扩大，我们可以想到的策略就是我定期对这个过期hashtable进行一个扫描，对于Redis来说它有一个定时删除的策略，它每秒运行10次来进行采样删除，它的删除策略是这样：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191107212905506.png" srcset="/img/loading.gif" alt="image-20191107212905506"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191107212905506.png" srcset="/img/loading.gif" alt="image-20191107212905506"></p>
 <p>对每个数据库随机选举20个键，它发现如果超过了百分25都是要过期的，它就会进行新的循环，进入更快的策略，进行一个删除，就是说它不会退出当前循环，而是进入二次的采样删除；如果它发现过期的比较少，那它就直接退出进入下一次循环</p>
 </li>
 </ol>
@@ -405,7 +405,7 @@ redis&gt; config rewrite</code></pre>
 <h1 id="内存优化"><a href="#内存优化" class="headerlink" title="内存优化"></a>内存优化</h1><h2 id="内存分布"><a href="#内存分布" class="headerlink" title="内存分布"></a>内存分布</h2><blockquote>
 <p>为什么要介绍内存分布？因为我们要做内存优化要优化哪些部分</p>
 </blockquote>
-<h3 id="内存消耗-2"><a href="#内存消耗-2" class="headerlink" title="内存消耗"></a>内存消耗</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191106200207592-1573041728497-1573135246853.png" srcset="/img/loading.gif" alt="image-20191106200207592"></p>
+<h3 id="内存消耗-2"><a href="#内存消耗-2" class="headerlink" title="内存消耗"></a>内存消耗</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191106200207592-1573041728497-1573135246853.png" srcset="/img/loading.gif" alt="image-20191106200207592"></p>
 <p>回顾一下内存消耗，used_memory来说它有</p>
 <ul>
 <li>自身内存消耗，大概是800kb，</li>
@@ -413,14 +413,14 @@ redis&gt; config rewrite</code></pre>
 <li>对象内存：Redis中存了很多key-value，这个也是节省内存或者说内存优化的重头戏</li>
 </ul>
 <h2 id="合理选择优化数据结构"><a href="#合理选择优化数据结构" class="headerlink" title="合理选择优化数据结构"></a>合理选择优化数据结构</h2><p>前面提到了很多像客户端缓冲区，像aof缓冲区或者说复制缓冲区优化的余地不是特别多，它其实主要体现在普通客户端，你的命令的使用、合理的API使用，假如你使用不合理，假如说hgetall、monitor导致输出缓冲区比较大，这和你的QPS有关；</p>
-<p>对于key-value的东西，我们最重要的是优化它的值对象，优化值对象就是说我们选择一个合理的数据结构，现在有一个简单的例子：现在有一个需求：要计算每天的独立用户数，实际上有很多方式，正确的方式比如说使用hadoop的一套东西设置日志，然后做每天的计算，现在假如说我当前这个需求不是这么大规模的，而是让你用Redis实现来达到比较快的目的，那你怎么去做呢？这里就有很多方式了：<br><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191107221431230.png" srcset="/img/loading.gif" alt="image-20191107221431230"></p>
+<p>对于key-value的东西，我们最重要的是优化它的值对象，优化值对象就是说我们选择一个合理的数据结构，现在有一个简单的例子：现在有一个需求：要计算每天的独立用户数，实际上有很多方式，正确的方式比如说使用hadoop的一套东西设置日志，然后做每天的计算，现在假如说我当前这个需求不是这么大规模的，而是让你用Redis实现来达到比较快的目的，那你怎么去做呢？这里就有很多方式了：<br><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191107221431230.png" srcset="/img/loading.gif" alt="image-20191107221431230"></p>
 <ul>
 <li>集合：这个很好理解，现在要记录每天独立用户数，那我们就用一个集合然后在加上一个时间标签把我们所以的ID放到这个集合当中，最终求出集合的总数，它会自动帮我们过滤掉有可能产生的独立用户数；</li>
 <li>BitMaps：位图的话可以将每个用户去对应到位图中的位，如果这个位是1，就证明它出现过，然后它没有出现就是0，最后统计一下所有为1的个数就可以算出它的用户数；</li>
 <li>HyperLogLog：通过这个来实现计数的方式，但是它有一个问题：它的最终结果可能不是准的。</li>
 </ul>
 <p>这里要根据用户场景来进行选择，这里举个例子：我们当前用户量非常大，每天有几个亿，但是我们统计大概有多少就可以了，而且我们要求内存使用非常低，那这个时候HyperLogLog是可以满足的，假如我们每天的用户数非常少，而且我希望保存下来所有的userId，这个时候HyperLogLog是不合理的它没法保存ID，这里完全可以使用集合或者BitMaps，BitMaps会节省很多内存，当然也有一个问题就是你BitMaps要跟你的userId做一个对应，这个时候可能会增加复杂度，甚至是说你BitMaps比较松散，BitMaps可能比较长，在你的userId比较松散的时候这个时候可能来说集合会用的小一些内存，这个也要做一个权衡，这是什么意思？假如你这个网站有10亿用户，每天就有10万人访问的话，显然用集合比BitMaps要好，因为你要给10亿人去做一个位图其实也是非常废内存的；</p>
-<h2 id="合理选择优化数据结构-内部编码"><a href="#合理选择优化数据结构-内部编码" class="headerlink" title="合理选择优化数据结构-内部编码"></a>合理选择优化数据结构-内部编码</h2><h3 id="介绍-1"><a href="#介绍-1" class="headerlink" title="介绍"></a>介绍</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191107222103645.png" srcset="/img/loading.gif" alt="image-20191107222103645"></p>
+<h2 id="合理选择优化数据结构-内部编码"><a href="#合理选择优化数据结构-内部编码" class="headerlink" title="合理选择优化数据结构-内部编码"></a>合理选择优化数据结构-内部编码</h2><h3 id="介绍-1"><a href="#介绍-1" class="headerlink" title="介绍"></a>介绍</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191107222103645.png" srcset="/img/loading.gif" alt="image-20191107222103645"></p>
 <p>选择合理数据结构的另一种方式就是要做一个内部编码，这样我们选择的是一个合理的数据结构，下一个其实要选择编码，以哈希为例子，它有hashtable、ziplist两种模式，ziplist是压缩列表它就是用一个连续存储的列表来模拟hashtable的使用方式，当然其实我们可以想象出来用一个列表去模拟hash的方式它肯定会在存储速度上会比较慢，比如我们去做一个随机的获取或者插入，这种使用ziplist它必然需要做一个内存重写分配、指针位移类似这些东西，但是它要使用连续存储而且他要自身要做很多优化，这个时候可能它的内存开销上会有一些优势</p>
 <hr>
 <h3 id="一个例子、三种方案"><a href="#一个例子、三种方案" class="headerlink" title="一个例子、三种方案"></a>一个例子、三种方案</h3><p>需求：现在有很多图片id和用户id，大概有10亿个，我希望通过picId可以得到userId</p>
@@ -431,13 +431,13 @@ redis&gt; config rewrite</code></pre>
 <li>若干个小hash：hset picId/100 picId%100 userId：对上面这种大的hahs进行拆分，给它拆分成若干个小的的hash，每一个小的hash里存100个field和value，这样的话我们就可以实现若干的小的hash，后面这种小的hahs我们会介绍，对于这种小的hahs，它就会使用ziplist这种存储方式，然后可以大量的节省内存</li>
 </ul>
 <p>现在看一下例子：假如现在只有100W张图片</p>
-<h3 id="方案1："><a href="#方案1：" class="headerlink" title="方案1："></a>方案1：</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191107223019036.png" srcset="/img/loading.gif" alt="image-20191107223019036"></p>
+<h3 id="方案1："><a href="#方案1：" class="headerlink" title="方案1："></a>方案1：</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191107223019036.png" srcset="/img/loading.gif" alt="image-20191107223019036"></p>
 <p>picId和userId一一对应，它的使用内存为115.59M</p>
-<h3 id="方案2："><a href="#方案2：" class="headerlink" title="方案2："></a>方案2：</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191107223117730.png" srcset="/img/loading.gif" alt="image-20191107223117730"></p>
+<h3 id="方案2："><a href="#方案2：" class="headerlink" title="方案2："></a>方案2：</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191107223117730.png" srcset="/img/loading.gif" alt="image-20191107223117730"></p>
 <p>内存开销129M</p>
-<h3 id="方案3："><a href="#方案3：" class="headerlink" title="方案3："></a>方案3：</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191107223141889.png" srcset="/img/loading.gif" alt="image-20191107223141889"></p>
+<h3 id="方案3："><a href="#方案3：" class="headerlink" title="方案3："></a>方案3：</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191107223141889.png" srcset="/img/loading.gif" alt="image-20191107223141889"></p>
 <p>内存开销：26M</p>
-<h3 id="3种方案对比"><a href="#3种方案对比" class="headerlink" title="3种方案对比"></a>3种方案对比</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191107223241833.png" srcset="/img/loading.gif" alt="image-20191107223241833"></p>
+<h3 id="3种方案对比"><a href="#3种方案对比" class="headerlink" title="3种方案对比"></a>3种方案对比</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191107223241833.png" srcset="/img/loading.gif" alt="image-20191107223241833"></p>
 <h3 id="消耗内存分析"><a href="#消耗内存分析" class="headerlink" title="消耗内存分析"></a>消耗内存分析</h3><p>将所有元素存在在一个连续的存储单元，减少了指针的使用，做了一些压缩的处理，这里不详细介绍ziplist的详细处理，有兴趣的读者可以去看ziplist的源码</p>
 <p>（1）配置：</p>
 <ul>
@@ -454,7 +454,7 @@ redis&gt; config rewrite</code></pre>
 <li>新增删除有内存重分配</li>
 </ul>
 <p>使用连续存储，它在管理hash这样的方式必然会比较慢，这就是为什么它要限制个数的原因了，这是为了防止ziplist过大然后对性能产生影响，也就说最终是在性能和内存节省上做了一个权衡，这种还是比较好的一种方式，这里的配置建议不要设置过大，如果为了使用ziplist设置过大那可能你使用Redis速度快的目的就无法达到了</p>
-<h3 id="三种方案优点对比"><a href="#三种方案优点对比" class="headerlink" title="三种方案优点对比"></a>三种方案优点对比</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191107224230584.png" srcset="/img/loading.gif" alt="image-20191107224230584"></p>
+<h3 id="三种方案优点对比"><a href="#三种方案优点对比" class="headerlink" title="三种方案优点对比"></a>三种方案优点对比</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191107224230584.png" srcset="/img/loading.gif" alt="image-20191107224230584"></p>
 <h2 id="客户端内存优化"><a href="#客户端内存优化" class="headerlink" title="客户端内存优化"></a>客户端内存优化</h2><h3 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h3><p>来看一下客户端缓冲区的优化，前面已经详细介绍了客户端缓冲区，我们已经清楚了它的结构，在这里我们只需要介绍一个例子，介绍一下客户端缓冲区在使用中可能出现的问题；</p>
 <p>这里在来回顾一下客户端缓冲区：</p>
 <ul>
@@ -475,12 +475,12 @@ redis&gt; config rewrite</code></pre>
 <p>还有一个就是输出缓冲区：我们读主节点的时候，我们输出缓冲区发生了阻塞，</p>
 <p>这些情况考虑了之后我们来看一下相关的数据</p>
 <ol>
-<li>批量写入：看看是不是有大批量的写入，当然我们看的时候没有看到有大批量的写入，所以可以排除数据的不一致造成内存的暴增<br><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191107230034782.png" srcset="/img/loading.gif" alt="image-20191107230034782"></li>
-<li>主从不一致？在主从节点上都执行DBSIZE，2个都是一样的<br><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191107230112099.png" srcset="/img/loading.gif" alt="image-20191107230112099"></li>
-<li>大部分情况都是客户端的溢出，我们系统比较好的是对所有Redis核心参数进行了监控，比如我们前面提到的<code>client_longst_output_list</code>，它的最大输出缓冲区的对列，我们给它设置的阈值是1000，这个时候发现，某某节点已经道到了23W<br><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191107230447499.png" srcset="/img/loading.gif" alt="image-20191107230447499">，很明显客户端的输出缓冲区过大，这个值给我们提供了一个依据，我们可以使用之前我们介绍的<code>redis-cli list | grep -v “omem=0”</code>命令，<br><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191107230455740.png" srcset="/img/loading.gif" alt="image-20191107230455740"><br>有这么一个客户端它的oll是20W，当然它和23W不一样是因为这是一个实时的状态，发现它内存的使用量是非常大的，我们可以看到它当时执行的命令是“monitor”，很明显它就是有一个人或者一个程序去执行了monitor去拉所有Redis执行的命令，然后它本身又消费不了，而且当时看到它当时在本机执行的，任然是消费不了，这个时候我们可以对这个monitor命令执行删除，让内存进行一个回收，当然其实这里有 一个问题就是说你现在主节点已经超过了最大内存，可能会产生<code>maxmemory-policy</code>内存溢出的情况</li>
+<li>批量写入：看看是不是有大批量的写入，当然我们看的时候没有看到有大批量的写入，所以可以排除数据的不一致造成内存的暴增<br><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191107230034782.png" srcset="/img/loading.gif" alt="image-20191107230034782"></li>
+<li>主从不一致？在主从节点上都执行DBSIZE，2个都是一样的<br><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191107230112099.png" srcset="/img/loading.gif" alt="image-20191107230112099"></li>
+<li>大部分情况都是客户端的溢出，我们系统比较好的是对所有Redis核心参数进行了监控，比如我们前面提到的<code>client_longst_output_list</code>，它的最大输出缓冲区的对列，我们给它设置的阈值是1000，这个时候发现，某某节点已经道到了23W<br><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191107230447499.png" srcset="/img/loading.gif" alt="image-20191107230447499">，很明显客户端的输出缓冲区过大，这个值给我们提供了一个依据，我们可以使用之前我们介绍的<code>redis-cli list | grep -v “omem=0”</code>命令，<br><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191107230455740.png" srcset="/img/loading.gif" alt="image-20191107230455740"><br>有这么一个客户端它的oll是20W，当然它和23W不一样是因为这是一个实时的状态，发现它内存的使用量是非常大的，我们可以看到它当时执行的命令是“monitor”，很明显它就是有一个人或者一个程序去执行了monitor去拉所有Redis执行的命令，然后它本身又消费不了，而且当时看到它当时在本机执行的，任然是消费不了，这个时候我们可以对这个monitor命令执行删除，让内存进行一个回收，当然其实这里有 一个问题就是说你现在主节点已经超过了最大内存，可能会产生<code>maxmemory-policy</code>内存溢出的情况</li>
 </ol>
 <p>我们来回顾一下Monitor模型</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191107231052717.png" srcset="/img/loading.gif" alt="image-20191107231052717"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191107231052717.png" srcset="/img/loading.gif" alt="image-20191107231052717"></p>
 <p>现在对Redis进行写入或者查找很多一些命令，它会将那些命令全部和到monitor的客户端，然后就就造成monitor这个客户端如果消费不了就会造成monitor客户端缓冲区非常大，对于Redis总体内存造成很的干扰；</p>
 <h3 id="预防策略"><a href="#预防策略" class="headerlink" title="预防策略"></a>预防策略</h3><ol>
 <li>找到对应的业务放直接干掉；</li>

@@ -219,12 +219,12 @@
 </ul>
 <h1 id="布隆过滤器基本原理"><a href="#布隆过滤器基本原理" class="headerlink" title="布隆过滤器基本原理"></a>布隆过滤器基本原理</h1><ul>
 <li>1970年伯顿.布隆提出，用很小的空间，解决上述类似问题；</li>
-<li>实现原理：一个很长的二进制向量和若干个哈希函数。<br><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191103210029972.png" srcset="/img/loading.gif" alt="image-20191103210029972"></li>
+<li>实现原理：一个很长的二进制向量和若干个哈希函数。<br><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191103210029972.png" srcset="/img/loading.gif" alt="image-20191103210029972"></li>
 <li>参数：m个二进制向量（上面的0 1 数组），n个预备数据（50亿个电话号码），k个hash函数（上面的f1-f8 你需要多少个，这个可以设置）；</li>
 <li>构建布隆过滤器：n个预备数据走一遍上面过程：每一个数据走一遍f1-f8把对应的向量的值设置为1；</li>
 <li>判断元素存在：走一遍上面过程：判断过程是不是1，如果都是1，则在表明存在，反之不存在。</li>
 </ul>
-<h1 id="布隆过滤器误差率"><a href="#布隆过滤器误差率" class="headerlink" title="布隆过滤器误差率"></a>布隆过滤器误差率</h1><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191103211924442.png" srcset="/img/loading.gif" alt="image-20191103211924442"></p>
+<h1 id="布隆过滤器误差率"><a href="#布隆过滤器误差率" class="headerlink" title="布隆过滤器误差率"></a>布隆过滤器误差率</h1><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191103211924442.png" srcset="/img/loading.gif" alt="image-20191103211924442"></p>
 <h1 id="本地布隆过滤"><a href="#本地布隆过滤" class="headerlink" title="本地布隆过滤"></a>本地布隆过滤</h1><ul>
 <li><p>现有库：guava；</p>
 </li>
@@ -232,7 +232,7 @@
 <ul>
 <li><p>容量受限制：受限于容器，假如容器是一个JVM或者你使用的是Tomcat这样的Web容器它实际上也是JVM,那么就会受到JVM的限制，就包括之前提到的你使用集合的话，使用布隆过滤器还是需要很多内存的，假如n比较大，而且你希望的误差率比较低，对于M要求就比较大，同时还会涉及到单机</p>
 </li>
-<li><p>多个应用存在多个布隆过滤器，构建同步复杂。<br><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/image-20191103214303958.png" srcset="/img/loading.gif" alt="image-20191103214303958"></p>
+<li><p>多个应用存在多个布隆过滤器，构建同步复杂。<br><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20191103214303958.png" srcset="/img/loading.gif" alt="image-20191103214303958"></p>
 <p>假如这里container1需要向布隆过滤器插入一些东西，由于业务逻辑，然后container2去往布隆过滤器插一些东西，但container1中的和container2中的这样的布隆过滤器是没法实现同步的，之后可能涉及到一些业务逻辑的时候，尤其一些前端业务逻辑，前端访问的时候，它可能做了一些负载均衡，它不保证全部都在container1，它可能还会去container2，在布隆过滤器没有这样的概念。</p>
 </li>
 </ul>

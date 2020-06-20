@@ -207,24 +207,24 @@
               <h1 id="呼唤集群"><a href="#呼唤集群" class="headerlink" title="呼唤集群"></a>呼唤集群</h1><h2 id="并发量"><a href="#并发量" class="headerlink" title="并发量"></a>并发量</h2><p>Redis每秒可以达到每秒10W QPS，但是有些业务是需要100W QPS,</p>
 <h2 id="数据量"><a href="#数据量" class="headerlink" title="数据量"></a>数据量</h2><p>现在有一台机器16~256G，假如说一个传统的Redis部署在上面，假如说业务需要500G数据呢？</p>
 <h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p>配置“强悍”的机器：超大内存、牛xCPU等，但是随着业务量变得越来越大的时候，单机已经无法满足了</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572003131116.png" srcset="/img/loading.gif" alt="1572003131116"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572003131116.png" srcset="/img/loading.gif" alt="1572003131116"></p>
 <h2 id="正确的解决方案"><a href="#正确的解决方案" class="headerlink" title="正确的解决方案"></a>正确的解决方案</h2><p>分布式：简单的认为加机器；</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572003163058.png" srcset="/img/loading.gif" alt="1572003163058"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572003163058.png" srcset="/img/loading.gif" alt="1572003163058"></p>
 <h1 id="数据分布概念"><a href="#数据分布概念" class="headerlink" title="数据分布概念"></a>数据分布概念</h1><p>现在有一份全量的数据，它的单机已经无法满足需求，所以就要对数据进行分区，比如现在有100份数据按照一定的规则分到若干个子集当中，</p>
 <p>它的分区规则：</p>
 <ul>
-<li><p>顺序分区：假如有3个节点<img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572003461916.png" srcset="/img/loading.gif" alt="1572003461916" style="zoom: 25%;" /></p>
+<li><p>顺序分区：假如有3个节点<img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572003461916.png" srcset="/img/loading.gif" alt="1572003461916" style="zoom: 25%;" /></p>
 </li>
-<li><p>哈希分区：对每个数字做一个hash函数，通过节点去给它取余,例如<code>hash(key)%3</code>，结果是0放1分区，1放2分区，2放3分区，它这里有很的函数，等会会介绍。<img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572003650622.png" srcset="/img/loading.gif" alt="1572003650622" style="zoom:25%;" /></p>
+<li><p>哈希分区：对每个数字做一个hash函数，通过节点去给它取余,例如<code>hash(key)%3</code>，结果是0放1分区，1放2分区，2放3分区，它这里有很的函数，等会会介绍。<img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572003650622.png" srcset="/img/loading.gif" alt="1572003650622" style="zoom:25%;" /></p>
 </li>
 </ul>
 <p><strong>数据分布对比</strong></p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572003693407.png" srcset="/img/loading.gif" alt="1572003693407"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572003693407.png" srcset="/img/loading.gif" alt="1572003693407"></p>
 <h1 id="节点取余分区"><a href="#节点取余分区" class="headerlink" title="节点取余分区"></a>节点取余分区</h1><p>3个节点中的hash分区： 对每个key去执行一个hansh函数对3去取一个余数，如果是0到1分区，1到2分区，2到3分区…</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572004167066.png" srcset="/img/loading.gif" alt="1572004167066"></p>
-<p>这是一个简单的分区操作，但是有一个问题：如果需要进行扩容，业务量不断增大，3个节点无法满足要求，现在加入一个节点，添加之后有一个问题，数据会发生变化，因为要做的是对每一个数据去取一个hash去取它的节点数的余数，那就会有造成很多的数据偏移，原来在第1个节点的3，原来对3去取余是0，对4取余是3，所以它会到4节点….<img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572004395008.png" srcset="/img/loading.gif" alt="1572004395008" style="zoom: 50%;" /></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572004167066.png" srcset="/img/loading.gif" alt="1572004167066"></p>
+<p>这是一个简单的分区操作，但是有一个问题：如果需要进行扩容，业务量不断增大，3个节点无法满足要求，现在加入一个节点，添加之后有一个问题，数据会发生变化，因为要做的是对每一个数据去取一个hash去取它的节点数的余数，那就会有造成很多的数据偏移，原来在第1个节点的3，原来对3去取余是0，对4取余是3，所以它会到4节点….<img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572004395008.png" srcset="/img/loading.gif" alt="1572004395008" style="zoom: 50%;" /></p>
 <p>这里有一种方式叫做“多被扩容”，比如原本是3个节点，扩容的时候再加3个节点也就是3的倍数，这样做可以保留百分50的数据不被迁移，之前这样会迁移百分80会有很明显的降低。如果你希望迁移量少可以使用这种方式，在迁移之后去缓存中第一次可能会取不到数据，这个时候就需要去数据库中获取到那个数据，然后放到Redis中，这样会出现大量的缓存回写，这样对一个系统来说是一个不正常的现象</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572004570436.png" srcset="/img/loading.gif" alt="1572004570436"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572004570436.png" srcset="/img/loading.gif" alt="1572004570436"></p>
 <ul>
 <li>客户端分片：哈希+取余</li>
 <li>节点伸缩：数据节点关系变化，导致数据迁移</li>
@@ -234,7 +234,7 @@
 <p>前面取余是有问题的，加了节点之后它的数据迁移量是非常大的，无论是百分50还是百分80它影响的范围太大了，一致性hash就解决了这个问题</p>
 </blockquote>
 <h2 id="是什么？"><a href="#是什么？" class="headerlink" title="是什么？"></a>是什么？</h2><p>将数据看成一个环，将数据做一个token环，这个token环的意思代表数据范围，0~2的32次方这样的范围，我们为每个节点去分配一个token，这个token是在范围内，比如节点1的范围：0到多少多少，节点2是多少多少，每一个范围负责一定的数据一部分token，当数据的key对它进行hash计算之后，它是在某范围内，例如图中的范围，它会去顺时针去找节点</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572005650015-1572005654310.png" srcset="/img/loading.gif" alt="1572005650015"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572005650015-1572005654310.png" srcset="/img/loading.gif" alt="1572005650015"></p>
 <h2 id="这样做有什么好处？"><a href="#这样做有什么好处？" class="headerlink" title="这样做有什么好处？"></a>这样做有什么好处？</h2><p>假如现在添加一个node5，这个node5是在1和2之间，我们为它分配了一个这样的token，这个时候做一个数据迁移是怎么样的？下一次哈希计算之后它落到node1和node5之间，这个时候数据会到node5上，这样就出现了数据偏移，但是它有一个好处：我添加一个节点之后不会影响node3和node4，只会影响node1、node2这些数据偏移，它的影响范围能缩小很多，尤其是在数据节点非常多的时候，假如环上有1000个节点，那现在在1000个节点中加入一个节点，它影响范围可能就只有1000分之1，一致性哈希在节点比较多的情况去使用，它还是一种缓存的使用方式，因为我原来在node2已经存的数据在node5，因为这个时候它的规格发生了变化，那它只能去node5去取，但node5没有就只能去数据库去回写，虽然它仍然是一个缓存的场景，无法实现将node2的数据迁移到node5这是它的一个问题；</p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
 <li>客户端分片：哈希+顺时针（优化取舍）</li>
@@ -247,7 +247,7 @@
 <li>服务端管理节点、槽、数据：例如Redis Cluster</li>
 </ul>
 <h2 id="虚拟槽分配"><a href="#虚拟槽分配" class="headerlink" title="虚拟槽分配"></a>虚拟槽分配</h2><p>Redis Cluster模型</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572006846336.png" srcset="/img/loading.gif" alt="1572006846336"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572006846336.png" srcset="/img/loading.gif" alt="1572006846336"></p>
 <p>现在有5个节点，对槽进行平均分成5份，例如0到3276是归节点1管理，13108到16383是到节点5去管理，对于每个key来将，我们对它做一个哈希，在Redis Cluster里面就是一个CRC16给它做一个哈希，然后对16383去取余，然后它会发送给Redis Cluster任意一个节点，它每一个节点都会记录自己是不是负责这个槽的，假如是算出这个值是100，我们发送给节点1，节点1发现它是在自己负责的槽的范围内，它去把它进行保存给它返回一个结果，如果它发现不在自己槽访问内：由于Redis Cluster节点之间是一个共享消息的模式，我节点1知道剩余的节点负责哪些槽，这样的话返回的结果会告诉你去其他节点去取，具体是哪个节点我也告诉你了，这就是一个服务端去管理数据和槽还有节点关系的一种模式，一致性哈希分布、取余哈希分布都有一个问题：我添加新的节点之后数据会进行迁移，会存在丢数据的可能性，所以它只能作为缓存场景使用，使用虚拟槽就不存在这样的问题，因为每个节点负责的槽范围是固定的，你加一个新节点也没有把其他节点的槽抢走，必须是我这个节点把我这个槽权利去分配给你，把数据根据槽分配给你，这样的话就不会有丢数据的这样的问题；</p>
 <h1 id="基本架构"><a href="#基本架构" class="headerlink" title="基本架构"></a>基本架构</h1><p>服务端是很多个节点，每个节点负责去读也负责去写，而且节点之间是彼此通信的，它们彼此之间知道彼此负责的槽，然后把16384进行平均，每个节点负责一部分槽，客户端去访问任意节点的时候，如果它去访问的key在对应的节点上就给它直接返回，如果不在对应的节点就告诉它去其他节点去找，但是它不会为你做跳转，它会返回给你对应目标节点的结果，然后你去做对应的跳转，当然这种方式是有问题的：它的性能不够高，而且当节点非常多的时候，命中率不会很高；所以这种情况要使用智能客户端，用它去知道所有节点，客户端也知道每个节点负责哪些槽，而且这个槽和节点的关系发生变化的时候，客户端也会知道，这是一种高效的方式，这个在介绍客户端的时候会去说明，这里就记住几点：</p>
 <ul>
@@ -265,10 +265,10 @@
 <ul>
 <li><p>对于节点来说它于普通Redis节点的区别就是它有一个<code>cluster-enabled</code>它是否是集群模式，如果是yes就以集群模式启动</p>
 </li>
-<li><p><code>meet</code>：假如说现在有3个节点，节点A对节点B发送了meet操作，它会返回<code>PONG</code>说明A和B已经可以进行消息交流了，然后当A发送给Cmeet的时候它也返回对应的结果，这个时候A和C根据某种协议通过B对A的了解，B可以找到对应的C，这样就完成了相互通信<img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572008784267.png" srcset="/img/loading.gif" alt="1572008784267" style="zoom:25%;" /></p>
+<li><p><code>meet</code>：假如说现在有3个节点，节点A对节点B发送了meet操作，它会返回<code>PONG</code>说明A和B已经可以进行消息交流了，然后当A发送给Cmeet的时候它也返回对应的结果，这个时候A和C根据某种协议通过B对A的了解，B可以找到对应的C，这样就完成了相互通信<img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572008784267.png" srcset="/img/loading.gif" alt="1572008784267" style="zoom:25%;" /></p>
 </li>
 <li><p>指派槽：现在有3个主节点，但是有16384个槽，16384是<code>Redis Cluster</code>指定槽的数量，那么我们为了达到负责均衡的效果，会给每个节点指派指定的槽，例如给A节点指派0到5460，B：5461到10922，C：10923到16383，当我们一个key访问过来时候会计算它的哈希值，然后对16383去取一个余数，看它是否在对应一个槽的范围内，如果在就返回结果，如果不在返回对应的一个节点，因为它们直接彼此知道哪些槽是在哪个节点上，对于客户端来说客户端只需要计算一个key算出对应的slot</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1572009121295.png" srcset="/img/loading.gif" alt="1572009121295"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1572009121295.png" srcset="/img/loading.gif" alt="1572009121295"></p>
 <p><strong>RedisCluster特性</strong></p>
 <p>它有主从复制，每个主节点都有从节点，而且他是高可用的，哪个主节点挂了，从节点都能完成一个晋升，而且它是分片的：多个主节点进行一个读写</p>
 </li>

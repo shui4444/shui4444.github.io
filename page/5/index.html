@@ -168,6 +168,105 @@
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/spring-security-5.9.html">【 五、OAuth 】 9.基于JWT实现SSO单点登录</a>
+
+      <a href="/spring-security-5.9.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>什么是单点登录？请看下面这篇文章
+
+单点登录与简单实现
+
+
+现在有这么一个业务场景：现在有A网站和B网站，用户在登录了A网站，然后用户再访问B网站时候就不用登录了，笔者在这里以阿里的淘宝、天猫网站为例：
+现在我流浪这2个网站，都是未登录状态的
+
+在这里我先登录天猫，然后到淘宝上刷新的时候，就已经是登录状态了，你可以理解为这个就是单点登录
+
+以上面流程图为例，来介绍一下工作流程：
+
+当请求发给应用A</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2019-10-15
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/SpringSecurity/">SpringSecurity</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/spring-security-5.8.html">【 五、OAuth 】 8.令牌配置</a>
+
+      <a href="/spring-security-5.8.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>前面为止，将自定义的3重认证方式都已经嫁接到认证服务器上了，通过自定义的认证方式我们可以出去发OAuth令牌，现在这个token它现在和生成和存储都是spring默认的机制来做的，但是这个默认的机制并不符合我们的需求，在这里笔者会带着大家来如何来定制token，定制它的生成和存储
+
+现在要做的事是token的处理，token的处理是在认证服务器去完成的，所以这里要做的事情
+基本的Token参数配置</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2019-10-15
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/SpringSecurity/">SpringSecurity</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
       <a class="index-header" href="/spring-security-5.7.html">【 五、OAuth 】 7.重构注册逻辑</a>
 
       <a href="/spring-security-5.7.html" class="index-excerpt">
@@ -502,94 +601,6 @@ yml：
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>&nbsp;2019-10-14
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/SpringSecurity/">SpringSecurity</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/spring-security-3.3.html">【 三、Social 】 3.QQ登录</a>
-
-      <a href="/spring-security-3.3.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>开发流程以下内容中获取QQ用户信息以及QQ中的一些参数，请参考QQ互联文档。
-
-
-要实现类似QQ登录这种第三方登录，前面说了，需要走一个OAuth流程拿到服务提供商的的用户信息，那么之前将SpringSocial基本概念的时候，服务提供商的信息是封装在Connection里的，所有现在要解决的第一个问题就是需要拿到一个Connection，那么我要拿到一个Connection，我就需要有一个Con</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2019-10-13
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/SpringSecurity/">SpringSecurity</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/spring-security-3.2.html">【 三、Social 】 2.SpringSocial基本原理</a>
-
-      <a href="/spring-security-3.2.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>
-上一章了解到OAuth协议实际上就是授权协议，它的目的是让用户在不交服务提供商的用户名和密码交给第三方应用的情况下，让第三方应用可以有权限去访问用户存在的服务提供商上的一些资源，这个是OAuth协议存在的目的，那么这个授权协议和我们要实现的第三方登录是什么关系呢？先来说下这个问题，在上一章例子中，我们走完这个授权协议拿到令牌以后，说的场景是拿用户的自拍数据，但是如果我不去拿用户的自拍数据，而是拿</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2019-10-13
           </div>
         
         

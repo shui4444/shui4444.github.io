@@ -215,7 +215,7 @@
 <li>一个完整的过程怎么去保证一个完整事务的实现，对于一般的开发中或者运维人员来说单独实现这样的功能是比较困难的</li>
 </ol>
 <p>Redis也想到了这样的问题，它为我们提供了<code>Redis Sentinel</code>这样一个高可用实现</p>
-<h1 id="Redis-Sentinel基本架构"><a href="#Redis-Sentinel基本架构" class="headerlink" title="Redis Sentinel基本架构"></a>Redis Sentinel基本架构</h1><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571664454309.png" srcset="/img/loading.gif" alt="1571664454309"></p>
+<h1 id="Redis-Sentinel基本架构"><a href="#Redis-Sentinel基本架构" class="headerlink" title="Redis Sentinel基本架构"></a>Redis Sentinel基本架构</h1><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571664454309.png" srcset="/img/loading.gif" alt="1571664454309"></p>
 <p>前面提到的几个问题，通过<code>Redis Sentinel</code>都能解决，在<code>Redis</code>做主从复制时，如果使用了<code>Redis Sentinel</code>，当<code>master</code> 节点挂了之后它会执行以下步骤：</p>
 <ol>
 <li>多个sentinel发现并确认master有问题；</li>
@@ -236,9 +236,9 @@
 <li>实际应用多台机器；</li>
 <li>详细配置节点。</li>
 </ol>
-<h3 id="Redis主节点"><a href="#Redis主节点" class="headerlink" title="Redis主节点"></a>Redis主节点</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571667275501.png" srcset="/img/loading.gif" alt="1571667275501"></p>
-<h3 id="Redis从节点"><a href="#Redis从节点" class="headerlink" title="Redis从节点"></a>Redis从节点</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571667303435.png" srcset="/img/loading.gif" alt="1571667303435"></p>
-<h3 id="sentinel主要配置"><a href="#sentinel主要配置" class="headerlink" title="sentinel主要配置"></a>sentinel主要配置</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571667449325.png" srcset="/img/loading.gif" alt="1571667449325"></p>
+<h3 id="Redis主节点"><a href="#Redis主节点" class="headerlink" title="Redis主节点"></a>Redis主节点</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571667275501.png" srcset="/img/loading.gif" alt="1571667275501"></p>
+<h3 id="Redis从节点"><a href="#Redis从节点" class="headerlink" title="Redis从节点"></a>Redis从节点</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571667303435.png" srcset="/img/loading.gif" alt="1571667303435"></p>
+<h3 id="sentinel主要配置"><a href="#sentinel主要配置" class="headerlink" title="sentinel主要配置"></a>sentinel主要配置</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571667449325.png" srcset="/img/loading.gif" alt="1571667449325"></p>
 <blockquote>
 <p>图中4-7配置是它的核心配置，这里简单的进行介绍一下：</p>
 <p>4：监控主节点的名字是什么，ip是什么，最后这个“2”表示我们几个<code>sentinel</code>对这个<code>master</code>    认为它有问题了才发动故障转移；</p>
@@ -323,7 +323,7 @@ master0:name=mymaster,status=ok,address=127.0.0.1:7000,slaves=2,sentinels=3</cod
 <blockquote>
 <p>这里看最后一个：这里的sentinels为3，这就意味着，它们之间是能互相感知的</p>
 </blockquote>
-<h1 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h1><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571759631135.png" srcset="/img/loading.gif" alt="1571759631135"></p>
+<h1 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h1><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571759631135.png" srcset="/img/loading.gif" alt="1571759631135"></p>
 <h1 id="故障转移"><a href="#故障转移" class="headerlink" title="故障转移"></a>故障转移</h1><blockquote>
 <p>通过<code>Redis</code>的故障进行演练，为了演练这个东西，首先将<code>master</code>节点直接干掉，然后我们去写一个客户端，不断的去死循环客户端实现，当它自动去做故障转移的时候观察一下客户端的反应，最后再来分析<code>master</code>、<code>slave</code>日志</p>
 </blockquote>
@@ -402,7 +402,7 @@ master0:name=mymaster,status=ok,address=192.168.202.102:7001,slaves=2,sentinels=
 <li><p>发现slave节点</p>
 </li>
 <li><p>确认主从关系</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571838045174-1571838045933.png" srcset="/img/loading.gif" alt="1571838045174"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571838045174-1571838045933.png" srcset="/img/loading.gif" alt="1571838045174"></p>
 </li>
 </ul>
 </li>
@@ -411,7 +411,7 @@ master0:name=mymaster,status=ok,address=192.168.202.102:7001,slaves=2,sentinels=
 <li><p>通过<code>_sasentinel_:heloo</code>频道交互</p>
 </li>
 <li><p>交互对节点的“看法”和自身信息</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571838089475-1571838118960.png" srcset="/img/loading.gif" alt="1571838089475"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571838089475-1571838118960.png" srcset="/img/loading.gif" alt="1571838089475"></p>
 </li>
 </ul>
 </li>
@@ -420,7 +420,7 @@ master0:name=mymaster,status=ok,address=192.168.202.102:7001,slaves=2,sentinels=
 </ol>
 <ul>
 <li><p>心跳检测，失败判断依据</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571838194743.png" srcset="/img/loading.gif" alt="1571838194743"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571838194743.png" srcset="/img/loading.gif" alt="1571838194743"></p>
 </li>
 </ul>
 <h1 id="主观下线和客观下线"><a href="#主观下线和客观下线" class="headerlink" title="主观下线和客观下线"></a>主观下线和客观下线</h1><pre><code class="hljs nginx"><span class="hljs-comment"># 监控master节点，参数： quorum：法定人数，当达到一个法定人数时候才可以做下一步工作,这里配置的quorum配置的是一个2，这个2一般来说是这样的格式：例如现在有3个sentinel节点，那么就配置2，如果有5个就配3，建议是`节点数除以2去+1`，这里补充一下：sentinel节点最好是3个以上的基数，就像zoomkeeper那样的规则</span>

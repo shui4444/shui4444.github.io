@@ -204,7 +204,7 @@
           <div class="post-content mx-auto" id="post">
             
             <article class="markdown-body">
-              <h1 id="慢查询"><a href="#慢查询" class="headerlink" title="慢查询"></a>慢查询</h1><h2 id="生命周期"><a href="#生命周期" class="headerlink" title="生命周期"></a>生命周期</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571141370781.png" srcset="/img/loading.gif" alt="1571141370781"></p>
+              <h1 id="慢查询"><a href="#慢查询" class="headerlink" title="慢查询"></a>慢查询</h1><h2 id="生命周期"><a href="#生命周期" class="headerlink" title="生命周期"></a>生命周期</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571141370781.png" srcset="/img/loading.gif" alt="1571141370781"></p>
 <p><code>Redis</code>是一个单线程，当有多个命令发送过来时，它是会进行排队的执行命令，执行完成之后返回一个结果给客户端，这边标题讲的是慢查询，在图上慢查询会出现在第三阶段</p>
 <ul>
 <li>慢查询是指执行命令所消耗的时间，注意：这里不包括排队、网络都不算；</li>
@@ -215,7 +215,7 @@
 <li>当你的对列满了之后，最先进的会被的一个T出去，比如我们慢查询的列表是一个固定长度的；</li>
 <li>对列保存在内存当中，当<code>Redis</code>进行重启之后，不会持久化，而是随着重启而消失。</li>
 </ol>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571142116030.png" srcset="/img/loading.gif" alt=""></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571142116030.png" srcset="/img/loading.gif" alt=""></p>
 <p>这里你设给<code>Redis</code>设置一个超时时间，客户端发送命令时，如果命令超过了给定的时间，那么就会进入慢查询对列中；这里还给<code>Redis</code>设置了慢查询对列设置了长度，限制对列中的慢查询命令的数量，当对列满的时候，再进入一条会将最前面进的T掉</p>
 <h3 id="slowlog-log-slower-than"><a href="#slowlog-log-slower-than" class="headerlink" title="slowlog-log-slower-than"></a>slowlog-log-slower-than</h3><ol>
 <li><code>slowlog-log-slower-than</code>，慢查询阈值（单位：微妙），当命令大于多少的时候，我们将它介入到慢查询的范围内；</li>
@@ -246,9 +246,9 @@
 <li>理解命令生命周期；</li>
 <li>定期持久化慢查询，这个针对第二条，慢查询存储在内存当中，如果通过<code>slowlog get</code>这样的命令，定期将慢查询持久化到其他的数据源，比如说<code>mysql</code>，这样就可以查看到历史的慢查询操作，因为我们无论设置多大的长度（slowlog-log-slower-then），当慢查询逐步增多的时候，最开始的命令会被丢掉，当我们查一些历史问题时这些数据是非常关键的，所以你可以使用一些手段或者开源的软件来实现这些功能。</li>
 </ol>
-<h1 id="pipeline"><a href="#pipeline" class="headerlink" title="pipeline"></a>pipeline</h1><h2 id="什么流水线"><a href="#什么流水线" class="headerlink" title="什么流水线"></a>什么流水线</h2><h3 id="一次网络命令通信模型"><a href="#一次网络命令通信模型" class="headerlink" title="一次网络命令通信模型"></a>一次网络命令通信模型</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571144910775.png" srcset="/img/loading.gif" alt="1571144910775"></p>
+<h1 id="pipeline"><a href="#pipeline" class="headerlink" title="pipeline"></a>pipeline</h1><h2 id="什么流水线"><a href="#什么流水线" class="headerlink" title="什么流水线"></a>什么流水线</h2><h3 id="一次网络命令通信模型"><a href="#一次网络命令通信模型" class="headerlink" title="一次网络命令通信模型"></a>一次网络命令通信模型</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571144910775.png" srcset="/img/loading.gif" alt="1571144910775"></p>
 <p>客户端通过网络将命令传输给服务端，当服务端会有一些排队、命令将它忽略，将它归纳成计算，然后把结果进行返回，一次命令时间=1次网路时间+1次命令时间；</p>
-<h3 id="批量网络命令通信模型"><a href="#批量网络命令通信模型" class="headerlink" title="批量网络命令通信模型"></a>批量网络命令通信模型</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571145159164-1571145214835.png" srcset="/img/loading.gif" alt="1571145159164"></p>
+<h3 id="批量网络命令通信模型"><a href="#批量网络命令通信模型" class="headerlink" title="批量网络命令通信模型"></a>批量网络命令通信模型</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571145159164-1571145214835.png" srcset="/img/loading.gif" alt="1571145159164"></p>
 <p>之前学过<code>mget</code>、<code>mset</code>这样的操作，假如<code>Redis</code>中没有这行命令，我们只能将命令以n次命令进行循环一个操作，n次时间=n次网络时间+n次命令时间；</p>
 <p>一次命令时间是非常快的，<code>Redis</code>的QPS可以达到万级，那么网络相反，有很大的不同，因为我们可能存的是一个内网，可能是一个外网，甚至可能是一个跨机房、跨地区的有很多可能。我们想实现这样的命令需要怎么去做呢？比如我们有m次get操作可以使用mget、mset，那我想实现m次hmset，有没mhset 呢？Redis是没有的，或者我们想同时执行mset、mget这样的操作命令进行一个统一发送要怎么做呢？这就是流水线帮我们实现的功能。</p>
 <p>流水线</p>
@@ -277,11 +277,11 @@
 <li><code>Redis</code>的命令时间是微秒级别，<code>Redis</code>执行命令的时间本身是非常快的</li>
 <li><code>pipeline</code>每次条数要控制（网路），<code>Redis</code>的网络会成为瓶颈，因为我们网络环境肯定会相对复杂一些，所以<code>pipeline</code>就是为了解决n次操作网络的时间减小</li>
 </ol>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571228474052.png" srcset="/img/loading.gif" alt="1571228474052"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571228474052.png" srcset="/img/loading.gif" alt="1571228474052"></p>
 <p>这张地图上：北京到上海有1千3百公里，光速=3*108米秒=30000公里/秒，这里把复杂的网络环境进行忽略，而是完全将1千3百公里看成一个光纤，而且把光纤=光速的2/3，那么一条命令的传输时间=（1300 * 2）/(300000 * 2/3)=13毫秒，我一条命令在Redis看来就几微妙，但是在一个网络的传输时间是一个13毫秒，这里想象想做一个批量操作，没有使用<code>pipeline</code>这样的功能而是使用传统的一个循环的遍历，那我们的<code>Redis</code>使用效率不会很高，如果使用了<code>pipeline</code>，那时间消耗会被在网络上消耗一次，它命令批量会执行比较多，这只是一个极端的例子</p>
-<h2 id="客户端实现"><a href="#客户端实现" class="headerlink" title="客户端实现"></a>客户端实现</h2><h3 id="不使用pipeline"><a href="#不使用pipeline" class="headerlink" title="不使用pipeline"></a>不使用pipeline</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571147034871.png" srcset="/img/loading.gif" alt="1571147034871"></p>
-<h3 id="使用pipeline"><a href="#使用pipeline" class="headerlink" title="使用pipeline"></a>使用pipeline</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571147128248.png" srcset="/img/loading.gif" alt="1571147128248"></p>
-<h2 id="与原生操作对比"><a href="#与原生操作对比" class="headerlink" title="与原生操作对比"></a>与原生操作对比</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571147368279.png" srcset="/img/loading.gif" alt="1571147368279"></p>
+<h2 id="客户端实现"><a href="#客户端实现" class="headerlink" title="客户端实现"></a>客户端实现</h2><h3 id="不使用pipeline"><a href="#不使用pipeline" class="headerlink" title="不使用pipeline"></a>不使用pipeline</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571147034871.png" srcset="/img/loading.gif" alt="1571147034871"></p>
+<h3 id="使用pipeline"><a href="#使用pipeline" class="headerlink" title="使用pipeline"></a>使用pipeline</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571147128248.png" srcset="/img/loading.gif" alt="1571147128248"></p>
+<h2 id="与原生操作对比"><a href="#与原生操作对比" class="headerlink" title="与原生操作对比"></a>与原生操作对比</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571147368279.png" srcset="/img/loading.gif" alt="1571147368279"></p>
 <ul>
 <li>M操作：M操作属于原子操作，在<code>Redis</code>服务端它是有这样的原生命令的，所以它会其他操作在一个对列中是一个派对的效果；</li>
 <li>pipeline：假如pipeline携带了1000条命令，而且我们是在一个非常高的QPS环境下去执行的话，那它到redis的时候，它是将pipeline中的命令进行拆分，这里的命令不是原子的命令，这里返回的结果是按顺序的。</li>
@@ -297,18 +297,18 @@
 <li>频道（channel）</li>
 </ul>
 <p>发布者来发布消息，订阅者来订阅频道，发布者会发布对应的频道上，发布者发布了订阅者订阅的频道，订阅者就能收到消息</p>
-<h2 id="发布命令"><a href="#发布命令" class="headerlink" title="发布命令"></a>发布命令</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571150382094.png" srcset="/img/loading.gif" alt="1571150382094"></p>
+<h2 id="发布命令"><a href="#发布命令" class="headerlink" title="发布命令"></a>发布命令</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571150382094.png" srcset="/img/loading.gif" alt="1571150382094"></p>
 <p>这里如果发送给频道一个消息，这个频道中没有订阅者时，返回：0</p>
-<h2 id="订阅"><a href="#订阅" class="headerlink" title="订阅"></a>订阅</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571150465419.png" srcset="/img/loading.gif" alt="1571150465419"></p>
-<h2 id="取消订阅"><a href="#取消订阅" class="headerlink" title="取消订阅"></a>取消订阅</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571150478793.png" srcset="/img/loading.gif" alt="1571150478793"></p>
-<h2 id="其他API"><a href="#其他API" class="headerlink" title="其他API"></a>其他API</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571150551396.png" srcset="/img/loading.gif" alt="1571150551396"></p>
+<h2 id="订阅"><a href="#订阅" class="headerlink" title="订阅"></a>订阅</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571150465419.png" srcset="/img/loading.gif" alt="1571150465419"></p>
+<h2 id="取消订阅"><a href="#取消订阅" class="headerlink" title="取消订阅"></a>取消订阅</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571150478793.png" srcset="/img/loading.gif" alt="1571150478793"></p>
+<h2 id="其他API"><a href="#其他API" class="headerlink" title="其他API"></a>其他API</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571150551396.png" srcset="/img/loading.gif" alt="1571150551396"></p>
 <h2 id="消息队列"><a href="#消息队列" class="headerlink" title="消息队列"></a>消息队列</h2><p>它于发布订阅的区别在于：发布者发布的消息只有一个订阅者能收到，这是一个抢的功能，而且<code>Redis</code>也没有提供这样的功能，使用list阻塞的去拉的功能，大家去抢这个东西。当你在开发的这样的功能时，要搞清楚你是希望消费者都收到还是只有一个收到。</p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
 <li>搞清楚发布订阅模式中的角色；</li>
 <li>重要的API；</li>
 <li>消息队列和发布订阅的使用场景。</li>
 </ol>
-<h1 id="Bitmap"><a href="#Bitmap" class="headerlink" title="Bitmap"></a>Bitmap</h1><h2 id="位图"><a href="#位图" class="headerlink" title="位图"></a>位图</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571151448862.png" srcset="/img/loading.gif" alt="1571151448862"></p>
+<h1 id="Bitmap"><a href="#Bitmap" class="headerlink" title="Bitmap"></a>Bitmap</h1><h2 id="位图"><a href="#位图" class="headerlink" title="位图"></a>位图</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571151448862.png" srcset="/img/loading.gif" alt="1571151448862"></p>
 <p>图中有一个字符串叫做<code>“big”</code>，其中下面对应的是每一个字母的asics码，可以看到字母B的asics码是98，也就是对应的二进制，实际上在 <code>Redis</code>中可以对位进行操作，假如说设置了一个<code>set key</code>它的值为<code>“big”</code>，然后<code>get</code>的时候是可以取到<code>big</code>的结果，我们还可以取到它每一个位对应的值</p>
 <pre><code class="hljs bash">127.0.0.1:6382&gt; <span class="hljs-built_in">set</span> hello big
 OK
@@ -318,26 +318,26 @@ OK
 (<span class="hljs-built_in">integer</span>) 1</code></pre>
 
 <p>对于<code>Redis</code>来说，实际上是可以直接操作位的，下面来介绍下相关的API</p>
-<h2 id="相关命令"><a href="#相关命令" class="headerlink" title="相关命令"></a>相关命令</h2><h3 id="setbit"><a href="#setbit" class="headerlink" title="setbit"></a>setbit</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571151608426.png" srcset="/img/loading.gif" alt="1571151608426"></p>
+<h2 id="相关命令"><a href="#相关命令" class="headerlink" title="相关命令"></a>相关命令</h2><h3 id="setbit"><a href="#setbit" class="headerlink" title="setbit"></a>setbit</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571151608426.png" srcset="/img/loading.gif" alt="1571151608426"></p>
 <blockquote>
 <p>返回结果是它之前对应位的值，这里之前没有设置值，这里返回0</p>
 </blockquote>
 <p>结果为：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571151685655.png" srcset="/img/loading.gif" alt="1571151685655"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571151685655.png" srcset="/img/loading.gif" alt="1571151685655"></p>
 <p>注意：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571152327730.png" srcset="/img/loading.gif" alt="1571152327730"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571152327730.png" srcset="/img/loading.gif" alt="1571152327730"></p>
 <p>在这里设置索引为50，位为1的情况，其他未设置的它会自动补0，这个操作本身就会比较慢，所以不在一个很短的位图上突然做很大的偏移量，这就会引起很多问题</p>
-<h3 id="getbit"><a href="#getbit" class="headerlink" title="getbit"></a>getbit</h3><p> <img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571152470270.png" srcset="/img/loading.gif" alt="1571152470270"></p>
-<h3 id="bitcount"><a href="#bitcount" class="headerlink" title="bitcount"></a>bitcount</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571152540234.png" srcset="/img/loading.gif" alt="1571152540234"></p>
-<h3 id="bitop"><a href="#bitop" class="headerlink" title="bitop"></a>bitop</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571152615140.png" srcset="/img/loading.gif" alt="1571152615140"></p>
-<h3 id="bitpos"><a href="#bitpos" class="headerlink" title="bitpos"></a>bitpos</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571152708769.png" srcset="/img/loading.gif" alt="1571152708769"></p>
+<h3 id="getbit"><a href="#getbit" class="headerlink" title="getbit"></a>getbit</h3><p> <img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571152470270.png" srcset="/img/loading.gif" alt="1571152470270"></p>
+<h3 id="bitcount"><a href="#bitcount" class="headerlink" title="bitcount"></a>bitcount</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571152540234.png" srcset="/img/loading.gif" alt="1571152540234"></p>
+<h3 id="bitop"><a href="#bitop" class="headerlink" title="bitop"></a>bitop</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571152615140.png" srcset="/img/loading.gif" alt="1571152615140"></p>
+<h3 id="bitpos"><a href="#bitpos" class="headerlink" title="bitpos"></a>bitpos</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571152708769.png" srcset="/img/loading.gif" alt="1571152708769"></p>
 <h2 id="独立用户统计"><a href="#独立用户统计" class="headerlink" title="独立用户统计"></a>独立用户统计</h2><ol>
 <li>使用set和Bitmap对比</li>
 <li>1亿用户，5千万独立访问</li>
 </ol>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571152865462.png" srcset="/img/loading.gif" alt="1571152865462"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571152865462.png" srcset="/img/loading.gif" alt="1571152865462"></p>
 <h2 id="独立用户统计（续）"><a href="#独立用户统计（续）" class="headerlink" title="独立用户统计（续）"></a>独立用户统计（续）</h2><p>只有10万独立用户呢？</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571152954190.png" srcset="/img/loading.gif" alt="1571152954190"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571152954190.png" srcset="/img/loading.gif" alt="1571152954190"></p>
 <h2 id="使用经验"><a href="#使用经验" class="headerlink" title="使用经验"></a>使用经验</h2><ol>
 <li>type=string，最大512MB,对于大部分独立用户是可以满足的，假如说我们两无法满足的时候，我们可以将key进行拆分，使用多个key实现这个功能；</li>
 <li>注意setbit时的偏移量，可能有较大耗时；</li>
@@ -352,11 +352,11 @@ OK
 <li>pfcount key[key…]:计算 hyperloglog的独立总数</li>
 <li>pfmerge deskey sourcekey[ sourcekey…J:合并多个 hyperloglog</li>
 </ol>
-<h3 id="demo"><a href="#demo" class="headerlink" title="demo"></a>demo</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571154873586.png" srcset="/img/loading.gif" alt="1571154873586"></p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571154949028.png" srcset="/img/loading.gif" alt="1571154949028"></p>
+<h3 id="demo"><a href="#demo" class="headerlink" title="demo"></a>demo</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571154873586.png" srcset="/img/loading.gif" alt="1571154873586"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571154949028.png" srcset="/img/loading.gif" alt="1571154949028"></p>
 <h2 id="内存消耗"><a href="#内存消耗" class="headerlink" title="内存消耗"></a>内存消耗</h2><p>插入百万条记录</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571155041539.png" srcset="/img/loading.gif" alt="1571155041539"></p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571155066244.png" srcset="/img/loading.gif" alt="1571155066244"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571155041539.png" srcset="/img/loading.gif" alt="1571155041539"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571155066244.png" srcset="/img/loading.gif" alt="1571155066244"></p>
 <h2 id="使用经验-1"><a href="#使用经验-1" class="headerlink" title="使用经验"></a>使用经验</h2><ol>
 <li>是否能容忍错误？（错误率：0.81%）</li>
 <li>是否需要单条记录？</li>
@@ -364,13 +364,13 @@ OK
 <h1 id="GEO"><a href="#GEO" class="headerlink" title="GEO"></a>GEO</h1><h2 id="GEO是什么？"><a href="#GEO是什么？" class="headerlink" title="GEO是什么？"></a>GEO是什么？</h2><blockquote>
 <p>GEO是<code>Redis3.2</code>新增的特性，用于计算地理位置信息相关的功能</p>
 </blockquote>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571155474248.png" srcset="/img/loading.gif" alt="1571155474248"></p>
-<h2 id="5个城市经纬度"><a href="#5个城市经纬度" class="headerlink" title="5个城市经纬度"></a>5个城市经纬度</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571155530668.png" srcset="/img/loading.gif" alt="1571155530668"></p>
-<h2 id="相关命令-1"><a href="#相关命令-1" class="headerlink" title="相关命令"></a>相关命令</h2><h3 id="geoadd"><a href="#geoadd" class="headerlink" title="geoadd"></a>geoadd</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571155587057.png" srcset="/img/loading.gif" alt="1571155587057"></p>
-<h3 id="geopos"><a href="#geopos" class="headerlink" title="geopos"></a>geopos</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571155627868.png" srcset="/img/loading.gif" alt="1571155627868"></p>
-<h3 id="geodist"><a href="#geodist" class="headerlink" title="geodist"></a>geodist</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571155666402.png" srcset="/img/loading.gif" alt="1571155666402"></p>
-<h3 id="georadius"><a href="#georadius" class="headerlink" title="georadius"></a>georadius</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571155685404.png" srcset="/img/loading.gif" alt="1571155685404"></p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571155764137.png" srcset="/img/loading.gif" alt="1571155764137"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571155474248.png" srcset="/img/loading.gif" alt="1571155474248"></p>
+<h2 id="5个城市经纬度"><a href="#5个城市经纬度" class="headerlink" title="5个城市经纬度"></a>5个城市经纬度</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571155530668.png" srcset="/img/loading.gif" alt="1571155530668"></p>
+<h2 id="相关命令-1"><a href="#相关命令-1" class="headerlink" title="相关命令"></a>相关命令</h2><h3 id="geoadd"><a href="#geoadd" class="headerlink" title="geoadd"></a>geoadd</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571155587057.png" srcset="/img/loading.gif" alt="1571155587057"></p>
+<h3 id="geopos"><a href="#geopos" class="headerlink" title="geopos"></a>geopos</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571155627868.png" srcset="/img/loading.gif" alt="1571155627868"></p>
+<h3 id="geodist"><a href="#geodist" class="headerlink" title="geodist"></a>geodist</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571155666402.png" srcset="/img/loading.gif" alt="1571155666402"></p>
+<h3 id="georadius"><a href="#georadius" class="headerlink" title="georadius"></a>georadius</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571155685404.png" srcset="/img/loading.gif" alt="1571155685404"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571155764137.png" srcset="/img/loading.gif" alt="1571155764137"></p>
 <h2 id="相关说明"><a href="#相关说明" class="headerlink" title="相关说明"></a>相关说明</h2><ol>
 <li>since 3.2+提供的功能</li>
 <li>type geoKey=zset</li>

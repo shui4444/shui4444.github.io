@@ -204,7 +204,7 @@
           <div class="post-content mx-auto" id="post">
             
             <article class="markdown-body">
-              <h1 id="Spring-Security授权源码解析"><a href="#Spring-Security授权源码解析" class="headerlink" title="Spring Security授权源码解析"></a>Spring Security授权源码解析</h1><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568551319566.png" srcset="/img/loading.gif" alt="1568551319566"></p>
+              <h1 id="Spring-Security授权源码解析"><a href="#Spring-Security授权源码解析" class="headerlink" title="Spring Security授权源码解析"></a>Spring Security授权源码解析</h1><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1568551319566.png" srcset="/img/loading.gif" alt="1568551319566"></p>
 <blockquote>
 <p>FilterSecurityInterceptor负责最终决定当前的请求是否能通过过滤器来访问最后的api，如果不能会根据不同的原因抛出异常，然后由ExceptionTranslationFilter来处理， </p>
 </blockquote>
@@ -260,7 +260,7 @@
 <p>这个Authentication会传递给FilterSecurityInterceptor由它来决定当前的Authentication所包含的信息是否可以访问当前请求的URL</p>
 <hr>
 <p>接下来看一下FilterSecurityInterceptor和ExceptionTranslationFilter的代码，在这之前来看一张图：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568552428831.png" srcset="/img/loading.gif" alt="1568552428831"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1568552428831.png" srcset="/img/loading.gif" alt="1568552428831"></p>
 <ul>
 <li>FilterSecurityInterceptor：主入口</li>
 <li>AccessDecisionManager：访问管理者，它是一个接口，拥有1一个抽象实现，3个具体实现，负责管理一组AccessDecisionVoter，AccessDecisionVoter：投票人，在spring Security3之前，AccessDecisionManager是一组AccessDecisionVoter接口的实现， 不同的实现处理不同的逻辑，比如判断当前Authentication里面是否里面包含某种角色，有的投票中判断当前Authentication是否经过身份认证，有各种各样的判断，每种判断逻辑都是投票者的实现，在这个管理者里面维护了一组头投票者，当它收到请求以后，每一个投票者会根据自己的逻辑去投出自己的一票，说这个请求投过还是不过</li>
@@ -304,51 +304,51 @@
 <li>ExceptionTranslationFilter：123行</li>
 </ul>
 <p>访问拒绝流程：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568554446330.png" srcset="/img/loading.gif" alt="1568554446330"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1568554446330.png" srcset="/img/loading.gif" alt="1568554446330"></p>
 <p>首先会进入doFilter方法，这里调用了invoke方法</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568554473190.png" srcset="/img/loading.gif" alt="1568554473190"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1568554473190.png" srcset="/img/loading.gif" alt="1568554473190"></p>
 <p>这里的invoke会做一个判断，你当前的请求之前是否经过这个过滤器，如果之前这个请求经过这个过滤器，那么这里就就直接往下走，它判断的依据：</p>
 <pre><code class="hljs java">fi.getRequest().getAttribute(FILTER_APPLIED) != <span class="hljs-keyword">null</span></code></pre>
 
 <p>判断请求的FILTER_APPLIED是不是有值，如果不为空有值，就按之前走过这个过滤器处理，这里我是第一次访问这个应用，所以走的是else</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568554732440.png" srcset="/img/loading.gif" alt="1568554732440"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1568554732440.png" srcset="/img/loading.gif" alt="1568554732440"></p>
 <p>首先它会给请求中的FILTER_APPLIED属性设置上，下次又经过这个过滤器就不会走else了，最关键的代码：</p>
 <pre><code class="hljs java">InterceptorStatusToken token = <span class="hljs-keyword">super</span>.beforeInvocation(fi);</code></pre>
 
 <p>如果在这里出了问题它就抛异常，整个就中断了，如果不抛异常没问题，就会再往下调用过滤器链，。</p>
 <p>下面来看下beforeInvocation这个方法做了什么：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568554968267.png" srcset="/img/loading.gif" alt="1568554968267"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1568554968267.png" srcset="/img/loading.gif" alt="1568554968267"></p>
 <pre><code class="hljs java">Collection&lt;ConfigAttribute&gt; attributes = <span class="hljs-keyword">this</span>.obtainSecurityMetadataSource()
 				.getAttributes(object);</code></pre>
 
 <p>这里获取了前面介绍的ConfigAttribute，这里是根据BrowserSecurityConfig配置信息封装的。</p>
 <p>obtainSecurityMetadataSource方法是ConfigAttribute集合的封装逻辑：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568555168543.png" srcset="/img/loading.gif" alt="1568555168543"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1568555168543.png" srcset="/img/loading.gif" alt="1568555168543"></p>
 <p>这里对requestMap进行循环，可以看到requestMap的内容就是BrowserSecurityConfig配置的内容，这里会根据当前请求的URL去在这个requestMap中去找所需要的权限，这里我访问的是/user这样的地址，返回内容：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568555438147.png" srcset="/img/loading.gif" alt="1568555438147"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1568555438147.png" srcset="/img/loading.gif" alt="1568555438147"></p>
 <p>这里要求用户hasRole(‘ROLE_ADMIN’)返回为true，也就是用户需要是ROLE_ADMIN角色</p>
 <hr>
 <p>往下走到这里：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568555618786.png" srcset="/img/loading.gif" alt="1568555618786"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1568555618786.png" srcset="/img/loading.gif" alt="1568555618786"></p>
 <p>这里判断SecurityContext中的Authentication是不是空，之前介绍过，及时前面过滤器都没通过，还是有在最后一个过滤器中设置Authentication，所以不可能是空，这里不会抛出异常</p>
 <p>在往下：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568555956517.png" srcset="/img/loading.gif" alt="1568555956517"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1568555956517.png" srcset="/img/loading.gif" alt="1568555956517"></p>
 <pre><code class="hljs java">Authentication authenticated = authenticateIfRequired();</code></pre>
 
 <p>这里会到Authentication做一些判断然后返回，然后执行：</p>
 <pre><code class="hljs java"><span class="hljs-keyword">this</span>.accessDecisionManager.decide(authenticated, object, attributes);</code></pre>
 
 <p>这里就是前面介绍的访问管理者了，这里的object就是请求信息，这里会使用AffirmativeBased#decide，它是默认的</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568556156687.png" srcset="/img/loading.gif" alt="1568556156687"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1568556156687.png" srcset="/img/loading.gif" alt="1568556156687"></p>
 <p>这个只要有一个投不过，那么请求就不过，首先它会循环所有投票者</p>
 <p>在web环境下就只剩下这一个投票者了，它是一个根据表达式的投票器</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568556239210.png" srcset="/img/loading.gif" alt="1568556239210"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1568556239210.png" srcset="/img/loading.gif" alt="1568556239210"></p>
 <pre><code class="hljs java"><span class="hljs-keyword">int</span> result = voter.vote(authentication, object, configAttributes);</code></pre>
 
 <p>这里会将前面的信息交给投票器，让它去投票，最终结果为“-1”，就是不过意思，因为我当前访问的表达式需要权限：hasRole(‘ROLE_ADMIN’)，而我这里的权限：</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568556466007.png" srcset="/img/loading.gif" alt="1568556466007"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1568556466007.png" srcset="/img/loading.gif" alt="1568556466007"></p>
 <p>它是一个匿名的，所以最终结果为不过，这里如果有一个不过就会对deny变量进行累加，如果有任何投票器投了不过，就会抛异常</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568556560419.png" srcset="/img/loading.gif" alt="1568556560419"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1568556560419.png" srcset="/img/loading.gif" alt="1568556560419"></p>
 <p>这里抛出的异常会在AccessDecisionManager中进行抛出，它会抛给调用它的FilterSecurityInterceptor，那么捕获到这个访问拒绝异常以后，会执行以下代码：</p>
 <pre><code class="hljs java"><span class="hljs-keyword">catch</span> (AccessDeniedException accessDeniedException) &#123;
 			publishEvent(<span class="hljs-keyword">new</span> AuthorizationFailureEvent(object, attributes, authenticated,
@@ -358,7 +358,7 @@
 		&#125;</code></pre>
 
 <p>首先在spring容器里发一个事件，然后再继续抛出这个异常，再抛出这个异常会跑到ExceptionTranslationFilter过滤器上</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568557057727.png" srcset="/img/loading.gif" alt="1568557057727"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1568557057727.png" srcset="/img/loading.gif" alt="1568557057727"></p>
 <p>先来说下这2段代码：</p>
 <pre><code class="hljs java">RuntimeException ase = (AuthenticationException) throwableAnalyzer
 				.getFirstThrowableOfType(AuthenticationException<span class="hljs-class">.<span class="hljs-keyword">class</span>, <span class="hljs-title">causeChain</span>)</span>;
@@ -369,7 +369,7 @@
 		&#125;</code></pre>
 
 <p>首先它会去根据异常来看一下是不是AuthenticationException，前面抛出的是一个AccessDeniedException所以，会返回空，那么就会进到这个if中这里是判断是否是AccessDeniedException异常，这里就有值了</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568557191088.png" srcset="/img/loading.gif" alt="1568557191088"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1568557191088.png" srcset="/img/loading.gif" alt="1568557191088"></p>
 <p>有值以后，执行handleSpringSecurityException方法来处理异常，</p>
 <pre><code class="hljs java"><span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (exception <span class="hljs-keyword">instanceof</span> AccessDeniedException) &#123;
 			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -400,7 +400,7 @@
 						(AccessDeniedException) exception);</code></pre>
 
 <p>org.springframework.security.web.access.AccessDeniedHandlerImpl#handle</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1568557636405.png" srcset="/img/loading.gif" alt="1568557636405"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1568557636405.png" srcset="/img/loading.gif" alt="1568557636405"></p>
 <p>这个处理器会响应403，我们现在是因为被匿名这个身份被拒绝的，所以会进到这里</p>
 <pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">sendStartAuthentication</span><span class="hljs-params">(HttpServletRequest request,</span></span>
 <span class="hljs-function"><span class="hljs-params">			HttpServletResponse response, FilterChain chain,</span></span>

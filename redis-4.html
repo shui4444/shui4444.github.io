@@ -205,26 +205,26 @@
             
             <article class="markdown-body">
               <h1 id="持久化的作用"><a href="#持久化的作用" class="headerlink" title="持久化的作用"></a>持久化的作用</h1><h2 id="什么是持久化"><a href="#什么是持久化" class="headerlink" title="什么是持久化"></a>什么是持久化</h2><p> 持久化（Persistence），即把数据（如内存中的对象）保存到可永久保存的存储设备中（如磁盘）。<br>持久化 Redis 所有数据保持在内存中，对数据的更新将异步地保存到磁盘上。 </p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571240413585.png" srcset="/img/loading.gif" alt="1571240413585">  </p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571240413585.png" srcset="/img/loading.gif" alt="1571240413585">  </p>
 <h2 id="持久化的实现方式"><a href="#持久化的实现方式" class="headerlink" title="持久化的实现方式"></a>持久化的实现方式</h2><h3 id="快照方式持久化"><a href="#快照方式持久化" class="headerlink" title="快照方式持久化"></a>快照方式持久化</h3><p>快照方式持久化就是在某时刻把所有数据进行完整备份。</p>
 <p>例：Mysql 的 Dump 方式、Redis 的 RDB 方式。</p>
 <h3 id="写日志方式持久化"><a href="#写日志方式持久化" class="headerlink" title="写日志方式持久化"></a>写日志方式持久化</h3><p>写日志方式持久化就是把用户执行的所有写指令（增删改）备份到文件中，还原数据时只需要把备份的所有指令重新执行一遍即可。</p>
 <p>例：Mysql 的 Binlog、Redis 的 AOF、Hbase 的 HLog。</p>
-<h1 id="RDB"><a href="#RDB" class="headerlink" title="RDB"></a>RDB</h1><h2 id="什么是-RDB"><a href="#什么是-RDB" class="headerlink" title="什么是 RDB"></a>什么是 RDB</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571240680932.png" srcset="/img/loading.gif" alt="1571240680932"></p>
+<h1 id="RDB"><a href="#RDB" class="headerlink" title="RDB"></a>RDB</h1><h2 id="什么是-RDB"><a href="#什么是-RDB" class="headerlink" title="什么是 RDB"></a>什么是 RDB</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571240680932.png" srcset="/img/loading.gif" alt="1571240680932"></p>
 <p> RDB 持久化方式能够在指定的时间间隔能对你的数据进行快照存储。<br>在默认情况下， Redis 将数据库快照保存在名字为 dump.rdb 的二进制文件中。<br>在 Redis 运行时， RDB 程序将当前内存中的数据库快照保存到磁盘文件中， 在 Redis 重启动时， RDB 程序可以通过载入 RDB 文件来还原数据库的状态。 </p>
 <h2 id="RDB-的三种主要触发机制"><a href="#RDB-的三种主要触发机制" class="headerlink" title="RDB 的三种主要触发机制"></a>RDB 的三种主要触发机制</h2><h3 id="save-命令（同步数据到磁盘上）"><a href="#save-命令（同步数据到磁盘上）" class="headerlink" title="save 命令（同步数据到磁盘上）"></a>save 命令（同步数据到磁盘上）</h3><p><code>save</code> 属于O（n）命令执行一个同步操作，以 RDB 文件的方式保存所有数据的快照。</p>
 <pre><code class="hljs bash">127.0.0.1:6379&gt; save
 OK</code></pre>
 
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571240796252.png" srcset="/img/loading.gif" alt="1571240796252"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571240796252.png" srcset="/img/loading.gif" alt="1571240796252"></p>
 <p> 由于 <code>save</code> 命令是同步命令，会占用 <code>Redis</code> 的主进程。若 <code>Redis</code> 数据非常多时，<code>save</code> 命令执行速度会非常慢，阻塞所有客户端的请求。<br>因此很少在生产环境直接使用 SAVE 命令，可以使用 <code>BGSAVE</code> 命令代替。如果在 <code>BGSAVE</code> 命令的保存数据的子进程发生错误的时，用 SAVE 命令保存最新的数据是最后的手段。 </p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571240834372.png" srcset="/img/loading.gif" alt="1571240834372"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571240834372.png" srcset="/img/loading.gif" alt="1571240834372"></p>
 <h3 id="bgsave-命令（异步保存数据到磁盘上）"><a href="#bgsave-命令（异步保存数据到磁盘上）" class="headerlink" title="bgsave 命令（异步保存数据到磁盘上）"></a>bgsave 命令（异步保存数据到磁盘上）</h3><p><code>bgsave</code> 命令执行一个异步操作，以 RDB 文件的方式保存所有数据的快照。</p>
 <pre><code class="hljs bash">127.0.0.1:6379&gt; bgsave
 Background saving started</code></pre>
 
 <p> Redis 使用 Linux 系统的 <code>fock()</code> 生成一个子进程来将 DB 数据保存到磁盘，主进程继续提供服务以供客户端调用。<br>如果操作成功，可以通过客户端命令 LASTSAVE 来检查操作结果。 </p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571240943676.png" srcset="/img/loading.gif" alt="1571240943676"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571240943676.png" srcset="/img/loading.gif" alt="1571240943676"></p>
 <h3 id="save-与-bgsave-对比"><a href="#save-与-bgsave-对比" class="headerlink" title="save 与 bgsave 对比"></a>save 与 bgsave 对比</h3><table>
 <thead>
 <tr>
@@ -263,7 +263,7 @@ Background saving started</code></pre>
 <p>你可以通过配置文件对 Redis 进行设置， 让它在 “N 秒内数据集至少有 M 个改动” 这一条件被满足时， 自动进行数据集保存操作。<br>比如说， 以下设置会让 Redis 在满足 “60 秒内有至少有 1000 个键被改动” 这一条件时， 自动进行数据集保存操作：</p>
 <pre><code class="hljs bash">save 60 1000</code></pre>
 
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571241038316.png" srcset="/img/loading.gif" alt="1571241038316"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571241038316.png" srcset="/img/loading.gif" alt="1571241038316"></p>
 <h2 id="触发机制-不容忽视的方式"><a href="#触发机制-不容忽视的方式" class="headerlink" title="触发机制-不容忽视的方式"></a>触发机制-不容忽视的方式</h2><ol>
 <li>全量复制</li>
 <li>debug reload</li>
@@ -316,15 +316,15 @@ Background saving started</code></pre>
 
 <p>打开 AOF 后， 每当 Redis 执行一个改变数据集的命令时（比如 SET）， 这个命令就会被追加到 AOF 文件的末尾。这样的话， 当 Redis 重新启时， 程序就可以通过重新执行 AOF 文件中的命令来达到重建数据集的目的。</p>
 <p>AOF 运行原理 - 创建</p>
-<p>  <img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1460000016021226.png" srcset="/img/loading.gif" alt="1460000016021226">  </p>
+<p>  <img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1460000016021226.png" srcset="/img/loading.gif" alt="1460000016021226">  </p>
 <p>AOF 运行原理 - 恢复</p>
-<p> <img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1460000016021227.png" srcset="/img/loading.gif" alt="1460000016021227.png"> </p>
+<p> <img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1460000016021227.png" srcset="/img/loading.gif" alt="1460000016021227.png"> </p>
 <h2 id="AOF-持久化的三种策略"><a href="#AOF-持久化的三种策略" class="headerlink" title="AOF 持久化的三种策略"></a>AOF 持久化的三种策略</h2><h3 id="always"><a href="#always" class="headerlink" title="always"></a>always</h3><p>你可以通过配置文件配置 Redis 多久才将数据 fsync 到磁盘一次。每次有新命令追加到 AOF 文件时就执行一次 fsync ：非常慢，也非常安全。</p>
-<p> <img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1460000016021228-1571313423491.png" srcset="/img/loading.gif" alt="1460000016021228"> </p>
+<p> <img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1460000016021228-1571313423491.png" srcset="/img/loading.gif" alt="1460000016021228"> </p>
 <h3 id="everysec"><a href="#everysec" class="headerlink" title="everysec"></a>everysec</h3><p>每秒 fsync 一次：足够快（和使用 RDB 持久化差不多），并且在故障时只会丢失 1 秒钟的数据。<br>推荐（并且也是默认）的措施为每秒 fsync 一次， 这种 fsync 策略可以兼顾速度和安全性。</p>
-<p> <img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1460000016021229.png" srcset="/img/loading.gif" alt="img"> </p>
+<p> <img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1460000016021229.png" srcset="/img/loading.gif" alt="img"> </p>
 <h3 id="no"><a href="#no" class="headerlink" title="no"></a>no</h3><p>从不 fsync ：将数据交给操作系统来处理，由操作系统来决定什么时候同步数据。更快，也更不安全的选择。</p>
-<p> <img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1460000016021230.png" srcset="/img/loading.gif" alt="no"></p>
+<p> <img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1460000016021230.png" srcset="/img/loading.gif" alt="no"></p>
 <h3 id="always、everysec、no-对比"><a href="#always、everysec、no-对比" class="headerlink" title="always、everysec、no 对比"></a>always、everysec、no 对比</h3><table>
 <thead>
 <tr>
@@ -350,7 +350,7 @@ Background saving started</code></pre>
 </tr>
 </tbody></table>
 <h2 id="重写"><a href="#重写" class="headerlink" title="重写"></a>重写</h2><h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><p>因为 <code>AOF</code> 的运作方式是不断地将命令追加到文件的末尾， 所以随着写入命令的不断增加， <code>AOF</code> 文件的体积也会变得越来越大。举个例子， 如果你对一个计数器调用了 100 次 <code>INCR</code> ， 那么仅仅是为了保存这个计数器的当前值， <code>AOF</code> 文件就需要使用 100 条记录（entry）。然而在实际上， 只使用一条 SET 命令已经足以保存计数器的当前值了， 其余 99 条记录实际上都是多余的。<br>为了处理这种情况， <code>Redis</code> 支持一种有趣的特性： 可以在不打断服务客户端的情况下， 对 <code>AOF</code> 文件进行重建（rebuild）。执行 <code>bgrewriteaof</code> 命令， <code>Redis</code> 将生成一个新的 <code>AOF</code> 文件， 这个文件包含重建当前数据集所需的最少命令。<br><code>Redis 2.2</code> 需要自己手动执行 <code>bgrewriteaof</code> 命令； <code>Redis 2.4</code> 则可以通过配置自动触发 <code>AOF</code> 重写。</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571316511368.png" srcset="/img/loading.gif" alt="1571316511368">  </p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571316511368.png" srcset="/img/loading.gif" alt="1571316511368">  </p>
 <h3 id="AOF-重写的作用"><a href="#AOF-重写的作用" class="headerlink" title="AOF 重写的作用"></a>AOF 重写的作用</h3><ul>
 <li>减少磁盘占用量</li>
 <li>加速数据恢复</li>
@@ -364,7 +364,7 @@ Background saving started</code></pre>
 </ul>
 </li>
 </ul>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/3606763245-5b73cfc6d009c_articlex.jpg" srcset="/img/loading.gif" alt="3606763245-5b73cfc6d009c_articlex"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/3606763245-5b73cfc6d009c_articlex.jpg" srcset="/img/loading.gif" alt="3606763245-5b73cfc6d009c_articlex"></p>
 <ul>
 <li>AOF 重写配置</li>
 </ul>
@@ -412,7 +412,7 @@ Background saving started</code></pre>
 auto-aof-rewrite-percentage 100</code></pre>
 
 <p> 当 AOF 文件的体积大于 64Mb，并且 AOF 文件的体积比上一次重写之久的体积大了至少一倍（100%）时，Redis 将执行 bgrewriteaof 命令进行重写。 </p>
-<h3 id="AOF-重写的流程"><a href="#AOF-重写的流程" class="headerlink" title="AOF 重写的流程"></a>AOF 重写的流程</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1571317003921.png" srcset="/img/loading.gif" alt="1571317003921"></p>
+<h3 id="AOF-重写的流程"><a href="#AOF-重写的流程" class="headerlink" title="AOF 重写的流程"></a>AOF 重写的流程</h3><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1571317003921.png" srcset="/img/loading.gif" alt="1571317003921"></p>
 <h2 id="AOF-相关配置"><a href="#AOF-相关配置" class="headerlink" title="AOF 相关配置"></a>AOF 相关配置</h2><pre><code class="hljs pseudocode"># 开启AOF持久化方式
 appendonly yes
 

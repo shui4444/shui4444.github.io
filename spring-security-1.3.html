@@ -372,7 +372,7 @@
 
 <p>解决方案：</p>
 <p>在<code>org.hibernate.validator</code>这个包下面提供了一些校验注解，通过这些注解就能轻松的进行数据效验</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566701442199.png" srcset="/img/loading.gif" alt="1566701442199"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1566701442199.png" srcset="/img/loading.gif" alt="1566701442199"></p>
 <p>在<code>UserVO</code>中的使用<code>NotBlank</code>注解来修饰password属性，添加上这个注解就可以不用在控制器中写if判断数据是不是空了</p>
 <pre><code class="hljs java"><span class="hljs-meta">@Data</span>
 <span class="hljs-meta">@AllArgsConstructor</span>
@@ -389,7 +389,7 @@
   &#125;</code></pre>
 
 <p>现在通过<code>post man</code>工具进行访问这个接口（如果读者不清楚post man是干什么的，可以来看下这个<a href="https://www.jianshu.com/p/6c9b45994c34" target="_blank" rel="noopener">文档</a>）</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566701998934.png" srcset="/img/loading.gif" alt="1566701998934"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1566701998934.png" srcset="/img/loading.gif" alt="1566701998934"></p>
 <p>这里可以看到，校验是通过的，这里还需要加上一个<code>BindingResult</code>参数，它里面存储了这些错误信息，</p>
 <pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">add</span><span class="hljs-params">(@Valid @RequestBody UserVO userVO, BindingResult errors)</span> </span>&#123;
         <span class="hljs-keyword">if</span> (errors.hasErrors()) &#123;
@@ -400,7 +400,7 @@
         <span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;
     &#125;</code></pre>
 
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566702315546.png" srcset="/img/loading.gif" alt="1566702315546"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1566702315546.png" srcset="/img/loading.gif" alt="1566702315546"></p>
 <p>这里还有其他的注解，笔者就不一一列举，感兴趣的读者可以自己来试一下</p>
 <table>
 <thead>
@@ -594,7 +594,7 @@
 <li><code>isValid</code>：方法中编写你的效验逻辑，第1个参数<code>value</code>:获取被注解的属性、方法的值，另外一个就不多讲，很少用得上（PS：笔者这里没用过，哈哈），返回值是<code>true</code>表示验证通过，false表示数据有问题</li>
 </ul>
 <p>接着来看下<code>Hibernate Validator</code>是如何实现<code>ConstraintValidator</code>接口的呢？这里以<code>NotBlank</code>注解的效验器为例，我通过IDEA，查找到<code>NotBlankValidator</code></p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566705844750.png" srcset="/img/loading.gif" alt="1566705844750"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1566705844750.png" srcset="/img/loading.gif" alt="1566705844750"></p>
 <pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">NotBlankValidator</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">ConstraintValidator</span>&lt;<span class="hljs-title">NotBlank</span>, <span class="hljs-title">CharSequence</span>&gt; </span>&#123;
 
 	<span class="hljs-meta">@Override</span>
@@ -766,7 +766,7 @@ No message available</code></pre>
 
 <p>实现浏览器中如果出现404异常，就跳转到指定页面</p>
 <p>在demo模块中创建<code>404.html</code>，当用户在浏览器中请求如果发生404，就会到这个页面上</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566712743738.png" srcset="/img/loading.gif" alt="1566712743738"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1566712743738.png" srcset="/img/loading.gif" alt="1566712743738"></p>
 <p>实现客户端访问接口出现异常，响应相关的提示json</p>
 <p>创建一个自定义异常</p>
 <pre><code class="hljs java"><span class="hljs-keyword">package</span> com.b4.mcr.exception;
@@ -1079,7 +1079,7 @@ ex is <span class="hljs-keyword">null</span></code></pre>
 &#125;</code></pre>
 
 <p>使用<code>post man</code>发送请求</p>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566719187552.png" srcset="/img/loading.gif" alt="1566719187552"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1566719187552.png" srcset="/img/loading.gif" alt="1566719187552"></p>
 <p>控制台输出：</p>
 <pre><code class="hljs pgsql">t1
 <span class="hljs-type">time</span> aspect <span class="hljs-keyword">start</span>
@@ -1087,7 +1087,7 @@ arg <span class="hljs-keyword">is</span> UserVO(userName=t1, <span class="hljs-k
 <span class="hljs-type">time</span> aspect 耗时:<span class="hljs-number">0</span>
 <span class="hljs-type">time</span> aspect <span class="hljs-keyword">end</span></code></pre>
 
-<h2 id="执行顺序"><a href="#执行顺序" class="headerlink" title="执行顺序"></a>执行顺序</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1566719359465.png" srcset="/img/loading.gif" alt="1566719359465"></p>
+<h2 id="执行顺序"><a href="#执行顺序" class="headerlink" title="执行顺序"></a>执行顺序</h2><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1566719359465.png" srcset="/img/loading.gif" alt="1566719359465"></p>
 <h1 id="Swagger文档"><a href="#Swagger文档" class="headerlink" title="Swagger文档"></a>Swagger文档</h1><blockquote>
 <p>笔者正在补充~</p>
 </blockquote>

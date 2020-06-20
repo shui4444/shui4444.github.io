@@ -204,7 +204,7 @@
           <div class="post-content mx-auto" id="post">
             
             <article class="markdown-body">
-              <p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567510663145.png" srcset="/img/loading.gif" alt="1567510663145"></p>
+              <p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567510663145.png" srcset="/img/loading.gif" alt="1567510663145"></p>
 <p>之前的登录的认证信息是存储到<code>session</code>中的，用户通过浏览器每次去访问服务时，每次都会检查浏览器的cookie里是否存在<code>JSessionID</code>，如果不存在就会在服务器上新建<code>session</code>，把这个<code>sesion id</code>写到浏览器的cookie里，这样用户每次通过浏览器去发请求的时候，我们系统会根据用户浏览器中的<code>JSessionID</code>找到相应的session拿出来，这个是之前开发中基于服务器session一种保存用户信息的一种登录方式，随着技术不断发展，一种新的前端技术渠道出现了，我们常用的手机APP，除了这种APP以外，本身的部署方式也在演进，现在比较流程的方式：前后端分离，在前后端分离的时候，html不在和服务器放在一块部署，它会单独放到一个web server上，在采用前后分离的架构的时候，用户直接访问的是web server，针对这个html一些渲染、ajax请求的一些处理，都是由web server来完成，ajax请求发给web server以后，web server再去访问application server来拿数据，不管是手机APP、还是前后端分离当架构演变成这样子的时候，一个最根本的变化出现了：用户不在是通过浏览器直接访问我们的应用，而是通过第三方的应用，例如app、web server访问我们的应用的服务器，不在是浏览器，而是一些其他的应用，这时候在使用之前的cookie session的方式就会出现一些问题，首先明确一点，当在前后分离架构下，是否能用cookie+sesison这种方式，答案是可以的，但是它在app中会有一些问题：</p>
 <ul>
 <li>开发繁琐：在浏览器中cookie这种功能是自带的，我们在开发的时候不需要针对cookie去写太多代码，对于app来说，app每次关闭再打开以后，你要重新在代码里面去实例化http的客户端，去发请求，每次去发http，客户端都是空的，都是初始化的状态，所以需要处理cookie之前存的数据</li>
@@ -217,10 +217,10 @@
 <li>解决安全性和客户体验差：在session方式中，写JSessionID是由服务器来完成的，我们是没法去干涉的，但是用token这种方式， token怎么来生成、里面包含的信息、我们怎么来校验这些我们都是可以来控制的，所以我们可以在这个令牌加很多技术手段来增强它的安全性。基于session来解决安全问题会导致用户频繁登录，基于token的方式我们就可以设计一种token刷新的机制，在三方登录的时候也能看到，你在完OAuth流程以后它会给一个token，还会给你一个refresh token，这个refresh token就可以让用户在没有感觉的情况下去刷新令牌，不需要用户频繁登录，这样既可以保证用户的安全性还可以保证用户的体验</li>
 <li>解决有些前端的技术不支持cookie：这里不使用cookie，这个问题就不存在了</li>
 </ul>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567224896676.png" srcset="/img/loading.gif" alt="1567224896676"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567224896676.png" srcset="/img/loading.gif" alt="1567224896676"></p>
 <p>说到这，现在做认证的方式就变成了发令牌的方式在自己的应用和其他应用之间完成授权，说到这里，相信读者脑海里第一个想到的就是之前在spring social介绍的OAuth协议，它授权的方式就是令牌，在现在的场景中，我们就变成了服务提供商，现在的app和前后端分离中的前端就变成了第三方应用，我只要给它们发令牌，它们拿到令牌来访问我，我这里来验这个令牌就可以了，之前说得spring social中封装的是第三方应用client它所要做的事情，使用它可以很快开发第三应用角色的应用，去连任意一个我想连的服务提供商，而这里说的spring oauth则是封装了服务提供商所要完成的绝大部分行为，使用它就可以快速搭建起一个服务提供商的程序来。</p>
 <hr>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/1567511400096.png" srcset="/img/loading.gif" alt="1567511400096"></p>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/1567511400096.png" srcset="/img/loading.gif" alt="1567511400096"></p>
 <p>要实现oauth服务提供商这个角色，它的所有功能，实际上就实现2个服务器，也就是之前说的认证服务器和资源服务器，</p>
 <ul>
 <li>在认证服务器中有两大范式<ul>

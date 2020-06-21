@@ -17,7 +17,7 @@
   <meta name="description" content="">
   <meta name="author" content="Shui">
   <meta name="keywords" content="">
-  <title>归档 - Shui&#39;s Blog</title>
+  <title>分类 - JUC - Shui&#39;s Blog</title>
 
   <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
 
@@ -160,25 +160,37 @@
                 
 
 <div class="list-group">
-  <p class="h4">共计 61 篇文章</p>
+  <p class="h4">共计 12 篇文章</p>
   <hr>
   
     
       
       <p class="h5">2020</p>
     
-    <a href="/linux-4.html" class="list-group-item list-group-item-action">
-      <span class="archive-post-title">【Linux】 Vmwrae中CentOS扩容</span>
-      <span style="float: right;">05-31</span>
+    <a href="/juc-1-2.html" class="list-group-item list-group-item-action">
+      <span class="archive-post-title">2.创建并启动线程</span>
+      <span style="float: right;">06-14</span>
     </a>
   
     
-    <a href="/react-1.html" class="list-group-item list-group-item-action">
-      <span class="archive-post-title">【React】 Styled-Component + Tailwind CSS + Tailwind Macro</span>
-      <span style="float: right;">05-10</span>
+    <a href="/juc-1-1.html" class="list-group-item list-group-item-action">
+      <span class="archive-post-title">1.简单介绍什么是线程</span>
+      <span style="float: right;">06-14</span>
     </a>
   
 </div>
+
+  <nav aria-label="navigation">
+    <span class="pagination" id="pagination">
+      <a class="extend prev" rel="prev" href="/categories/%E5%90%8E%E7%AB%AF/JUC/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/categories/%E5%90%8E%E7%AB%AF/JUC/">1</a><span class="page-number current">2</span>
+    </span>
+  </nav>
+  
+  <script>
+    for (ele of document.getElementById("pagination").getElementsByTagName("a")) {
+      ele.href += '#board';
+    }
+  </script>
 
 
 
@@ -294,7 +306,7 @@
     var typed = new Typed('#subtitle', {
       strings: [
         '  ',
-        "归档&nbsp;",
+        "分类 - JUC&nbsp;",
       ],
       cursorChar: "_",
       typeSpeed: 70,

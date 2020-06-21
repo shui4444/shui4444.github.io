@@ -168,6 +168,175 @@
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/nginx-3.html">【Nginx】 3.场景实践篇</a>
+
+      <a href="/nginx-3.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>Nginx作为静态资源web服务静态资源类型
+ nginx可以作为静态服务，它能接收客户端静态资源的请求，像html、flv、jpg这些都是可以的，它能返回给客户端相应内容。这种方式经常会用在处理请求、动静分离的场景；
+静态资源类型：
+
+
+
+类型
+种类
+
+
+
+浏览器端渲染
+HTML、CSS、JS
+
+
+图片
+JPEG、GIF、PNG
+
+
+视频
+FLV、MPEG
+
+
+文件
+TXT、等任意下载文件
+
+
+</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-01-27
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+            
+              <a href="/categories/%E8%BF%90%E7%BB%B4/Nginx/">Nginx</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/nginx-2.html">【Nginx】 2.基础篇</a>
+
+      <a href="/nginx-2.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>安装~&gt; yum install  -y nginx
+~&gt; nginx -v
+~&gt; nginx version: nginx/1.16.1
+
+基本命令nginx -tc /etc/nginx/nginx.conf	#检查配置是否正常
+nginx -s reload -c /etc/nginx/nginx.conf #重新加载并加载指定配置文件
+
+目录和配置语法安装目录介绍
+~&g</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-01-21
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+            
+              <a href="/categories/%E8%BF%90%E7%BB%B4/Nginx/">Nginx</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/nginx-1.html">【Nginx】 1.环境准备</a>
+
+      <a href="/nginx-1.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>环境调试确认两项安装
+~&gt; yum -y install  gcc gcc-c++ autoconf pcre pcre-devel make automake
+
+~&gt; yum -y install wget httpd-tools vim
+
+一次初始化
+~&gt; cd /opt &amp;&amp; mkdir app download logs work backup
+
+目录介绍</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-01-21
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+            
+              <a href="/categories/%E8%BF%90%E7%BB%B4/Nginx/">Nginx</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
       <a class="index-header" href="/linux-1.html">【Linux】 Linux初始化必做的一些事情</a>
 
       <a href="/linux-1.html" class="index-excerpt">
@@ -498,160 +667,11 @@ hyperloglog：准确有点难。
     </div>
   </div>
 
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/redis-9.html">【 Redis-学习笔记 】 9.深入Redis Cluster</a>
-
-      <a href="/redis-9.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>集群缩容伸缩原理
-伸就是加节点，缩就是某些节点不需要了，需要将他们进行下线
-扩容集群步骤
-准备新节点；
-加入集群（meet）；
-迁移槽和数据，把其他节点的槽数据均匀的移到这个节点，因为一个节点没有数据是没有 任何意义的,这个节点就可以工作了，实现性能的扩展。当然如果是从节点，给它meet就好了，不用做槽的迁移。
-
-准备新节点
-集群模式；
-
-配置和其他节点统一；
-
-启动后是孤儿节点；
-redis-s</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2019-10-17
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
-            
-              <a href="/categories/%E8%BF%90%E7%BB%B4/Redis/">Redis</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/redis-8.html">【 Redis-学习笔记 】 8.初识Redis Cluster</a>
-
-      <a href="/redis-8.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>呼唤集群并发量Redis每秒可以达到每秒10W QPS，但是有些业务是需要100W QPS,
-数据量现在有一台机器16~256G，假如说一个传统的Redis部署在上面，假如说业务需要500G数据呢？
-解决方案配置“强悍”的机器：超大内存、牛xCPU等，但是随着业务量变得越来越大的时候，单机已经无法满足了
-
-正确的解决方案分布式：简单的认为加机器；
-
-数据分布概念现在有一份全量的数据，它的单机已经无</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2019-10-17
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
-            
-              <a href="/categories/%E8%BF%90%E7%BB%B4/Redis/">Redis</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/redis-7.html">【 Redis-学习笔记 】 7.RedisSentinel</a>
-
-      <a href="/redis-7.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>主从复制高可用主从复制的作用
-为主提供备份，当主挂掉在备份中有一个完整的数据
-为主实现一个分流，将大部分读放到从节点中去执行，减轻主节压力
-
-主从复制的问题如果说主节点挂掉了，那么当有客户端传送写的命令就无法进行执行了，在生产环境中是无法忍受的，我们不得不手动的将主节点进行重启，然后将其中一个slave节点执行slaveof no one将它变为一个master节点，然后再将其他节点对这个mast</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2019-10-17
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
-            
-              <a href="/categories/%E8%BF%90%E7%BB%B4/Redis/">Redis</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
 
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <a class="extend prev" rel="prev" href="/page/2/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/4/"><i class="iconfont icon-arrowright"></i></a>
+      <a class="extend prev" rel="prev" href="/page/2/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/4/"><i class="iconfont icon-arrowright"></i></a>
     </span>
   </nav>
   

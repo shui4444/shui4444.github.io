@@ -17,7 +17,7 @@
   <meta name="description" content="">
   <meta name="author" content="Shui">
   <meta name="keywords" content="">
-  <title>9.Daemon线程的创建以及使用场景分析 - Shui&#39;s Blog</title>
+  <title>12.Thread中断-Interrupt方法 - Shui&#39;s Blog</title>
 
   <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
 
@@ -152,8 +152,8 @@
               
   <div class="mt-3 post-meta">
     <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-    <time datetime="2020-06-20 11:25">
-      2020年6月20日 上午
+    <time datetime="2020-06-21 23:10">
+      2020年6月21日 晚上
     </time>
   </div>
 
@@ -163,7 +163,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      432 字
+      262 字
     </span>
   
 
@@ -173,7 +173,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      5
+      2
        分钟
     </span>
   
@@ -204,57 +204,14 @@
           <div class="post-content mx-auto" id="post">
             
             <article class="markdown-body">
-              <p class="note note-info">来做一个小实验，代码如下：</p>
+              <h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">interrupt</span><span class="hljs-params">()</span></span></code></pre>
 
-<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> InterruptedException </span>&#123;
-  Thread thread = <span class="hljs-keyword">new</span> Thread() &#123;
-    <span class="hljs-meta">@Override</span>
-    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;
-      <span class="hljs-keyword">try</span> &#123;
-        Thread.sleep(<span class="hljs-number">1000_1000</span>);
-      &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
-        e.printStackTrace();
-      &#125;
-    &#125;
-  &#125;;
-  thread.start();
-  Thread.sleep(<span class="hljs-number">50_000</span>);
-&#125;</code></pre>
-
-<p class="note note-info">执行以上代码，得出的结果就是main这个主线程结束了以后，创建的这个<code>thread</code>对象线程还在执行，这里通过<code>jconsole</code>来看</p>
-
-<p class="note note-light">刚开始时：</p>
-
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20200620113731716.png" srcset="/img/loading.gif" alt="image-20200620113731716"></p>
-<p class="note note-light">主线程结束，创建的这个线程还在执行</p>
-
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20200620114052367.png" srcset="/img/loading.gif" alt="image-20200620114052367"></p>
-<p class="note note-info">对于这个程序，我希望在主线程结束时，这个名字为<code>Thread-0</code>的线程也跟着结束，这里就用到了本章介绍的<code>daemon</code>（守护线程）。创建的线程是守护线程的方式如下：</p>
-
-<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setDaemon</span><span class="hljs-params">(<span class="hljs-keyword">boolean</span> on)</span></span></code></pre>
-
-<p class="note note-info">源码的注释是这么描述的：</p>
-
-<p>将该线程标记无论是守护线程或用户线程。 当只有线程上运行的Java虚拟机退出都是守护线程。<br>线程开始之前此方法必须被调用。</p>
-<p class="note note-info">所以这里可以通过它来实现我想达到的预期，现在的代码：</p>
-<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> InterruptedException </span>&#123;
-    Thread thread = <span class="hljs-keyword">new</span> Thread() &#123;
-      <span class="hljs-meta">@Override</span>
-      <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;
-        <span class="hljs-keyword">try</span> &#123;
-          Thread.sleep(<span class="hljs-number">1000_1000</span>);
-        &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
-          e.printStackTrace();
-        &#125;
-      &#125;
-    &#125;;
-    thread.setDaemon(<span class="hljs-keyword">true</span>);
-    thread.start();
-    Thread.sleep(<span class="hljs-number">50_000</span>);
-  &#125;</code></pre>
-<p class="note note-success">对于一些场景中，一些不重要的操作就可以通过创建守护线程来实现，但是这里要注意一点：主线程可能已经执行完成，在它之中创建的线程如果是守护线程的话，可能还在<code>Runnable</code>状态而主线程结束，这个守护线程也跟着结束了</p>
-<p class="note note-warning">设置守护线程<code>（setDaemon）</code>的时候，一定要在<code>start</code>之前否则它会出现异常</p>
-
+<ul>
+<li>中断该线程。</li>
+<li>除非当前线程被中断本身，它总是允许的，所述<code>checkAccess</code>该线程的方法被调用，这可能导致<code>SecurityException</code>被抛出。<br>如果该线程被阻塞在的调用<code>wait()</code> ， <code>wait(long)</code> ，或者<code>wait(long, int)</code>的方法的Object类，或者在<code>join()</code> <code>join(long)</code> ， <code>join(long, int)</code> ， <code>sleep(long)</code> ，或<code>sleep(long, int)</code>这个类的方法，那么它的中断状态将被清除，它还将收到一个<code>InterruptedException</code> 。</li>
+<li>如果该线程在可阻止在<code>I / O</code>操作<code>InterruptibleChannel</code>则信道将被关闭，该线程的中断状态将被设置，并且线程将收到一个<code>java.nio.channels.ClosedByInterruptException</code> 。</li>
+<li>如果这个线程被阻塞在<code>java.nio.channels.Selector</code>则该线程的中断状态将被设置，它会从选择操作立即返回，可能有非零值，就好像选择的<code>wakeup</code>方法被调用。<br>如果没有以前的条件保存，则该线程的中断状态将被设置。<br>中断一个线程是不是还活着需求不会有任何效果。</li>
+</ul>
 
             </article>
             <hr>
@@ -289,18 +246,12 @@
                   <div class="post-prev col-6">
                     
                     
-                      <a href="/juc-1-10.html">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">10.线程ID，优先级</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </div>
                   <div class="post-next col-6">
                     
                     
-                      <a href="/juc-1-8.html">
-                        <span class="hidden-mobile">8.Thread构造函数StackSize</span>
+                      <a href="/juc-1-11.html">
+                        <span class="hidden-mobile">11.Thread的join方法详细介绍</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
@@ -494,7 +445,7 @@
     var typed = new Typed('#subtitle', {
       strings: [
         '  ',
-        "9.Daemon线程的创建以及使用场景分析&nbsp;",
+        "12.Thread中断-Interrupt方法&nbsp;",
       ],
       cursorChar: "_",
       typeSpeed: 70,

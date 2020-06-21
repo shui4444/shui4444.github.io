@@ -4,6 +4,93 @@
   
   
   <entry>
+    <title>12.Thread中断-Interrupt方法</title>
+    <link href="/juc-1-12.html"/>
+    <url>/juc-1-12.html</url>
+    
+    <content type="html"><![CDATA[<h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">interrupt</span><span class="hljs-params">()</span></span></code></pre><ul><li>中断该线程。</li><li>除非当前线程被中断本身，它总是允许的，所述<code>checkAccess</code>该线程的方法被调用，这可能导致<code>SecurityException</code>被抛出。<br>如果该线程被阻塞在的调用<code>wait()</code> ， <code>wait(long)</code> ，或者<code>wait(long, int)</code>的方法的Object类，或者在<code>join()</code> <code>join(long)</code> ， <code>join(long, int)</code> ， <code>sleep(long)</code> ，或<code>sleep(long, int)</code>这个类的方法，那么它的中断状态将被清除，它还将收到一个<code>InterruptedException</code> 。</li><li>如果该线程在可阻止在<code>I / O</code>操作<code>InterruptibleChannel</code>则信道将被关闭，该线程的中断状态将被设置，并且线程将收到一个<code>java.nio.channels.ClosedByInterruptException</code> 。</li><li>如果这个线程被阻塞在<code>java.nio.channels.Selector</code>则该线程的中断状态将被设置，它会从选择操作立即返回，可能有非零值，就好像选择的<code>wakeup</code>方法被调用。<br>如果没有以前的条件保存，则该线程的中断状态将被设置。<br>中断一个线程是不是还活着需求不会有任何效果。</li></ul>]]></content>
+    
+    
+    <categories>
+      
+      <category>后端</category>
+      
+      <category>JUC</category>
+      
+      <category>基础知识</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>学习</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>11.Thread的join方法详细介绍</title>
+    <link href="/juc-1-11.html"/>
+    <url>/juc-1-11.html</url>
+    
+    <content type="html"><![CDATA[<h1 id="语法"><a href="#语法" class="headerlink" title="语法"></a>语法</h1><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">void</span> <span class="hljs-title">join</span><span class="hljs-params">()</span></span></code></pre><p class="note note-info">该线程等待死亡。此方法的调用行为完全相同的方式调用</p><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">synchronized</span> <span class="hljs-keyword">void</span> <span class="hljs-title">join</span><span class="hljs-params">(<span class="hljs-keyword">long</span> millis)</span></span></code></pre><p class="note note-info">最多等待<code>millis</code>毫秒该线程终止。 的超时0手段永远等待。此实现使用的循环<code>this.wait</code>电话空调上<code>this.isAlive</code> 。 作为线程终止<code>this.notifyAll</code>方法被调用。 建议应用程序不使用<code>wait</code> ， <code>notify</code> ，或<code>notifyAll</code>上<code>Thread</code>实例。</p><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">synchronized</span> <span class="hljs-keyword">void</span> <span class="hljs-title">join</span><span class="hljs-params">(<span class="hljs-keyword">long</span> millis, <span class="hljs-keyword">int</span> nanos)</span></span></code></pre><p class="note note-info">最多等待<code>millis</code>毫秒加上<code>nanos</code>纳秒该线程死亡。此实现使用的循环this.wait电话空调上<code>this.isAlive</code> 。 作为线程终止<code>this.notifyAll</code>方法被调用。 建议应用程序不使用<code>wait</code> ， <code>notify</code> ，或<code>notifyAll</code>上<code>Thread</code>实例。</p><h1 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h1><p class="note note-info">希望main主线程，在子线程执行完以后打印“main”</p><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;   Runnable runnable = () -&gt; IntStream       .range(<span class="hljs-number">1</span>, <span class="hljs-number">10</span>)       .forEach(item -&gt; System.out.println(Thread           .currentThread()           .getName() + <span class="hljs-string">":"</span> + item));   Thread t1 = <span class="hljs-keyword">new</span> Thread(runnable, <span class="hljs-string">"t1"</span>);   Thread t2 = <span class="hljs-keyword">new</span> Thread(runnable, <span class="hljs-string">"t2"</span>);   Thread t3 = <span class="hljs-keyword">new</span> Thread(runnable, <span class="hljs-string">"t3"</span>);   t1.start();   t2.start();   t3.start();   System.out.println(<span class="hljs-string">"main"</span>); &#125;</code></pre><p class="note note-light">结果</p><pre><code class="hljs angelscript">maint2:<span class="hljs-number">1</span>t2:<span class="hljs-number">2</span>t2:<span class="hljs-number">3</span>t2:<span class="hljs-number">4</span>t2:<span class="hljs-number">5</span>t2:<span class="hljs-number">6</span>t2:<span class="hljs-number">7</span>t1:<span class="hljs-number">1</span>...</code></pre><p class="note note-info">这里通过<code>join</code>修改一下</p><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> InterruptedException </span>&#123;    Runnable runnable = () -&gt; IntStream        .range(<span class="hljs-number">1</span>, <span class="hljs-number">10</span>)        .forEach(item -&gt; System.out.println(Thread            .currentThread()            .getName() + <span class="hljs-string">":"</span> + item));    Thread t1 = <span class="hljs-keyword">new</span> Thread(runnable, <span class="hljs-string">"t1"</span>);    Thread t2 = <span class="hljs-keyword">new</span> Thread(runnable, <span class="hljs-string">"t2"</span>);    Thread t3 = <span class="hljs-keyword">new</span> Thread(runnable, <span class="hljs-string">"t3"</span>);    t1.start();    t2.start();    t3.start();    t1.join();    t2.join();    t3.join();    System.out.println(<span class="hljs-string">"main"</span>);  &#125;</code></pre><p class="note note-light">结果</p><pre><code class="hljs java">...t3:<span class="hljs-number">2</span>t3:<span class="hljs-number">3</span>t3:<span class="hljs-number">4</span>t3:<span class="hljs-number">5</span>t3:<span class="hljs-number">6</span>t3:<span class="hljs-number">7</span>t3:<span class="hljs-number">8</span>t3:<span class="hljs-number">9</span>main</code></pre><p class="note note-warning"><code>join</code>只会使当前调用它线程去等待，其它线程不会受到影响</p><p class="note note-info">现在改造上面的代码：<code>线程2</code>必须等待<code>线程1</code>执行完再去执行</p><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> InterruptedException </span>&#123;  Runnable runnable = () -&gt; IntStream      .range(<span class="hljs-number">1</span>, <span class="hljs-number">10</span>)      .forEach(item -&gt; &#123;        <span class="hljs-keyword">try</span> &#123;          Thread.sleep(<span class="hljs-number">100</span>);        &#125; <span class="hljs-keyword">catch</span> (InterruptedException ignore) &#123;        &#125;        System.out.println(Thread            .currentThread()            .getName() + <span class="hljs-string">":"</span> + item);      &#125;);  Thread t1 = <span class="hljs-keyword">new</span> Thread(runnable, <span class="hljs-string">"t1"</span>);  Thread t2 = <span class="hljs-keyword">new</span> Thread(runnable, <span class="hljs-string">"t2"</span>)&#123;    <span class="hljs-meta">@Override</span>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;      <span class="hljs-keyword">try</span> &#123;        t1.join();      &#125; <span class="hljs-keyword">catch</span> (InterruptedException ignore) &#123;      &#125;      <span class="hljs-keyword">super</span>.run();    &#125;  &#125;;  t1.start();  t2.start();  t1.join();  t2.join();  System.out.println(<span class="hljs-string">"main"</span>);&#125;</code></pre><p class="note note-light">结果</p><pre><code class="hljs angelscript">t1:<span class="hljs-number">1</span>t1:<span class="hljs-number">2</span>t1:<span class="hljs-number">3</span>t1:<span class="hljs-number">4</span>t1:<span class="hljs-number">5</span>t1:<span class="hljs-number">6</span>t1:<span class="hljs-number">7</span>t1:<span class="hljs-number">8</span>t1:<span class="hljs-number">9</span>t2:<span class="hljs-number">1</span>t2:<span class="hljs-number">2</span>t2:<span class="hljs-number">3</span>t2:<span class="hljs-number">4</span>t2:<span class="hljs-number">5</span>t2:<span class="hljs-number">6</span>t2:<span class="hljs-number">7</span>t2:<span class="hljs-number">8</span>t2:<span class="hljs-number">9</span>main</code></pre>]]></content>
+    
+    
+    <categories>
+      
+      <category>后端</category>
+      
+      <category>JUC</category>
+      
+      <category>基础知识</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>学习</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>10.线程ID，优先级</title>
+    <link href="/juc-1-10.html"/>
+    <url>/juc-1-10.html</url>
+    
+    <content type="html"><![CDATA[<h1 id="线程ID"><a href="#线程ID" class="headerlink" title="线程ID"></a>线程ID</h1><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;    Thread t = <span class="hljs-keyword">new</span> Thread(() -&gt; &#123;      System.out.println(<span class="hljs-string">"Hello"</span>);      <span class="hljs-keyword">try</span> &#123;        Thread.sleep(<span class="hljs-number">1_000</span>);      &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;        e.printStackTrace();      &#125;    &#125;, <span class="hljs-string">"t1"</span>);    System.out.println(<span class="hljs-string">"NAME:"</span>+t.getName());    System.out.println(<span class="hljs-string">"ID:"</span>+t.getId());    System.out.println(<span class="hljs-string">"PRIORITY:"</span>+t.getPriority());  &#125;</code></pre><p class="note note-light">结果</p><pre><code class="hljs avrasm"><span class="hljs-symbol">NAME:</span>t1<span class="hljs-symbol">ID:</span><span class="hljs-number">14</span><span class="hljs-symbol">PRIORITY:</span><span class="hljs-number">5</span></code></pre><p class="note note-info">这里ID为14，这是怎么赋值的？以下<code>getId</code>方法源码：</p><pre><code class="hljs java"><span class="hljs-comment">/* 返回该线程的标识符。 线程ID是在创建该线程时产生正长数。 线程ID是唯一的，它的生命周期内保持不变。 当一个线程被终止时，该线程ID可以重复使用 */</span><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">long</span> <span class="hljs-title">getId</span><span class="hljs-params">()</span> </span>&#123;        <span class="hljs-keyword">return</span> tid;    &#125;<span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">synchronized</span> <span class="hljs-keyword">long</span> <span class="hljs-title">nextThreadID</span><span class="hljs-params">()</span> </span>&#123;    <span class="hljs-keyword">return</span> ++threadSeqNumber;&#125;    <span class="hljs-comment">/* For generating thread ID */</span><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">long</span> threadSeqNumber;<span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">init</span><span class="hljs-params">(ThreadGroup g, Runnable target, String name,</span></span><span class="hljs-function"><span class="hljs-params">                      <span class="hljs-keyword">long</span> stackSize, AccessControlContext acc,</span></span><span class="hljs-function"><span class="hljs-params">                      <span class="hljs-keyword">boolean</span> inheritThreadLocals)</span> </span>&#123;        <span class="hljs-comment">//...</span>        <span class="hljs-comment">/* Set thread ID */</span>        tid = nextThreadID();    &#125;</code></pre><p class="note note-info">对于上面的ID为14不是1是因为在JVM启动时会先加载一些线程</p><h1 id="线程优先级"><a href="#线程优先级" class="headerlink" title="线程优先级"></a>线程优先级</h1><p class="note note-light">语法</p><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setPriority</span><span class="hljs-params">(<span class="hljs-keyword">int</span> newPriority)</span></span></code></pre><p class="note note-info">更改线程的优先级。首先checkAccess这个线程的方法被称为不带参数。 这可能导致抛出SecurityException 。否则，该线程的优先级设置为指定的较小newPriority和最大允许的线程的线程组的优先级。</p><p class="note note-light">示例</p><pre><code class="hljs java">Thread t1 = <span class="hljs-keyword">new</span> Thread(runnable, <span class="hljs-string">"t1"</span>);Thread t2 = <span class="hljs-keyword">new</span> Thread(runnable, <span class="hljs-string">"t2"</span>);Thread t3 = <span class="hljs-keyword">new</span> Thread(runnable, <span class="hljs-string">"t3"</span>);t3.setPriority(Thread.MAX_PRIORITY);t1.setPriority(Thread.MIN_PRIORITY);t1.setPriority(Thread.NORM_PRIORITY);</code></pre>]]></content>
+    
+    
+    <categories>
+      
+      <category>后端</category>
+      
+      <category>JUC</category>
+      
+      <category>基础知识</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>学习</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>9.Daemon线程的创建以及使用场景分析</title>
     <link href="/juc-1-9.html"/>
     <url>/juc-1-9.html</url>

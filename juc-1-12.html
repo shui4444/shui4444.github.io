@@ -163,7 +163,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      262 字
+      377 字
     </span>
   
 
@@ -173,7 +173,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      2
+      4
        分钟
     </span>
   
@@ -212,6 +212,22 @@
 <li>如果该线程在可阻止在<code>I / O</code>操作<code>InterruptibleChannel</code>则信道将被关闭，该线程的中断状态将被设置，并且线程将收到一个<code>java.nio.channels.ClosedByInterruptException</code> 。</li>
 <li>如果这个线程被阻塞在<code>java.nio.channels.Selector</code>则该线程的中断状态将被设置，它会从选择操作立即返回，可能有非零值，就好像选择的<code>wakeup</code>方法被调用。<br>如果没有以前的条件保存，则该线程的中断状态将被设置。<br>中断一个线程是不是还活着需求不会有任何效果。</li>
 </ul>
+<h1 id="案例"><a href="#案例" class="headerlink" title="案例"></a>案例</h1><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;
+  Thread t1 = <span class="hljs-keyword">new</span> Thread(() -&gt; &#123;
+    <span class="hljs-keyword">while</span> (<span class="hljs-keyword">true</span>)&#123;&#125;
+  &#125;);
+  t1.start();
+  System.out.println(t1.isInterrupted());
+  t1.interrupt();
+  System.out.println(t1.isInterrupted());
+&#125;</code></pre>
+<p class="note note-light">结果</p>
+
+<pre><code class="hljs yaml"><span class="hljs-literal">false</span>
+<span class="hljs-literal">true</span></code></pre>
+<p class="note note-info">这个时候并没有被中断，这是什么情况？原因是因为它没有被捕获到或者说是没有接受到信号，它会抛出异常，但是这里的代码没有任何捕获的语句，上面[介绍](#介绍) 的方式就能够捕获到</p>
+
+
 
             </article>
             <hr>

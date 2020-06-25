@@ -17,7 +17,7 @@
   <meta name="description" content="">
   <meta name="author" content="Shui">
   <meta name="keywords" content="">
-  <title>4.采用多线程模拟银行排队叫号 - Shui&#39;s Blog</title>
+  <title>17.同步代码块以及同步方法之间的区别和关系 - Shui&#39;s Blog</title>
 
   <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
 
@@ -152,8 +152,8 @@
               
   <div class="mt-3 post-meta">
     <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-    <time datetime="2020-06-17 19:34">
-      2020年6月17日 晚上
+    <time datetime="2020-06-25 14:31">
+      2020年6月25日 下午
     </time>
   </div>
 
@@ -204,163 +204,74 @@
           <div class="post-content mx-auto" id="post">
             
             <article class="markdown-body">
-              <h1 id="创建线程的方式"><a href="#创建线程的方式" class="headerlink" title="创建线程的方式"></a>创建线程的方式</h1><p>有两种方法来创建一个新的执行线程。一是声明一个类是一类Thread。这类应重写类Thread的run方法。子类的一个实例可以被分配和启动。例如，一个线程计算素数大于规定值可以写成如下：</p>
-<pre><code class="hljs java"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">PrimeThread</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Thread</span> </span>&#123;
-        <span class="hljs-keyword">long</span> minPrime;
-        PrimeThread(<span class="hljs-keyword">long</span> minPrime) &#123;
-            <span class="hljs-keyword">this</span>.minPrime = minPrime;
-        &#125;
+              <p class="note note-info">上一个章节使用<code>synchronized</code>去同步代码块，它还可以去同步方法，可以直接在方法上加上<code>synchronized</code></p>
 
-        <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;
-            <span class="hljs-comment">// compute primes larger than minPrime</span>
-             . . .
-        &#125;
-    &#125;</code></pre>
-
-<p>下面的代码将创建一个线程并开始运行：</p>
-<pre><code class="hljs java">PrimeThread p = <span class="hljs-keyword">new</span> PrimeThread(<span class="hljs-number">143</span>);
-    p.start();</code></pre>
-
-<hr>
-<p>创建一个线程是声明一个类实现Runnable接口的其他方式。该类实现run方法。那类的一个实例可以分配，作为一个参数传递Thread时创建，并开始。同样的例子在这个其他风格看起来像以下：</p>
-<pre><code class="hljs java"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">PrimeRun</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Runnable</span> </span>&#123;
-      <span class="hljs-keyword">long</span> minPrime;
-      PrimeRun(<span class="hljs-keyword">long</span> minPrime) &#123;
-          <span class="hljs-keyword">this</span>.minPrime = minPrime;
-      &#125;
-
-      <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;
-          <span class="hljs-comment">// compute primes larger than minPrime</span>
-           . . .
-      &#125;
-  &#125;</code></pre>
-
-<p>下面的代码将创建一个线程并开始运行：</p>
-<pre><code class="hljs java">PrimeRun p = <span class="hljs-keyword">new</span> PrimeRun(<span class="hljs-number">143</span>);
-<span class="hljs-keyword">new</span> Thread(p).start();</code></pre>
-
-<h1 id="案例演示"><a href="#案例演示" class="headerlink" title="案例演示"></a>案例演示</h1><h2 id="需求"><a href="#需求" class="headerlink" title="需求"></a>需求</h2><p>前面介绍了2种创建线程的方式，它们到底有什么区别？通过这个案例来体现，现在有这么一个需求：</p>
-<p>3个柜台、3个大屏幕，在大屏幕上会显示第几号，当一个人进去办理业务的时候首先要去抽一个号，对于这个号是怎么来的，它由前面的人办理完业务之后柜员按一下“下一位”这样的一个叫号设备，这里的3柜台，也就是程序中的3个线程并发去工作，号码从1-1000，到了1001就重新从1开始去叫</p>
-<h2 id="继承Thread方式"><a href="#继承Thread方式" class="headerlink" title="继承Thread方式"></a>继承Thread方式</h2><p>创建一个售票窗口类</p>
-<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter2;
-
-<span class="hljs-comment">/**</span>
-<span class="hljs-comment"> * 售票窗口</span>
-<span class="hljs-comment"> *</span>
-<span class="hljs-comment"> * <span class="hljs-doctag">@author</span> Shui</span>
-<span class="hljs-comment"> * <span class="hljs-doctag">@date</span> 2020/6/17</span>
-<span class="hljs-comment"> */</span>
-<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TicketWindow</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Thread</span> </span>&#123;
-
-  <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> MAX = <span class="hljs-number">50</span>;
-  <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String name;
-  <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> index = <span class="hljs-number">1</span>;
-
-  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">TicketWindow</span><span class="hljs-params">(String name)</span> </span>&#123;
-
-    <span class="hljs-keyword">this</span>.name = name;
-  &#125;
-
-  <span class="hljs-meta">@Override</span>
-  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;
-    <span class="hljs-keyword">while</span> (index &lt;= MAX) &#123;
-      System.out.println(<span class="hljs-string">"柜台："</span> + <span class="hljs-keyword">this</span>.name + <span class="hljs-string">"当前的号码是："</span> + index++);
-    &#125;
-  &#125;
-
-&#125;</code></pre>
-
-<p>测试代码：</p>
-<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter2;
-
-<span class="hljs-comment">/**</span>
-<span class="hljs-comment"> * 银行大厅</span>
-<span class="hljs-comment"> *</span>
-<span class="hljs-comment"> * <span class="hljs-doctag">@author</span> Shui</span>
-<span class="hljs-comment"> * <span class="hljs-doctag">@date</span> 2020/6/17</span>
-<span class="hljs-comment"> */</span>
-<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Bank</span> </span>&#123;
-
-  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;
-    TicketWindow ticketWindow1 = <span class="hljs-keyword">new</span> TicketWindow(<span class="hljs-string">"1号柜台"</span>);
-    TicketWindow ticketWindow2 = <span class="hljs-keyword">new</span> TicketWindow(<span class="hljs-string">"2号柜台"</span>);
-    TicketWindow ticketWindow3 = <span class="hljs-keyword">new</span> TicketWindow(<span class="hljs-string">"3号柜台"</span>);
-
-    ticketWindow1.start();
-    ticketWindow2.start();
-    ticketWindow3.start();
-  &#125;
-
-&#125;</code></pre>
-
-<p>结果：</p>
-<pre><code class="hljs angelscript">柜台：<span class="hljs-number">1</span>号柜台当前的号码是：<span class="hljs-number">1</span>
-柜台：<span class="hljs-number">2</span>号柜台当前的号码是：<span class="hljs-number">1</span>
-柜台：<span class="hljs-number">2</span>号柜台当前的号码是：<span class="hljs-number">2</span>
-柜台：<span class="hljs-number">3</span>号柜台当前的号码是：<span class="hljs-number">1</span>
-...
-柜台：<span class="hljs-number">1</span>号柜台当前的号码是：<span class="hljs-number">50</span>
-柜台：<span class="hljs-number">3</span>号柜台当前的号码是：<span class="hljs-number">50</span>
-柜台：<span class="hljs-number">2</span>号柜台当前的号码是：<span class="hljs-number">50</span></code></pre>
-
-<p>对于这种结果肯定是有问题的，预期希望：1号柜台叫号完 1号，2号柜台叫2号，3号柜台叫3号这样，对于上面<code>Bank</code>中创建3个不同的实例，它们的成员变量当然无法共享</p>
-<h2 id="实现Runnable接口方式"><a href="#实现Runnable接口方式" class="headerlink" title="实现Runnable接口方式"></a>实现Runnable接口方式</h2><p><code>Runnable</code>接口实现</p>
-<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter2;
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter7;
 
 <span class="hljs-comment">/**</span>
 <span class="hljs-comment"> * <span class="hljs-doctag">@author</span> Shui</span>
-<span class="hljs-comment"> * <span class="hljs-doctag">@date</span> 2020/6/17</span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@date</span> 2020/6/25 14:35</span>
 <span class="hljs-comment"> */</span>
-<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TicketWindowRunnable</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Runnable</span> </span>&#123;
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SynchronizedRunnable</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Runnable</span> </span>&#123;
 
+  <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> Object MONITER = <span class="hljs-keyword">new</span> Object();
   <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> MAX = <span class="hljs-number">50</span>;
   <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> index = <span class="hljs-number">0</span>;
 
   <span class="hljs-meta">@Override</span>
-  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;
-    <span class="hljs-keyword">while</span> (index &lt;= <span class="hljs-number">50</span>) &#123;
+→  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">synchronized</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;
+    <span class="hljs-keyword">while</span> (<span class="hljs-keyword">true</span>) &#123;
+      <span class="hljs-keyword">if</span> (index &gt; MAX) <span class="hljs-keyword">break</span>;
+      <span class="hljs-keyword">try</span> &#123;
+        Thread.sleep(<span class="hljs-number">5</span>);
+      &#125; <span class="hljs-keyword">catch</span> (InterruptedException ignored) &#123;
+      &#125;
       System.out.println(Thread
           .currentThread()
           .getName() + <span class="hljs-string">"的号码是"</span> + (index++));
     &#125;
+
   &#125;
 
 &#125;</code></pre>
 
-<p>测试</p>
-<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter2;
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter7;
 
 <span class="hljs-comment">/**</span>
 <span class="hljs-comment"> * <span class="hljs-doctag">@author</span> Shui</span>
-<span class="hljs-comment"> * <span class="hljs-doctag">@date</span> 2020/6/17</span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@date</span> 2020/6/25 14:37</span>
 <span class="hljs-comment"> */</span>
-<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Bank2</span> </span>&#123;
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Bank3</span> </span>&#123;
 
   <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;
-    <span class="hljs-keyword">final</span> TicketWindowRunnable ticketWindowRunnable = <span class="hljs-keyword">new</span> TicketWindowRunnable();
-    Thread thread1 = <span class="hljs-keyword">new</span> Thread(ticketWindowRunnable, <span class="hljs-string">"一号窗口"</span>);
-    Thread thread2 = <span class="hljs-keyword">new</span> Thread(ticketWindowRunnable, <span class="hljs-string">"二号窗口"</span>);
-    Thread thread3 = <span class="hljs-keyword">new</span> Thread(ticketWindowRunnable, <span class="hljs-string">"三号窗口"</span>);
-    thread1.start();
-    thread2.start();
-    thread3.start();
-
+    SynchronizedRunnable synchronizedRunnable = <span class="hljs-keyword">new</span> SynchronizedRunnable();
+    Thread t1 = <span class="hljs-keyword">new</span> Thread(synchronizedRunnable, <span class="hljs-string">"一号窗口"</span>);
+    Thread t2 = <span class="hljs-keyword">new</span> Thread(synchronizedRunnable, <span class="hljs-string">"二号窗口"</span>);
+    Thread t3 = <span class="hljs-keyword">new</span> Thread(synchronizedRunnable, <span class="hljs-string">"三号窗口"</span>);
+    t1.start();
+    t2.start();
+    t3.start();
   &#125;
 
 &#125;</code></pre>
 
-<p>结果：</p>
-<pre><code class="hljs java">一号窗口的号码是<span class="hljs-number">0</span>
-三号窗口的号码是<span class="hljs-number">2</span>
-三号窗口的号码是<span class="hljs-number">4</span>
-三号窗口的号码是<span class="hljs-number">5</span>
-二号窗口的号码是<span class="hljs-number">1</span>
-三号窗口的号码是<span class="hljs-number">6</span>
+
+
+<p class="note note-light">结果</p>
+
+<pre><code class="hljs angelscript">一号窗口的号码是<span class="hljs-number">0</span>
+一号窗口的号码是<span class="hljs-number">1</span>
+一号窗口的号码是<span class="hljs-number">2</span>
 一号窗口的号码是<span class="hljs-number">3</span>
-三号窗口的号码是<span class="hljs-number">8</span>
-二号窗口的号码是<span class="hljs-number">7</span>
-三号窗口的号码是<span class="hljs-number">10</span>
+一号窗口的号码是<span class="hljs-number">4</span>
+一号窗口的号码是<span class="hljs-number">5</span>
+一号窗口的号码是<span class="hljs-number">6</span>
+一号窗口的号码是<span class="hljs-number">7</span>
+一号窗口的号码是<span class="hljs-number">8</span>
 一号窗口的号码是<span class="hljs-number">9</span>
+一号窗口的号码是<span class="hljs-number">10</span>
+一号窗口的号码是<span class="hljs-number">11</span>
+一号窗口的号码是<span class="hljs-number">12</span>
 一号窗口的号码是<span class="hljs-number">13</span>
 一号窗口的号码是<span class="hljs-number">14</span>
 一号窗口的号码是<span class="hljs-number">15</span>
@@ -374,40 +285,141 @@
 一号窗口的号码是<span class="hljs-number">23</span>
 一号窗口的号码是<span class="hljs-number">24</span>
 一号窗口的号码是<span class="hljs-number">25</span>
-三号窗口的号码是<span class="hljs-number">12</span>
-二号窗口的号码是<span class="hljs-number">11</span>
-二号窗口的号码是<span class="hljs-number">28</span>
-二号窗口的号码是<span class="hljs-number">29</span>
-二号窗口的号码是<span class="hljs-number">30</span>
-二号窗口的号码是<span class="hljs-number">31</span>
-二号窗口的号码是<span class="hljs-number">32</span>
-二号窗口的号码是<span class="hljs-number">33</span>
-二号窗口的号码是<span class="hljs-number">34</span>
-二号窗口的号码是<span class="hljs-number">35</span>
-二号窗口的号码是<span class="hljs-number">36</span>
-二号窗口的号码是<span class="hljs-number">37</span>
-二号窗口的号码是<span class="hljs-number">38</span>
-二号窗口的号码是<span class="hljs-number">39</span>
-二号窗口的号码是<span class="hljs-number">40</span>
-三号窗口的号码是<span class="hljs-number">27</span>
-三号窗口的号码是<span class="hljs-number">42</span>
 一号窗口的号码是<span class="hljs-number">26</span>
-三号窗口的号码是<span class="hljs-number">43</span>
-二号窗口的号码是<span class="hljs-number">41</span>
-三号窗口的号码是<span class="hljs-number">45</span>
+一号窗口的号码是<span class="hljs-number">27</span>
+一号窗口的号码是<span class="hljs-number">28</span>
+一号窗口的号码是<span class="hljs-number">29</span>
+一号窗口的号码是<span class="hljs-number">30</span>
+一号窗口的号码是<span class="hljs-number">31</span>
+一号窗口的号码是<span class="hljs-number">32</span>
+一号窗口的号码是<span class="hljs-number">33</span>
+一号窗口的号码是<span class="hljs-number">34</span>
+一号窗口的号码是<span class="hljs-number">35</span>
+一号窗口的号码是<span class="hljs-number">36</span>
+一号窗口的号码是<span class="hljs-number">37</span>
+一号窗口的号码是<span class="hljs-number">38</span>
+一号窗口的号码是<span class="hljs-number">39</span>
+一号窗口的号码是<span class="hljs-number">40</span>
+一号窗口的号码是<span class="hljs-number">41</span>
+一号窗口的号码是<span class="hljs-number">42</span>
+一号窗口的号码是<span class="hljs-number">43</span>
 一号窗口的号码是<span class="hljs-number">44</span>
-三号窗口的号码是<span class="hljs-number">47</span>
-二号窗口的号码是<span class="hljs-number">46</span>
-二号窗口的号码是<span class="hljs-number">50</span>
-三号窗口的号码是<span class="hljs-number">49</span>
-一号窗口的号码是<span class="hljs-number">48</span></code></pre>
+一号窗口的号码是<span class="hljs-number">45</span>
+一号窗口的号码是<span class="hljs-number">46</span>
+一号窗口的号码是<span class="hljs-number">47</span>
+一号窗口的号码是<span class="hljs-number">48</span>
+一号窗口的号码是<span class="hljs-number">49</span>
+一号窗口的号码是<span class="hljs-number">50</span></code></pre>
 
-<blockquote>
-<p>NOTES</p>
-<p>这里一个问题：这里的叫号顺序不一样，这个是因为在多个线程操作同一个数据存在线程安全的问题，这个以后再说，这个地方的顺序问题暂时先不管</p>
-</blockquote>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>实现<code>Runnable</code>接口的作用为了将可执行的逻辑单元和线程控制分离开来，更好的体现面向对象思想</p>
+<p class="note note-info">结果中看出，50个号码都是一个线程完成了，这是为什么？因为在方法中加入<code>synchronized</code>是这么处理的：线程1执行方法之后它会给方法上锁，其它方法是不能执行方法的，要等待线程1完全执行才能执行，但是在线程1执行完成之后线程2去执行方法此时<code>index>50==true</code>了，那么就退出循环体然后当前线程执行结束。对于这种情况，如果就是不想用同步代码块这种情况怎么去把这种线程写到同步方法签名去呢？这里修改一下：</p>
 
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter7;
+
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@author</span> Shui</span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@date</span> 2020/6/25 14:35</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SynchronizedRunnable</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Runnable</span> </span>&#123;
+
+	<span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> MAX = <span class="hljs-number">50</span>;
+	<span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> index = <span class="hljs-number">0</span>;
+
+	<span class="hljs-meta">@Override</span>
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;
+		<span class="hljs-keyword">while</span> (<span class="hljs-keyword">true</span>) &#123;
+			<span class="hljs-keyword">if</span> (ticket()) <span class="hljs-keyword">break</span>;
+		&#125;
+
+	&#125;
+
+	<span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">synchronized</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">ticket</span><span class="hljs-params">()</span> </span>&#123;
+		<span class="hljs-keyword">if</span> (index &gt; MAX)
+			<span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;
+		<span class="hljs-keyword">try</span> &#123;
+			Thread.sleep(<span class="hljs-number">5</span>);
+		&#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
+			e.printStackTrace();
+		&#125;
+		System.out.println(Thread
+				.currentThread()
+				.getName() + <span class="hljs-string">"的号码是"</span> + (index++));
+		<span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+	&#125;
+
+&#125;</code></pre>
+
+<p class="note note-light">结果</p>
+
+<pre><code class="hljs angelscript">一号窗口的号码是<span class="hljs-number">0</span>
+一号窗口的号码是<span class="hljs-number">1</span>
+二号窗口的号码是<span class="hljs-number">2</span>
+三号窗口的号码是<span class="hljs-number">3</span>
+二号窗口的号码是<span class="hljs-number">4</span>
+三号窗口的号码是<span class="hljs-number">5</span>
+二号窗口的号码是<span class="hljs-number">6</span>
+三号窗口的号码是<span class="hljs-number">7</span>
+二号窗口的号码是<span class="hljs-number">8</span>
+三号窗口的号码是<span class="hljs-number">9</span>
+二号窗口的号码是<span class="hljs-number">10</span>
+三号窗口的号码是<span class="hljs-number">11</span>
+二号窗口的号码是<span class="hljs-number">12</span>
+三号窗口的号码是<span class="hljs-number">13</span>
+二号窗口的号码是<span class="hljs-number">14</span>
+三号窗口的号码是<span class="hljs-number">15</span>
+二号窗口的号码是<span class="hljs-number">16</span>
+三号窗口的号码是<span class="hljs-number">17</span>
+二号窗口的号码是<span class="hljs-number">18</span>
+三号窗口的号码是<span class="hljs-number">19</span>
+二号窗口的号码是<span class="hljs-number">20</span>
+二号窗口的号码是<span class="hljs-number">21</span>
+三号窗口的号码是<span class="hljs-number">22</span>
+二号窗口的号码是<span class="hljs-number">23</span>
+三号窗口的号码是<span class="hljs-number">24</span>
+二号窗口的号码是<span class="hljs-number">25</span>
+三号窗口的号码是<span class="hljs-number">26</span>
+二号窗口的号码是<span class="hljs-number">27</span>
+三号窗口的号码是<span class="hljs-number">28</span>
+二号窗口的号码是<span class="hljs-number">29</span>
+三号窗口的号码是<span class="hljs-number">30</span>
+二号窗口的号码是<span class="hljs-number">31</span>
+三号窗口的号码是<span class="hljs-number">32</span>
+二号窗口的号码是<span class="hljs-number">33</span>
+三号窗口的号码是<span class="hljs-number">34</span>
+二号窗口的号码是<span class="hljs-number">35</span>
+三号窗口的号码是<span class="hljs-number">36</span>
+二号窗口的号码是<span class="hljs-number">37</span>
+三号窗口的号码是<span class="hljs-number">38</span>
+二号窗口的号码是<span class="hljs-number">39</span>
+三号窗口的号码是<span class="hljs-number">40</span>
+二号窗口的号码是<span class="hljs-number">41</span>
+三号窗口的号码是<span class="hljs-number">42</span>
+二号窗口的号码是<span class="hljs-number">43</span>
+三号窗口的号码是<span class="hljs-number">44</span>
+二号窗口的号码是<span class="hljs-number">45</span>
+三号窗口的号码是<span class="hljs-number">46</span>
+二号窗口的号码是<span class="hljs-number">47</span>
+三号窗口的号码是<span class="hljs-number">48</span>
+二号窗口的号码是<span class="hljs-number">49</span>
+三号窗口的号码是<span class="hljs-number">50</span></code></pre>
+
+<p class="note note-info">使用代码块的代码是这么写的：</p>
+
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">ticket</span><span class="hljs-params">()</span> </span>&#123;
+		<span class="hljs-keyword">synchronized</span> (<span class="hljs-keyword">this</span>) &#123;
+			<span class="hljs-keyword">if</span> (index &gt; MAX)
+				<span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;
+			<span class="hljs-keyword">try</span> &#123;
+				Thread.sleep(<span class="hljs-number">5</span>);
+			&#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
+				e.printStackTrace();
+			&#125;
+			System.out.println(Thread
+					.currentThread()
+					.getName() + <span class="hljs-string">"的号码是"</span> + (index++));
+			<span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+		&#125;
+	&#125;</code></pre>
+<p class="note note-info">这个效果与上面是一样的，对于同步方法它加锁的是<code>this</code>，而代码块可以指定其它对象锁</p>
             </article>
             <hr>
             <div>
@@ -441,18 +453,12 @@
                   <div class="post-prev col-6">
                     
                     
-                      <a href="/juc-1-5.html">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">5.策略模式在Thread和Runnable中的应用分析</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </div>
                   <div class="post-next col-6">
                     
                     
-                      <a href="/juc-1-3.html">
-                        <span class="hidden-mobile">3.线程的生命周期以及start方法源码剖析</span>
+                      <a href="/juc-1-16.html">
+                        <span class="hidden-mobile">16.结合jconsole,jstack以及汇编指令认识synchronized关键字</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
@@ -646,7 +652,7 @@
     var typed = new Typed('#subtitle', {
       strings: [
         '  ',
-        "4.采用多线程模拟银行排队叫号&nbsp;",
+        "17.同步代码块以及同步方法之间的区别和关系&nbsp;",
       ],
       cursorChar: "_",
       typeSpeed: 70,

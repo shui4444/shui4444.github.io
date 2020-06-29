@@ -168,6 +168,204 @@
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/juc-1-21.html">21.线程间通信快速入门，使用wait和notify进行线程间的数据通信</a>
+
+      <a href="/juc-1-21.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>在应用程序过程中它并不是一个线程，多个线程做同一个事情，有可能是不同线程做不同事情，但是它们之间要做线程的通讯，比如：有多个线程去运行A任务，多个线程去运行去运行B任务，假设任务A是在数据库里拿数据的，拿完数据要把数据交给B，B负责去展示、写文件、发给另外的机器...，任务A产生的数据要交给B去进行接下来的工作，这个时候就导致一个线程之间的通信。接下来就介绍
+
+来一个案例。一个线程负责生产，每生产</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-06-29
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/juc-1-20.html">20.多线程死锁分析，案例介绍</a>
+
+      <a href="/juc-1-20.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>在前面章节介绍了通过synchronized修饰方法、代码块。这个锁可以让区间里面的东西可以串行执行，起到了数据保护的作用，但是它也有一个风险：会引起死锁。在什么情况会出现死锁呢？在这个章节介绍什么情况回出现死锁，怎么通过JDK的一些命令去查看程序有没有死锁住。有时候程序在运行的过程中什么事都没干日志不输出、CPU没变化这个时候它极有可能它进入了死锁的状态。接下来编写一个死锁案例
+
+package</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-06-26
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/juc-1-19.html">19.通过实验分析Class锁的存在</a>
+
+      <a href="/juc-1-19.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>有些时候在写代码的时候可能里面会有一些静态类、静态方法，它的那个锁到底是什么样子？如果你不显示用代码块的方式去把它作为方法修饰符去做那它锁的是谁，它用谁做的Monitor？
+
+package com.shui.juc.chapter7;
+
+/**
+ * @author Shui
+ * @date 2020/6/25 20:13
+ */
+public class SynchronizedStatic</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-06-25
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/juc-1-18.html">18.通过实验分析This锁的存在</a>
+
+      <a href="/juc-1-18.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>上一章节说synchronized修饰方法的话实际上加的是this锁，这里通过实验来证明一下，下面请看以下代码
+
+package com.shui.juc.chapter7;
+
+/**
+ * @author Shui
+ * @date 2020/6/25 19:50
+ */
+public class SynchronizedThis &#123;
+
+  public static void mai</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-06-25
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
       <a class="index-header" href="/juc-1-17.html">17.同步代码块以及同步方法之间的区别和关系</a>
 
       <a href="/juc-1-17.html" class="index-excerpt">
@@ -441,203 +639,6 @@ public class ThreadCloseGraceful &#123;
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>&nbsp;2020-06-21
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/juc-1-11.html">11.Thread的join方法详细介绍</a>
-
-      <a href="/juc-1-11.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>语法public final void join()
-
-该线程等待死亡。
-此方法的调用行为完全相同的方式调用
-
-public final synchronized void join(long millis)
-
-
-最多等待millis毫秒该线程终止。 的超时0手段永远等待。
-此实现使用的循环this.wait电话空调上this.isAlive 。 作为线程终止this.notifyAll方法被调用</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-06-21
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/juc-1-10.html">10.线程ID，优先级</a>
-
-      <a href="/juc-1-10.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>线程IDpublic static void main(String[] args) &#123;
-    Thread t = new Thread(() -&gt; &#123;
-      System.out.println("Hello");
-      try &#123;
-        Thread.sleep(1_000);
-      &#125; catch (Interru</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-06-21
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/juc-1-9.html">9.Daemon线程的创建以及使用场景分析</a>
-
-      <a href="/juc-1-9.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>来做一个小实验，代码如下：
-
-public static void main(String[] args) throws InterruptedException &#123;
-  Thread thread = new Thread() &#123;
-    @Override
-    public void run() &#123;
-      try &#123;
-        Threa</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-06-20
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/juc-1-8.html">8.Thread构造函数StackSize</a>
-
-      <a href="/juc-1-8.html" class="index-excerpt">
-        
-        
-          
-        
-        <div></div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-06-20
           </div>
         
         

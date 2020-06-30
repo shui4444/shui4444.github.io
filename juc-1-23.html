@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="Shui">
+  <meta name="keywords" content="">
+  <title>23.高并发编程第一阶段26讲、多线程下的生产者消费者模型，以及详细介绍notifyAll方法 - Shui&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Fluid</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/home.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2020-06-30 22:33">
+      2020年6月30日 晚上
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.6k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      32
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <p class="note note-info">在上一章介绍的案例有一个很严重的问题，它那样做只能有一个生产者一个消费者，在实际开发中是会有多个生产者、消费者去做，但是通过<code>wait+notify</code>会出现假死，这章提供一个解决方案。<br/>这里先分析下之前的代码</p>
+
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">produce</span><span class="hljs-params">()</span> </span>&#123;
+   <span class="hljs-keyword">synchronized</span> (LOCK) &#123;
+     <span class="hljs-comment">// 如果已经生产了，调用 wait 方法</span>
+     <span class="hljs-keyword">if</span> (isProduced) &#123;
+       <span class="hljs-keyword">try</span> &#123;
+         LOCK.wait();
+       &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
+         e.printStackTrace();
+       &#125;
+     &#125; <span class="hljs-keyword">else</span> &#123;
+       <span class="hljs-comment">// 如果没有生产，那就生产</span>
+       i++;
+       System.out.println(<span class="hljs-string">"P-&gt;"</span> + i);
+       <span class="hljs-comment">// 唤醒正在该对象的监视器上等待（wait）的单个线程</span>
+       LOCK.notify();
+       isProduced = <span class="hljs-keyword">true</span>;
+     &#125;
+   &#125;
+ &#125;
+
+ <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">consume</span><span class="hljs-params">()</span> </span>&#123;
+   <span class="hljs-keyword">synchronized</span> (LOCK) &#123;
+     <span class="hljs-keyword">if</span> (isProduced) &#123;
+       System.out.println(<span class="hljs-string">"M-&gt;"</span> + i);
+       LOCK.notify();
+       isProduced = <span class="hljs-keyword">false</span>;
+     &#125; <span class="hljs-keyword">else</span> &#123;
+       <span class="hljs-keyword">try</span> &#123;
+         LOCK.wait();
+       &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
+         e.printStackTrace();
+       &#125;
+     &#125;
+   &#125;
+ &#125;</code></pre>
+
+<p class="note note-info">上面代码存在这么一个问题：<code>notify</code>唤醒的是哪一个线程？随机、FR、FO、这个是JVM没有明确要求你必须是哪种方式去唤醒的，对于这个问题先卖个关子,先介绍下几个方法,这些方法都属于<code>Object</code><br/><br/>
+    public final void wait()
+</p>
+
+<p>使当前线程等待，直到另一个线程为此对象调用<code>notify（）</code>方法或<code>notifyAll（）</code>方法。换句话说，这个方法的行为就像它只是执行<code>wait（0）</code>一样。 当前线程必须拥有此对象的监视器。线程释放此监视器的所有权，并等待，直到另一个线程通过调用<code>notify</code>方法或<code>notifyAll</code>方法通知在该对象的监视器上等待的线程唤醒。然后线程等待，直到它可以重新获得监视器的所有权并继续执行。</p>
+<p class="note note-info">public final native void wait(long timeout);</p>
+
+<p>使当前线程等待，直到另一个线程为此对象调用<code>notify（）</code>方法或<code>notifyAll（）</code>方法，或者经过指定的时间量。<br>当前线程必须拥有此对象的监视器。 此方法会导致当前线程（称为T）将自己置于该对象的等待集中，然后放弃对该对象的所有同步声明。<br/><br>出于线程调度目的，线程T被禁用并处于休眠状态，直到发生以下四种情况之一： </p>
+<ul>
+<li>另一个线程调用这个对象的<code>notify</code>方法，而thread T恰好被任意选择为要唤醒的线程。 </li>
+<li>另一个线程为此对象调用<code>notifyAll</code>方法。 </li>
+<li>另一个线程中断线程T。 </li>
+<li>指定的实时时间已过，或多或少。但是，如果<code>timeout</code>为零，则不考虑实时性，线程只是等待通知。 然后从该对象的等待集中删除线程T，并重新启用线程调度。然后，它以通常的方式与其他线程竞争对象上的同步权；一旦它获得了对象的控制权，它对该对象的所有同步声明都将恢复到以前的状态，也就是说，恢复到调用wait方法时的状态。然后，线程T从<code>wait</code>方法的调用返回。因此，从<code>wait</code>方法返回时，对象和线程T的同步状态与调用<code>wait</code>方法时的状态完全相同。 线程也可以在没有被通知、中断或超时的情况下被唤醒，这就是所谓的虚假唤醒。虽然这种情况在实践中很少发生，但应用程序必须通过测试本应导致线程被唤醒的条件，并在条件不满足时继续等待，以防出现这种情况。换句话说，等待应该总是在循环中发生，就像下面这样：<br/></li>
+</ul>
+<pre><code class="hljs java">同步（obj）&#123;
+  <span class="hljs-keyword">while</span>（条件不成立&gt; ） 等一下（超时）； ... <span class="hljs-comment">//根据情况采取适当的行动 </span>
+&#125;</code></pre>
+<p>参数: 超时–等待的最长时间（毫秒）</p>
+<hr>
+<p class="note note-info">接着回到之前的代码</p>
+
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">produce</span><span class="hljs-params">()</span> </span>&#123;
+   <span class="hljs-keyword">synchronized</span> (LOCK) &#123;
+     <span class="hljs-keyword">if</span> (isProduced) &#123;
+       <span class="hljs-keyword">try</span> &#123;
+         LOCK.wait();
+       &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
+         e.printStackTrace();
+       &#125;
+     &#125; <span class="hljs-keyword">else</span> &#123;
+       i++;
+       System.out.println(<span class="hljs-string">"P-&gt;"</span> + i);
+       LOCK.notify();
+       isProduced = <span class="hljs-keyword">true</span>;
+     &#125;
+   &#125;
+ &#125;</code></pre>
+
+<p class="note note-info">它这里调用了<code>wait()</code>，意思是说它放弃了这个锁，也就是说它放弃了<code>LOCK</code>，它本来是持有这个锁（获取CPU执行权），这个时候它是一个“假死”的状态，直到<code>notify、notifyAll</code>把它唤醒。<br/>
+它被唤醒之后具备可运行状态，它不是说立即执行的，可运行状态还是需要它去强锁的，它只有抢到锁才会执行。<br/>
+<code>notify</code>也介绍过，它会去唤醒一个线程
+</p>
+
+<p>唤醒正在该对象的监视器上等待的单个线程。如果有线程正在等待此对象，则选择其中一个线程被唤醒。这种选择是任意的，由实现的自由裁量权决定。线程通过调用wait方法之一等待对象的监视器。<br/><br>在当前线程放弃对该对象的锁定之前，唤醒的线程将无法继续。被唤醒的线程将以通常的方式与任何其他线程竞争，这些线程可能正积极地在该对象上进行同步；<br/><br>例如，被唤醒的线程在成为下一个锁定此对象的线程时没有可靠的特权或劣势。 此方法只能由作为此对象监视器所有者的线程调用。线程通过以下三种方式之一成为对象监视器的所有者：<br/> </p>
+<ul>
+<li>通过执行该对象的同步实例方法。 </li>
+<li>通过执行在对象上同步的同步语句体。 </li>
+<li>执行该类的静态方法的类。</li>
+<li>一次只能有一个线程拥有一个对象的监视器。</li>
+</ul>
+<hr>
+<p class="note note-info">它这里还有一个更重要的方法<code>notifyAll()</code></p>
+
+<p>唤醒在该对象监视器上等待的所有线程，假设现在有三个线程<code>wait</code>了，通过它可以全部唤醒。 线程通过调用<code>wait</code>方法之一等待对象的监视器。<br/><br>在当前线程放弃此对象的锁之前，唤醒的线程将无法继续。被唤醒的线程将以通常的方式与任何其他线程竞争，这些线程可能正积极地在该对象上进行同步；例如，被唤醒的线程在成为下一个锁定此对象的线程时没有可靠的特权或劣势。<br/><br>所以对于前面代码属出现的问题，通过它就能解决，这里进行改造：</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">produce</span><span class="hljs-params">()</span> </span>&#123;
+   <span class="hljs-keyword">synchronized</span> (LOCK) &#123;
+     <span class="hljs-comment">// 如果生产了数据，就wait住</span>
+     <span class="hljs-keyword">while</span> (isProduced) &#123;
+       <span class="hljs-keyword">try</span> &#123;
+         LOCK.wait();
+       &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
+         e.printStackTrace();
+       &#125;
+     &#125;
+     <span class="hljs-comment">// 如果没有生产，那就生产</span>
+     i++;
+     System.out.println(<span class="hljs-string">"P-&gt;"</span> + i);
+     <span class="hljs-comment">// 唤醒正在该对象的监视器上等待（wait）的单个线程</span>
+     LOCK.notify();
+     isProduced = <span class="hljs-keyword">true</span>;
+   &#125;
+ &#125;
+
+ <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">consume</span><span class="hljs-params">()</span> </span>&#123;
+   <span class="hljs-keyword">synchronized</span> (LOCK) &#123;
+     <span class="hljs-comment">//如果生产数据，那就wait</span>
+     <span class="hljs-keyword">while</span> (!isProduced) &#123;
+       <span class="hljs-keyword">try</span> &#123;
+         LOCK.wait();
+       &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
+         e.printStackTrace();
+       &#125;
+     &#125;
+     System.out.println(<span class="hljs-string">"M-&gt;"</span> + i);
+     LOCK.notify();
+     isProduced = <span class="hljs-keyword">false</span>;
+   &#125;
+ &#125;</code></pre>
+
+<p class="note note-info">上面代码为什么会去使用<code>while</code>？写成<code>if</code>可以吗？</p>
+
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">produce</span><span class="hljs-params">()</span> </span>&#123;
+   <span class="hljs-keyword">synchronized</span> (LOCK) &#123;
+     <span class="hljs-comment">// 如果生产了数据，就wait住</span>
+     <span class="hljs-keyword">if</span> (isProduced) &#123;
+       <span class="hljs-keyword">try</span> &#123;
+         LOCK.wait();
+       &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
+         e.printStackTrace();
+       &#125;
+     &#125;
+     <span class="hljs-comment">// 如果没有生产，那就生产</span>
+   ...
+   &#125;
+ &#125;</code></pre>
+
+<p class="note note-info">假设这里是<code>if</code>其中有两个生产者线程，它们全部是唤醒的，一个抢到这个锁进来执行，执行的时候它判断到这边已经生产了，它<code>wait</code>，另外一个也<code>wait</code>了，然后它被唤醒之后去生产了数据，它执行完了，执行完之后去抢锁，它在抢锁的过程中发现它已经被生产过了所以它<code>wait</code>了，另外线程它干什么事？因为你使用的是<code>notifyAll</code>都唤醒了，根本不需要去判断了，那就直接又生产了一个数据，这样会导致消费者还没有消费完，已经被你重复生产了。</p>
+
+<p>补充：因为调用的是<code>notifyAll</code>所以两个线程都被唤醒，它们其中一个去抢到锁去生产，生产之后要由于是<code>while(true)</code>在走这个逻辑，它是一个<code>wait</code>状态，那第二个线程在<code>Consume</code>被唤醒<code>notifyAll</code>的时候,把它同时也唤醒了，它只不过没有抢到锁，被1号线程执行了，那2号线程的逻辑代码已经在<code><br>if (isProduced) {<br>        try {<br>          LOCK.wait();<br>        } catch (InterruptedException e) {<br>          e.printStackTrace();<br>        }<br>      }<br></code>里面了，所以说它会直接往下走，我这边生产了一个，然后消费的还没有消费，那它抢到锁之后又生产了一个，那不就是重复生产了吗？它就把1号线程生产的给替换掉了，也就是说<code>Consume</code>去消费的时候只会看到第二个，不会看到第一个，这里先改成<code>if</code> 运行的效果</p>
+<pre><code class="hljs java"> <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">produce</span><span class="hljs-params">()</span> </span>&#123;
+  <span class="hljs-keyword">synchronized</span> (LOCK) &#123;
+    <span class="hljs-comment">// 如果生产了数据，就wait住</span>
+    <span class="hljs-keyword">if</span> (isProduced) &#123;
+      <span class="hljs-keyword">try</span> &#123;
+        LOCK.wait();
+      &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
+        e.printStackTrace();
+      &#125;
+    &#125;
+    <span class="hljs-comment">// 如果没有生产，那就生产</span>
+    i++;
+    System.out.println(<span class="hljs-string">"P-&gt;"</span> + i);
+    <span class="hljs-comment">// 唤醒正在该对象的监视器上等待（wait）的单个线程</span>
+    LOCK.notifyAll();
+    isProduced = <span class="hljs-keyword">true</span>;
+  &#125;
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">consume</span><span class="hljs-params">()</span> </span>&#123;
+  <span class="hljs-keyword">synchronized</span> (LOCK) &#123;
+    <span class="hljs-comment">//如果生产数据，那就wait</span>
+    <span class="hljs-keyword">if</span> (!isProduced) &#123;
+      <span class="hljs-keyword">try</span> &#123;
+        LOCK.wait();
+      &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
+        e.printStackTrace();
+      &#125;
+    &#125;
+    System.out.println(<span class="hljs-string">"M-&gt;"</span> + i);
+    LOCK.notifyAll();
+    isProduced = <span class="hljs-keyword">false</span>;
+  &#125;
+&#125;</code></pre>
+
+<p class="note note-light">结果</p>
+
+<pre><code class="hljs angelscript">P-&gt;<span class="hljs-number">1</span>
+M-&gt;<span class="hljs-number">1</span>
+P-&gt;<span class="hljs-number">2</span>
+P-&gt;<span class="hljs-number">3</span>
+M-&gt;<span class="hljs-number">3</span></code></pre>
+
+<p class="note note-info">对于这个问题的解决只需要把<code>if</code>换成<code>while</code>即可</p>
+
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">produce</span><span class="hljs-params">()</span> </span>&#123;
+   <span class="hljs-keyword">synchronized</span> (LOCK) &#123;
+     <span class="hljs-comment">// 如果生产了数据，就wait住</span>
+     <span class="hljs-keyword">while</span> (isProduced) &#123;
+       <span class="hljs-keyword">try</span> &#123;
+         LOCK.wait();
+       &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
+         e.printStackTrace();
+       &#125;
+     &#125;
+     <span class="hljs-comment">// 如果没有生产，那就生产</span>
+     i++;
+     System.out.println(<span class="hljs-string">"P-&gt;"</span> + i);
+     <span class="hljs-comment">// 唤醒正在该对象的监视器上等待（wait）的单个线程</span>
+     LOCK.notifyAll();
+     isProduced = <span class="hljs-keyword">true</span>;
+   &#125;
+ &#125;
+
+ <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">consume</span><span class="hljs-params">()</span> </span>&#123;
+   <span class="hljs-keyword">synchronized</span> (LOCK) &#123;
+     <span class="hljs-comment">//如果生产数据，那就wait</span>
+     <span class="hljs-keyword">while</span> (!isProduced) &#123;
+       <span class="hljs-keyword">try</span> &#123;
+         LOCK.wait();
+       &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
+         e.printStackTrace();
+       &#125;
+     &#125;
+     System.out.println(<span class="hljs-string">"M-&gt;"</span> + i);
+     LOCK.notifyAll();
+     isProduced = <span class="hljs-keyword">false</span>;
+   &#125;
+ &#125;</code></pre>
+
+<p class="note note-light">结果</p>
+
+<pre><code class="hljs angelscript">P-&gt;<span class="hljs-number">1</span>
+M-&gt;<span class="hljs-number">1</span>
+P-&gt;<span class="hljs-number">2</span>
+M-&gt;<span class="hljs-number">2</span>
+P-&gt;<span class="hljs-number">3</span>
+M-&gt;<span class="hljs-number">3</span>
+P-&gt;<span class="hljs-number">4</span>
+M-&gt;<span class="hljs-number">4</span>
+P-&gt;<span class="hljs-number">5</span>
+M-&gt;<span class="hljs-number">5</span>
+P-&gt;<span class="hljs-number">6</span>
+M-&gt;<span class="hljs-number">6</span>
+P-&gt;<span class="hljs-number">7</span>
+M-&gt;<span class="hljs-number">7</span>
+P-&gt;<span class="hljs-number">8</span>
+M-&gt;<span class="hljs-number">8</span>
+P-&gt;<span class="hljs-number">9</span>
+M-&gt;<span class="hljs-number">9</span>
+P-&gt;<span class="hljs-number">10</span>
+M-&gt;<span class="hljs-number">10</span>
+P-&gt;<span class="hljs-number">11</span>
+M-&gt;<span class="hljs-number">11</span>
+P-&gt;<span class="hljs-number">12</span>
+M-&gt;<span class="hljs-number">12</span>
+P-&gt;<span class="hljs-number">13</span>
+M-&gt;<span class="hljs-number">13</span>
+P-&gt;<span class="hljs-number">14</span>
+M-&gt;<span class="hljs-number">14</span>
+P-&gt;<span class="hljs-number">15</span>
+M-&gt;<span class="hljs-number">15</span>
+P-&gt;<span class="hljs-number">16</span>
+M-&gt;<span class="hljs-number">16</span></code></pre>
+
+<p class="note note-info">这样就OK了，问题解决，即使线程抢到锁之后，因为它第一个线程已经把它改成<code>true</code>了，你第二次起来之后先到这报道一下:</p>
+
+<pre><code class="hljs java"><span class="hljs-keyword">while</span> (isProduced) &#123;
+        <span class="hljs-keyword">try</span> &#123;
+          LOCK.wait();
+        &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
+          e.printStackTrace();
+&#125;</code></pre>
+<p class="note note-info">判断是否允许放行，如果这个条件成立就继续呆着<code>(wait)</code>，</p>
+
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/JUC/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/juc-1-22.html">
+                        <span class="hidden-mobile">22.多Produce多Consume之间的通讯导致出现程序假死的原因分析</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <div class="comments" id="comments">
+                
+                
+  <div id="vcomments"></div>
+  <script type="text/javascript">
+    function loadValine() {
+      addScript('https://cdn.staticfile.org/valine/1.4.14/Valine.min.js', function () {
+        new Valine({
+          el: "#vcomments",
+          app_id: "JPMGXNyXlKIYB5iXM45ajXMG-gzGzoHsz",
+          app_key: "vaINfnh4Actkae23R9dKOFbu",
+          placeholder: "说点什么",
+          path: window.location.pathname,
+          avatar: "retro",
+          meta: ["nick","mail","link"],
+          pageSize: "10",
+          lang: "zh-CN",
+          highlight: true,
+          recordIP: false,
+          serverURLs: "",
+        });
+      });
+    }
+    createObserver(loadValine, 'vcomments');
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://valine.js.org" target="_blank" rel="nofollow noopener noopener">comments
+      powered by Valine.</a></noscript>
+
+
+              </div>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+    <!-- APlayer 音乐播放器 -->
+    <div id="aplayer"></div>
+    <script defer src="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.js" ></script>
+<link  rel="stylesheet" href="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.css" />
+<script type="text/javascript">
+  var oldLoadAp = window.onload;
+  window.onload = function () {
+    oldLoadAp && oldLoadAp();
+
+    new APlayer({
+      container: document.getElementById('aplayer'),
+      fixed: true,
+      autoplay: 'false' === 'true',
+      loop: 'all',
+      order: 'random',
+      theme: '#b7daff',
+      preload: 'none',
+      audio: [{"name":"雨 因你而下，于你而止","artist":"Seto","url":"/music/1/index.m4a","cover":"/music/1/index.jpg"}]
+    });
+  }
+</script>
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "23.高并发编程第一阶段26讲、多线程下的生产者消费者模型，以及详细介绍notifyAll方法&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

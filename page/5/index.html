@@ -168,6 +168,117 @@
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/redis-10.html">【 Redis-学习笔记 】 10.缓存设计与优化</a>
+
+      <a href="/redis-10.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>缓存的收益与成本
+使用缓存能带来哪些收益又会付出什么成本？
+
+收益
+加速读写
+通过缓存加速读写：CPU  L1/L2/L3 Cache、Linux page Cache加速硬盘读写、浏览器缓存、Ehcache缓存数据库结果；
+
+
+降低后端负载
+后端服务器通过前端缓存降低负载：业务端使用Redis降低后端MySQL负载等。
+
+
+
+成本
+数据不一致：缓存层和数据层有时间窗口不一致，和更新策略有关：你需</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2019-10-17
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+            
+              <a href="/categories/%E8%BF%90%E7%BB%B4/Redis/">Redis</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/redis-9.html">【 Redis-学习笔记 】 9.深入Redis Cluster</a>
+
+      <a href="/redis-9.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>集群缩容伸缩原理
+伸就是加节点，缩就是某些节点不需要了，需要将他们进行下线
+扩容集群步骤
+准备新节点；
+加入集群（meet）；
+迁移槽和数据，把其他节点的槽数据均匀的移到这个节点，因为一个节点没有数据是没有 任何意义的,这个节点就可以工作了，实现性能的扩展。当然如果是从节点，给它meet就好了，不用做槽的迁移。
+
+准备新节点
+集群模式；
+
+配置和其他节点统一；
+
+启动后是孤儿节点；
+redis-s</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2019-10-17
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+            
+              <a href="/categories/%E8%BF%90%E7%BB%B4/Redis/">Redis</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
       <a class="index-header" href="/redis-8.html">【 Redis-学习笔记 】 8.初识Redis Cluster</a>
 
       <a href="/redis-8.html" class="index-excerpt">
@@ -539,107 +650,11 @@ make &amp;&amp; make install
     </div>
   </div>
 
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/spring-security-6.4.html">【 六、RBAC 】 4.基于数据库Rbac数据模型控制权限</a>
-
-      <a href="/spring-security-6.4.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>基于数据库Rbac数据模型控制权限
-一般的内部管理系统，权限比较复杂，通常权限都是动态配置的，也就是下面我们要讲的的rbac模型
-RBAC详细原理请度娘，这里只是涉及到企业权限的功能级权限，数据级权限还要我们自己控制（用户只能看见它相关的业务表数据）
-
-为了方便演示，这里重新创建一个子工厂：mcr-auth-authorize，pom.xml如下：
-&lt;dependencies&gt;
-   </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2019-10-16
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/SpringSecurity/">SpringSecurity</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/spring-security-6.3.html">【 六、RBAC 】 3.权限表达式</a>
-
-      <a href="/spring-security-6.3.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>权限表达式通过源码分析可知，最终的配置都会转成ExpressionUrlAuthorizationConfigurer.AuthorizedUrl并进行投票决定。
-常见表达式如下：
-
-如何写联合表达式呢？就是既满足A条件，也满足B条件
-.antMatchers("xx").access("hasRole('ROLE_USER') and hasRole('ROLE_SUPER')")
-
- 这个都是</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2019-10-16
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/SpringSecurity/">SpringSecurity</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
 
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <a class="extend prev" rel="prev" href="/page/4/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/6/"><i class="iconfont icon-arrowright"></i></a>
+      <a class="extend prev" rel="prev" href="/page/4/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" href="/page/6/"><i class="iconfont icon-arrowright"></i></a>
     </span>
   </nav>
   

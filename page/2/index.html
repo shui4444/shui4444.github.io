@@ -168,6 +168,56 @@
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/juc-1-14.html">14.编写ThreadService实现暴力结束线程</a>
+
+      <a href="/juc-1-14.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>这一章介绍如何强制结束线程，举个例子：读一个网络资源、做一些比较耗时的事情，期望是30分钟执行完成，超过30分钟就认为是失败的就不等待它了，通过暴力的方式去结束，但是在JDK暴力的方式只有stop()，这个方式已经被弃用了，那么用什么方式来做这个呢？
+
+package com.shui.juc.chapter6;
+
+/**
+ * @author Shui
+ * @date 2020/6/25 10</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-06-25
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
       <a class="index-header" href="/juc-1-13.html">13.采用优雅的方式结束线程生命周期</a>
 
       <a href="/juc-1-13.html" class="index-excerpt">
@@ -597,66 +647,6 @@ public static void main(String[] args) throws InterruptedException &#123;
             <i class="iconfont icon-tags"></i>
             
               <a href="/tags/%E9%9B%B6%E7%A2%8E/">零碎</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/juc-1-5.html">5.策略模式在Thread和Runnable中的应用分析</a>
-
-      <a href="/juc-1-5.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>策略模式案例需求计算工资税率
-普通实现方式package com.shui.juc.chapter2;
-
-/**
- * 税收计算器
- *
- * @author Shui
- * @date 2020/6/17
- */
-public class TaxCalculator &#123;
-
-  /**
-   * 奖金
-   */
-  private final double bonus;
-  /**
- </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-06-17
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
             
           </div>
         

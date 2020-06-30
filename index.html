@@ -168,6 +168,55 @@
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/juc-1-23.html">23.多线程下的生产者消费者模型，以及详细介绍notifyAll方法</a>
+
+      <a href="/juc-1-23.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>在上一章介绍的案例有一个很严重的问题，它那样做只能有一个生产者一个消费者，在实际开发中是会有多个生产者、消费者去做，但是通过wait+notify会出现假死，这章提供一个解决方案。这里先分析下之前的代码
+
+public void produce() &#123;
+   synchronized (LOCK) &#123;
+     // 如果已经生产了，调用 wait 方法
+     if (is</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-06-30
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
       <a class="index-header" href="/juc-1-23.html">23.高并发编程第一阶段26讲、多线程下的生产者消费者模型，以及详细介绍notifyAll方法</a>
 
       <a href="/juc-1-23.html" class="index-excerpt">
@@ -580,56 +629,6 @@ public class TicketWindowRunnable implements Runnable &#123;
 
   private static final int MAX = 50;
   pri</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-06-25
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/juc-1-14.html">14.编写ThreadService实现暴力结束线程</a>
-
-      <a href="/juc-1-14.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>这一章介绍如何强制结束线程，举个例子：读一个网络资源、做一些比较耗时的事情，期望是30分钟执行完成，超过30分钟就认为是失败的就不等待它了，通过暴力的方式去结束，但是在JDK暴力的方式只有stop()，这个方式已经被弃用了，那么用什么方式来做这个呢？
-
-package com.shui.juc.chapter6;
-
-/**
- * @author Shui
- * @date 2020/6/25 10</div>
       </a>
 
       <div class="index-btm post-metas">

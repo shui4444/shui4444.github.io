@@ -33,7 +33,7 @@
   
   
   <entry>
-    <title>23.高并发编程第一阶段26讲、多线程下的生产者消费者模型，以及详细介绍notifyAll方法</title>
+    <title>23.多线程下的生产者消费者模型，以及详细介绍notifyAll方法</title>
     <link href="/juc-1-23.html"/>
     <url>/juc-1-23.html</url>
     

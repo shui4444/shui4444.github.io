@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="Shui">
+  <meta name="keywords" content="">
+  <title>3.线程的生命周期以及start方法源码剖析 - Shui&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Fluid</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/home.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2020-06-15 19:07">
+      2020年6月15日 晚上
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.4k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      15
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <h1 id="线程的生命周期"><a href="#线程的生命周期" class="headerlink" title="线程的生命周期"></a>线程的生命周期</h1><h2 id="什么时候才是Thread"><a href="#什么时候才是Thread" class="headerlink" title="什么时候才是Thread"></a>什么时候才是Thread</h2><p>当你实例化一个<code>Thread</code>：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">new</span> Thread();</code></pre>
+
+<p>如果在没有调用它的<code>start</code>之前，它其实不能称为<code>Thread</code>，只有<code>start</code>之后才能称为<code>Thread</code>，在它start之后是立刻返回的，在上一章的例子中<code>Thread</code>的run方法还没执行完，<code>main</code>就已经结束就是这个原因。</p>
+<hr>
+<h2 id="声明周期基本状态"><a href="#声明周期基本状态" class="headerlink" title="声明周期基本状态"></a>声明周期基本状态</h2><blockquote>
+<p>一个线程必须经过好几种状态的切换，不管在JDK的并发包，线程其实代表的内只有这一个Thread类，不管是线程池、Callback、Future、ForkJoin，它们都是Thread才能代表它，所以Thread是一个务必掌握的知识</p>
+</blockquote>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/7126254-55d47d5ebef3b1e2.jpg" srcset="/img/loading.gif" alt="7126254-55d47d5ebef3b1e2"></p>
+<center>图 1-1 Thread生命周期</center> 
+
+<h3 id="新建状态（New）"><a href="#新建状态（New）" class="headerlink" title="新建状态（New）"></a>新建状态（New）</h3><p>当线程对象创建后，即进入新建状态，如：<code>Thread t = new MyThread();</code></p>
+<blockquote>
+<p>NOTES</p>
+<p>这里只是实例化，它不属于Thread的声明周期，这个<code>new XXX对象</code>的状态是对象都有的</p>
+</blockquote>
+<h3 id="就绪状态（Runnable）"><a href="#就绪状态（Runnable）" class="headerlink" title="就绪状态（Runnable）"></a>就绪状态（Runnable）</h3><p>当调用线程对象的 start() 方法时，线程即进入就绪状态。处于就绪状态的线程只是说明此线程已经做好准备，随时等待 CPU 调度执行，并不是说执行了 start() 方法就立即执行</p>
+<blockquote>
+<p>NOTES</p>
+<p>在start之后它才能称为一个线程</p>
+</blockquote>
+<h3 id="运行状态（Running）"><a href="#运行状态（Running）" class="headerlink" title="运行状态（Running）"></a>运行状态（Running）</h3><p>当 CPU 开始调度处于就绪状态的线程时，此时线程才得以真正执行，即进入到运行状态。</p>
+<blockquote>
+<p>在Running状态过程中有可能<code>Runnable</code>,可能把执行权交给了其它线程，现在不能<code>Running</code>进入短暂的休息，因为多个线程之间切换是基于CPU做的，只不过它速度特别快，你看不出来，你以为它是同时跑了很多东西，它的切换速度在纳秒、微秒级看不出来有影响但是对CPU的调度来说它每一个时间点它只能执行一个任务，所以在<code>Running</code>的时候进行切换，它也就进入了<code>Runnable</code>状态</p>
+</blockquote>
+<h3 id="阻塞状态（Blocked）"><a href="#阻塞状态（Blocked）" class="headerlink" title="阻塞状态（Blocked）"></a>阻塞状态（Blocked）</h3><p>处于运行状态中的线程由于某种原因，暂时放弃对 CPU 的使用权，停止执行，此时进入阻塞状态，直到其进入到就绪状态，才有机会再次被 CPU 调用以进入到运行状态。</p>
+<blockquote>
+<p>NOTES</p>
+<p><code>Blocked</code>之后无法立即回到<code>Running</code>状态，它必须先到<code>Runnable</code>，比如在<code>run</code>方法中<code>sleep</code>，<code>sleep</code>之后是无法立即执行的，<code>sleep</code>之后它会进入<code>Runnable</code>状态，这个时候继续走<code>Runnable</code>的流程：随时等待CPU调度执行。</p>
+</blockquote>
+<hr>
+<p>阻塞状态分类</p>
+<ul>
+<li>等待阻塞：运行状态中的线程执行 <code>wait ()</code> 方法，使本线程进入到等待阻塞状态；</li>
+<li>同步阻塞：线程在获取 <code>synchronized</code> 同步锁失败（因为锁被其它线程占用），它会进入到同步阻塞状态；</li>
+<li>其他阻塞：通过调用线程的 <code>sleep () 或 join ()</code> 或发出 I/O 请求时，线程会进入到阻塞状态。当 <code>sleep()</code> 状态超时、<code>join()</code> 等待线程终止或者超时、或者 I/O 处理完毕时，线程重新转入就绪状态。</li>
+</ul>
+<h3 id="死亡状态"><a href="#死亡状态" class="headerlink" title="死亡状态"></a>死亡状态</h3><ul>
+<li>在<code>Running</code>正常结束之后线程是可以终结的，<code>Blocked</code>抢锁的时候你将它打断了，比如通过<code>wait</code>进行打断，它也可能会线程进入终结状态。</li>
+<li>在<code>Runnable</code>过程中死了，也有可能出现终结状态</li>
+</ul>
+<h1 id="start方法源码剖析"><a href="#start方法源码剖析" class="headerlink" title="start方法源码剖析"></a>start方法源码剖析</h1><h2 id="JDK文档的介绍的实验"><a href="#JDK文档的介绍的实验" class="headerlink" title="JDK文档的介绍的实验"></a>JDK文档的介绍的实验</h2><p>导致该线程开始执行；java虚拟机调用这个线程的 run方法。<br>结果是，两个线程同时运行：当前线程（返回从电话到start法）和其他的线程（执行run法）。重复启动一个线程是不合法的。特别是，一个线程可能不会被重新启动，一旦它完成了执行</p>
+<hr>
+<p>1</p>
+<p>上面说结果出现2个线程同时运行，是说你在<code>run main</code>的时候产生一个线程，然后你在 对<code>Thread</code>对象的<code>start</code>的时候也会算一个线程，在这个时候就会出现2个，比如说执行以下代码：</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;
+  Instant start = Instant.now();
+  Thread t1 = <span class="hljs-keyword">new</span> Thread(<span class="hljs-string">"readDatabase"</span>) &#123;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;
+      print(Thread.currentThread().getName());
+    &#125;
+
+  &#125;;
+  Thread t2 = <span class="hljs-keyword">new</span> Thread(<span class="hljs-string">"writeFile"</span>) &#123;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;
+      print(Thread.currentThread().getName());
+    &#125;
+
+  &#125;;
+  t1.start();
+  t2.start();
+
+  Instant end = Instant.now();
+  print(<span class="hljs-string">"main:"</span>+Thread.currentThread().getName());
+  print(<span class="hljs-string">"耗时-&gt;"</span> + Duration
+      .between(start, end)
+      .getSeconds() + <span class="hljs-string">"s"</span>);
+&#125;</code></pre>
+
+<p>结果：</p>
+<pre><code class="hljs avrasm"><span class="hljs-symbol">main:</span>main
+writeFile
+readDatabase</code></pre>
+
+<hr>
+<p>2</p>
+<p>重复启动一个线程是不合法的。特别是，一个线程可能不会被重新启动，如果重复<code>start</code>结果：<code>IllegalThreadStateException</code>  -如果线程已经启动。 </p>
+<pre><code class="hljs java">t1.start();
+t2.start();
+t2.start();</code></pre>
+
+<p>结果：</p>
+<pre><code class="hljs css"><span class="hljs-selector-tag">readDatabase</span>
+<span class="hljs-selector-tag">writeFile</span>
+<span class="hljs-selector-tag">Exception</span> <span class="hljs-selector-tag">in</span> <span class="hljs-selector-tag">thread</span> "<span class="hljs-selector-tag">main</span>" <span class="hljs-selector-tag">java</span><span class="hljs-selector-class">.lang</span><span class="hljs-selector-class">.IllegalThreadStateException</span>
+	<span class="hljs-selector-tag">at</span> <span class="hljs-selector-tag">java</span><span class="hljs-selector-class">.lang</span><span class="hljs-selector-class">.Thread</span><span class="hljs-selector-class">.start</span>(<span class="hljs-selector-tag">Thread</span><span class="hljs-selector-class">.java</span><span class="hljs-selector-pseudo">:708)</span>
+	<span class="hljs-selector-tag">at</span> <span class="hljs-selector-tag">com</span><span class="hljs-selector-class">.shui</span><span class="hljs-selector-class">.juc</span><span class="hljs-selector-class">.chapter1</span><span class="hljs-selector-class">.TryConcurrency</span><span class="hljs-selector-class">.main</span>(<span class="hljs-selector-tag">TryConcurrency</span><span class="hljs-selector-class">.java</span><span class="hljs-selector-pseudo">:39)</span></code></pre>
+
+<h2 id="直接调用run"><a href="#直接调用run" class="headerlink" title="直接调用run"></a>直接调用run</h2><p>如果是直接调用run方法，它就会被视为一个普通类调用方法是一个意思，它不会像调用<code>start</code>那样去创建线程</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><ol>
+<li>Java应用程序的main函数是一一个线程，是被JVM启动的时候调用，线程的名字叫main</li>
+<li>实现一个线程，必须创建<code>Thread</code>实例， <code>override run</code>方法， 并且调用<code>start</code>方法</li>
+<li>在JVM启动后，实际上有多个线程，但是至少有一个非守护线程</li>
+<li>当你调用一个线程<code>start</code>方法的时候，此时至少有两个线程，一个是调用你的线程，还有一个执行<code>run</code>方法的线程</li>
+<li>线程的生命周期分为：<code>new, runnable, running, block, terminated</code></li>
+</ol>
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">Java多线程编程实战</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/juc-actualCombat-1-4.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">4.采用多线程模拟银行排队叫号</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/linux-4.html">
+                        <span class="hidden-mobile">【Linux】 Vmwrae中CentOS扩容</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <div class="comments" id="comments">
+                
+                
+  <div id="vcomments"></div>
+  <script type="text/javascript">
+    function loadValine() {
+      addScript('https://cdn.staticfile.org/valine/1.4.14/Valine.min.js', function () {
+        new Valine({
+          el: "#vcomments",
+          app_id: "JPMGXNyXlKIYB5iXM45ajXMG-gzGzoHsz",
+          app_key: "vaINfnh4Actkae23R9dKOFbu",
+          placeholder: "说点什么",
+          path: window.location.pathname,
+          avatar: "retro",
+          meta: ["nick","mail","link"],
+          pageSize: "10",
+          lang: "zh-CN",
+          highlight: true,
+          recordIP: false,
+          serverURLs: "",
+        });
+      });
+    }
+    createObserver(loadValine, 'vcomments');
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://valine.js.org" target="_blank" rel="nofollow noopener noopener">comments
+      powered by Valine.</a></noscript>
+
+
+              </div>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+    <!-- APlayer 音乐播放器 -->
+    <div id="aplayer"></div>
+    <script defer src="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.js" ></script>
+<link  rel="stylesheet" href="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.css" />
+<script type="text/javascript">
+  var oldLoadAp = window.onload;
+  window.onload = function () {
+    oldLoadAp && oldLoadAp();
+
+    new APlayer({
+      container: document.getElementById('aplayer'),
+      fixed: true,
+      autoplay: 'false' === 'true',
+      loop: 'all',
+      order: 'random',
+      theme: '#b7daff',
+      preload: 'none',
+      audio: [{"name":"雨 因你而下，于你而止","artist":"Seto","url":"/music/1/index.m4a","cover":"/music/1/index.jpg"}]
+    });
+  }
+</script>
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "3.线程的生命周期以及start方法源码剖析&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

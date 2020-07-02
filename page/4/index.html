@@ -168,6 +168,150 @@
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/oauth2-1.html">【 OAuth2-学习笔记 】  1.Hello OAuth2</a>
+
+      <a href="/oauth2-1.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>
+Spring Security 已经更新到5.X了，我为了不被抛太远决定重新学习Spring Security 5.x中的OAuth
+
+创建一个spring boot工程
+pom如下：
+&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;
+&lt;project xmlns="http://maven.apache.org/PO</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-03-23
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/OAuth/">OAuth</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/linux-3.html">【Linux】 Linux中的一些命令</a>
+
+      <a href="/linux-3.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>
+记录一些容易忘记的命令
+
+查看端口和pid~&gt; netstat  -luntp | grep 6379
+
+管道符awk忽略第1行，只查1列~&gt; docker images | awk 'NR &gt; 1' | awk '&#123; print $1 &#125;'
+redis
+mcr.harbor.com/library/redis
+mcr.harbor.com/library/</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-02-17
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+            
+              <a href="/categories/%E8%BF%90%E7%BB%B4/Linux/">Linux</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E9%9B%B6%E7%A2%8E/">零碎</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/nginx-4.html">【Nginx】 4-深度学习篇</a>
+
+      <a href="/nginx-4.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>动静分离介绍什么是动静分离？通过中间件将动态请求和静态请求分离。
+为什么要使用动静分离？对于服务端而言减少不必要的请求消耗，我一些静态请求的资源不需要后端的CPU运算，对于客户端而言我请求静态资源不用复杂的运算了那么就可以减少请求的等待时间。
+没有动静分离的请求流程：
+
+一个请求首先去会去请求中间件，由中间件把请求转给程序框架执行对应的加载，程序框架去执行运算对应的程序获取相关的数据资源。如果每一</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-02-12
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+            
+              <a href="/categories/%E8%BF%90%E7%BB%B4/Nginx/">Nginx</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
       <a class="index-header" href="/linux-2.html">【Linux】 Linux中的常见问题</a>
 
       <a href="/linux-2.html" class="index-excerpt">
@@ -488,145 +632,6 @@ NETMASK=255.255.255.0</div>
           
         
         <div>Redis内存优化介绍Redis是一个存内存的缓存/存储，这也是它非常快的原因，但是我们同时知道其实内存相对来说还是比较昂贵的，当然它比CPU要便宜很多，当时相对于其他硬件来说它的总体价格要高很多，虽然说使用Redis非常快，但是当我们去使用Redis的量非常大的时候，我们也希望能节省更多的内存，当然节省内存也是要有限度的，不能因为节省内存而让我们Redis的使用效益下降，这章来介绍Redis内存</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2019-10-17
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
-            
-              <a href="/categories/%E8%BF%90%E7%BB%B4/Redis/">Redis</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/redis-13.html">【 Redis-学习笔记 】 13.Redis开发范式</a>
-
-      <a href="/redis-13.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>键值设计一个良好的键值设计是使用Redis的保障，这里涉及到2个部分
-
-Key名设计：遵守一些规范，在键值可管理性、可读性、键值长短的管理性上会有一定要求，这样可以达到很好的效果，比如内存使用量比较小，或者键值的可读性可管理性比较高；
-Value设计：在使用KV缓存或者多存储的时候，最重要的是value里面会有多种类型，它可能会影响到Redis的使用量或者说是网络的使用情况，或者像Redis是否发</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2019-10-17
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
-            
-              <a href="/categories/%E8%BF%90%E7%BB%B4/Redis/">Redis</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/redis-12.html">【 Redis-学习笔记 】 12.布隆过滤器.md</a>
-
-      <a href="/redis-12.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>引出布隆过滤器现有50亿乙个电话号码,现有10万个电话号码,要==快速准确==判断这些电话号码是否已经存在?布隆过滤器基本原理，看看这些解决方案：
-
-通过数据库查询：实现快速有点难；
-数据预放在集合中：50亿*8字节≈40GB（内存浪费或不够）；
-hyperloglog：准确有点难。
-
-以上的方式都是无法实现需求的，上述的应用场景在很多地方都有遇到：
-
-垃圾邮件过滤：现在有几亿封垃圾邮件，在这种情</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2019-10-17
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
-            
-              <a href="/categories/%E8%BF%90%E7%BB%B4/Redis/">Redis</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/redis-11.html">【 Redis-学习笔记 】 11.Redis云平台CacheCloud.md</a>
-
-      <a href="/redis-11.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>Redis规模化运维困扰遇到的问题当集群数量多的时候就会遇到很多问题
-
-发布构建繁琐，私搭乱盖：你可能会找几台机器进行集群的安装或者单机安装、Sentinel安装，然后随便记录一下文档客户端就可以调用了，这个属于一个私搭乱盖的情况，当有几百台机器、上千上万台的时候，你怎么可能记得在某台机器安装了一个集群呢？何况集群之间本身就发生高可用的切换，本身对于这种场景去管理去使用非常的混乱。当到了一定量的时</div>
       </a>
 
       <div class="index-btm post-metas">

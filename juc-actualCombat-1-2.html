@@ -17,7 +17,7 @@
   <meta name="description" content="">
   <meta name="author" content="Shui">
   <meta name="keywords" content="">
-  <title>25.线程生产者消费者的综合实战结合Java8语法 - Shui&#39;s Blog</title>
+  <title>2.创建并启动线程 - Shui&#39;s Blog</title>
 
   <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
 
@@ -152,8 +152,8 @@
               
   <div class="mt-3 post-meta">
     <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-    <time datetime="2020-07-01 22:51">
-      2020年7月1日 晚上
+    <time datetime="2020-06-14 20:17">
+      2020年6月14日 晚上
     </time>
   </div>
 
@@ -163,7 +163,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      802 字
+      1.1k 字
     </span>
   
 
@@ -173,7 +173,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      10
+      13
        分钟
     </span>
   
@@ -204,100 +204,155 @@
           <div class="post-content mx-auto" id="post">
             
             <article class="markdown-body">
-              <p class="note note-info">
-<code>join()</code>可以保证你的线程都执行结束之后在去执行main后面的代码，不记得了可以回顾下<a href="/juc-actualCombat-1-11.html">11章节</a>。<br/>
-来说下案例：<br/>
-</p>
+              <h1 id="案例演示"><a href="#案例演示" class="headerlink" title="案例演示"></a>案例演示</h1><blockquote>
+<p>在Java的方法体中，假设某处地方耗时需要很长时间，那么就会造成后面全部等待，而后面的代码与上面的代码完全没有依赖关系，在这个时候使用多线程更合适，你可以对它们分别建立一个线程来并行执行。现在有一个功能：读取数据库的数据+写文件</p>
+</blockquote>
+<h2 id="普通实现"><a href="#普通实现" class="headerlink" title="普通实现"></a>普通实现</h2><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter1;
 
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/2/2ea15ec1-6ad5-4144-a0e5-76be48e68f05.png" srcset="/img/loading.gif" alt="2ea15ec1-6ad5-4144-a0e5-76be48e68f05"></p>
-<p class="note note-info">有这么一个需求：现在需要对三台服务器做信息统计，如果想尽快做完，那就要使用多线程去完成了，你可以创建3个线程去取三个服务器的信息，那么如果是10台服务器，你去创建10个线程是没有问题的，但是有100、1k台机器呢？这个时候如果去创建100、1k个线程是行不通的，现在的Linux、Windows，它同时支持最大的线程数是有约束的，它的上限值取决于<code>stackSize</code>，多线程的效率是一个这样的状态：</p>
-
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/2/image-20200702191233837.png" srcset="/img/loading.gif" alt="image-20200702191233837"></p>
-<p class="note note-info">对于线程越来越多，当线程达到一定数量它可能是最理想的状态，当超过这个值的时候你的应用可能会越来越慢，因为它慢在线程的切换开销，你有1k个线程你的CPU它的决定分配资源给哪个线程去执行，它得反复去切换这个东西，也就是说你的应用程序整体的占用资源几乎什么事都不做，它就可能忙着去切换你的线程了所以导致你这个应用程序的性能会越来越低，到后面由于内存的原因直接走不动了。所以在遇到程序性能比较低下的时候往这个线程是不是开辟过多这个方向去思考。<br/>
-基于这个原因，我可能有1k台服务器，那么我这里每次最多有10个线程去跑，它保持最多10个去跑，其中有一个线程执行完成之后，另外一个线程就去运行...，对于这些等待不去执行逻辑的线程它创建吗？也创建，但是它<code>wait()</code>了而释放了CPU执行权，这个时候CPU就不会对它做上下文的切换，此时此刻在CPU只需要切换这10个就OK了，那么应用程序的性能就不会由于很多线程导致性能下降的问题。<br/>
-下面通过前面章节学到的知识来完成这样的功能。
-</p>
-
-<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter9;
-
-<span class="hljs-keyword">import</span> java.util.*;
+<span class="hljs-keyword">import</span> java.time.Duration;
+<span class="hljs-keyword">import</span> java.time.Instant;
+<span class="hljs-keyword">import</span> java.util.concurrent.TimeUnit;
 
 <span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * 认识多线程</span>
+<span class="hljs-comment"> *</span>
 <span class="hljs-comment"> * <span class="hljs-doctag">@author</span> Shui</span>
-<span class="hljs-comment"> * <span class="hljs-doctag">@date</span> 2020/7/2 19:30</span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@date</span> 2020-06-14 23:10:43</span>
 <span class="hljs-comment"> */</span>
-<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CaptureService</span> </span>&#123;
-  <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> LinkedList&lt;Control&gt; CONTROLS = <span class="hljs-keyword">new</span> LinkedList&lt;&gt;();
-  <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> MAX_WORKER = <span class="hljs-number">5</span>;
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TryConcurrency</span> </span>&#123;
 
   <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;
-
-    List&lt;Thread&gt; worker = <span class="hljs-keyword">new</span> ArrayList&lt;&gt;();
-    Arrays.asList(<span class="hljs-string">"M1"</span>, <span class="hljs-string">"M2"</span>, <span class="hljs-string">"M3"</span>, <span class="hljs-string">"M4"</span>, <span class="hljs-string">"M5"</span>, <span class="hljs-string">"M6"</span>, <span class="hljs-string">"M7"</span>, <span class="hljs-string">"M8"</span>, <span class="hljs-string">"M9"</span>, <span class="hljs-string">"M10"</span>).stream()
-        .map(CaptureService::createCaptureThread)
-        .forEach(
-            t -&gt; &#123;
-              t.start();
-              worker.add(t);
-            &#125;);
-
-    worker.stream()
-        .forEach(
-            t -&gt; &#123;
-              <span class="hljs-keyword">try</span> &#123;
-                t.join();
-              &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
-                e.printStackTrace();
-              &#125;
-            &#125;);
-
-    Optional.of(<span class="hljs-string">"All of capture work finished"</span>).ifPresent(System.out::println);
+    Instant start = Instant.now();
+    <span class="hljs-comment">//1、读数据库数据</span>
+    readDatabase();
+    <span class="hljs-comment">//2、写文件</span>
+    writeFile();
+    Instant end = Instant.now();
+    print(<span class="hljs-string">"耗时-&gt; "</span> + Duration
+        .between(start, end)
+        .getSeconds() + <span class="hljs-string">"s"</span>);
   &#125;
 
-  <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> Thread <span class="hljs-title">createCaptureThread</span><span class="hljs-params">(String name)</span> </span>&#123;
-    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Thread(
-        () -&gt; &#123;
-          Optional.of(<span class="hljs-string">"The worker ["</span> + Thread.currentThread().getName() + <span class="hljs-string">"] BEGIN capture data."</span>)
-              .ifPresent(System.out::println);
-          <span class="hljs-keyword">synchronized</span> (CONTROLS) &#123;
-            <span class="hljs-keyword">while</span> (CONTROLS.size() &gt; MAX_WORKER) &#123;
-              <span class="hljs-keyword">try</span> &#123;
-                CONTROLS.wait();
-              &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
-                e.printStackTrace();
-              &#125;
-            &#125;
-
-            CONTROLS.addLast(<span class="hljs-keyword">new</span> Control());
-          &#125;
-
-          Optional.of(<span class="hljs-string">"The worker ["</span> + Thread.currentThread().getName() + <span class="hljs-string">"] is working..."</span>)
-              .ifPresent(System.out::println);
-          <span class="hljs-keyword">try</span> &#123;
-            Thread.sleep(<span class="hljs-number">10000</span>);
-          &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
-            e.printStackTrace();
-          &#125;
-
-          <span class="hljs-keyword">synchronized</span> (CONTROLS) &#123;
-            Optional.of(<span class="hljs-string">"The worker ["</span> + Thread.currentThread().getName() + <span class="hljs-string">"] END capture data."</span>)
-                .ifPresent(System.out::println);
-            CONTROLS.removeFirst();
-            CONTROLS.notifyAll();
-          &#125;
-        &#125;,
-        name);
+  <span class="hljs-comment">/**</span>
+<span class="hljs-comment">   * 读取数据库</span>
+<span class="hljs-comment">   */</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">readDatabase</span><span class="hljs-params">()</span> </span>&#123;
+    print(<span class="hljs-string">"读取数据库开始---"</span>);
+    <span class="hljs-keyword">try</span> &#123;
+      TimeUnit.SECONDS.sleep(<span class="hljs-number">3</span>);
+    &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
+      e.printStackTrace();
+    &#125;
+    print(<span class="hljs-string">"读取数据库结束---"</span>);
   &#125;
 
-  <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Control</span> </span>&#123;&#125;
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">writeFile</span><span class="hljs-params">()</span> </span>&#123;
+    print(<span class="hljs-string">"写文件开始---"</span>);
+    <span class="hljs-keyword">try</span> &#123;
+      TimeUnit.SECONDS.sleep(<span class="hljs-number">3</span>);
+    &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
+      e.printStackTrace();
+    &#125;
+    print(<span class="hljs-string">"写文件结束---"</span>);
+  &#125;
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">print</span><span class="hljs-params">(Object object)</span> </span>&#123;
+    System.out.println(object);
+  &#125;
+
 &#125;</code></pre>
 
+<p>运行结果</p>
+<pre><code class="hljs elm">读取数据库开始<span class="hljs-comment">---</span>
+读取数据库结束<span class="hljs-comment">---</span>
+写文件开始<span class="hljs-comment">---</span>
+写文件结束<span class="hljs-comment">---</span>
+耗时-&gt; <span class="hljs-number">6</span>s</code></pre>
 
+<h2 id="并行执行实现"><a href="#并行执行实现" class="headerlink" title="并行执行实现"></a>并行执行实现</h2><p>并行执行实际上就是值多线程了，这里将JDK文档的实例贴出来：</p>
+<pre><code class="hljs java"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">PrimeThread</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Thread</span> </span>&#123;
+         <span class="hljs-keyword">long</span> minPrime;
+         PrimeThread(<span class="hljs-keyword">long</span> minPrime) &#123;
+             <span class="hljs-keyword">this</span>.minPrime = minPrime;
+         &#125;
 
+         <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;
+             <span class="hljs-comment">// compute primes larger than minPrime</span>
+              . . .
+         &#125;
+     &#125;</code></pre>
 
+<p>如果想使用多线程，只需要实现Thread类就可以了，这里把业务代码放到run方法就OK了。接下来，通过这种方式来看看效果，代码如下：</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;
+    Instant start = Instant.now();
+    Thread t1 = <span class="hljs-keyword">new</span> Thread(<span class="hljs-string">"readDatabase"</span>) &#123;
 
+      <span class="hljs-meta">@Override</span>
+      <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;
+        <span class="hljs-comment">//1、读数据库数据</span>
+        readDatabase();
+      &#125;
 
+    &#125;;
+    Thread t2 = <span class="hljs-keyword">new</span> Thread(<span class="hljs-string">"readDatabase"</span>) &#123;
 
+      <span class="hljs-meta">@Override</span>
+      <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;
+        <span class="hljs-comment">//2、写文件</span>
+        writeFile();
+      &#125;
+
+    &#125;;
+    t1.start();
+    t2.start();
+
+    Instant end = Instant.now();
+    print(<span class="hljs-string">"耗时-&gt;"</span> + Duration
+        .between(start, end)
+        .getSeconds() + <span class="hljs-string">"s"</span>);
+  &#125;</code></pre>
+
+<p>运行结果：</p>
+<pre><code class="hljs elm">读取数据库开始<span class="hljs-comment">---	</span>
+写文件开始<span class="hljs-comment">---</span>
+耗时-&gt; <span class="hljs-number">0</span>s
+写文件结束<span class="hljs-comment">---</span>
+读取数据库结束<span class="hljs-comment">---</span></code></pre>
+
+<div class="note note-warning">
+            <p>WARNING</p><p>这里耗时0秒的原因是 main也是一个线程，对于它而言，它已经执行完了，从 “读取数据库开始—    \n 写文件开始—” 可以看到这里它没有等数据库结束才开始执行 写文件，而是直接执行了自己的。</p>
+          </div>
+
+<h1 id="Thread"><a href="#Thread" class="headerlink" title="Thread"></a>Thread</h1><blockquote>
+<p>通过上面的案例，认识了Thread类，通过它可以简单的实现并行执行，它这里有很多的学问，这里就来进一步的认识</p>
+</blockquote>
+<p>Thread是一个线程在执行一个程序。java虚拟机的应用程序可以有多个同时执行的线程。 </p>
+<p>每一个线程都有一个优先权。具有更高优先级的线程在优先于较低优先级的线程中执行。每一个线程可能会或可能不会被标记为一个守护进程。在一些线程中运行的代码创建了一个新的Thread对象时，新线程的优先级被设置为等于创建线程的优先级，是守护线程的当且仅当创建线程是一个守护进程。</p>
+<p>当一个java虚拟机启动时，通常有一个单一的非守护线程（通常调用方法命名为main某指定的类）。java虚拟机继续执行线程，直到发生以下情况：</p>
+<ul>
+<li>Runtime exit类的方法被调用和安全经理允许退出操作发生。 </li>
+<li>非守护线程的所有线程都已经死了，要么返回从电话到run法或抛出一个异常传播到run方法。 </li>
+</ul>
+<h2 id="如何验证它有没有创建多个线程？"><a href="#如何验证它有没有创建多个线程？" class="headerlink" title="如何验证它有没有创建多个线程？"></a>如何验证它有没有创建多个线程？</h2><p>对于这个问题，这里推荐使用一个JDK提供的工具<strong>Jconsle</strong>，它可以对线程进行可视化，下面就来演示一下使用方式。</p>
+<p>1）、为了方便演示，这里将readDatabase、writeFile的sleep修改到100秒</p>
+<pre><code class="hljs java">TimeUnit.SECONDS.sleep(<span class="hljs-number">100</span>);</code></pre>
+
+<p>2）、启动main，在到控制台输入:</p>
+<pre><code class="hljs shell">jconsole</code></pre>
+
+<p>3）、弹出jconsole工具选择对应的Class</p>
+<img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20200615003039106.png" srcset="/img/loading.gif" alt="image-20200615003039106" style="zoom: 80%;" />
+
+<p>4）、选择线程，这里就可以看到那2个线程了</p>
+<img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/1/image-20200615003321805.png" srcset="/img/loading.gif" alt="image-20200615003321805" style="zoom: 50%;" />
+
+<blockquote>
+<p>补充：这里其它是JVM的守护线程：</p>
+<p>Reference Handler：引用句柄处理器</p>
+<p>Finalizer：垃圾回收器</p>
+<p>Signal Dispatcher：收集系统发布信号的</p>
+<p>…</p>
+</blockquote>
 
             </article>
             <hr>
@@ -334,9 +389,9 @@
                   <div class="post-prev col-6">
                     
                     
-                      <a href="/juc-actualCombat-1-26.html">
+                      <a href="/juc-actualCombat-1-3.html">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">26.如何实现一个自己的显式锁Lock</span>
+                        <span class="hidden-mobile">3.线程的生命周期以及start方法源码剖析</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -344,8 +399,8 @@
                   <div class="post-next col-6">
                     
                     
-                      <a href="/juc-actualCombat-1-24.html">
-                        <span class="hidden-mobile">24.wait和sleep的本质区别是什么，深入分析</span>
+                      <a href="/juc-actualCombat-1-1.html">
+                        <span class="hidden-mobile">1.简单介绍什么是线程</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
@@ -539,7 +594,7 @@
     var typed = new Typed('#subtitle', {
       strings: [
         '  ',
-        "25.线程生产者消费者的综合实战结合Java8语法&nbsp;",
+        "2.创建并启动线程&nbsp;",
       ],
       cursorChar: "_",
       typeSpeed: 70,

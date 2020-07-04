@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="Shui">
+  <meta name="keywords" content="">
+  <title>29.ThreadGroup API介绍 - Shui&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Fluid</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/home.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2020-07-04 15:07">
+      2020年7月4日 下午
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      25
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <h1 id="ThreadGroup-API介绍-上"><a href="#ThreadGroup-API介绍-上" class="headerlink" title="ThreadGroup API介绍-上"></a>ThreadGroup API介绍-上</h1><p class="note note-info">
+<code>ThreadGroup</code>在JDK1.4、5版本的时候使用的岁非常多的，那个时候 线程池API去用，开发者喜欢通过<code>ThreadGroup</code>去管理多线程，它对管理多线程有一定的好处，在前面章节介绍<code>Thread</code>构造函数有介绍如果没指定<code>ThreadGroup</code>它会去把当前线程的<code>ThreadGroup</code>做为它默认的<code>ThreadGroup</code>。<br/>
+<code>Thread</code>和<code>ThreadGroup</code>的关系是什么？它类的描述：
+</p>
+
+<p class="note note-info">
+ThreadGroup（线程组）代表一组线程。 此外，线程组也可以包含其他线程组。 ThreadGroup构成一个树，其中除了初始ThreadGroup的每个线程组具有父。<br/>
+一个线程被允许有关自己的线程组访问信息，而不是有关其线程组的父线程组或其他任何线程组访问信息。<br/>
+示例：
+</p>
+
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter12;
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@author</span> Shui</span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@date</span> 2020/7/4 15:38</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ThreadGroupCreate</span> </span>&#123;
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;
+    ThreadGroup tg1 = <span class="hljs-keyword">new</span> ThreadGroup(<span class="hljs-string">"TG1"</span>);
+    Thread t1 =
+        <span class="hljs-keyword">new</span> Thread(tg1, <span class="hljs-string">"T1"</span>) &#123;
+          <span class="hljs-meta">@Override</span>
+          <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;
+            System.out.println(getThreadGroup().getName());
+            System.out.println(getThreadGroup().getParent());
+          &#125;
+        &#125;;
+    t1.start();
+
+    ThreadGroup tg2 = <span class="hljs-keyword">new</span> ThreadGroup(tg1, <span class="hljs-string">"TG2"</span>);
+    System.out.println(tg2.getName());
+    System.out.println(tg2.getParent());
+  &#125;
+&#125;</code></pre>
+
+<p class="note note-warning">类介绍说不能有关其线程组的父线，但是这里测试是可以正常获取信息的</p>
+
+<p class="note note-info"><code>ThreadGroup</code>的构造方法：</p>
+
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">ThreadGroup</span><span class="hljs-params">(String name)</span></span>
+<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">ThreadGroup</span><span class="hljs-params">(ThreadGroup parent, String name)</span></span></code></pre>
+
+<h1 id="ThreadGroup-API介绍-下"><a href="#ThreadGroup-API介绍-下" class="headerlink" title="ThreadGroup API介绍-下"></a>ThreadGroup API介绍-下</h1><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter12;
+
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * Thread Group API</span>
+<span class="hljs-comment"> *</span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@author</span> Shui</span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@date</span> 2020/7/4 17:15</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ThreadGroupAPI</span> </span>&#123;
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;
+    ThreadGroup tg1 = <span class="hljs-keyword">new</span> ThreadGroup(<span class="hljs-string">"tg1"</span>);
+    Thread t1 =
+        <span class="hljs-keyword">new</span> Thread(tg1, <span class="hljs-string">"t1"</span>) &#123;
+          <span class="hljs-meta">@Override</span>
+          <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;
+            <span class="hljs-keyword">while</span> (<span class="hljs-keyword">true</span>) &#123;
+              <span class="hljs-keyword">try</span> &#123;
+                Thread.sleep(<span class="hljs-number">10_000</span>);
+              &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
+                e.printStackTrace();
+              &#125;
+            &#125;
+          &#125;
+        &#125;;
+    t1.start();
+    ThreadGroup tg2 = <span class="hljs-keyword">new</span> ThreadGroup(tg1, <span class="hljs-string">"tg2"</span>);
+    Thread t2 =
+        <span class="hljs-keyword">new</span> Thread(tg2, <span class="hljs-string">"t2"</span>) &#123;
+          <span class="hljs-meta">@Override</span>
+          <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;
+            <span class="hljs-keyword">while</span> (<span class="hljs-keyword">true</span>) &#123;
+              <span class="hljs-keyword">try</span> &#123;
+                Thread.sleep(<span class="hljs-number">10_000</span>);
+              &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
+                e.printStackTrace();
+              &#125;
+            &#125;
+          &#125;
+        &#125;;
+    t2.start();
+  &#125;
+&#125;</code></pre>
+
+<h2 id="activeCount"><a href="#activeCount" class="headerlink" title="activeCount"></a><p class="note note-primary">activeCount</p></h2><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> <span class="hljs-title">activeCount</span><span class="hljs-params">()</span></span></code></pre>
+
+<p class="note note-light">
+介绍
+</p>
+
+<p>返回活动线程的该线程组及其子组的数量的估计值。 递归遍历该线程组中的所有子组。<br>返回的值仅是一个估计值，因为线程数可以动态地改变，同时此方法遍历内部数据结构，和可能是由某些系统线程的存在而受到影响。 这种方法主要用于调试和监测目的。</p>
+<p class="note note-light">示例</p>
+
+<pre><code class="hljs java">System.out.println(<span class="hljs-string">"tg1 active count:"</span> + tg1.activeCount());</code></pre>
+
+<p class="note note-light">结果</p>
+
+<pre><code class="hljs angelscript">tg1 active count:<span class="hljs-number">2</span></code></pre>
+
+<p class="note note-info">这里包含了t2线程，子<code>ThreadGroup tg2</code>也算入了</p>
+
+<h2 id="activeGroupCount"><a href="#activeGroupCount" class="headerlink" title="activeGroupCount"></a><p class="note note-primary">activeGroupCount</p></h2><p class="note note-light">介绍</p>
+
+<p>返回的活性基团的该线程组和其子组的数量的估计值。 递归遍历该线程组中的所有子组。<br>返回的值仅是一个估计值，因为线程组的数目可以动态地改变，同时此方法遍历内部数据结构。 这种方法主要用于调试和监测目的。</p>
+<p class="note note-light">示例</p>
+
+<pre><code class="hljs java">System.out.println(tg1.activeGroupCount());</code></pre>
+
+<p class="note note-light">结果</p>
+
+<pre><code class="hljs angelscript"><span class="hljs-number">1</span></code></pre>
+
+<h2 id="checkAccess"><a href="#checkAccess" class="headerlink" title="checkAccess"></a><p class="note note-primary">checkAccess</p></h2><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">void</span> <span class="hljs-title">checkAccess</span><span class="hljs-params">()</span></span></code></pre>
+
+<p class="note note-light">介绍</p>
+
+<p>确定当前运行的线程是否有权修改该线程组。<br>如果有安全管理器，它checkAccess方法被调用此线程组作为其参数。 这可能导致抛出SecurityException 。</p>
+<p class="note note-light">示例</p>
+
+<pre><code class="hljs java"><span class="hljs-keyword">try</span> &#123;
+      tg1.checkAccess();
+    &#125; <span class="hljs-keyword">catch</span> (Exception exception) &#123;
+      exception.printStackTrace();
+    &#125;</code></pre>
+
+<h2 id="destroy"><a href="#destroy" class="headerlink" title="destroy"></a><p class="note note-primary">destroy</p></h2><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">void</span> <span class="hljs-title">destroy</span><span class="hljs-params">()</span></span></code></pre>
+
+<p class="note note-light">介绍</p>
+
+<p>销毁此线程组及其所有子组。 此线程组必须为空，表明已被此线程组中的所有线程都自停。<br>首先， checkAccess此线程组被称为不带参数的方法; 这可能导致一个安全性异常。</p>
+<p class="note note-light">示例</p>
+
+<pre><code class="hljs java">tg1.destroy();</code></pre>
+
+<p class="note note-light">结果</p>
+
+<pre><code class="hljs css"><span class="hljs-selector-tag">Exception</span> <span class="hljs-selector-tag">in</span> <span class="hljs-selector-tag">thread</span> "<span class="hljs-selector-tag">main</span>" <span class="hljs-selector-tag">java</span><span class="hljs-selector-class">.lang</span><span class="hljs-selector-class">.IllegalThreadStateException</span>
+	<span class="hljs-selector-tag">at</span> <span class="hljs-selector-tag">java</span><span class="hljs-selector-class">.lang</span><span class="hljs-selector-class">.ThreadGroup</span><span class="hljs-selector-class">.destroy</span>(<span class="hljs-selector-tag">ThreadGroup</span><span class="hljs-selector-class">.java</span><span class="hljs-selector-pseudo">:778)</span>
+	<span class="hljs-selector-tag">at</span> <span class="hljs-selector-tag">com</span><span class="hljs-selector-class">.shui</span><span class="hljs-selector-class">.juc</span><span class="hljs-selector-class">.chapter12</span><span class="hljs-selector-class">.ThreadGroupAPI</span><span class="hljs-selector-class">.main</span>(<span class="hljs-selector-tag">ThreadGroupAPI</span><span class="hljs-selector-class">.java</span><span class="hljs-selector-pseudo">:42)</span></code></pre>
+
+<h2 id="enumerate"><a href="#enumerate" class="headerlink" title="enumerate"></a><p class="note note-primary">enumerate</p></h2><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> <span class="hljs-title">enumerate</span><span class="hljs-params">(Thread[] list)</span></span></code></pre>
+
+<p class="note note-light">介绍</p>
+
+<p>拷贝到指定的数组的所有活动线程该线程组及其子组英寸<br>此方法的调用行为完全相同的方式调用<br>枚举 (list, true)</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> <span class="hljs-title">enumerate</span><span class="hljs-params">(Thread[] list,</span></span>
+<span class="hljs-function"><span class="hljs-params">                     <span class="hljs-keyword">boolean</span> recurse)</span></span></code></pre>
+
+<p class="note note-light">介绍</p>
+
+<p>拷贝到指定的数组的所有活动线程该线程组英寸 如果recurse是true ，这种方法递归枚举此线程组，并在这些分组的所有活动线程引用的所有子组也包括在内。 如果数组太小而无法保持所有线程，额外的线程会被忽略。<br>应用程序可以使用的活动核心方法获取的数组应为多大的估计，但是， 如果数组太小而无法保持所有线程，额外的线程会被忽略。 如果关键是要获得此线程组中的所有活动线程，调用方应该验证返回的int值比的长度较少严格的list 。<br>由于这种方法固有的竞争条件，建议该方法只用于调试和监控的目的。</p>
+<p>参数：<br>list（列表）    ：   一个数组该放到线程列表<br>recurse（递归） ：   如果true ，递归枚举此线程组的所有子组</p>
+<p class="note note-light">示例</p>
+
+<pre><code class="hljs java">Thread[] arr = <span class="hljs-keyword">new</span> Thread[tg1.activeCount()];
+   tg1.enumerate(arr);
+   Arrays.stream(arr).forEach(System.out::println);</code></pre>
+
+<p class="note note-light">结果</p>
+
+<p>Thread[t1,5,tg1]<br>Thread[t2,5,tg2]</p>
+<pre><code class="hljs java">Thread[] arr = <span class="hljs-keyword">new</span> Thread[tg1.activeCount()];
+    tg1.enumerate(arr,<span class="hljs-keyword">false</span>);
+    Arrays.stream(arr).forEach(System.out::println);</code></pre>
+
+
+<p class="note note-light">结果</p>
+
+<pre><code class="hljs angelscript">Thread[t1,<span class="hljs-number">5</span>,tg1]
+<span class="hljs-literal">null</span></code></pre>
+
+<p class="note note-info">对于重载一个参数和两个参数的区别在于两个参数的 recurse（递归）如果true ，递归枚举此线程组的所有子组，上面示例中传递<code>false</code>它的结果就只包含自己下面的线程了</p>
+
+<h2 id="getMaxPriority"><a href="#getMaxPriority" class="headerlink" title="getMaxPriority"></a><p class="note note-primary">getMaxPriority</p></h2><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> <span class="hljs-title">getMaxPriority</span><span class="hljs-params">()</span></span></code></pre>
+
+<p class="note note-light">介绍</p>
+
+<p>返回该线程组的最高优先级。 线程是该组的一部分，不具有比最高优先级更高的优先级。</p>
+<h2 id="interrupt"><a href="#interrupt" class="headerlink" title="interrupt"></a><p class="note note-primary">interrupt</p></h2><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">void</span> <span class="hljs-title">interrupt</span><span class="hljs-params">()</span></span></code></pre>
+
+<p>中断此线程组中的所有线程。<br>首先， checkAccess此线程组被称为不带参数的方法; 这可能导致一个安全性异常。<br>然后，这个方法调用interrupt对该线程组及其所有子组中的所有线程的方法。</p>
+<p class="note note-light">示例</p>
+
+<pre><code class="hljs java">tg1.interrupt();</code></pre>
+
+<p class="note note-light">结果</p>
+
+<pre><code class="hljs oxygene">java.lang.InterruptedException: sleep interrupted
+	at java.lang.Thread.sleep(Native <span class="hljs-function"><span class="hljs-keyword">Method</span>)</span>
+<span class="hljs-function">	<span class="hljs-title">at</span> <span class="hljs-title">com</span>.<span class="hljs-title">shui</span>.<span class="hljs-title">juc</span>.<span class="hljs-title">chapter12</span>.<span class="hljs-title">ThreadGroupAPI</span>$2.<span class="hljs-title">run</span><span class="hljs-params">(ThreadGroupAPI.java:34)</span></span>
+<span class="hljs-function"><span class="hljs-title">java</span>.<span class="hljs-title">lang</span>.<span class="hljs-title">InterruptedException</span>:</span> sleep interrupted
+	at java.lang.Thread.sleep(Native <span class="hljs-function"><span class="hljs-keyword">Method</span>)</span>
+<span class="hljs-function">	<span class="hljs-title">at</span> <span class="hljs-title">com</span>.<span class="hljs-title">shui</span>.<span class="hljs-title">juc</span>.<span class="hljs-title">chapter12</span>.<span class="hljs-title">ThreadGroupAPI</span>$1.<span class="hljs-title">run</span><span class="hljs-params">(ThreadGroupAPI.java:19)</span></span></code></pre>
+
+<h2 id="setDaemon"><a href="#setDaemon" class="headerlink" title="setDaemon"></a><p class="note note-primary">setDaemon</p></h2><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setDaemon</span><span class="hljs-params">(<span class="hljs-keyword">boolean</span> daemon)</span></span></code></pre>
+
+<p class="note note-light">介绍</p>
+
+<p>改变该线程组的后台程序状态。<br>首先， checkAccess此线程组被称为不带参数的方法; 这可能导致一个安全性异常。<br>当它的最后一个线程被停止或它的最后一个线程组被销毁守护线程组会自动销毁。</p>
+<p>参数：<br>守护进程-如果true ，表示此线程组的后台程序线程组; 否则，标记该线程组为正常。</p>
+<p class="note note-light">示例</p>
+
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter12;
+
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * Thread Group API</span>
+<span class="hljs-comment"> *</span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@author</span> Shui</span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@date</span> 2020/7/4 17:15</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ThreadGroupAPI</span> </span>&#123;
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;
+    ThreadGroup tg1 = <span class="hljs-keyword">new</span> ThreadGroup(<span class="hljs-string">"tg1"</span>);
+    Thread t1 =
+        <span class="hljs-keyword">new</span> Thread(tg1, <span class="hljs-string">"t1"</span>) &#123;
+          <span class="hljs-meta">@Override</span>
+          <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;
+            <span class="hljs-keyword">try</span> &#123;
+              Thread.sleep(<span class="hljs-number">1_000</span>);
+            &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
+              e.printStackTrace();
+            &#125;
+          &#125;
+        &#125;;
+    t1.start();
+    <span class="hljs-comment">// tg1.setDaemon(true);</span>
+    <span class="hljs-keyword">try</span> &#123;
+      Thread.sleep(<span class="hljs-number">2_000</span>);
+    &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
+      e.printStackTrace();
+    &#125;
+    System.out.println(tg1.isDestroyed());
+  &#125;
+&#125;</code></pre>
+
+<p class="note note-light">结果</p>
+
+<pre><code class="hljs yaml"><span class="hljs-literal">false</span></code></pre>
+
+<p class="note note-info">默认情况下<code>ThreadGroup</code>是<code>setDaemon(false)</code>的，对于它组里面的线程全部执行完以后，调用它的<code>isDestroyed()</code>是false，就表示没销毁，这个时候应该要在<code>main</code>中手动调用<code>destroy()</code>其它这里可以通过<code>setDaemon(true)</code>使得它在自己组中的线程执行完成之后自动销毁</p>
+
+<pre><code class="hljs java">tg1.setDaemon(<span class="hljs-keyword">true</span>);</code></pre>
+
+<p class="note note-light">结果</p>
+
+<pre><code class="hljs yaml"><span class="hljs-literal">true</span></code></pre>
+
+
+<h2 id="list"><a href="#list" class="headerlink" title="list"></a><p class="note note-primary">list</p></h2><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">list</span><span class="hljs-params">()</span></span></code></pre>
+
+<p class="note note-light">示例</p>
+
+<pre><code class="hljs java">tg1.list();</code></pre>
+
+<p class="note note-light">结果</p>
+
+<pre><code class="hljs css"><span class="hljs-selector-tag">java</span><span class="hljs-selector-class">.lang</span><span class="hljs-selector-class">.ThreadGroup</span><span class="hljs-selector-attr">[name=tg1,maxpri=10]</span>
+    <span class="hljs-selector-tag">Thread</span><span class="hljs-selector-attr">[t1,5,tg1]</span>
+    <span class="hljs-selector-tag">java</span><span class="hljs-selector-class">.lang</span><span class="hljs-selector-class">.ThreadGroup</span><span class="hljs-selector-attr">[name=tg2,maxpri=10]</span>
+        <span class="hljs-selector-tag">Thread</span><span class="hljs-selector-attr">[t2,5,tg2]</span></code></pre>
+
+<h2 id="setMaxPriority"><a href="#setMaxPriority" class="headerlink" title="setMaxPriority"></a><p class="note note-primary">setMaxPriority</p></h2><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setMaxPriority</span><span class="hljs-params">(<span class="hljs-keyword">int</span> pri)</span></span></code></pre>
+
+<p class="note note-light">结果</p>
+
+<p>设置组的最高优先级。 线程组已经有一个更高优先级的线程中不会受到影响。<br>首先， checkAccess此线程组被称为不带参数的方法; 这可能导致一个安全性异常。<br>如果pri参数小于Thread.MIN_PRIORITY或大于Thread.MAX_PRIORITY ，该组的最高优先级保持不变。<br>否则，该线程组对象的优先级被设定为指定的小pri和最大允许该线程组的父的优先级。 （如果该线程组是系统线程组，没有父，那么它的最大优先级被简单地设定为pri ）。然后这个方法被递归调用，与pri作为其参数，对于属于该线程组的每个线程组。</p>
+<h2 id="parentOf"><a href="#parentOf" class="headerlink" title="parentOf"></a><p class="note note-primary">parentOf</p></h2><pre><code class="hljs less"><span class="hljs-selector-tag">public</span> <span class="hljs-selector-tag">final</span> <span class="hljs-selector-tag">boolean</span> <span class="hljs-selector-tag">parentOf</span>(<span class="hljs-variable">@Nullable</span> ThreadGroup g)</code></pre>
+
+<p class="note note-light">介绍</p>
+
+<p>测试该线程组是否为线程组参数或其祖先线程组之一。</p>
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">Java多线程编程实战</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
+                    
+                  </div>
+                
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/juc-actualCombat-1-28.html">
+                        <span class="hidden-mobile">28.如何捕获线程运行期间的异常</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <div class="comments" id="comments">
+                
+                
+  <div id="vcomments"></div>
+  <script type="text/javascript">
+    function loadValine() {
+      addScript('https://cdn.staticfile.org/valine/1.4.14/Valine.min.js', function () {
+        new Valine({
+          el: "#vcomments",
+          app_id: "JPMGXNyXlKIYB5iXM45ajXMG-gzGzoHsz",
+          app_key: "vaINfnh4Actkae23R9dKOFbu",
+          placeholder: "说点什么",
+          path: window.location.pathname,
+          avatar: "retro",
+          meta: ["nick","mail","link"],
+          pageSize: "10",
+          lang: "zh-CN",
+          highlight: true,
+          recordIP: false,
+          serverURLs: "",
+        });
+      });
+    }
+    createObserver(loadValine, 'vcomments');
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://valine.js.org" target="_blank" rel="nofollow noopener noopener">comments
+      powered by Valine.</a></noscript>
+
+
+              </div>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+    <!-- APlayer 音乐播放器 -->
+    <div id="aplayer"></div>
+    <script defer src="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.js" ></script>
+<link  rel="stylesheet" href="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.css" />
+<script type="text/javascript">
+  var oldLoadAp = window.onload;
+  window.onload = function () {
+    oldLoadAp && oldLoadAp();
+
+    new APlayer({
+      container: document.getElementById('aplayer'),
+      fixed: true,
+      autoplay: 'false' === 'true',
+      loop: 'all',
+      order: 'random',
+      theme: '#b7daff',
+      preload: 'none',
+      audio: [{"name":"雨 因你而下，于你而止","artist":"Seto","url":"/music/1/index.m4a","cover":"/music/1/index.jpg"}]
+    });
+  }
+</script>
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "29.ThreadGroup API介绍&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

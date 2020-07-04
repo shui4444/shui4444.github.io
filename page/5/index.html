@@ -168,6 +168,48 @@
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/redis-14.html">【 Redis-学习笔记 】 14.内存管理</a>
+
+      <a href="/redis-14.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>Redis内存优化介绍Redis是一个存内存的缓存/存储，这也是它非常快的原因，但是我们同时知道其实内存相对来说还是比较昂贵的，当然它比CPU要便宜很多，当时相对于其他硬件来说它的总体价格要高很多，虽然说使用Redis非常快，但是当我们去使用Redis的量非常大的时候，我们也希望能节省更多的内存，当然节省内存也是要有限度的，不能因为节省内存而让我们Redis的使用效益下降，这章来介绍Redis内存</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2019-10-17
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+            
+              <a href="/categories/%E8%BF%90%E7%BB%B4/Redis/">Redis</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
       <a class="index-header" href="/redis-13.html">【 Redis-学习笔记 】 13.Redis开发范式</a>
 
       <a href="/redis-13.html" class="index-excerpt">
@@ -567,52 +609,6 @@ Redis节点宕掉了，需要进行重启，这里重启期间，客户端是连
         <div>fork操作同步操作
 提交bgsave、bgrewriteaof命令时会执fork操作，fork操作只是做一个内存页的拷贝，而不是做一个内存的拷贝，所以在大部分情况下速度是非常快的，但是如果本身这个fork操作比较慢，或者说卡在某一个地方，那么它会卡在Redis的主线程；
 fork操作的执行时间和内存的量有关系，内存量越大内存页的数据也会较大，而且和机型有关，虚机、物理机还有略有不同，虚机就会慢一</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2019-10-17
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
-            
-              <a href="/categories/%E8%BF%90%E7%BB%B4/Redis/">Redis</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/redis-4.html">【 Redis-学习笔记 】 4.持久化</a>
-
-      <a href="/redis-4.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>持久化的作用什么是持久化 持久化（Persistence），即把数据（如内存中的对象）保存到可永久保存的存储设备中（如磁盘）。持久化 Redis 所有数据保持在内存中，对数据的更新将异步地保存到磁盘上。 
-  
-持久化的实现方式快照方式持久化快照方式持久化就是在某时刻把所有数据进行完整备份。
-例：Mysql 的 Dump 方式、Redis 的 RDB 方式。
-写日志方式持久化写日志方式持久化就是把</div>
       </a>
 
       <div class="index-btm post-metas">

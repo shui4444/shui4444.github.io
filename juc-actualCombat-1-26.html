@@ -163,7 +163,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      741 字
+      1.2k 字
     </span>
   
 
@@ -173,7 +173,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      12
+      19
        分钟
     </span>
   
@@ -343,19 +343,18 @@
                             booleanLock.lock();
                             System.out.println(
                                 Thread.currentThread().getName() + <span class="hljs-string">" have the lock monitor."</span>);
-                            worker();
+                            work();
                           &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
                             e.printStackTrace();
                           &#125; <span class="hljs-keyword">finally</span> &#123;
                             booleanLock.unlock();
                           &#125;
-                          worker();
                         &#125;,
                         name)
                     .start());
   &#125;
 
-  <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">worker</span><span class="hljs-params">()</span> </span>&#123;
+  <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">work</span><span class="hljs-params">()</span> </span>&#123;
     <span class="hljs-keyword">try</span> &#123;
       System.out.println(Thread.currentThread().getName() + <span class="hljs-string">" is working..."</span>);
       Thread.sleep(<span class="hljs-number">10_000</span>);
@@ -367,25 +366,20 @@
 
 <p class="note note-light">结果</p>
 
-<pre><code class="hljs mercury">T1 have the lock monitor.
+<pre><code class="hljs sql">T1 have the <span class="hljs-keyword">lock</span> monitor.
 T1 <span class="hljs-keyword">is</span> working...
-T1 release the lock monitor.
-T1 <span class="hljs-keyword">is</span> working...
-T4 have the lock monitor.
+T1 <span class="hljs-keyword">release</span> the <span class="hljs-keyword">lock</span> monitor.
+T4 have the <span class="hljs-keyword">lock</span> monitor.
 T4 <span class="hljs-keyword">is</span> working...
-T4 release the lock monitor.
-T4 <span class="hljs-keyword">is</span> working...
-T2 have the lock monitor.
+T4 <span class="hljs-keyword">release</span> the <span class="hljs-keyword">lock</span> monitor.
+T2 have the <span class="hljs-keyword">lock</span> monitor.
 T2 <span class="hljs-keyword">is</span> working...
-T2 release the lock monitor.
-T2 <span class="hljs-keyword">is</span> working...
-T3 have the lock monitor.
+T2 <span class="hljs-keyword">release</span> the <span class="hljs-keyword">lock</span> monitor.
+T3 have the <span class="hljs-keyword">lock</span> monitor.
 T3 <span class="hljs-keyword">is</span> working...
-T3 release the lock monitor.
-T3 <span class="hljs-keyword">is</span> working...
+T3 <span class="hljs-keyword">release</span> the <span class="hljs-keyword">lock</span> monitor.
 
-
-Process finished with exit code <span class="hljs-number">0</span></code></pre>
+Process finished <span class="hljs-keyword">with</span> <span class="hljs-keyword">exit</span> code <span class="hljs-number">0</span></code></pre>
 
 
 <p class="note note-info">这样还是存在一些问题的，对于上面自定义的API，别人也可以拿到主线程中和使用，
@@ -402,13 +396,12 @@ Process finished with exit code <span class="hljs-number">0</span></code></pre>
                             booleanLock.lock();
                             System.out.println(
                                 Thread.currentThread().getName() + <span class="hljs-string">" have the lock monitor."</span>);
-                            worker();
+                            work();
                           &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
                             e.printStackTrace();
                           &#125; <span class="hljs-keyword">finally</span> &#123;
                             booleanLock.unlock();
                           &#125;
-                          worker();
                         &#125;,
                         name)
                     .start());
@@ -425,9 +418,113 @@ T4 have the lock monitor.
 T4 <span class="hljs-keyword">is</span> working...
 ...</code></pre>
 
-<p class="note note-info">怎么解决这个问题呢？</p>
+<p class="note note-info">对于这个问题，对于锁是谁加的，就只能谁去释放，如果是T1加的锁只能T1去释放，其它线程去释放就不行，这个怎么控制呢？</p>
 
+<pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">BooleanLock</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Lock</span> </span>&#123;
+  <span class="hljs-comment">/** 记录调用 lock()的线程，对于解锁的时候，通过它与当前线程去比较，如果不一样不做任何事情 */</span>
+  <span class="hljs-keyword">private</span> Thread currentThread;
 
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">synchronized</span> <span class="hljs-keyword">void</span> <span class="hljs-title">lock</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> InterruptedException </span>&#123;
+    <span class="hljs-keyword">while</span> (initValue) &#123;
+      blockedThreadCollection.add(getCurrentThread());
+      <span class="hljs-keyword">this</span>.wait();
+    &#125;
+    blockedThreadCollection.remove(getCurrentThread());
+    <span class="hljs-keyword">this</span>.initValue = <span class="hljs-keyword">true</span>;
++   <span class="hljs-keyword">this</span>.currentThread = getCurrentThread();
+  &#125;
+
+  <span class="hljs-meta">@Override</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">synchronized</span> <span class="hljs-keyword">void</span> <span class="hljs-title">unlock</span><span class="hljs-params">()</span> </span>&#123;
++   <span class="hljs-keyword">if</span> (currentThread != getCurrentThread()) &#123;
++     <span class="hljs-keyword">return</span>;
++   &#125;
+    <span class="hljs-keyword">this</span>.initValue = <span class="hljs-keyword">false</span>;
+    System.out.println(getCurrentThread().getName() + <span class="hljs-string">" release the lock monitor."</span>);
+    <span class="hljs-keyword">this</span>.notifyAll();
+  &#125;</code></pre>
+
+<p class="note note-light">结果</p>
+
+<pre><code class="hljs sql">T1 have the <span class="hljs-keyword">lock</span> monitor.
+T1 <span class="hljs-keyword">is</span> working...
+T1 <span class="hljs-keyword">release</span> the <span class="hljs-keyword">lock</span> monitor.
+T4 have the <span class="hljs-keyword">lock</span> monitor.
+T4 <span class="hljs-keyword">is</span> working...
+T4 <span class="hljs-keyword">release</span> the <span class="hljs-keyword">lock</span> monitor.
+T2 have the <span class="hljs-keyword">lock</span> monitor.
+T2 <span class="hljs-keyword">is</span> working...
+T2 <span class="hljs-keyword">release</span> the <span class="hljs-keyword">lock</span> monitor.
+T3 have the <span class="hljs-keyword">lock</span> monitor.
+T3 <span class="hljs-keyword">is</span> working...
+T3 <span class="hljs-keyword">release</span> the <span class="hljs-keyword">lock</span> monitor.
+Process finished <span class="hljs-keyword">with</span> <span class="hljs-keyword">exit</span> code <span class="hljs-number">0</span></code></pre>
+
+<p class="note note-info">在线程很久没有抢到锁的情况，它能放弃去抢锁，去做别的事情，代码如下：</p>
+
+<pre><code class="hljs java"><span class="hljs-comment">/**</span>
+<span class="hljs-comment">   * 锁</span>
+<span class="hljs-comment">   *</span>
+<span class="hljs-comment">   * <span class="hljs-doctag">@param</span> millis 在 &lt;code&gt;millis&lt;/code&gt; 时间过完之后退出</span>
+<span class="hljs-comment">   */</span>
+  <span class="hljs-meta">@Override</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">synchronized</span> <span class="hljs-keyword">void</span> <span class="hljs-title">lock</span><span class="hljs-params">(<span class="hljs-keyword">long</span> millis)</span> <span class="hljs-keyword">throws</span> InterruptedException, TimeOutException </span>&#123;
+    <span class="hljs-keyword">if</span> (millis &lt;= <span class="hljs-number">0</span>) &#123;
+      lock();
+    &#125;
+    <span class="hljs-keyword">long</span> hasReaming = millis;
+    <span class="hljs-keyword">long</span> endTime = System.currentTimeMillis() + millis;
+    <span class="hljs-keyword">while</span> (initValue) &#123;
+      <span class="hljs-keyword">if</span> (hasReaming &lt;= <span class="hljs-number">0</span>) &#123;
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> TimeOutException(<span class="hljs-string">"Time out"</span>);
+      &#125;
+      blockedThreadCollection.add(getCurrentThread());
+      <span class="hljs-keyword">this</span>.wait(millis);
+      hasReaming = endTime - System.currentTimeMillis();
+    &#125;
+    <span class="hljs-keyword">this</span>.initValue = <span class="hljs-keyword">true</span>;
+    <span class="hljs-keyword">this</span>.currentThread = getCurrentThread();
+  &#125;</code></pre>
+
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> InterruptedException </span>&#123;
+    <span class="hljs-keyword">final</span> Lock booleanLock = <span class="hljs-keyword">new</span> BooleanLock();
+    Stream.of(<span class="hljs-string">"T1"</span>, <span class="hljs-string">"T2"</span>, <span class="hljs-string">"T3"</span>, <span class="hljs-string">"T4"</span>)
+        .forEach(
+            name -&gt;
+                <span class="hljs-keyword">new</span> Thread(
+                        () -&gt; &#123;
+                          <span class="hljs-keyword">try</span> &#123;
+M+                            booleanLock.lock(<span class="hljs-number">20_000</span>);
+                            System.out.println(
+                                Thread.currentThread().getName() + <span class="hljs-string">" have the lock monitor."</span>);
+                            work();
+                          &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
+                            e.printStackTrace();
+                          &#125; <span class="hljs-keyword">catch</span> (Lock.TimeOutException e) &#123;
+M+                            System.out.println(<span class="hljs-string">"不搞快点就罢工!"</span>);
+                          &#125; <span class="hljs-keyword">finally</span> &#123;
+                            booleanLock.unlock();
+                          &#125;
+                        &#125;,
+                        name)
+                    .start());
+
+    Thread.sleep(<span class="hljs-number">100</span>);
+    booleanLock.unlock();
+  &#125;</code></pre>
+
+<p class="note note-light">结果</p>
+
+<pre><code class="hljs mercury">T1 have the lock monitor.
+T1 <span class="hljs-keyword">is</span> working...
+T1 release the lock monitor.
+T4 have the lock monitor.
+T4 <span class="hljs-keyword">is</span> working...
+T4 release the lock monitor.
+T2 have the lock monitor.
+T2 <span class="hljs-keyword">is</span> working...
+不搞快点就罢工!
+T2 release the lock monitor.</code></pre>
             </article>
             <hr>
             <div>
@@ -462,6 +559,12 @@ T4 <span class="hljs-keyword">is</span> working...
                 <div class="post-prevnext row">
                   <div class="post-prev col-6">
                     
+                    
+                      <a href="/juc-actualCombat-1-27.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">27.如何给你的应用程序注入钩子程序</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
                     
                   </div>
                   <div class="post-next col-6">

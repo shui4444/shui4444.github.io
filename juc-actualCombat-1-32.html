@@ -413,6 +413,7 @@ SIMPLE_THREAD_POOL-<span class="hljs-number">1</span>执行中...,返回结果�
 <span class="hljs-comment"> * <span class="hljs-doctag">@date</span> 2020/7/5 17:01</span>
 <span class="hljs-comment"> */</span>
 <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SimpleThreadPool</span> </span>&#123;
+
   <span class="hljs-comment">/** 默认拒绝策略 */</span>
   <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> DiscardPolicy DEFAULT_DISCARD_POLICY =
       () -&gt; &#123;
@@ -432,8 +433,10 @@ SIMPLE_THREAD_POOL-<span class="hljs-number">1</span>执行中...,返回结果�
   <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> ThreadGroup group = <span class="hljs-keyword">new</span> ThreadGroup(<span class="hljs-string">"Pool_Group"</span>);
   <span class="hljs-comment">/** 自增ID */</span>
   <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">volatile</span> <span class="hljs-keyword">int</span> seg;
+
   <span class="hljs-comment">/** 拒绝策略 */</span>
   <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> DiscardPolicy discardPolicy;
+
   <span class="hljs-comment">/** 任务队列大小限制 */</span>
   <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> queueSize;
   <span class="hljs-comment">/** 大小 */</span>
@@ -469,7 +472,7 @@ SIMPLE_THREAD_POOL-<span class="hljs-number">1</span>执行中...,返回结果�
     THREAD_QUEUE.add(workTask);
   &#125;
 
-  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">destory</span><span class="hljs-params">()</span> </span>&#123;
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">destroy</span><span class="hljs-params">()</span> </span>&#123;
     <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.destroy;
   &#125;
 

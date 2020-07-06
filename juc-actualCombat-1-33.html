@@ -163,7 +163,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      0 字
+      2.1k 字
     </span>
   
 
@@ -173,7 +173,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      1
+      32
        分钟
     </span>
   
@@ -204,7 +204,447 @@
           <div class="post-content mx-auto" id="post">
             
             <article class="markdown-body">
-              
+              <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><p class="note note-primary">前言</p></h1><p class="note note-info">对于前面2个章节实现的线程池还是存在问题，假设对它的<code>size</code>设置为2000，那么就会创建对应的线程，对于一些情况没有任务或者任务比较少的时候就可以关闭几个认为的。这里就来实现一下</p>
+
+<p class="note note-primary">增加线程</p>
+
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter13;
+
+<span class="hljs-keyword">import</span> java.util.ArrayList;
+<span class="hljs-keyword">import</span> java.util.LinkedList;
+<span class="hljs-keyword">import</span> java.util.List;
+
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@author</span> Shui</span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@date</span> 2020/7/5 17:01</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SimpleThreadPool</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Thread</span> </span>&#123;
+
+  <span class="hljs-comment">/** 默认拒绝策略 */</span>
+  <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> DiscardPolicy DEFAULT_DISCARD_POLICY =
+      () -&gt; &#123;
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> DiscardException(<span class="hljs-string">"放弃此任务"</span>);
+      &#125;;
+  <span class="hljs-comment">/** 默认任务队列大小限制 */</span>
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> DEFAULT_TASK_QUEUE_SIZE = <span class="hljs-number">2000</span>;
+  <span class="hljs-comment">/*任务队列*/</span>
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> LinkedList&lt;Runnable&gt; TASK_QUEUE = <span class="hljs-keyword">new</span> LinkedList&lt;&gt;();
+  <span class="hljs-comment">/** 前缀 */</span>
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> String THREAD_PREFIX = <span class="hljs-string">"SIMPLE_THREAD_POOL-"</span>;
+  <span class="hljs-comment">/** 线程队列 */</span>
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> List&lt;WorkTask&gt; THREAD_QUEUE = <span class="hljs-keyword">new</span> ArrayList&lt;&gt;();
+  <span class="hljs-comment">/** 组 */</span>
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> ThreadGroup group = <span class="hljs-keyword">new</span> ThreadGroup(<span class="hljs-string">"Pool_Group"</span>);
+  <span class="hljs-comment">/** 自增ID */</span>
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">volatile</span> <span class="hljs-keyword">int</span> seg;
+  <span class="hljs-comment">/** 拒绝策略 */</span>
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> DiscardPolicy discardPolicy;
+  <span class="hljs-comment">/** 任务队列大小限制 */</span>
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> queueSize;
+  <span class="hljs-comment">/** 激活线程数 */</span>
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> active;
+  <span class="hljs-comment">/** 是否销毁 */</span>
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">volatile</span> <span class="hljs-keyword">boolean</span> destroy = <span class="hljs-keyword">false</span>;
+  <span class="hljs-comment">/** 最大线程数 */</span>
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> max;
+  <span class="hljs-comment">/** 最小线程数 */</span>
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> min;
+  <span class="hljs-comment">/** 大小 */</span>
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> size;
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">SimpleThreadPool</span><span class="hljs-params">()</span> </span>&#123;
+    <span class="hljs-keyword">this</span>(<span class="hljs-number">4</span>, <span class="hljs-number">8</span>, <span class="hljs-number">12</span>, DEFAULT_TASK_QUEUE_SIZE, DEFAULT_DISCARD_POLICY);
+  &#125;
+
+  <span class="hljs-comment">/**</span>
+<span class="hljs-comment">   * <span class="hljs-doctag">@param</span> min 最小线程数</span>
+<span class="hljs-comment">   * <span class="hljs-doctag">@param</span> active 激活线程数</span>
+<span class="hljs-comment">   * <span class="hljs-doctag">@param</span> max 最大线程数</span>
+<span class="hljs-comment">   * <span class="hljs-doctag">@param</span> queueSize 任务队列大小限制</span>
+<span class="hljs-comment">   */</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">SimpleThreadPool</span><span class="hljs-params">(</span></span>
+<span class="hljs-function"><span class="hljs-params">      <span class="hljs-keyword">int</span> min, <span class="hljs-keyword">int</span> active, <span class="hljs-keyword">int</span> max, <span class="hljs-keyword">int</span> queueSize, DiscardPolicy discardPolicy)</span> </span>&#123;
+    <span class="hljs-keyword">this</span>.min = min;
+    <span class="hljs-keyword">this</span>.active = active;
+    <span class="hljs-keyword">this</span>.max = max;
+    <span class="hljs-keyword">this</span>.queueSize = queueSize;
+    <span class="hljs-keyword">this</span>.discardPolicy = discardPolicy;
+    init();
+  &#125;
+
+  <span class="hljs-comment">/** 初始化 */</span>
+  <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">init</span><span class="hljs-params">()</span> </span>&#123;
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-keyword">this</span>.min; i++) &#123;
+      createWorkTask();
+    &#125;
+    <span class="hljs-keyword">this</span>.size = min;
+    <span class="hljs-comment">// 启动自己</span>
+    <span class="hljs-keyword">this</span>.start();
+  &#125;
+
+  <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">createWorkTask</span><span class="hljs-params">()</span> </span>&#123;
+    WorkTask workTask = <span class="hljs-keyword">new</span> WorkTask(group, THREAD_PREFIX + (seg++));
+    workTask.start();
+    THREAD_QUEUE.add(workTask);
+  &#125;
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> <span class="hljs-title">getActive</span><span class="hljs-params">()</span> </span>&#123;
+    <span class="hljs-keyword">return</span> active;
+  &#125;
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> <span class="hljs-title">getMax</span><span class="hljs-params">()</span> </span>&#123;
+    <span class="hljs-keyword">return</span> max;
+  &#125;
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> <span class="hljs-title">getMin</span><span class="hljs-params">()</span> </span>&#123;
+    <span class="hljs-keyword">return</span> min;
+  &#125;
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> <span class="hljs-title">getQueueSize</span><span class="hljs-params">()</span> </span>&#123;
+    <span class="hljs-keyword">return</span> queueSize;
+  &#125;
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> <span class="hljs-title">getSize</span><span class="hljs-params">()</span> </span>&#123;
+    <span class="hljs-keyword">return</span> size;
+  &#125;
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">isDestroy</span><span class="hljs-params">()</span> </span>&#123;
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.destroy;
+  &#125;
+
+  <span class="hljs-meta">@Override</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;
+    <span class="hljs-keyword">while</span> (!destroy) &#123;
+      System.out.printf(
+          <span class="hljs-string">"Pool#Min:%d，Active：%d,Max:%d,Current：%d,TaskQueueSize：%d\n"</span>,
+          <span class="hljs-keyword">this</span>.min, <span class="hljs-keyword">this</span>.active, <span class="hljs-keyword">this</span>.max, <span class="hljs-keyword">this</span>.size, TASK_QUEUE.size());
+      <span class="hljs-keyword">try</span> &#123;
+        Thread.sleep(<span class="hljs-number">5_000</span>);
+        <span class="hljs-comment">// 如果任务过多，小于active ，并且 当前线程数量小于</span>
+        <span class="hljs-keyword">if</span> (TASK_QUEUE.size() &gt; active &amp;&amp; size &lt; active) &#123;
+          <span class="hljs-comment">// 偏移量初始从 当前线程大小开始，创建到active个线程</span>
+          <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = size; i &lt; active; i++) &#123;
+            createWorkTask();
+          &#125;
+          System.out.println(<span class="hljs-string">"The pool increment to active."</span>);
+          size = active;
+        &#125;
+        <span class="hljs-comment">// 如果任务超过MAX，线程创建到Max个线程</span>
+        <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (TASK_QUEUE.size() &gt; max &amp;&amp; size &lt; max) &#123;
+          <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = size; i &lt; max; i++) &#123;
+            createWorkTask();
+          &#125;
+          System.out.println(<span class="hljs-string">"The pool increment to max."</span>);
+          size = max;
+        &#125;
+
+      &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
+        e.printStackTrace();
+      &#125;
+    &#125;
+  &#125;
+
+  <span class="hljs-comment">/** 关闭，任务如果还没执行完，等待完成，在关闭，如果没有认为了直接关闭 */</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">shutdown</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> InterruptedException </span>&#123;
+    <span class="hljs-keyword">while</span> (!TASK_QUEUE.isEmpty()) &#123;
+      Thread.sleep(<span class="hljs-number">50</span>);
+    &#125;
+    <span class="hljs-comment">// 在代码执行到这一步之后，在 TASK_QUEUE 已经没有 任务了，但是这个时候 有可能又提交了一个任务去运行，所以并不代表你都可以把它关掉</span>
+
+    <span class="hljs-keyword">int</span> initVal = TASK_QUEUE.size();
+    <span class="hljs-keyword">while</span> (initVal &gt; <span class="hljs-number">0</span>) &#123;
+      <span class="hljs-keyword">for</span> (WorkTask task : THREAD_QUEUE) &#123;
+        <span class="hljs-comment">// 如果任务是空的，线程自然是block，这个时候</span>
+        <span class="hljs-keyword">if</span> (task.getState() == Thread.State.BLOCKED) &#123;
+          <span class="hljs-comment">// 这个时候线程的生命周期结束</span>
+          task.interrupt();
+          <span class="hljs-comment">// 另外一个情况：在线程刚刚执行完任务的时候，调用中断是无效的，下次又会去 Block住l.这里把线程设置为 DEAD，它就能结束线程生命周期了</span>
+          task.close();
+          <span class="hljs-comment">// 关闭一个 “--”一个</span>
+          initVal--;
+        &#125; <span class="hljs-keyword">else</span> &#123;
+          <span class="hljs-comment">// 如果没有关掉，就休息一下</span>
+          Thread.sleep(<span class="hljs-number">10</span>);
+        &#125;
+      &#125;
+    &#125;
+    <span class="hljs-comment">// 标识已经销毁</span>
+    <span class="hljs-keyword">this</span>.destroy = <span class="hljs-keyword">true</span>;
+    System.out.println(<span class="hljs-string">"线程池已处置。"</span>);
+  &#125;
+
+  <span class="hljs-comment">/** 提交任务 */</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">submit</span><span class="hljs-params">(Runnable runnable)</span> </span>&#123;
+    <span class="hljs-keyword">if</span> (destroy) &#123;
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> IllegalStateException(<span class="hljs-string">"线程池已经销毁，不允许添加任务!"</span>);
+    &#125;
+
+    <span class="hljs-keyword">synchronized</span> (TASK_QUEUE) &#123;
+      <span class="hljs-comment">// 如果超出任务限制，执行拒绝策略</span>
+      <span class="hljs-keyword">if</span> (TASK_QUEUE.size() &gt; queueSize) &#123;
+        discardPolicy.discard();
+      &#125;
+
+      TASK_QUEUE.addLast(runnable);
+      TASK_QUEUE.notifyAll();
+    &#125;
+  &#125;
+
+  <span class="hljs-comment">/** 状态 */</span>
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">enum</span> TaskSate &#123;
+    <span class="hljs-comment">/** 空闲 */</span>
+    FREE,
+    <span class="hljs-comment">/** 运行 */</span>
+    RUNNING,
+    <span class="hljs-comment">/** 阻塞 */</span>
+    BLOCKED,
+    <span class="hljs-comment">/** 挂 */</span>
+    DEAD
+  &#125;
+
+  <span class="hljs-comment">/** 拒接策略 */</span>
+  <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">DiscardPolicy</span> </span>&#123;
+    <span class="hljs-comment">/** 拒绝 */</span>
+    <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">discard</span><span class="hljs-params">()</span></span>;
+  &#125;
+
+  <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">DiscardException</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">RuntimeException</span> </span>&#123;
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">DiscardException</span><span class="hljs-params">(String message)</span> </span>&#123;
+      <span class="hljs-keyword">super</span>(message);
+    &#125;
+  &#125;
+
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">WorkTask</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Thread</span> </span>&#123;
+    <span class="hljs-comment">/** 线程状态 */</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">volatile</span> TaskSate taskSate = TaskSate.FREE;
+
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">WorkTask</span><span class="hljs-params">(ThreadGroup group, String name)</span> </span>&#123;
+      <span class="hljs-keyword">super</span>(group, name);
+    &#125;
+
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">close</span><span class="hljs-params">()</span> </span>&#123;
+      <span class="hljs-keyword">this</span>.taskSate = TaskSate.DEAD;
+    &#125;
+
+    <span class="hljs-function"><span class="hljs-keyword">public</span> TaskSate <span class="hljs-title">getTaskSate</span><span class="hljs-params">()</span> </span>&#123;
+      <span class="hljs-keyword">return</span> taskSate;
+    &#125;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;
+      OUTER:
+      <span class="hljs-keyword">while</span> (<span class="hljs-keyword">this</span>.taskSate != TaskSate.DEAD) &#123;
+        Runnable runnable;
+        <span class="hljs-keyword">synchronized</span> (TASK_QUEUE) &#123;
+          <span class="hljs-keyword">while</span> (TASK_QUEUE.isEmpty()) &#123;
+            <span class="hljs-keyword">try</span> &#123;
+              taskSate = TaskSate.BLOCKED;
+              TASK_QUEUE.wait();
+            &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
+              <span class="hljs-keyword">break</span> OUTER;
+            &#125;
+          &#125;
+          runnable = TASK_QUEUE.removeFirst();
+        &#125;
+
+        <span class="hljs-keyword">if</span> (runnable != <span class="hljs-keyword">null</span>) &#123;
+          taskSate = TaskSate.RUNNING;
+          runnable.run();
+          taskSate = TaskSate.FREE;
+        &#125;
+      &#125;
+    &#125;
+  &#125;
+&#125;</code></pre>
+
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter13;
+
+<span class="hljs-keyword">import</span> java.util.stream.IntStream;
+
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@author</span> Shui</span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@date</span> 2020/7/5 19:36</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SimpleThreadPoolTest</span> </span>&#123;
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> InterruptedException </span>&#123;
+    SimpleThreadPool simpleThreadPool = <span class="hljs-keyword">new</span> SimpleThreadPool();
+    IntStream.range(<span class="hljs-number">0</span>, <span class="hljs-number">40</span>)
+        .forEach(
+            i -&gt;
+                simpleThreadPool.submit(
+                    () -&gt; &#123;
+                      System.out.println(Thread.currentThread().getName() + <span class="hljs-string">"执行中...,返回结果："</span> + i);
+                      <span class="hljs-keyword">try</span> &#123;
+                        Thread.sleep(<span class="hljs-number">50_000</span>);
+                      &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
+                        e.printStackTrace();
+                      &#125;
+                    &#125;));
+  &#125;
+&#125;</code></pre>
+
+<p class="note note-light">结果</p>
+
+<pre><code class="hljs angelscript">Pool#Min:<span class="hljs-number">4</span>，Active：<span class="hljs-number">8</span>,Max:<span class="hljs-number">12</span>,Current：<span class="hljs-number">4</span>,TaskQueueSize：<span class="hljs-number">0</span>
+SIMPLE_THREAD_POOL<span class="hljs-number">-0</span>执行中...,返回结果：<span class="hljs-number">3</span>
+SIMPLE_THREAD_POOL<span class="hljs-number">-3</span>执行中...,返回结果：<span class="hljs-number">0</span>
+SIMPLE_THREAD_POOL<span class="hljs-number">-1</span>执行中...,返回结果：<span class="hljs-number">2</span>
+SIMPLE_THREAD_POOL<span class="hljs-number">-2</span>执行中...,返回结果：<span class="hljs-number">1</span>
+The pool increment to active.
+Pool#Min:<span class="hljs-number">4</span>，Active：<span class="hljs-number">8</span>,Max:<span class="hljs-number">12</span>,Current：<span class="hljs-number">8</span>,TaskQueueSize：<span class="hljs-number">36</span>
+SIMPLE_THREAD_POOL<span class="hljs-number">-5</span>执行中...,返回结果：<span class="hljs-number">7</span>
+SIMPLE_THREAD_POOL<span class="hljs-number">-6</span>执行中...,返回结果：<span class="hljs-number">6</span>
+SIMPLE_THREAD_POOL<span class="hljs-number">-7</span>执行中...,返回结果：<span class="hljs-number">5</span>
+SIMPLE_THREAD_POOL<span class="hljs-number">-4</span>执行中...,返回结果：<span class="hljs-number">4</span>
+The pool increment to max.
+Pool#Min:<span class="hljs-number">4</span>，Active：<span class="hljs-number">8</span>,Max:<span class="hljs-number">12</span>,Current：<span class="hljs-number">12</span>,TaskQueueSize：<span class="hljs-number">32</span>
+SIMPLE_THREAD_POOL<span class="hljs-number">-11</span>执行中...,返回结果：<span class="hljs-number">11</span>
+SIMPLE_THREAD_POOL<span class="hljs-number">-10</span>执行中...,返回结果：<span class="hljs-number">10</span>
+SIMPLE_THREAD_POOL<span class="hljs-number">-9</span>执行中...,返回结果：<span class="hljs-number">9</span>
+SIMPLE_THREAD_POOL<span class="hljs-number">-8</span>执行中...,返回结果：<span class="hljs-number">8</span>
+Pool#Min:<span class="hljs-number">4</span>，Active：<span class="hljs-number">8</span>,Max:<span class="hljs-number">12</span>,Current：<span class="hljs-number">12</span>,TaskQueueSize：<span class="hljs-number">28</span>
+...</code></pre>
+
+<h1 id="回收线程"><a href="#回收线程" class="headerlink" title="回收线程"></a><p class="note note-primary">回收线程</p></h1><p class="note note-info">对于任务都处理完了，这个时候线程还是12个，这里避免耗费不必要的资源，需要进行回收</p>
+
+<pre><code class="hljs java"> <span class="hljs-meta">@Override</span>
+<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;
+  <span class="hljs-keyword">while</span> (!destroy) &#123;
+    System.out.printf(
+        <span class="hljs-string">"Pool#Min:%d，Active：%d,Max:%d,Current：%d,TaskQueueSize：%d\n"</span>,
+        <span class="hljs-keyword">this</span>.min, <span class="hljs-keyword">this</span>.active, <span class="hljs-keyword">this</span>.max, <span class="hljs-keyword">this</span>.size, TASK_QUEUE.size());
+    <span class="hljs-keyword">try</span> &#123;
+      Thread.sleep(<span class="hljs-number">5_000</span>);
+      <span class="hljs-comment">// 如果任务过多，小于active ，并且 当前线程数量小于</span>
+      <span class="hljs-keyword">if</span> (TASK_QUEUE.size() &gt; active &amp;&amp; size &lt; active) &#123;
+        <span class="hljs-comment">// 偏移量初始从 当前线程大小开始，创建到active个线程</span>
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = size; i &lt; active; i++) &#123;
+          createWorkTask();
+        &#125;
+        System.out.println(<span class="hljs-string">"The pool increment to active."</span>);
+        size = active;
+      &#125;
+      <span class="hljs-comment">// 如果任务超过MAX，线程创建到Max个线程</span>
+      <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (TASK_QUEUE.size() &gt; max &amp;&amp; size &lt; max) &#123;
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = size; i &lt; max; i++) &#123;
+          createWorkTask();
+        &#125;
+        System.out.println(<span class="hljs-string">"The pool increment to max."</span>);
+        size = max;
+      &#125;
+      <span class="hljs-comment">// 如果 任务空闲了 &amp;&amp; 当前线程大小大于  active，就回收线程到 active 个</span>
+      <span class="hljs-keyword">synchronized</span> (THREAD_QUEUE) &#123;
+        <span class="hljs-keyword">if</span> (TASK_QUEUE.isEmpty() &amp;&amp; size &gt; active) &#123;
+          System.out.println(<span class="hljs-string">"==========Reduce=========="</span>);
+          <span class="hljs-comment">// 释放线程个数</span>
+          <span class="hljs-keyword">int</span> releaseSize = size - active;
+          Iterator&lt;WorkTask&gt; iterator = THREAD_QUEUE.iterator();
+          <span class="hljs-keyword">while</span> (iterator.hasNext()) &#123;
+            <span class="hljs-comment">// 如果满足了释放的个数就结束掉</span>
+            <span class="hljs-keyword">if</span> (releaseSize &lt;= <span class="hljs-number">0</span>) &#123;
+              <span class="hljs-keyword">break</span>;
+            &#125;
+            WorkTask next = iterator.next();
+            next.close();
+            next.interrupt();
+            iterator.remove();
+            releaseSize--;
+          &#125;
+          size = active;
+        &#125;
+      &#125;
+
+    &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
+      e.printStackTrace();
+    &#125;
+  &#125;
+&#125;
+
+  <span class="hljs-comment">/** 关闭，任务如果还没执行完，等待完成，在关闭，如果没有认为了直接关闭 */</span>
+<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">shutdown</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> InterruptedException </span>&#123;
+  <span class="hljs-keyword">while</span> (!TASK_QUEUE.isEmpty()) &#123;
+    Thread.sleep(<span class="hljs-number">50</span>);
+  &#125;
+  <span class="hljs-comment">// 在代码执行到这一步之后，在 TASK_QUEUE 已经没有 任务了，但是这个时候 有可能又提交了一个任务去运行，所以并不代表你都可以把它关掉</span>
+
+  <span class="hljs-keyword">synchronized</span> (THREAD_QUEUE) &#123;
+    <span class="hljs-keyword">int</span> initVal = TASK_QUEUE.size();
+    <span class="hljs-keyword">while</span> (initVal &gt; <span class="hljs-number">0</span>) &#123;
+      <span class="hljs-keyword">for</span> (WorkTask task : THREAD_QUEUE) &#123;
+        <span class="hljs-comment">// 如果任务是空的，线程自然是block，这个时候</span>
+        <span class="hljs-keyword">if</span> (task.getState() == State.BLOCKED) &#123;
+          <span class="hljs-comment">// 这个时候线程的生命周期结束</span>
+          task.interrupt();
+          <span class="hljs-comment">// 另外一个情况：在线程刚刚执行完任务的时候，调用中断是无效的，下次又会去 Block住l.这里把线程设置为 DEAD，它就能结束线程生命周期了</span>
+          task.close();
+          <span class="hljs-comment">// 关闭一个 “--”一个</span>
+          initVal--;
+        &#125; <span class="hljs-keyword">else</span> &#123;
+          <span class="hljs-comment">// 如果没有关掉，就休息一下</span>
+          Thread.sleep(<span class="hljs-number">10</span>);
+        &#125;
+      &#125;
+    &#125;
+  &#125;
+  <span class="hljs-comment">// 标识已经销毁</span>
+  <span class="hljs-keyword">this</span>.destroy = <span class="hljs-keyword">true</span>;
+  System.out.println(<span class="hljs-string">"线程池已处置。"</span>);
+&#125;</code></pre>
+
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter13;
+
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@author</span> Shui</span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@date</span> 2020/7/5 19:36</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SimpleThreadPoolTest</span> </span>&#123;
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> InterruptedException </span>&#123;
+    SimpleThreadPool simpleThreadPool = <span class="hljs-keyword">new</span> SimpleThreadPool();
+
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">40</span>; i++) &#123;
+      simpleThreadPool.submit(
+          () -&gt; &#123;
+            System.out.println(Thread.currentThread().getName() + <span class="hljs-string">"执行中..."</span>);
+            <span class="hljs-keyword">try</span> &#123;
+              Thread.sleep(<span class="hljs-number">5_000</span>);
+            &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
+              e.printStackTrace();
+            &#125;
+          &#125;);
+    &#125;
+    Thread.sleep(<span class="hljs-number">210_000</span>);
+    simpleThreadPool.shutdown();
+  &#125;
+&#125;</code></pre>
+
+<p class="note note-light">结果</p>
+
+<pre><code class="hljs angelscript">SIMPLE_THREAD_POOL<span class="hljs-number">-0</span>执行中...
+SIMPLE_THREAD_POOL<span class="hljs-number">-1</span>执行中...
+SIMPLE_THREAD_POOL<span class="hljs-number">-2</span>执行中...
+Pool#Min:<span class="hljs-number">4</span>，Active：<span class="hljs-number">8</span>,Max:<span class="hljs-number">12</span>,Current：<span class="hljs-number">4</span>,TaskQueueSize：<span class="hljs-number">5</span>
+SIMPLE_THREAD_POOL<span class="hljs-number">-3</span>执行中...
+SIMPLE_THREAD_POOL<span class="hljs-number">-0</span>执行中...
+SIMPLE_THREAD_POOL<span class="hljs-number">-2</span>执行中...
+SIMPLE_THREAD_POOL<span class="hljs-number">-1</span>执行中...
+SIMPLE_THREAD_POOL<span class="hljs-number">-3</span>执行中...
+The pool increment to active.
+Pool#Min:<span class="hljs-number">4</span>，Active：<span class="hljs-number">8</span>,Max:<span class="hljs-number">12</span>,Current：<span class="hljs-number">8</span>,TaskQueueSize：<span class="hljs-number">32</span>
+SIMPLE_THREAD_POOL<span class="hljs-number">-5</span>执行中...
+SIMPLE_THREAD_POOL<span class="hljs-number">-6</span>执行中...
+...
+The pool increment to max.
+Pool#Min:<span class="hljs-number">4</span>，Active：<span class="hljs-number">8</span>,Max:<span class="hljs-number">12</span>,Current：<span class="hljs-number">12</span>,TaskQueueSize：<span class="hljs-number">16</span>
+SIMPLE_THREAD_POOL<span class="hljs-number">-9</span>执行中...
+...
+==========Reduce==========
+Pool#Min:<span class="hljs-number">4</span>，Active：<span class="hljs-number">8</span>,Max:<span class="hljs-number">12</span>,Current：<span class="hljs-number">8</span>,TaskQueueSize：<span class="hljs-number">0</span>
+Close...
+Close...
+Close...
+Close...
+Pool#Min:<span class="hljs-number">4</span>，Active：<span class="hljs-number">8</span>,Max:<span class="hljs-number">12</span>,Current：<span class="hljs-number">8</span>,TaskQueueSize：<span class="hljs-number">0</span>
+Pool#Min:<span class="hljs-number">4</span>，Active：<span class="hljs-number">8</span>,Max:<span class="hljs-number">12</span>,Current：<span class="hljs-number">8</span>,TaskQueueSize：<span class="hljs-number">0</span></code></pre>
             </article>
             <hr>
             <div>

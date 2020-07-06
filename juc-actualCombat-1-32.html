@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="Shui">
+  <meta name="keywords" content="">
+  <title>32.给线程池增加拒绝策略以及停止方法 - Shui&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Fluid</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/home.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2020-07-05 22:29">
+      2020年7月5日 晚上
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.8k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      28
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <h1 id="任务拒绝策略"><a href="#任务拒绝策略" class="headerlink" title="任务拒绝策略"></a><p class="note note-primary">任务拒绝策略</p></h1><p class="note note-info">上一章节实现了一个简单的线程池，这个章节会加入新的东西，允许<code>TASK_QUEUE</code>它最多存多少个任务？不可能任务越来越大去挤爆你的<code>TASK_QUEUE</code>,一般来说线程池不能无限的给它提交任务。</p>
+
+
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter13;
+
+<span class="hljs-keyword">import</span> java.util.ArrayList;
+<span class="hljs-keyword">import</span> java.util.LinkedList;
+<span class="hljs-keyword">import</span> java.util.List;
+
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@author</span> Shui</span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@date</span> 2020/7/5 17:01</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SimpleThreadPool</span> </span>&#123;
+  <span class="hljs-comment">/** 默认拒绝策略 */</span>
+  <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> DiscardPolicy DEFAULT_DISCARD_POLICY =
+      () -&gt; &#123;
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> DiscardException(<span class="hljs-string">"放弃此任务"</span>);
+      &#125;;
+  <span class="hljs-comment">/** 默认大小 */</span>
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> DEFAULT_SIZE = <span class="hljs-number">10</span>;
+  <span class="hljs-comment">/** 默认任务队列大小限制 */</span>
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> DEFAULT_TASK_QUEUE_SIZE = <span class="hljs-number">2000</span>;
+  <span class="hljs-comment">/*任务队列*/</span>
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> LinkedList&lt;Runnable&gt; TASK_QUEUE = <span class="hljs-keyword">new</span> LinkedList&lt;&gt;();
+  <span class="hljs-comment">/** 前缀 */</span>
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> String THREAD_PREFIX = <span class="hljs-string">"SIMPLE_THREAD_POOL-"</span>;
+  <span class="hljs-comment">/** 线程队列 */</span>
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> List&lt;WorkTask&gt; THREAD_QUEUE = <span class="hljs-keyword">new</span> ArrayList&lt;&gt;();
+  <span class="hljs-comment">/** 组 */</span>
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> ThreadGroup group = <span class="hljs-keyword">new</span> ThreadGroup(<span class="hljs-string">"Pool_Group"</span>);
+  <span class="hljs-comment">/** 自增ID */</span>
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">volatile</span> <span class="hljs-keyword">int</span> seg;
+  <span class="hljs-comment">/** 拒绝策略 */</span>
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> DiscardPolicy discardPolicy;
+  <span class="hljs-comment">/** 任务队列大小限制 */</span>
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> queueSize;
+  <span class="hljs-comment">/** 大小 */</span>
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> size;
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">SimpleThreadPool</span><span class="hljs-params">()</span> </span>&#123;
+    <span class="hljs-keyword">this</span>(DEFAULT_SIZE, DEFAULT_TASK_QUEUE_SIZE, DEFAULT_DISCARD_POLICY);
+  &#125;
+
+  <span class="hljs-comment">/**</span>
+<span class="hljs-comment">   * <span class="hljs-doctag">@param</span> size 线程数量</span>
+<span class="hljs-comment">   * <span class="hljs-doctag">@param</span> queueSize 任务队列大小限制</span>
+<span class="hljs-comment">   */</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">SimpleThreadPool</span><span class="hljs-params">(<span class="hljs-keyword">int</span> size, <span class="hljs-keyword">int</span> queueSize, DiscardPolicy discardPolicy)</span> </span>&#123;
+    <span class="hljs-keyword">this</span>.queueSize = queueSize;
+    <span class="hljs-keyword">this</span>.size = size;
+    <span class="hljs-keyword">this</span>.discardPolicy = discardPolicy;
+    init();
+  &#125;
+
+  <span class="hljs-comment">/** 初始化 */</span>
+  <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">init</span><span class="hljs-params">()</span> </span>&#123;
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; size; i++) &#123;
+      createWorkTask();
+    &#125;
+  &#125;
+
+  <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">createWorkTask</span><span class="hljs-params">()</span> </span>&#123;
+    WorkTask workTask = <span class="hljs-keyword">new</span> WorkTask(group, THREAD_PREFIX + (seg++));
+    workTask.start();
+    THREAD_QUEUE.add(workTask);
+  &#125;
+
+  <span class="hljs-comment">/** 提交任务 */</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">submit</span><span class="hljs-params">(Runnable runnable)</span> </span>&#123;
+    <span class="hljs-keyword">synchronized</span> (TASK_QUEUE) &#123;
+      <span class="hljs-comment">// 如果超出任务限制，执行拒绝策略</span>
+      <span class="hljs-keyword">if</span> (TASK_QUEUE.size() &gt; queueSize) &#123;
+        discardPolicy.discard();
+      &#125;
+
+      TASK_QUEUE.addLast(runnable);
+      TASK_QUEUE.notifyAll();
+    &#125;
+  &#125;
+
+  <span class="hljs-comment">/** 状态 */</span>
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">enum</span> TaskSate &#123;
+    <span class="hljs-comment">/** 空闲 */</span>
+    FREE,
+    <span class="hljs-comment">/** 运行 */</span>
+    RUNNING,
+    <span class="hljs-comment">/** 阻塞 */</span>
+    BLOCKED,
+    <span class="hljs-comment">/** 挂 */</span>
+    DEAD
+  &#125;
+
+  <span class="hljs-comment">/** 拒接策略 */</span>
+  <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">DiscardPolicy</span> </span>&#123;
+    <span class="hljs-comment">/** 拒绝 */</span>
+    <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">discard</span><span class="hljs-params">()</span></span>;
+  &#125;
+
+  <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">DiscardException</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">RuntimeException</span> </span>&#123;
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">DiscardException</span><span class="hljs-params">(String message)</span> </span>&#123;
+      <span class="hljs-keyword">super</span>(message);
+    &#125;
+  &#125;
+
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">WorkTask</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Thread</span> </span>&#123;
+    <span class="hljs-comment">/** 线程状态 */</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">volatile</span> TaskSate taskSate = TaskSate.FREE;
+
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">WorkTask</span><span class="hljs-params">(ThreadGroup group, String name)</span> </span>&#123;
+      <span class="hljs-keyword">super</span>(group, name);
+    &#125;
+
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">close</span><span class="hljs-params">()</span> </span>&#123;
+      <span class="hljs-keyword">this</span>.taskSate = TaskSate.DEAD;
+    &#125;
+
+    <span class="hljs-function"><span class="hljs-keyword">public</span> TaskSate <span class="hljs-title">getTaskSate</span><span class="hljs-params">()</span> </span>&#123;
+      <span class="hljs-keyword">return</span> taskSate;
+    &#125;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;
+      OUTER:
+      <span class="hljs-keyword">while</span> (<span class="hljs-keyword">this</span>.taskSate != TaskSate.DEAD) &#123;
+        Runnable runnable;
+        <span class="hljs-keyword">synchronized</span> (TASK_QUEUE) &#123;
+          <span class="hljs-keyword">while</span> (TASK_QUEUE.isEmpty()) &#123;
+            <span class="hljs-keyword">try</span> &#123;
+              taskSate = TaskSate.BLOCKED;
+              TASK_QUEUE.wait();
+            &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
+              <span class="hljs-keyword">break</span> OUTER;
+            &#125;
+          &#125;
+          runnable = TASK_QUEUE.removeFirst();
+        &#125;
+
+        <span class="hljs-keyword">if</span> (runnable != <span class="hljs-keyword">null</span>) &#123;
+          taskSate = TaskSate.RUNNING;
+          runnable.run();
+          taskSate = TaskSate.FREE;
+        &#125;
+      &#125;
+    &#125;
+  &#125;
+&#125;</code></pre>
+
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter13;
+
+<span class="hljs-keyword">import</span> java.util.stream.IntStream;
+
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@author</span> Shui</span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@date</span> 2020/7/5 19:36</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SimpleThreadPoolTest</span> </span>&#123;
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;
+    SimpleThreadPool simpleThreadPool =
+        <span class="hljs-keyword">new</span> SimpleThreadPool(<span class="hljs-number">6</span>, <span class="hljs-number">10</span>, SimpleThreadPool.DEFAULT_DISCARD_POLICY);
+    IntStream.range(<span class="hljs-number">0</span>, <span class="hljs-number">40</span>)
+        .forEach(
+            i -&gt;
+                simpleThreadPool.submit(
+                    () -&gt; &#123;
+                      System.out.println(Thread.currentThread().getName() + <span class="hljs-string">"执行中...,返回结果："</span> + i);
+                      <span class="hljs-keyword">try</span> &#123;
+                        Thread.sleep(<span class="hljs-number">100</span>);
+                      &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
+                        e.printStackTrace();
+                      &#125;
+                    &#125;));
+  &#125;
+&#125;</code></pre>
+
+<p class="note note-light">结果</p>
+
+<pre><code class="hljs stylus">Exception <span class="hljs-keyword">in</span> thread <span class="hljs-string">"main"</span> com<span class="hljs-selector-class">.shui</span><span class="hljs-selector-class">.juc</span><span class="hljs-selector-class">.chapter13</span>.SimpleThreadPool<span class="hljs-variable">$DiscardException</span>: 放弃此任务
+	at com<span class="hljs-selector-class">.shui</span><span class="hljs-selector-class">.juc</span><span class="hljs-selector-class">.chapter13</span><span class="hljs-selector-class">.SimpleThreadPool</span>.lambda<span class="hljs-variable">$static</span>$<span class="hljs-number">0</span>(SimpleThreadPool<span class="hljs-selector-class">.java</span>:<span class="hljs-number">15</span>)
+	at com<span class="hljs-selector-class">.shui</span><span class="hljs-selector-class">.juc</span><span class="hljs-selector-class">.chapter13</span><span class="hljs-selector-class">.SimpleThreadPool</span>.submit(SimpleThreadPool<span class="hljs-selector-class">.java</span>:<span class="hljs-number">71</span>)
+	at com<span class="hljs-selector-class">.shui</span><span class="hljs-selector-class">.juc</span><span class="hljs-selector-class">.chapter13</span><span class="hljs-selector-class">.SimpleThreadPoolTest</span>.lambda<span class="hljs-variable">$main</span>$<span class="hljs-number">1</span>(SimpleThreadPoolTest<span class="hljs-selector-class">.java</span>:<span class="hljs-number">16</span>)
+	at java<span class="hljs-selector-class">.util</span><span class="hljs-selector-class">.stream</span>.Streams<span class="hljs-variable">$RangeIntSpliterator</span>.forEachRemaining(Streams<span class="hljs-selector-class">.java</span>:<span class="hljs-number">110</span>)
+	at java<span class="hljs-selector-class">.util</span><span class="hljs-selector-class">.stream</span>.IntPipeline<span class="hljs-variable">$Head</span>.forEach(IntPipeline<span class="hljs-selector-class">.java</span>:<span class="hljs-number">559</span>)
+	at com<span class="hljs-selector-class">.shui</span><span class="hljs-selector-class">.juc</span><span class="hljs-selector-class">.chapter13</span><span class="hljs-selector-class">.SimpleThreadPoolTest</span>.main(SimpleThreadPoolTest<span class="hljs-selector-class">.java</span>:<span class="hljs-number">14</span>)
+SIMPLE_THREAD_POOL-<span class="hljs-number">5</span>执行中...,返回结果：<span class="hljs-number">0</span>
+SIMPLE_THREAD_POOL-<span class="hljs-number">0</span>执行中...,返回结果：<span class="hljs-number">5</span>
+SIMPLE_THREAD_POOL-<span class="hljs-number">1</span>执行中...,返回结果：<span class="hljs-number">4</span>
+SIMPLE_THREAD_POOL-<span class="hljs-number">2</span>执行中...,返回结果：<span class="hljs-number">3</span>
+SIMPLE_THREAD_POOL-<span class="hljs-number">3</span>执行中...,返回结果：<span class="hljs-number">2</span>
+SIMPLE_THREAD_POOL-<span class="hljs-number">4</span>执行中...,返回结果：<span class="hljs-number">1</span>
+SIMPLE_THREAD_POOL-<span class="hljs-number">5</span>执行中...,返回结果：<span class="hljs-number">6</span>
+SIMPLE_THREAD_POOL-<span class="hljs-number">0</span>执行中...,返回结果：<span class="hljs-number">11</span>
+SIMPLE_THREAD_POOL-<span class="hljs-number">4</span>执行中...,返回结果：<span class="hljs-number">10</span>
+SIMPLE_THREAD_POOL-<span class="hljs-number">2</span>执行中...,返回结果：<span class="hljs-number">9</span>
+SIMPLE_THREAD_POOL-<span class="hljs-number">1</span>执行中...,返回结果：<span class="hljs-number">8</span>
+SIMPLE_THREAD_POOL-<span class="hljs-number">3</span>执行中...,返回结果：<span class="hljs-number">7</span>
+SIMPLE_THREAD_POOL-<span class="hljs-number">1</span>执行中...,返回结果：<span class="hljs-number">12</span></code></pre>
+
+<h1 id="停止线程池"><a href="#停止线程池" class="headerlink" title="停止线程池"></a><p class="note note-primary">停止线程池</p></h1><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter13;
+
+<span class="hljs-keyword">import</span> java.util.ArrayList;
+<span class="hljs-keyword">import</span> java.util.LinkedList;
+<span class="hljs-keyword">import</span> java.util.List;
+
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@author</span> Shui</span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@date</span> 2020/7/5 17:01</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SimpleThreadPool</span> </span>&#123;
+  <span class="hljs-comment">/** 默认拒绝策略 */</span>
+  <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> DiscardPolicy DEFAULT_DISCARD_POLICY =
+      () -&gt; &#123;
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> DiscardException(<span class="hljs-string">"放弃此任务"</span>);
+      &#125;;
+  <span class="hljs-comment">/** 默认大小 */</span>
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> DEFAULT_SIZE = <span class="hljs-number">10</span>;
+  <span class="hljs-comment">/** 默认任务队列大小限制 */</span>
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> DEFAULT_TASK_QUEUE_SIZE = <span class="hljs-number">2000</span>;
+  <span class="hljs-comment">/*任务队列*/</span>
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> LinkedList&lt;Runnable&gt; TASK_QUEUE = <span class="hljs-keyword">new</span> LinkedList&lt;&gt;();
+  <span class="hljs-comment">/** 前缀 */</span>
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> String THREAD_PREFIX = <span class="hljs-string">"SIMPLE_THREAD_POOL-"</span>;
+  <span class="hljs-comment">/** 线程队列 */</span>
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> List&lt;WorkTask&gt; THREAD_QUEUE = <span class="hljs-keyword">new</span> ArrayList&lt;&gt;();
+  <span class="hljs-comment">/** 组 */</span>
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> ThreadGroup group = <span class="hljs-keyword">new</span> ThreadGroup(<span class="hljs-string">"Pool_Group"</span>);
+  <span class="hljs-comment">/** 自增ID */</span>
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">volatile</span> <span class="hljs-keyword">int</span> seg;
+  <span class="hljs-comment">/** 拒绝策略 */</span>
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> DiscardPolicy discardPolicy;
+  <span class="hljs-comment">/** 任务队列大小限制 */</span>
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> queueSize;
+  <span class="hljs-comment">/** 大小 */</span>
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> size;
+  <span class="hljs-comment">/** 是否销毁 */</span>
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">volatile</span> <span class="hljs-keyword">boolean</span> destroy = <span class="hljs-keyword">false</span>;
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">SimpleThreadPool</span><span class="hljs-params">()</span> </span>&#123;
+    <span class="hljs-keyword">this</span>(DEFAULT_SIZE, DEFAULT_TASK_QUEUE_SIZE, DEFAULT_DISCARD_POLICY);
+  &#125;
+
+  <span class="hljs-comment">/**</span>
+<span class="hljs-comment">   * <span class="hljs-doctag">@param</span> size 线程数量</span>
+<span class="hljs-comment">   * <span class="hljs-doctag">@param</span> queueSize 任务队列大小限制</span>
+<span class="hljs-comment">   */</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">SimpleThreadPool</span><span class="hljs-params">(<span class="hljs-keyword">int</span> size, <span class="hljs-keyword">int</span> queueSize, DiscardPolicy discardPolicy)</span> </span>&#123;
+    <span class="hljs-keyword">this</span>.queueSize = queueSize;
+    <span class="hljs-keyword">this</span>.size = size;
+    <span class="hljs-keyword">this</span>.discardPolicy = discardPolicy;
+    init();
+  &#125;
+
+  <span class="hljs-comment">/** 初始化 */</span>
+  <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">init</span><span class="hljs-params">()</span> </span>&#123;
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; size; i++) &#123;
+      createWorkTask();
+    &#125;
+  &#125;
+
+  <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">createWorkTask</span><span class="hljs-params">()</span> </span>&#123;
+    WorkTask workTask = <span class="hljs-keyword">new</span> WorkTask(group, THREAD_PREFIX + (seg++));
+    workTask.start();
+    THREAD_QUEUE.add(workTask);
+  &#125;
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">destory</span><span class="hljs-params">()</span> </span>&#123;
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.destroy;
+  &#125;
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> <span class="hljs-title">getQueueSize</span><span class="hljs-params">()</span> </span>&#123;
+    <span class="hljs-keyword">return</span> queueSize;
+  &#125;
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> <span class="hljs-title">getSize</span><span class="hljs-params">()</span> </span>&#123;
+    <span class="hljs-keyword">return</span> size;
+  &#125;
+
+  <span class="hljs-comment">/** 关闭，任务如果还没执行完，等待完成，在关闭，如果没有认为了直接关闭 */</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">shutdown</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> InterruptedException </span>&#123;
+    <span class="hljs-keyword">while</span> (!TASK_QUEUE.isEmpty()) &#123;
+      Thread.sleep(<span class="hljs-number">50</span>);
+    &#125;
+    <span class="hljs-comment">// 在代码执行到这一步之后，在 TASK_QUEUE 已经没有 任务了，但是这个时候 有可能又提交了一个任务去运行，所以并不代表你都可以把它关掉</span>
+
+    <span class="hljs-keyword">int</span> initVal = TASK_QUEUE.size();
+    <span class="hljs-keyword">while</span> (initVal &gt; <span class="hljs-number">0</span>) &#123;
+      <span class="hljs-keyword">for</span> (WorkTask task : THREAD_QUEUE) &#123;
+        <span class="hljs-comment">// 如果任务是空的，线程自然是block，这个时候</span>
+        <span class="hljs-keyword">if</span> (task.getState() == Thread.State.BLOCKED) &#123;
+          <span class="hljs-comment">// 这个时候线程的生命周期结束</span>
+          task.interrupt();
+          <span class="hljs-comment">// 另外一个情况：在线程刚刚执行完任务的时候，调用中断是无效的，下次又会去 Block住l.这里把线程设置为 DEAD，它就能结束线程生命周期了</span>
+          task.close();
+          <span class="hljs-comment">// 关闭一个 “--”一个</span>
+          initVal--;
+        &#125; <span class="hljs-keyword">else</span> &#123;
+          <span class="hljs-comment">// 如果没有关掉，就休息一下</span>
+          Thread.sleep(<span class="hljs-number">10</span>);
+        &#125;
+      &#125;
+    &#125;
+    <span class="hljs-comment">// 标识已经销毁</span>
+    <span class="hljs-keyword">this</span>.destroy = <span class="hljs-keyword">true</span>;
+    System.out.println(<span class="hljs-string">"线程池已处置。"</span>);
+  &#125;
+
+  <span class="hljs-comment">/** 提交任务 */</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">submit</span><span class="hljs-params">(Runnable runnable)</span> </span>&#123;
+    <span class="hljs-keyword">if</span> (destroy) &#123;
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> IllegalStateException(<span class="hljs-string">"线程池已经销毁，不允许添加任务!"</span>);
+    &#125;
+
+    <span class="hljs-keyword">synchronized</span> (TASK_QUEUE) &#123;
+      <span class="hljs-comment">// 如果超出任务限制，执行拒绝策略</span>
+      <span class="hljs-keyword">if</span> (TASK_QUEUE.size() &gt; queueSize) &#123;
+        discardPolicy.discard();
+      &#125;
+
+      TASK_QUEUE.addLast(runnable);
+      TASK_QUEUE.notifyAll();
+    &#125;
+  &#125;
+
+  <span class="hljs-comment">/** 状态 */</span>
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">enum</span> TaskSate &#123;
+    <span class="hljs-comment">/** 空闲 */</span>
+    FREE,
+    <span class="hljs-comment">/** 运行 */</span>
+    RUNNING,
+    <span class="hljs-comment">/** 阻塞 */</span>
+    BLOCKED,
+    <span class="hljs-comment">/** 挂 */</span>
+    DEAD
+  &#125;
+
+  <span class="hljs-comment">/** 拒接策略 */</span>
+  <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">DiscardPolicy</span> </span>&#123;
+    <span class="hljs-comment">/** 拒绝 */</span>
+    <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">discard</span><span class="hljs-params">()</span></span>;
+  &#125;
+
+  <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">DiscardException</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">RuntimeException</span> </span>&#123;
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">DiscardException</span><span class="hljs-params">(String message)</span> </span>&#123;
+      <span class="hljs-keyword">super</span>(message);
+    &#125;
+  &#125;
+
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">WorkTask</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Thread</span> </span>&#123;
+    <span class="hljs-comment">/** 线程状态 */</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">volatile</span> TaskSate taskSate = TaskSate.FREE;
+
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">WorkTask</span><span class="hljs-params">(ThreadGroup group, String name)</span> </span>&#123;
+      <span class="hljs-keyword">super</span>(group, name);
+    &#125;
+
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">close</span><span class="hljs-params">()</span> </span>&#123;
+      <span class="hljs-keyword">this</span>.taskSate = TaskSate.DEAD;
+    &#125;
+
+    <span class="hljs-function"><span class="hljs-keyword">public</span> TaskSate <span class="hljs-title">getTaskSate</span><span class="hljs-params">()</span> </span>&#123;
+      <span class="hljs-keyword">return</span> taskSate;
+    &#125;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;
+      OUTER:
+      <span class="hljs-keyword">while</span> (<span class="hljs-keyword">this</span>.taskSate != TaskSate.DEAD) &#123;
+        Runnable runnable;
+        <span class="hljs-keyword">synchronized</span> (TASK_QUEUE) &#123;
+          <span class="hljs-keyword">while</span> (TASK_QUEUE.isEmpty()) &#123;
+            <span class="hljs-keyword">try</span> &#123;
+              taskSate = TaskSate.BLOCKED;
+              TASK_QUEUE.wait();
+            &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
+              <span class="hljs-keyword">break</span> OUTER;
+            &#125;
+          &#125;
+          runnable = TASK_QUEUE.removeFirst();
+        &#125;
+
+        <span class="hljs-keyword">if</span> (runnable != <span class="hljs-keyword">null</span>) &#123;
+          taskSate = TaskSate.RUNNING;
+          runnable.run();
+          taskSate = TaskSate.FREE;
+        &#125;
+      &#125;
+    &#125;
+  &#125;
+&#125;</code></pre>
+
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter13;
+
+<span class="hljs-keyword">import</span> java.util.stream.IntStream;
+
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@author</span> Shui</span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@date</span> 2020/7/5 19:36</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SimpleThreadPoolTest</span> </span>&#123;
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> InterruptedException </span>&#123;
+    SimpleThreadPool simpleThreadPool =
+        <span class="hljs-keyword">new</span> SimpleThreadPool(<span class="hljs-number">6</span>, <span class="hljs-number">10</span>, SimpleThreadPool.DEFAULT_DISCARD_POLICY);
+    IntStream.range(<span class="hljs-number">0</span>, <span class="hljs-number">10</span>)
+        .forEach(
+            i -&gt;
+                simpleThreadPool.submit(
+                    () -&gt; &#123;
+                      System.out.println(Thread.currentThread().getName() + <span class="hljs-string">"执行中...,返回结果："</span> + i);
+                      <span class="hljs-keyword">try</span> &#123;
+                        Thread.sleep(<span class="hljs-number">100</span>);
+                      &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
+                        e.printStackTrace();
+                      &#125;
+                    &#125;));
+
+    Thread.sleep(<span class="hljs-number">10_000</span>);
+    simpleThreadPool.shutdown();
+    simpleThreadPool.submit(
+        () -&gt; System.out.println(<span class="hljs-string">"test"</span>));
+  &#125;
+&#125;</code></pre>
+
+<p class="note note-light">结果</p>
+
+<pre><code class="hljs angelscript">SIMPLE_THREAD_POOL<span class="hljs-number">-5</span>执行中...,返回结果：<span class="hljs-number">0</span>
+SIMPLE_THREAD_POOL<span class="hljs-number">-0</span>执行中...,返回结果：<span class="hljs-number">5</span>
+SIMPLE_THREAD_POOL<span class="hljs-number">-2</span>执行中...,返回结果：<span class="hljs-number">3</span>
+SIMPLE_THREAD_POOL<span class="hljs-number">-1</span>执行中...,返回结果：<span class="hljs-number">4</span>
+SIMPLE_THREAD_POOL<span class="hljs-number">-3</span>执行中...,返回结果：<span class="hljs-number">2</span>
+SIMPLE_THREAD_POOL<span class="hljs-number">-4</span>执行中...,返回结果：<span class="hljs-number">1</span>
+SIMPLE_THREAD_POOL<span class="hljs-number">-1</span>执行中...,返回结果：<span class="hljs-number">7</span>
+SIMPLE_THREAD_POOL<span class="hljs-number">-0</span>执行中...,返回结果：<span class="hljs-number">6</span>
+SIMPLE_THREAD_POOL<span class="hljs-number">-2</span>执行中...,返回结果：<span class="hljs-number">8</span>
+SIMPLE_THREAD_POOL<span class="hljs-number">-4</span>执行中...,返回结果：<span class="hljs-number">9</span>
+线程池已处置。
+Exception <span class="hljs-keyword">in</span> thread <span class="hljs-string">"main"</span> java.lang.IllegalStateException: 线程池已经销毁，不允许添加任务!
+	at com.shui.juc.chapter13.SimpleThreadPool.submit(SimpleThreadPool.java:<span class="hljs-number">112</span>)
+	at com.shui.juc.chapter13.SimpleThreadPoolTest.main(SimpleThreadPoolTest.java:<span class="hljs-number">28</span>)</code></pre>
+
+
+
+
+
+
+
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">Java多线程编程实战</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
+                    
+                  </div>
+                
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/juc-actualCombat-1-33.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">33.给线程池增加自动扩充线程数量，以及闲时自动回收的功能</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/juc-actualCombat-1-31.html">
+                        <span class="hidden-mobile">31.自定义个简单的线程池</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <div class="comments" id="comments">
+                
+                
+  <div id="vcomments"></div>
+  <script type="text/javascript">
+    function loadValine() {
+      addScript('https://cdn.staticfile.org/valine/1.4.14/Valine.min.js', function () {
+        new Valine({
+          el: "#vcomments",
+          app_id: "JPMGXNyXlKIYB5iXM45ajXMG-gzGzoHsz",
+          app_key: "vaINfnh4Actkae23R9dKOFbu",
+          placeholder: "说点什么",
+          path: window.location.pathname,
+          avatar: "retro",
+          meta: ["nick","mail","link"],
+          pageSize: "10",
+          lang: "zh-CN",
+          highlight: true,
+          recordIP: false,
+          serverURLs: "",
+        });
+      });
+    }
+    createObserver(loadValine, 'vcomments');
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://valine.js.org" target="_blank" rel="nofollow noopener noopener">comments
+      powered by Valine.</a></noscript>
+
+
+              </div>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+    <!-- APlayer 音乐播放器 -->
+    <div id="aplayer"></div>
+    <script defer src="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.js" ></script>
+<link  rel="stylesheet" href="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.css" />
+<script type="text/javascript">
+  var oldLoadAp = window.onload;
+  window.onload = function () {
+    oldLoadAp && oldLoadAp();
+
+    new APlayer({
+      container: document.getElementById('aplayer'),
+      fixed: true,
+      autoplay: 'false' === 'true',
+      loop: 'all',
+      order: 'random',
+      theme: '#b7daff',
+      preload: 'none',
+      audio: [{"name":"雨 因你而下，于你而止","artist":"Seto","url":"/music/1/index.m4a","cover":"/music/1/index.jpg"}]
+    });
+  }
+</script>
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "32.给线程池增加拒绝策略以及停止方法&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

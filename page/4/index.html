@@ -168,6 +168,107 @@
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/juc-actualCombat-1-4.html">4.采用多线程模拟银行排队叫号</a>
+
+      <a href="/juc-actualCombat-1-4.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>创建线程的方式有两种方法来创建一个新的执行线程。一是声明一个类是一类Thread。这类应重写类Thread的run方法。子类的一个实例可以被分配和启动。例如，一个线程计算素数大于规定值可以写成如下：
+class PrimeThread extends Thread &#123;
+        long minPrime;
+        PrimeThread(long minPrime) &#</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-06-17
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">Java多线程编程实战</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/juc-actualCombat-1-3.html">3.线程的生命周期以及start方法源码剖析</a>
+
+      <a href="/juc-actualCombat-1-3.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>线程的生命周期什么时候才是Thread当你实例化一个Thread：
+new Thread();
+
+如果在没有调用它的start之前，它其实不能称为Thread，只有start之后才能称为Thread，在它start之后是立刻返回的，在上一章的例子中Thread的run方法还没执行完，main就已经结束就是这个原因。
+
+声明周期基本状态
+一个线程必须经过好几种状态的切换，不管在JDK的并发包，线程其</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-06-15
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">Java多线程编程实战</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
       <a class="index-header" href="/juc-actualCombat-1-2.html">2.创建并启动线程</a>
 
       <a href="/juc-actualCombat-1-2.html" class="index-excerpt">
@@ -557,126 +658,11 @@ mcr.harbor.com/library/</div>
     </div>
   </div>
 
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/linux-2.html">【Linux】 Linux中的常见问题</a>
-
-      <a href="/linux-2.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>HTTP服务端口没有权限 系统启动 Nginx 后，报 [emerg] bind () to 0.0.0.0:XXXX failed (13: Permission denied) 错误的处理方式，分为两种：
-第一种：端口小于 1024 的情况：
-[emerg] bind() to 0.0.0.0:80 failed (13: Permission denied)
-
-原因是 1024 以下端口启动</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-02-10
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
-            
-              <a href="/categories/%E8%BF%90%E7%BB%B4/Linux/">Linux</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E9%9B%B6%E7%A2%8E/">零碎</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/nginx-3.html">【Nginx】 3.场景实践篇</a>
-
-      <a href="/nginx-3.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>Nginx作为静态资源web服务静态资源类型
- nginx可以作为静态服务，它能接收客户端静态资源的请求，像html、flv、jpg这些都是可以的，它能返回给客户端相应内容。这种方式经常会用在处理请求、动静分离的场景；
-静态资源类型：
-
-
-
-类型
-种类
-
-
-
-浏览器端渲染
-HTML、CSS、JS
-
-
-图片
-JPEG、GIF、PNG
-
-
-视频
-FLV、MPEG
-
-
-文件
-TXT、等任意下载文件
-
-
-</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-01-27
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
-            
-              <a href="/categories/%E8%BF%90%E7%BB%B4/Nginx/">Nginx</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
 
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <a class="extend prev" rel="prev" href="/page/3/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" href="/page/5/"><i class="iconfont icon-arrowright"></i></a>
+      <a class="extend prev" rel="prev" href="/page/3/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><a class="extend next" rel="next" href="/page/5/"><i class="iconfont icon-arrowright"></i></a>
     </span>
   </nav>
   

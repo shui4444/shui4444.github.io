@@ -168,6 +168,258 @@
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/juc-actualCombat-2-5.html">5.内存模型以及CPU缓存不一致问题的引入</a>
+
+      <a href="/juc-actualCombat-2-5.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>在上一章通过volatile修饰达到了程序预期的效果，但是把它换成多个线程还是有我问题，volatile并不能保证原子性，但是它能保证2个特点：可见性、有序性。
+
+链接
+</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-07-12
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">Java多线程编程实战</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/%E4%B8%AD%E9%98%B6%E7%9F%A5%E8%AF%86/">中阶知识</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/juc-actualCombat-2-4.html">4.一个解释volatile关键字作用最好的例子</a>
+
+      <a href="/juc-actualCombat-2-4.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>前言
+
+之前有去介绍《单例模式》，分了7个例子去介绍，然后怎么去让类又是单例又能够实现懒加载并且性能比较好，然后使用了Holder、枚举的方式，然后介绍了wait set的概念，在每一个对象Object在一个Monitor时候都会有一个wait set，wait set它主要存放一些Thread，然后用其它的线程去唤醒它，然后出来，wait set是一个比较虚的概念，可能在内存中也并没有给它划分一</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-07-12
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">Java多线程编程实战</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/%E4%B8%AD%E9%98%B6%E7%9F%A5%E8%AF%86/">中阶知识</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/juc-actualCombat-2-3.html">3.多线程的休息室WaitSet详细介绍与知识点</a>
+
+      <a href="/juc-actualCombat-2-3.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>前言在调用wait()的时候会有一个wait set的概念存在，它其实是一个虚的概念，因为从它里面拿不出任何东西，在内存结构里也没有，它确实是会去存放我们的线程。一些人把它称之为线程的休息室，就是让它休息起来，它里面一些容易让你在使用的过程中如果你进行深入思考的话肯东会产生一些疑问，在这个章节中就去介绍wait set
+
+wait()之后在哪里去唤醒当你的线程执行在同步语句块里面，它使用了 wai</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-07-12
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">Java多线程编程实战</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/%E4%B8%AD%E9%98%B6%E7%9F%A5%E8%AF%86/">中阶知识</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/juc-actualCombat-2-2.html">2.三种高效优雅的Singleton实现方式</a>
+
+      <a href="/juc-actualCombat-2-2.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>Double Check的问题对于上一章介绍的Double Check方式是有问题的，那就是重排序，这里需要通过volatile修饰，它不能保证原子性，它能保证内存的可见性：多个线程看见的数据是同一份。有序性：在C++里面，它告诉编译器不要去优化，它完成之后就代表它真正的完成了
+
+内部类单例package com.shui.juc.chapter1;
+
+/**
+ * 2020-07-12 12:2</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-07-12
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">Java多线程编程实战</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/%E4%B8%AD%E9%98%B6%E7%9F%A5%E8%AF%86/">中阶知识</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/juc-actualCombat-2-1.html">1.四种Singleton方式的优缺点在多线程情况下</a>
+
+      <a href="/juc-actualCombat-2-1.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>饿汉模式package com.shui.juc.chapter1;
+
+/**
+ * 2020/7/12 11:15
+ *
+ * @author Shui
+ */
+public class SingletonObject1 &#123;
+  public static final SingletonObject1 INSTANCE = new SingletonObject1();
+
+  priv</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-07-12
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">Java多线程编程实战</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/%E4%B8%AD%E9%98%B6%E7%9F%A5%E8%AF%86/">中阶知识</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
       <a class="index-header" href="/juc-actualCombat-1-33.html">33.给线程池增加自动扩充线程数量，以及闲时自动回收的功能</a>
 
       <a href="/juc-actualCombat-1-33.html" class="index-excerpt">
@@ -387,248 +639,6 @@ Thread和ThreadGroup</div>
             
           </div>
         
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/juc-actualCombat-1-28.html">28.如何捕获线程运行期间的异常</a>
-
-      <a href="/juc-actualCombat-1-28.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>捕获线程的异常
-当线程出现Exception时你的应用程序怎么知道它？从一个线程中是抛不出异常的，因为线程的逻辑单元是放在run()中的，它的那个签名是不允许抛出异常的，那你只有捕获这个异常，但是当在线程中出现RuntimeException，可能在计算什么东西的时候除以0了，很明显Exception会发生，发生这个线程肯能是挂了，但是也不会导致你的应用程序挂掉，线程挂了以后最多只能在log中排查</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-07-04
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">Java多线程编程实战</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
-            
-          </div>
-        
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/juc-actualCombat-1-27.html">27.如何给你的应用程序注入钩子程序</a>
-
-      <a href="/juc-actualCombat-1-27.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>这章介绍如何获取Exception,在线程的run()是不允许抛出异常的,它不抛异常线程死掉了你外面是不知道是什么情况的,那你需要怎么知道它发生的异常?如果你没有捕获到它可能就只是输出堆栈信息,你外部start()是拿不到异常的。
-
-在Centos中运行以下代码
-/**
- * @author Shui
- * @date 2020/7/4 8:52
- */
-public class ExitCapt</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-07-04
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">Java多线程编程实战</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
-            
-          </div>
-        
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/juc-actualCombat-1-26.html">26.如何实现一个自己的显式锁Lock</a>
-
-      <a href="/juc-actualCombat-1-26.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>synchronized在其它线程去获取锁的时候，如果它已经获取到了而且它工作时间非常长，调用者一直进入阻塞状态，你对它也打断不了，它也不能立即返回，调用者就一直没有事情做，然后就在那傻傻等着，即使有一个线程去打断它也是无济于事的，在这个章节介绍自定义锁。
-
-package com.shui.juc.chapter10;
-
-import java.util.Collection;
-
-/**
- * </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-07-02
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">Java多线程编程实战</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/juc-actualCombat-1-25.html">25.线程生产者消费者的综合实战结合Java8语法</a>
-
-      <a href="/juc-actualCombat-1-25.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>
-join()可以保证你的线程都执行结束之后在去执行main后面的代码，不记得了可以回顾下11章节。
-来说下案例：
-
-
-
-有这么一个需求：现在需要对三台服务器做信息统计，如果想尽快做完，那就要使用多线程去完成了，你可以创建3个线程去取三个服务器的信息，那么如果是10台服务器，你去创建10个线程是没有问题的，但是有100、1k台机器呢？这个时候如果去创建100、1k个线程是行不通的，现在的Linux</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-07-01
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">Java多线程编程实战</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/juc-actualCombat-1-24.html">24.wait和sleep的本质区别是什么，深入分析</a>
-
-      <a href="/juc-actualCombat-1-24.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>前言这章介绍wait与sleep的区别，它们两都捆让线程进入阻塞，但是它两之间有一个本质的区别
-
-
-sleep是Thread的方法；wait是Object的方法，就算是对象数组也有。
-sleep不会释放对象monitor的锁；但是wait会释放这个锁，并且把它加入到对象 monitor 队列里面去。
-使用sleep并不需要定义synchronized；但是你去使用wait你必须定义一个synchr</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-07-01
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">Java多线程编程实战</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
         
       </div>
     </div>

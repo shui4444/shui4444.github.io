@@ -168,6 +168,242 @@
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/redis-5.html">【 Redis-学习笔记 】 5.常见的持久化开发运维问题</a>
+
+      <a href="/redis-5.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>fork操作同步操作
+提交bgsave、bgrewriteaof命令时会执fork操作，fork操作只是做一个内存页的拷贝，而不是做一个内存的拷贝，所以在大部分情况下速度是非常快的，但是如果本身这个fork操作比较慢，或者说卡在某一个地方，那么它会卡在Redis的主线程；
+fork操作的执行时间和内存的量有关系，内存量越大内存页的数据也会较大，而且和机型有关，虚机、物理机还有略有不同，虚机就会慢一</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2019-10-17
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+            
+              <a href="/categories/%E8%BF%90%E7%BB%B4/Redis/">Redis</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/redis-4.html">【 Redis-学习笔记 】 4.持久化</a>
+
+      <a href="/redis-4.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>持久化的作用什么是持久化 持久化（Persistence），即把数据（如内存中的对象）保存到可永久保存的存储设备中（如磁盘）。持久化 Redis 所有数据保持在内存中，对数据的更新将异步地保存到磁盘上。 
+  
+持久化的实现方式快照方式持久化快照方式持久化就是在某时刻把所有数据进行完整备份。
+例：Mysql 的 Dump 方式、Redis 的 RDB 方式。
+写日志方式持久化写日志方式持久化就是把</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2019-10-17
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+            
+              <a href="/categories/%E8%BF%90%E7%BB%B4/Redis/">Redis</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/redis-3.html">【 Redis-学习笔记 】  3.瑞士军刀</a>
+
+      <a href="/redis-3.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>慢查询生命周期
+Redis是一个单线程，当有多个命令发送过来时，它是会进行排队的执行命令，执行完成之后返回一个结果给客户端，这边标题讲的是慢查询，在图上慢查询会出现在第三阶段
+
+慢查询是指执行命令所消耗的时间，注意：这里不包括排队、网络都不算；
+客户端超时不一定有慢查询，但慢查询是客户端超时的一个可能因素。
+
+两个配置slowlog-max-len
+慢查询是一个先进先出对列，假如我们一条命令在第三</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2019-10-17
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+            
+              <a href="/categories/%E8%BF%90%E7%BB%B4/Redis/">Redis</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/redis-2.html">【 Redis-学习笔记 】  2.客户端使用</a>
+
+      <a href="/redis-2.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>环境搭建创建一个maven工程，在pom.xml中加入依赖：
+&lt;dependency&gt;
+        &lt;groupId&gt;redis.clients&lt;/groupId&gt;
+        &lt;artifactId&gt;jedis&lt;/artifactId&gt;
+        &lt;version&gt;2.9.0&lt;/version&gt;
+ </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2019-10-17
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+            
+              <a href="/categories/%E8%BF%90%E7%BB%B4/Redis/">Redis</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/redis-1.html">【 Redis-学习笔记 】  1.基本使用</a>
+
+      <a href="/redis-1.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>快速使用安装cd /opt
+wget  http://download.redis.io/releases/redis-3.0.7.tar.gz
+tar -zxvf redis-3.0.7.tar.gz -C /usr/src
+cd /usr/src
+mv redis-3.0.7/ redis
+cd redis/
+make &amp;&amp; make install
+
+启动由于Redis是一个</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2019-10-17
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+            
+              <a href="/categories/%E8%BF%90%E7%BB%B4/Redis/">Redis</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
       <a class="index-header" href="/spring-security-6.4.html">【 六、RBAC 】 4.基于数据库Rbac数据模型控制权限</a>
 
       <a href="/spring-security-6.4.html" class="index-excerpt">
@@ -377,227 +613,6 @@ FilterSecurityInterceptor负责最终决定当前的请求是否能通过过滤�
 以上面流程图为例，来介绍一下工作流程：
 
 当请求发给应用A</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2019-10-15
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/SpringSecurity/">SpringSecurity</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/spring-security-5.8.html">【 五、OAuth 】 8.令牌配置</a>
-
-      <a href="/spring-security-5.8.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>前面为止，将自定义的3重认证方式都已经嫁接到认证服务器上了，通过自定义的认证方式我们可以出去发OAuth令牌，现在这个token它现在和生成和存储都是spring默认的机制来做的，但是这个默认的机制并不符合我们的需求，在这里笔者会带着大家来如何来定制token，定制它的生成和存储
-
-现在要做的事是token的处理，token的处理是在认证服务器去完成的，所以这里要做的事情
-基本的Token参数配置</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2019-10-15
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/SpringSecurity/">SpringSecurity</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/spring-security-5.7.html">【 五、OAuth 】 7.重构注册逻辑</a>
-
-      <a href="/spring-security-5.7.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>通过前面章节，已经将登录逻辑跑通了，但是这里需要在数据库中有这么一条记录的情况下才能获取令牌，如果数据库中是没记录的，它是如何处理的？之前浏览器社交登录它的注册流程处理讲过这块，之前通过ProviderSignInUtils进行读写操作，但是这个工具它是基于session的，在我们现在的app模块使用是行不通的，这里就需要进行改造，这里就使用redis来进行存储，这里的改造思路和前面的“重构短信登</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2019-10-15
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/SpringSecurity/">SpringSecurity</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/spring-security-5.6.html">【 五、OAuth 】 6.重构社交登录</a>
-
-      <a href="/spring-security-5.6.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>介绍之前做browser走的是一个标准的OAuth流程，但是现在在App的环境下，架构就变成了用户访问的硬赢是一个App，这时候用户在app中去到点击QQ登录，实际上它不是访问我们业务系统中的请求路径，而是一个服务提供商的SDK，这个SDK会引导用户完成授权流程，不同的服务商对于SDK它的实现是不一样的，选的授权模式也不一样的，一般情况下会有2种模式：
-（1）简化模式：SDK将用户导向认证服务器，</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2019-10-15
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/SpringSecurity/">SpringSecurity</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/spring-security-5.5.html">【 五、OAuth 】 5.重构短信登录</a>
-
-      <a href="/spring-security-5.5.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>
-app的短信验证码登录和browser的有所不同，就是现在在app模块中是不能使用session，那么就以为着生成的实际验证码无法存储起来，这里我们进行重构，将之前的session改为使用redis来进行存储，而在browser下面还是使用session存储。
-
-加入之前写好的过滤器和验证码配置， McrResourceServerConfig
-private SmsCodeAuthentica</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2019-10-15
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/SpringSecurity/">SpringSecurity</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/spring-security-5.4.html">【 五、OAuth 】 4.重构用户密码登录</a>
-
-      <a href="/spring-security-5.4.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>
-在我们的业务场景，自己写的登录流程，需要借助图中的代码的话，首先从TokenEndpoint到TokenGranter，这些代码是我们不能用的，这是发获取令牌的请求，而我们要发登录的请求，我们要用自己的过滤器去处理登录请求，一直到4种授权模式生成令牌这些逻辑我们都是不能用的。
-
-我们要用的是什么？我们要用的是是AuthorizationServerTokenServices，它来产生令牌，在哪里</div>
       </a>
 
       <div class="index-btm post-metas">

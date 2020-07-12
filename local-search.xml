@@ -4,6 +4,161 @@
   
   
   <entry>
+    <title>5.内存模型以及CPU缓存不一致问题的引入</title>
+    <link href="/juc-actualCombat-2-5.html"/>
+    <url>/juc-actualCombat-2-5.html</url>
+    
+    <content type="html"><![CDATA[<p class="note note-info">在上一章通过<code>volatile</code>修饰达到了程序预期的效果，但是把它换成多个线程还是有我问题，<code>volatile</code>并不能保证原子性，但是它能保证2个特点：可见性、有序性。</p><p><a href="https://blog.csdn.net/weixin_42868638/article/details/88561009" target="_blank" rel="noopener">链接</a></p>]]></content>
+    
+    
+    <categories>
+      
+      <category>后端</category>
+      
+      <category>JUC</category>
+      
+      <category>Java多线程编程实战</category>
+      
+      <category>中阶知识</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>学习</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>4.一个解释volatile关键字作用最好的例子</title>
+    <link href="/juc-actualCombat-2-4.html"/>
+    <url>/juc-actualCombat-2-4.html</url>
+    
+    <content type="html"><![CDATA[<p class="note note-primary">前言</p><p class="note note-info">之前有去介绍《单例模式》，分了7个例子去介绍，然后怎么去让类又是单例又能够实现懒加载并且性能比较好，然后使用了<code>Holder、枚举</code>的方式，然后介绍了<code>wait set</code>的概念，在每一个对象<code>Object</code>在一个<code>Monitor</code>时候都会有一个<code>wait set</code>，<code>wait set</code>它主要存放一些<code>Thread</code>，然后用其它的线程去唤醒它，然后出来，<code>wait set</code>是一个比较虚的概念，可能在内存中也并没有给它划分一个对列栈去存放东西。在这个章节去介绍一个<code>volatile</code></p><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter1;<span class="hljs-comment">/** <span class="hljs-doctag">@author</span> Shui */</span><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">VolatileTest</span> </span>&#123;  <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> MAX_LIMIT = <span class="hljs-number">5</span>;  <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">volatile</span> <span class="hljs-keyword">int</span> INIT_VALUE = <span class="hljs-number">0</span>;  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;    <span class="hljs-keyword">new</span> Thread(            () -&gt; &#123;              <span class="hljs-keyword">int</span> localVal = INIT_VALUE;              <span class="hljs-keyword">while</span> (localVal &lt; MAX_LIMIT) &#123;                <span class="hljs-keyword">if</span> (localVal != INIT_VALUE) &#123;                  System.out.printf(getName() + <span class="hljs-string">"值已更新为 [%d]\n"</span>, INIT_VALUE);                  localVal = INIT_VALUE;                &#125;              &#125;            &#125;,            <span class="hljs-string">"reader"</span>)        .start();    <span class="hljs-keyword">new</span> Thread(            () -&gt; &#123;              <span class="hljs-keyword">int</span> localVal = INIT_VALUE;              <span class="hljs-keyword">while</span> (INIT_VALUE &lt; MAX_LIMIT) &#123;                System.out.printf(getName() + <span class="hljs-string">"值已更新为 [%d]\n"</span>, ++localVal);                INIT_VALUE = localVal;                <span class="hljs-keyword">try</span> &#123;                  Thread.sleep(<span class="hljs-number">500</span>);                &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;                  e.printStackTrace();                &#125;              &#125;            &#125;,            <span class="hljs-string">"updater"</span>)        .start();  &#125;  <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> String <span class="hljs-title">getName</span><span class="hljs-params">()</span> </span>&#123;    <span class="hljs-keyword">return</span> Thread.currentThread().getName() + <span class="hljs-string">":"</span>;  &#125;&#125;</code></pre><p class="note note-light">结果</p><pre><code class="hljs angelscript">updater:值已更新为 [<span class="hljs-number">1</span>]reader:值已更新为 [<span class="hljs-number">1</span>]updater:值已更新为 [<span class="hljs-number">2</span>]reader:值已更新为 [<span class="hljs-number">2</span>]updater:值已更新为 [<span class="hljs-number">3</span>]reader:值已更新为 [<span class="hljs-number">3</span>]updater:值已更新为 [<span class="hljs-number">4</span>]reader:值已更新为 [<span class="hljs-number">4</span>]updater:值已更新为 [<span class="hljs-number">5</span>]reader:值已更新为 [<span class="hljs-number">5</span>]</code></pre><p class="note note-info">上面代码通过<code>volatile</code>2个线程之前能感知变化，如果去除<code>volatile</code></p><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> INIT_VALUE = <span class="hljs-number">0</span>;</code></pre><p class="note note-light">结果</p><pre><code class="hljs prolog">updater:值已更新为 [<span class="hljs-number">1</span>]updater:值已更新为 [<span class="hljs-number">2</span>]updater:值已更新为 [<span class="hljs-number">3</span>]updater:值已更新为 [<span class="hljs-number">4</span>]updater:值已更新为 [<span class="hljs-number">5</span>]...</code></pre><p class="note note-info">这是什么原因？在<code>reader</code>这个线程看来<code>INIT_VALUE</code>它一直是0,而里面的<code>localVal</code>也是0，所以变成了死循环</p>]]></content>
+    
+    
+    <categories>
+      
+      <category>后端</category>
+      
+      <category>JUC</category>
+      
+      <category>Java多线程编程实战</category>
+      
+      <category>中阶知识</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>学习</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>3.多线程的休息室WaitSet详细介绍与知识点</title>
+    <link href="/juc-actualCombat-2-3.html"/>
+    <url>/juc-actualCombat-2-3.html</url>
+    
+    <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><p class="note note-primary">前言</p></h1><p class="note note-info">在调用<code>wait()</code>的时候会有一个<code>wait set</code>的概念存在，它其实是一个虚的概念，因为从它里面拿不出任何东西，在内存结构里也没有，它确实是会去存放我们的线程。一些人把它称之为线程的休息室，就是让它休息起来，它里面一些容易让你在使用的过程中如果你进行深入思考的话肯东会产生一些疑问，在这个章节中就去介绍<code>wait set</code></p><h1 id="wait-之后在哪里去唤醒"><a href="#wait-之后在哪里去唤醒" class="headerlink" title="wait()之后在哪里去唤醒"></a><p class="note note-primary">wait()之后在哪里去唤醒</p></h1><p>当你的线程执行在同步语句块里面，它使用了 <code>wait()</code>，这个时候CPU就放弃了CPU的执行权，它与<code>sleep(long)</code>的区别在于：</p><ol><li>sleep：抓着锁不去释放。</li><li>wait：把锁释放，它把锁释放了，那它block在哪里？</li></ol><h1 id="唤醒之后怎么出来？"><a href="#唤醒之后怎么出来？" class="headerlink" title="唤醒之后怎么出来？"></a><p class="note note-primary">唤醒之后怎么出来？</p></h1><pre><code class="hljs java"> <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">WaitSetDemo</span> </span>&#123;  <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> Object LOCK = <span class="hljs-keyword">new</span> Object();  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;    IntStream.rangeClosed(<span class="hljs-number">1</span>, <span class="hljs-number">10</span>)        .forEach(            i -&gt; &#123;              <span class="hljs-keyword">new</span> Thread(                  () -&gt; &#123;                    <span class="hljs-keyword">synchronized</span> (LOCK) &#123;                      <span class="hljs-keyword">try</span> &#123;                        System.out.println(Thread.currentThread().getName() + <span class="hljs-string">"将等待设置。"</span>);                        LOCK.wait();                        System.out.println(Thread.currentThread().getName() + <span class="hljs-string">"将离开等待设置。"</span>);                      &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;                        e.printStackTrace();                      &#125;                    &#125;                  &#125;,                  String.valueOf(i)).start();            &#125;);  &#125;&#125;</code></pre><p class="note note-info">来看下Object#wait(long timeout)注释的介绍：</p><pre><code class="hljs r">此方法导致当前线程（称之为<span class="hljs-literal">T</span>）将自身此对象的等待集中<span class="hljs-keyword">...</span></code></pre><p class="note note-info">理解就是说这个线程它会把自己放到<code>wait set</code>里面去，这里的<code>LOCK</code>就是一个普通对象，言外之意我们这些对象是不是都有一个<code>wait set</code>?可以这么理解。接着在看注释</p><pre><code class="hljs erlang">线程t出于线程调度目的，禁用并一直处于休眠（谎言休眠）状态的四两件事发生对象：...</code></pre><p class="note note-info">通过这段信息的描述发现一个问题，它其实在所有的对象都会有一个<code>wait set</code>这样的概念，这个是一个虚的概念，靠你的JVM去实现，你也可以在内存画一部分东西，也可以没有，也可以是其它的方式，总之你要把这个东西加进去，这个是在JVM规范中没有明确的，JVM虚拟机有很多厂家的，Sun、Orcale、Google...，JVM有很多规范告诉你达到一个效果是什么，但是你具体实现各各JVM可以自己去玩了，有些规范严格要求，一些规范只要最终效果达到就OK。在<code>wait set</code>它没有严格的规范。<br/>回到WaitSetDemo的代码，<code>LOCK.wait();</code>怎么去唤醒它？——必须通过<code>notify、notifyAll</code>去唤醒，甚至你可以去中断这个线程，或者里面加参数自己运行结束中断。<br/>在main方法中一个个唤醒</p><pre><code class="hljs java">TimeUnit.SECONDS.sleep(<span class="hljs-number">3</span>);IntStream.rangeClosed(<span class="hljs-number">1</span>, <span class="hljs-number">10</span>)      .forEach(          i -&gt; &#123;            <span class="hljs-keyword">synchronized</span> (LOCK) &#123;              LOCK.notify();              <span class="hljs-keyword">try</span> &#123;                TimeUnit.SECONDS.sleep(<span class="hljs-number">1</span>);              &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;                e.printStackTrace();              &#125;            &#125;          &#125;);</code></pre><p class="note note-light">结果</p><pre><code class="hljs angelscript"><span class="hljs-number">1</span>将等待设置。<span class="hljs-number">7</span>将等待设置。<span class="hljs-number">8</span>将等待设置。<span class="hljs-number">6</span>将等待设置。<span class="hljs-number">10</span>将等待设置。<span class="hljs-number">5</span>将等待设置。<span class="hljs-number">4</span>将等待设置。<span class="hljs-number">3</span>将等待设置。<span class="hljs-number">2</span>将等待设置。<span class="hljs-number">9</span>将等待设置。<span class="hljs-number">1</span>将离开等待设置。<span class="hljs-number">3</span>将离开等待设置。<span class="hljs-number">4</span>将离开等待设置。<span class="hljs-number">5</span>将离开等待设置。<span class="hljs-number">10</span>将离开等待设置。<span class="hljs-number">6</span>将离开等待设置。<span class="hljs-number">8</span>将离开等待设置。<span class="hljs-number">7</span>将离开等待设置。<span class="hljs-number">9</span>将离开等待设置。<span class="hljs-number">2</span>将离开等待设置。</code></pre><p class="note note-primary">wait之后从哪里开始</p><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">work</span><span class="hljs-params">()</span> </span>&#123;  <span class="hljs-keyword">synchronized</span> (LOCK) &#123;    System.out.println(<span class="hljs-string">"开始..."</span>);    <span class="hljs-keyword">try</span> &#123;      System.out.println(<span class="hljs-string">"线程将到"</span>);      LOCK.wait();    &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;      e.printStackTrace();    &#125;    System.out.println(<span class="hljs-string">"线程将退出"</span>);  &#125;&#125;</code></pre><p class="note note-info">对于上面的代码，<code>wait()</code>之后加到<code>wait set</code>中是肯定的，与此同时会去释放任意<code>synchronized</code>的权限，在下次被唤醒之后你要重新去拿这个锁，那就有疑问了，那被唤醒之后起来的时候是不是又要在<code>synchronized (LOCK)</code>拿这个锁，那会不会在去执行<code>System.out.println("开始...");</code>这段代码？</p><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> InterruptedException </span>&#123;    <span class="hljs-keyword">new</span> Thread(WaitSetDemo2::work).start();    Thread.sleep(<span class="hljs-number">10_000</span>);    <span class="hljs-keyword">synchronized</span> (LOCK) &#123;      LOCK.notify();    &#125;  &#125;</code></pre><p class="note note-light">结果</p><pre><code class="hljs erlang">开始...线程将到线程将退出</code></pre><p class="note note-info">对于<code>LOCK.wait()</code>之后确实是要去抢锁的，但是你执行代码的位置是有记录的，下次执行的时候有个地址恢复，继续往下走。</p><h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a><p class="note note-primary">总结</p></h1><ol><li>所有的对象都会有一个wait set用来存放调用了该对象<code>wait()</code>之后进入block状态的线程</li><li>线程被<code>notify</code>之后，不一定立即得到执行——你之所以<code>notify</code>你必须抢到锁</li><li>线程从<code>wait set</code>中被唤醒顺序不一定是FIFO（先进先出）</li><li>线程被唤醒后，必须重新获取锁</li></ol>]]></content>
+    
+    
+    <categories>
+      
+      <category>后端</category>
+      
+      <category>JUC</category>
+      
+      <category>Java多线程编程实战</category>
+      
+      <category>中阶知识</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>学习</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>2.三种高效优雅的Singleton实现方式</title>
+    <link href="/juc-actualCombat-2-2.html"/>
+    <url>/juc-actualCombat-2-2.html</url>
+    
+    <content type="html"><![CDATA[<h1 id="Double-Check的问题"><a href="#Double-Check的问题" class="headerlink" title="Double Check的问题"></a><p class="note note-primary">Double Check的问题</p></h1><p class="note note-info">对于上一章介绍的<code>Double Check</code>方式是有问题的，那就是<a href="http://ifeve.com/jvm-reordering/" target="_blank" rel="noopener">重排序</a>，这里需要通过<code>volatile</code>修饰，它不能保证原子性，它能保证内存的可见性：多个线程看见的数据是同一份。有序性：在C++里面，它告诉编译器不要去优化，它完成之后就代表它真正的完成了</p><h1 id="内部类单例"><a href="#内部类单例" class="headerlink" title="内部类单例"></a><p class="note note-primary">内部类单例</p></h1><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter1;<span class="hljs-comment">/**</span><span class="hljs-comment"> * 2020-07-12 12:28:29&lt;br&gt;</span><span class="hljs-comment"> * 类的加载分几个阶段：类的装载、读Class文件，链接：没有赋初始值的赋值&lt;code&gt;static&lt;/code&gt;的去初始化, &lt;br&gt;</span><span class="hljs-comment"> * &lt;code&gt;static&lt;/code&gt; 还有一个特性，它在JVM只会运行一次，而且它能严格的保证线程执行的顺序，它不可能会被创建2个，在去调用&lt;code&gt;InstanceHolder</span><span class="hljs-comment"> * &lt;/code&gt;的时候它会主动加载，</span><span class="hljs-comment"> *</span><span class="hljs-comment"> * <span class="hljs-doctag">@author</span> Shui</span><span class="hljs-comment"> */</span><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SingletonObject6</span> </span>&#123;  <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-title">SingletonObject6</span><span class="hljs-params">()</span> </span>&#123;&#125;  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">synchronized</span> SingletonObject6 <span class="hljs-title">getInstance</span><span class="hljs-params">()</span> </span>&#123;    <span class="hljs-keyword">return</span> InstanceHolder.INSTANCE;  &#125;  <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">InstanceHolder</span> </span>&#123;    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">volatile</span> SingletonObject6 INSTANCE = <span class="hljs-keyword">new</span> SingletonObject6();  &#125;&#125;</code></pre><h1 id="枚举单例"><a href="#枚举单例" class="headerlink" title="枚举单例"></a><p class="note note-primary">枚举单例</p></h1><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter1;<span class="hljs-comment">/**</span><span class="hljs-comment"> * 2020-07-12 12:28:29&lt;br&gt;</span><span class="hljs-comment"> * 类的加载分几个阶段：类的装载、读Class文件，链接：没有赋初始值的赋值&lt;code&gt;static&lt;/code&gt;的去初始化, &lt;br&gt;</span><span class="hljs-comment"> * &lt;code&gt;static&lt;/code&gt; 还有一个特性，它在JVM只会运行一次，而且它能严格的保证线程执行的顺序，它不可能会被创建2个，在去调用&lt;code&gt;InstanceHolder</span><span class="hljs-comment"> * &lt;/code&gt;的时候它会主动加载，</span><span class="hljs-comment"> *</span><span class="hljs-comment"> * <span class="hljs-doctag">@author</span> Shui</span><span class="hljs-comment"> */</span><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SingletonObject7</span> </span>&#123;  <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-title">SingletonObject7</span><span class="hljs-params">()</span> </span>&#123;&#125;  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> SingletonObject7 <span class="hljs-title">getInstance</span><span class="hljs-params">()</span> </span>&#123;    <span class="hljs-keyword">return</span> Singleton.INSTANCE.getInstance();  &#125;  <span class="hljs-keyword">private</span> <span class="hljs-keyword">enum</span> Singleton &#123;    INSTANCE;    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> SingletonObject7 instance;    <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-title">Singleton</span><span class="hljs-params">()</span> </span>&#123;      instance = <span class="hljs-keyword">new</span> SingletonObject7();    &#125;    <span class="hljs-function"><span class="hljs-keyword">public</span> SingletonObject7 <span class="hljs-title">getInstance</span><span class="hljs-params">()</span> </span>&#123;      <span class="hljs-keyword">return</span> instance;    &#125;  &#125;&#125;</code></pre>]]></content>
+    
+    
+    <categories>
+      
+      <category>后端</category>
+      
+      <category>JUC</category>
+      
+      <category>Java多线程编程实战</category>
+      
+      <category>中阶知识</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>学习</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>1.四种Singleton方式的优缺点在多线程情况下</title>
+    <link href="/juc-actualCombat-2-1.html"/>
+    <url>/juc-actualCombat-2-1.html</url>
+    
+    <content type="html"><![CDATA[<h1 id="饿汉模式"><a href="#饿汉模式" class="headerlink" title="饿汉模式"></a><p class="note note-primary">饿汉模式</p></h1><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter1;<span class="hljs-comment">/**</span><span class="hljs-comment"> * 2020/7/12 11:15</span><span class="hljs-comment"> *</span><span class="hljs-comment"> * <span class="hljs-doctag">@author</span> Shui</span><span class="hljs-comment"> */</span><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SingletonObject1</span> </span>&#123;  <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> SingletonObject1 INSTANCE = <span class="hljs-keyword">new</span> SingletonObject1();  <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-title">SingletonObject1</span><span class="hljs-params">()</span> </span>&#123;&#125;  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> SingletonObject1 <span class="hljs-title">getInstance</span><span class="hljs-params">()</span> </span>&#123;    <span class="hljs-keyword">return</span> INSTANCE;  &#125;&#125;</code></pre><p class="note note-info">这种方式会在程序加载的时候跟着加载，对于有些时候它并不一定会用上，这就浪费了程序的内存了，所以懒汉模式只适合在程序一定会去使用的时候应用，对于不一定使用的场景，懒汉模式就比这种好很多</p><h1 id="懒汉模式"><a href="#懒汉模式" class="headerlink" title="懒汉模式"></a><p class="note note-primary">懒汉模式</p></h1><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter1;<span class="hljs-keyword">import</span> java.util.concurrent.TimeUnit;<span class="hljs-keyword">import</span> java.util.stream.IntStream;<span class="hljs-comment">/**</span><span class="hljs-comment"> * 2020/7/12 11:20</span><span class="hljs-comment"> *</span><span class="hljs-comment"> * <span class="hljs-doctag">@author</span> Shui</span><span class="hljs-comment"> */</span><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SingletonObject2</span> </span>&#123;  <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> SingletonObject2 INSTANCE;  <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-title">SingletonObject2</span><span class="hljs-params">()</span> </span>&#123;    <span class="hljs-keyword">try</span> &#123;      <span class="hljs-comment">// 模拟创建类需要消耗的时间</span>      TimeUnit.SECONDS.sleep(<span class="hljs-number">1</span>);    &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;      e.printStackTrace();    &#125;  &#125;  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;    SingletonObject2 singletonObject2 = <span class="hljs-keyword">new</span> SingletonObject2();    IntStream.range(<span class="hljs-number">0</span>, <span class="hljs-number">2</span>)        .forEach(            item -&gt; &#123;              <span class="hljs-keyword">new</span> Thread(                  () -&gt; &#123;                    SingletonObject2 instance = getInstance();                    System.out.println(instance);                  &#125;).start();            &#125;);  &#125;  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> SingletonObject2 <span class="hljs-title">getInstance</span><span class="hljs-params">()</span> </span>&#123;    <span class="hljs-keyword">if</span> (INSTANCE == <span class="hljs-keyword">null</span>) &#123;      INSTANCE = <span class="hljs-keyword">new</span> SingletonObject2();    &#125;    <span class="hljs-keyword">return</span> INSTANCE;  &#125;&#125;</code></pre><p class="note note-light">结果</p><pre><code class="hljs stylus">com<span class="hljs-selector-class">.shui</span><span class="hljs-selector-class">.juc</span><span class="hljs-selector-class">.chapter1</span>.SingletonObject2@<span class="hljs-number">73</span>f23f0ecom<span class="hljs-selector-class">.shui</span><span class="hljs-selector-class">.juc</span><span class="hljs-selector-class">.chapter1</span>.SingletonObject2@<span class="hljs-number">7</span>af2da85</code></pre><p class="note note-info">上面结果看出，它在多线程的情况下是不安全的，这个可以通过下面方式解决</p><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">synchronized</span> SingletonObject2 <span class="hljs-title">getInstance</span><span class="hljs-params">()</span> </span>&#123;   <span class="hljs-keyword">if</span> (INSTANCE == <span class="hljs-keyword">null</span>) &#123;     INSTANCE = <span class="hljs-keyword">new</span> SingletonObject2();   &#125;   <span class="hljs-keyword">return</span> INSTANCE; &#125;</code></pre><p class="note note-info">这样是可以解决问题，不过性能会有所影响，它会使得线程在执行这一部变成串行的，这里可以使用<code>DoubleCheck（双重检查）的方式</code></p><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">synchronized</span> SingletonObject2 <span class="hljs-title">getInstance</span><span class="hljs-params">()</span> </span>&#123;    <span class="hljs-keyword">if</span> (INSTANCE == <span class="hljs-keyword">null</span>) &#123;      <span class="hljs-keyword">synchronized</span> (SingletonObject2<span class="hljs-class">.<span class="hljs-keyword">class</span>) </span>&#123;        <span class="hljs-keyword">if</span> (INSTANCE == <span class="hljs-keyword">null</span>) &#123;          INSTANCE = <span class="hljs-keyword">new</span> SingletonObject2();        &#125;      &#125;    &#125;    <span class="hljs-keyword">return</span> INSTANCE;  &#125;</code></pre>]]></content>
+    
+    
+    <categories>
+      
+      <category>后端</category>
+      
+      <category>JUC</category>
+      
+      <category>Java多线程编程实战</category>
+      
+      <category>中阶知识</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>学习</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>33.给线程池增加自动扩充线程数量，以及闲时自动回收的功能</title>
     <link href="/juc-actualCombat-1-33.html"/>
     <url>/juc-actualCombat-1-33.html</url>

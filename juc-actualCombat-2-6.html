@@ -17,7 +17,7 @@
   <meta name="description" content="">
   <meta name="author" content="Shui">
   <meta name="keywords" content="">
-  <title>5.内存模型以及CPU缓存不一致问题的引入 - Shui&#39;s Blog</title>
+  <title>6.CPU以及CPU缓存的结构，解决高速缓存一致性问题的两种方案介绍 - Shui&#39;s Blog</title>
 
   <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
 
@@ -152,8 +152,8 @@
               
   <div class="mt-3 post-meta">
     <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-    <time datetime="2020-07-12 19:25">
-      2020年7月12日 晚上
+    <time datetime="2020-07-13 19:40">
+      2020年7月13日 晚上
     </time>
   </div>
 
@@ -163,7 +163,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      845 字
+      1.2k 字
     </span>
   
 
@@ -173,7 +173,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      11
+      14
        分钟
     </span>
   
@@ -204,38 +204,39 @@
           <div class="post-content mx-auto" id="post">
             
             <article class="markdown-body">
-              <p class="note note-info">在上一章通过<code>volatile</code>修饰达到了程序预期的效果，但是把它换成多个线程还是有我问题，<code>volatile</code>并不能保证原子性，但是它能保证2个特点：可见性、有序性。</p>
+              <p class="note note-info">由于内存Cache的出现，它是帮我们解决问题，可以加快CPU速度，因为CPU都跟主内存去要的话是比较慢的，有些时候它从Cache里去要数据它要快一些，并且这个Cache又分了3个级：L1、L2、L3，离CPU计较近的Cache又分了一个：LD：数据级的Cache、LI，指令级的Cache，越近是越快的，越远的稍微慢一点，但是还是比主内存好一些，但是引入了Cache之后又引入了缓存不一致的问题，这个问题是在应用过程中很严重很严重的事情，如果你想去解决它加个锁就可以了，但是加了锁的效率是比较低的，但实际上这个锁在JVM的版本更新对它的改进很大，它的性能不比显示锁要慢多少，它们差不多。<br/>
+当程序在执行的过程中，会将你运算的数据会在主从当中复制一份到CPU高速缓存当中去，也就是说CPU直接在高速缓存中读取数据，越算之后在将高速缓存的数据刷新到主内存中去，这个是缓存与主内存交互的问题，上一章出现的问题得到了解释。</p>
+
+<pre><code class="hljs java"><span class="hljs-keyword">new</span> Thread(
+            () -&gt; &#123;
+              <span class="hljs-keyword">int</span> localVal = INIT_VALUE;
+              <span class="hljs-keyword">while</span> (localVal &lt; MAX_LIMIT) &#123;
+                <span class="hljs-keyword">if</span> (localVal != INIT_VALUE) &#123;
+                  System.out.printf(getName() + <span class="hljs-string">"值已更新为 [%d]\n"</span>, INIT_VALUE);
+                  localVal = INIT_VALUE;
+                &#125;
+              &#125;
+            &#125;,
+            <span class="hljs-string">"reader"</span>)</code></pre>
+
+<p class="note note-info">由于它这里是只读的，所以不会去主内存中拿数据</p>
 
 <hr>
-<p class="note note-info">在计算机里面程序所有的运算都是在CPU寄存器。内存有2部分：</p>
-1. RAM：（Random access memory）程序通常把内存当做这个RAM去做
-2. ROM：只读，系统加载起来供系统去用的，以后不能去更改它，写程序的时候不会去用到它的，做嵌入式的人可能会用到比如说系统初始化去加载
+<pre><code class="hljs java">
+<span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> MAX_LIMIT = <span class="hljs-number">50</span>;
+<span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> INIT_VALUE = <span class="hljs-number">0</span>;
 
-<p class="note note-info">程序所有的计算都是通过CPU寄存器去做，它会发送汇编指令：MOV、JMP、ADD...<br/>
-JAVA基本内存模型如下：
-</p>
-
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/2/image-20200713072652854.png" srcset="/img/loading.gif" alt="image-20200713072652854"></p>
-<center>图1</center>
-
-<hr>
-<p class="note note-info">它在发送指令会去从自己对用的缓存中拿数据，主要目的就是为了提高程序效率和速度，但是这就会导致上一章出现的问题，就是说你第一个线程拿到这个<code>INIT_VALUE</code>把它存到了第一个线程的Cache里面去了，第二个线程拿到之后也会存到Cache里面去，这就导致修改的时候只会修改当前线程的Cache，所有就会死循环，<code>localValue</code/>和<code>INIT_VALUE</code>永远是相等的，因为它没有更新。<br/>
-这里还有一个问题：这边的变量一直要到Cache中拿吗？没有一个超时时间，一次都不拿吗？</p>
-
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/2/image-20200713073421233.png" srcset="/img/loading.gif" alt="image-20200713073421233"></p>
-<p class="note note-info">用代码测试一下</p>
-
-<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter3;
-
-<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">VolatileTest2</span> </span>&#123;
-  <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> MAX_LIMIT = <span class="hljs-number">50</span>;
-  <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> INIT_VALUE = <span class="hljs-number">0</span>;
-
-  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;
+<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;
     <span class="hljs-keyword">new</span> Thread(
             () -&gt; &#123;
               <span class="hljs-keyword">while</span> (INIT_VALUE &lt; MAX_LIMIT) &#123;
                 System.out.println(getName() + (++INIT_VALUE));
+
+                <span class="hljs-keyword">try</span> &#123;
+                  Thread.sleep(<span class="hljs-number">100</span>);
+                &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
+                  e.printStackTrace();
+                &#125;
               &#125;
             &#125;,
             <span class="hljs-string">"add-1"</span>)
@@ -244,91 +245,43 @@ JAVA基本内存模型如下：
             () -&gt; &#123;
               <span class="hljs-keyword">while</span> (INIT_VALUE &lt; MAX_LIMIT) &#123;
                 System.out.println(getName() + (++INIT_VALUE));
+                <span class="hljs-keyword">try</span> &#123;
+                  Thread.sleep(<span class="hljs-number">100</span>);
+                &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
+                  e.printStackTrace();
+                &#125;
               &#125;
             &#125;,
             <span class="hljs-string">"add-2"</span>)
         .start();
-  &#125;
+  &#125;</code></pre>
 
-  <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> String <span class="hljs-title">getName</span><span class="hljs-params">()</span> </span>&#123;
-    <span class="hljs-keyword">return</span> Thread.currentThread().getName() + <span class="hljs-string">":"</span>;
-  &#125;
-&#125;</code></pre>
+<p class="note note-info">在这里为什么不会2个线程都遍历50次？原因是2个线程都有修改的操作，它会刷新回主内存，以下面代码为例：</p>
 
-<p class="note note-light">结果</p>
+<pre><code class="hljs java">i=i+<span class="hljs-number">1</span>;</code></pre>
 
-<pre><code class="hljs angelscript">add<span class="hljs-number">-1</span>:<span class="hljs-number">1</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">2</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">4</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">5</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">6</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">7</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">8</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">9</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">10</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">11</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">12</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">13</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">14</span>
-add<span class="hljs-number">-1</span>:<span class="hljs-number">3</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">15</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">17</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">18</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">19</span>
-add<span class="hljs-number">-1</span>:<span class="hljs-number">16</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">20</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">22</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">23</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">24</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">25</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">26</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">27</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">28</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">29</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">30</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">31</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">32</span>
-add<span class="hljs-number">-1</span>:<span class="hljs-number">21</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">33</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">35</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">36</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">37</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">38</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">39</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">40</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">41</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">42</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">43</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">44</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">45</span>
-add<span class="hljs-number">-1</span>:<span class="hljs-number">34</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">46</span>
-add<span class="hljs-number">-1</span>:<span class="hljs-number">47</span>
-add<span class="hljs-number">-1</span>:<span class="hljs-number">49</span>
-add<span class="hljs-number">-2</span>:<span class="hljs-number">48</span>
-add<span class="hljs-number">-1</span>:<span class="hljs-number">50</span></code></pre>
+<pre><code class="hljs xl"><span class="hljs-number">1</span>=<span class="hljs-number">1</span>;
+<span class="hljs-number">1</span>=i+<span class="hljs-number">1</span>;
+    <span class="hljs-function"><span class="hljs-title">main</span> memory -&gt;</span> <span class="hljs-function"><span class="hljs-title">i</span> -&gt;</span> <span class="hljs-function"><span class="hljs-title">cache</span> i+1 -&gt;</span> <span class="hljs-function"><span class="hljs-title">cache</span>(2) -&gt;</span> main memory(<span class="hljs-number">2</span>)
+    <span class="hljs-function"><span class="hljs-title">main</span> memory -&gt;</span> <span class="hljs-function"><span class="hljs-title">i</span> -&gt;</span> <span class="hljs-function"><span class="hljs-title">cache</span> i+1 -&gt;</span> <span class="hljs-function"><span class="hljs-title">cache</span>(2) -&gt;</span> main memory(<span class="hljs-number">2</span>)</code></pre>
 
-<p class="note note-info">从结果看到它并没有2个线程都到50，也就是说它会在主内存中拿一次数据，线程执行的过程中,CPU还是会帮它拿数据，它的东西也会更新到主内存，但是为什么上一章的案例没有呢？</p>
+<p class="note note-info">
+当线程执行在这里的时候，它先从主内存获取数据，获取i的值放到缓存里面，然后在执行CPU的指令对i加1，在把它写回到Cache里面去，在由Cache把它刷回到主内存中去。<br/>
+这段代码在单线程中是没有任何问题的，但是在多核CPU或者多线程的情况下执行的时候就会有问题，比如第2个线程执行它的时候：读取主内存i的值，i放入Cache里面去，这个时候线程1读过来将它从1变为了2，但这个时候对于线程2来说并不知道，所以它读到的值是1，修改之后又变成了2，理论上应该要变成3才对。<br/>
+为了解决缓存不一致的问题有2种方法：
+</p>
 
-<pre><code class="hljs java"><span class="hljs-keyword">new</span> Thread(
-           () -&gt; &#123;
-             <span class="hljs-keyword">int</span> localVal = INIT_VALUE;
-             <span class="hljs-keyword">while</span> (localVal &lt; MAX_LIMIT) &#123;
-               <span class="hljs-keyword">if</span> (localVal != INIT_VALUE) &#123;
-                 System.out.printf(getName() + <span class="hljs-string">"值已更新为 [%d]\n"</span>, INIT_VALUE);
-                 localVal = INIT_VALUE;
-               &#125;
-             &#125;
-           &#125;,
-           <span class="hljs-string">"reader"</span>)
-       .start();</code></pre>
+<ol>
+<li>给数据总线加锁。CPU和所有的设备通讯通过总线的方式通讯， 总线分为：（数据总线、地址总线、控制总线），它和硬件通讯的时候都要通过中线去通讯，当然内存也是一个硬件设备，所以它也是通过总线通讯的，如果它对总线加了锁话：一个CPU它对总线加了锁其它CPU是不能对它进行访问，从而只有一个CPU能访问这个变量的值，抢到锁的线程会在执行完修改操作的时候，程序结束之后把锁释放掉，那其它线程抢到锁去主内存拿的时候就能拿到上一个线程改变之后的值。这里又有一个问题：CPU速度慢。</li>
+<li>缓存一致性协议，这个是非常常用的方式，它比较轻量级，它像数据库中的：脏读、幻读，上面的方案像串行读，我有一个事务去操作它其它事务都不能操作它，这边就不是串行读，它里面也会引起一些问题，但是它是比较好的解决方法，既提高了效率又一定程度保证一致性，这个是由Intel提出的MESI：保证每个缓存使用的共享变量的副本，CPU拿到数据放到Cache中来，在多个线程的Cache要完全一致，它就保证了Cache是一样的。</li>
+</ol>
+<p class="note note-light">缓存一致性协议核心思想:</p>
 
-<p class="note note-info">这里面除了有 图-1 中说的内存模型搞的鬼之外还有一个Java搞的鬼，它给我们做了优化，它给我们自作多情不友好的优化，它感觉到这个东西在线程里面没有任何写的操作，它就认为它不需要去主内存进行更新，它就直接在Cache中拿就OK了，另外一个线程因为里面有写的操作，所以它会更新主内存</p>
-
-
-
-
-<p><a href="https://blog.csdn.net/weixin_42868638/article/details/88561009" target="_blank" rel="noopener">链接</a></p>
+<ol>
+<li>当CPU写入数据的时候，如果发现该变量被内存共享（也就是说，在其它CPU中也存在该变量副本），会发出一个信号，通知其它CPU该变量的缓存无效</li>
+<li>当其它CPU访问该变量重新到主内存进行获取</li>
+</ol>
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/2/image-20200713204000115.png" srcset="/img/loading.gif" alt="image-20200713204000115"></p>
 
             </article>
             <hr>
@@ -365,18 +318,12 @@ add<span class="hljs-number">-1</span>:<span class="hljs-number">50</span></code
                   <div class="post-prev col-6">
                     
                     
-                      <a href="/juc-actualCombat-2-6.html">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">6.CPU以及CPU缓存的结构，解决高速缓存一致性问题的两种方案介绍</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </div>
                   <div class="post-next col-6">
                     
                     
-                      <a href="/juc-actualCombat-2-4.html">
-                        <span class="hidden-mobile">4.一个解释volatile关键字作用最好的例子</span>
+                      <a href="/juc-actualCombat-2-5.html">
+                        <span class="hidden-mobile">5.内存模型以及CPU缓存不一致问题的引入</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
@@ -570,7 +517,7 @@ add<span class="hljs-number">-1</span>:<span class="hljs-number">50</span></code
     var typed = new Typed('#subtitle', {
       strings: [
         '  ',
-        "5.内存模型以及CPU缓存不一致问题的引入&nbsp;",
+        "6.CPU以及CPU缓存的结构，解决高速缓存一致性问题的两种方案介绍&nbsp;",
       ],
       cursorChar: "_",
       typeSpeed: 70,

@@ -168,6 +168,211 @@
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/redis-10.html">【 Redis-学习笔记 】 10.缓存设计与优化</a>
+
+      <a href="/redis-10.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>缓存的收益与成本
+使用缓存能带来哪些收益又会付出什么成本？
+
+收益
+加速读写
+通过缓存加速读写：CPU  L1/L2/L3 Cache、Linux page Cache加速硬盘读写、浏览器缓存、Ehcache缓存数据库结果；
+
+
+降低后端负载
+后端服务器通过前端缓存降低负载：业务端使用Redis降低后端MySQL负载等。
+
+
+
+成本
+数据不一致：缓存层和数据层有时间窗口不一致，和更新策略有关：你需</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2019-10-17
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+            
+              <a href="/categories/%E8%BF%90%E7%BB%B4/Redis/">Redis</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/redis-9.html">【 Redis-学习笔记 】 9.深入Redis Cluster</a>
+
+      <a href="/redis-9.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>集群缩容伸缩原理
+伸就是加节点，缩就是某些节点不需要了，需要将他们进行下线
+扩容集群步骤
+准备新节点；
+加入集群（meet）；
+迁移槽和数据，把其他节点的槽数据均匀的移到这个节点，因为一个节点没有数据是没有 任何意义的,这个节点就可以工作了，实现性能的扩展。当然如果是从节点，给它meet就好了，不用做槽的迁移。
+
+准备新节点
+集群模式；
+
+配置和其他节点统一；
+
+启动后是孤儿节点；
+redis-s</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2019-10-17
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+            
+              <a href="/categories/%E8%BF%90%E7%BB%B4/Redis/">Redis</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/redis-8.html">【 Redis-学习笔记 】 8.初识Redis Cluster</a>
+
+      <a href="/redis-8.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>呼唤集群并发量Redis每秒可以达到每秒10W QPS，但是有些业务是需要100W QPS,
+数据量现在有一台机器16~256G，假如说一个传统的Redis部署在上面，假如说业务需要500G数据呢？
+解决方案配置“强悍”的机器：超大内存、牛xCPU等，但是随着业务量变得越来越大的时候，单机已经无法满足了
+
+正确的解决方案分布式：简单的认为加机器；
+
+数据分布概念现在有一份全量的数据，它的单机已经无</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2019-10-17
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+            
+              <a href="/categories/%E8%BF%90%E7%BB%B4/Redis/">Redis</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/redis-7.html">【 Redis-学习笔记 】 7.RedisSentinel</a>
+
+      <a href="/redis-7.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>主从复制高可用主从复制的作用
+为主提供备份，当主挂掉在备份中有一个完整的数据
+为主实现一个分流，将大部分读放到从节点中去执行，减轻主节压力
+
+主从复制的问题如果说主节点挂掉了，那么当有客户端传送写的命令就无法进行执行了，在生产环境中是无法忍受的，我们不得不手动的将主节点进行重启，然后将其中一个slave节点执行slaveof no one将它变为一个master节点，然后再将其他节点对这个mast</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2019-10-17
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+            
+              <a href="/categories/%E8%BF%90%E7%BB%B4/Redis/">Redis</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
       <a class="index-header" href="/redis-6.html">【 Redis-学习笔记 】 6.Redis复制原理和优化</a>
 
       <a href="/redis-6.html" class="index-excerpt">
@@ -445,200 +650,11 @@ make &amp;&amp; make install
     </div>
   </div>
 
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/spring-security-6.4.html">【 六、RBAC 】 4.基于数据库Rbac数据模型控制权限</a>
-
-      <a href="/spring-security-6.4.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>基于数据库Rbac数据模型控制权限
-一般的内部管理系统，权限比较复杂，通常权限都是动态配置的，也就是下面我们要讲的的rbac模型
-RBAC详细原理请度娘，这里只是涉及到企业权限的功能级权限，数据级权限还要我们自己控制（用户只能看见它相关的业务表数据）
-
-为了方便演示，这里重新创建一个子工厂：mcr-auth-authorize，pom.xml如下：
-&lt;dependencies&gt;
-   </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2019-10-16
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/SpringSecurity/">SpringSecurity</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/spring-security-6.3.html">【 六、RBAC 】 3.权限表达式</a>
-
-      <a href="/spring-security-6.3.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>权限表达式通过源码分析可知，最终的配置都会转成ExpressionUrlAuthorizationConfigurer.AuthorizedUrl并进行投票决定。
-常见表达式如下：
-
-如何写联合表达式呢？就是既满足A条件，也满足B条件
-.antMatchers("xx").access("hasRole('ROLE_USER') and hasRole('ROLE_SUPER')")
-
- 这个都是</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2019-10-16
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/SpringSecurity/">SpringSecurity</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/spring-security-6.2.html">【 六、RBAC 】 2.Spring Security授权源码解析</a>
-
-      <a href="/spring-security-6.2.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>Spring Security授权源码解析
-
-FilterSecurityInterceptor负责最终决定当前的请求是否能通过过滤器来访问最后的api，如果不能会根据不同的原因抛出异常，然后由ExceptionTranslationFilter来处理， 
-
-上面的过滤器链我就不在重复说一遍了，这里要介绍的AnonymousAuthenticationFilter，这个过滤器中文意思：匿名过滤器，</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2019-10-16
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/SpringSecurity/">SpringSecurity</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/spring-security-6.1.html">【 六、RBAC 】 1.Spring Security授权简介</a>
-
-      <a href="/spring-security-6.1.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>授权概念权限系统通常要解决认证和授权
-认证，即在应用中谁能证明他就是他本人。一般提供如他们的身份ID一些标识信息来表明他就是他本人，如提供身份证，用户名/密码来证明。授权，也叫访问控制，即在应用中控制谁能访问哪些资源（如访问页面/编辑数据/页面操作等）。前面我们分析的都是认证，即你是谁问题？
-这篇我们来分析你能做什么的问题。
-授权分析
-权限是某个资源能否杯用户访问，而并不是能否显示的问题。
-权限场</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2019-10-16
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/SpringSecurity/">SpringSecurity</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
 
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <a class="extend prev" rel="prev" href="/page/6/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/">8</a><a class="page-number" href="/page/9/">9</a><a class="extend next" rel="next" href="/page/8/"><i class="iconfont icon-arrowright"></i></a>
+      <a class="extend prev" rel="prev" href="/page/6/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/">8</a><a class="page-number" href="/page/9/">9</a><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" href="/page/8/"><i class="iconfont icon-arrowright"></i></a>
     </span>
   </nav>
   

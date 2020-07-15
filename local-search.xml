@@ -4,6 +4,130 @@
   
   
   <entry>
+    <title>10.volatile关键字总结</title>
+    <link href="/juc-actualCombat-2-10.html"/>
+    <url>/juc-actualCombat-2-10.html</url>
+    
+    <content type="html"><![CDATA[<h1 id="volatile的使用场景"><a href="#volatile的使用场景" class="headerlink" title="volatile的使用场景"></a><p class="note note-primary"><code>volatile</code>的使用场景</p></h1><h2 id="状态量标记"><a href="#状态量标记" class="headerlink" title="状态量标记"></a><p class="note note-primary">状态量标记</p></h2><pre><code class="hljs arduino"><span class="hljs-keyword">volatile</span> <span class="hljs-keyword">boolean</span> start=<span class="hljs-literal">true</span><span class="hljs-keyword">while</span>(start)&#123;    <span class="hljs-comment">//...</span>&#125;<span class="hljs-keyword">void</span> <span class="hljs-built_in">close</span>()&#123;    start=<span class="hljs-literal">false</span>;&#125;</code></pre><p class="note note-info">如果这里不用<code>volatile</code>，其它线程调用了<code>close()</code>没有刷到主存，那这里的<code>while</code>循环就一直到自己的线程工作空间（线程高速缓存、线程工作内存）里面去读，读的一直是<code>true</code>一直在执行。</p><h2 id="屏障前后的一致性"><a href="#屏障前后的一致性" class="headerlink" title="屏障前后的一致性"></a><p class="note note-primary">屏障前后的一致性</p></h2><pre><code class="hljs isbl"><span class="hljs-variable">volatile</span> <span class="hljs-variable">init</span> =<span class="hljs-variable"><span class="hljs-literal">true</span></span>----<span class="hljs-variable">Thread</span> <span class="hljs-number">1</span>----<span class="hljs-variable">obj</span> = <span class="hljs-function"><span class="hljs-title">createObj</span>()</span>----<span class="hljs-variable">Thread</span> <span class="hljs-number">2</span>----<span class="hljs-function"><span class="hljs-title">while</span>(<span class="hljs-variable">!init</span>)&#123;</span><span class="hljs-function">    <span class="hljs-title"><span class="hljs-built_in">sleep</span></span>()</span>&#125;<span class="hljs-function"><span class="hljs-title">useTheObj</span>(<span class="hljs-variable">obj</span>)</span></code></pre><p class="note note-info">这里的<code>init=true</code>肯定是发生在2个线程中间的，其它的不保证不重排序，但是<code>init</code>一定在<code>obj</code>之前</p><h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a><p class="note note-primary">总结</p></h1><ol><li>CPU的大致结构</li><li>JMM（Java内存模型）的大致结构</li><li>缓存一致性协议</li><li>指令重排序</li><li>happens-before规则</li><li>并发编程的3大要素</li><li>volatile关键字的作用</li></ol>]]></content>
+    
+    
+    <categories>
+      
+      <category>后端</category>
+      
+      <category>JUC</category>
+      
+      <category>Java多线程编程实战</category>
+      
+      <category>中阶知识</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>学习</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>9.volatile关键字深入详解</title>
+    <link href="/juc-actualCombat-2-9.html"/>
+    <url>/juc-actualCombat-2-9.html</url>
+    
+    <content type="html"><![CDATA[<p class="note note-info"><code>volatile</code>关键字它在原子性、可见性、顺序性有几个？</p><p>一旦一个共享变量被<code>volatile</code>修饰，具备两层语义：</p><ol><li>保证了不同线程的可见性</li><li>禁止对其进行重排序，也就是保证了有序性</li><li>并未保证原子性（这个会在第3大章节中介绍）</li></ol><p class="note note-info">在之前的章节的代码</p><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter3;<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">VolatileTest2</span> </span>&#123;  <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> MAX_LIMIT = <span class="hljs-number">50</span>;  <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">volatile</span> <span class="hljs-keyword">int</span> INIT_VALUE = <span class="hljs-number">0</span>;  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;    <span class="hljs-keyword">new</span> Thread(            () -&gt; &#123;              <span class="hljs-keyword">while</span> (INIT_VALUE &lt; MAX_LIMIT) &#123;                System.out.println(getName() + (++INIT_VALUE));                <span class="hljs-keyword">try</span> &#123;                  Thread.sleep(<span class="hljs-number">100</span>);                &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;                  e.printStackTrace();                &#125;              &#125;            &#125;,            <span class="hljs-string">"add-1"</span>)        .start();    <span class="hljs-keyword">new</span> Thread(            () -&gt; &#123;              <span class="hljs-keyword">while</span> (INIT_VALUE &lt; MAX_LIMIT) &#123;                System.out.println(getName() + (++INIT_VALUE));                <span class="hljs-keyword">try</span> &#123;                  Thread.sleep(<span class="hljs-number">100</span>);                &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;                  e.printStackTrace();                &#125;              &#125;            &#125;,            <span class="hljs-string">"add-2"</span>)        .start();  &#125;  <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> String <span class="hljs-title">getName</span><span class="hljs-params">()</span> </span>&#123;    <span class="hljs-keyword">return</span> Thread.currentThread().getName() + <span class="hljs-string">":"</span>;  &#125;&#125;</code></pre><p class="note note-light">结果</p><pre><code class="hljs angelscript">add<span class="hljs-number">-1</span>:<span class="hljs-number">1</span>add<span class="hljs-number">-2</span>:<span class="hljs-number">2</span>add<span class="hljs-number">-1</span>:<span class="hljs-number">3</span>add<span class="hljs-number">-2</span>:<span class="hljs-number">3</span>add<span class="hljs-number">-1</span>:<span class="hljs-number">4</span>add<span class="hljs-number">-2</span>:<span class="hljs-number">4</span>add<span class="hljs-number">-2</span>:<span class="hljs-number">5</span>add<span class="hljs-number">-1</span>:<span class="hljs-number">5</span>add<span class="hljs-number">-2</span>:<span class="hljs-number">6</span>add<span class="hljs-number">-1</span>:<span class="hljs-number">6</span>add<span class="hljs-number">-1</span>:<span class="hljs-number">7</span>add<span class="hljs-number">-2</span>:<span class="hljs-number">7</span>...add<span class="hljs-number">-2</span>:<span class="hljs-number">49</span>add<span class="hljs-number">-1</span>:<span class="hljs-number">50</span></code></pre><p class="note note-info">在结果看到有一些重复输出，这是因为：线程1读的时候拿到6的值然后放弃CPU执行权，线程2拿到的还是6，然后<code>6+1</code>输出：7，然后线程1又获得了CPU执行权，它这个时候也是<code>6+1</code>所以就导致重复输出，这就证明说<code>volatile</code>没有原子性</p><p>Volatile关键字：</p><ol><li>保证重排序的是偶不会把后面的指令放到屏障的前面，也不会把前面的放到后面</li><li>强制对缓存的修改操作立刻写入主存</li><li>如果是写操作，它会导致其它CPU的缓存失效</li></ol>]]></content>
+    
+    
+    <categories>
+      
+      <category>后端</category>
+      
+      <category>JUC</category>
+      
+      <category>Java多线程编程实战</category>
+      
+      <category>中阶知识</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>学习</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>8.指令重排序，happens-before规则</title>
+    <link href="/juc-actualCombat-2-8.html"/>
+    <url>/juc-actualCombat-2-8.html</url>
+    
+    <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><p class="note note-primary">前言</p></h1><p class="note note-info">上一章介绍了原子性、可见性、有序性，这一章介绍在Java中如何保证这3个特性。</p><ol><li>原子性：不做例子；</li><li>可见性：使用<code>volatile</code>关键字保证可见性。当一个变量被修饰时它会保证变量在修改的时候立即主存里面去，到其它其它线程中读取的时候去从主从中拿数据的，而不是在缓存中拿数据；</li><li>有序性：在Java内存模型中允许编译器在运行过程中或者编译过程中允许对变量重排序，它只满足最终一致性就可以了，对于单线程的时候是没问题的，当时在多线程可能会有问题，Java的有序性它天生支持一些，这个就叫做”happens-before规则”：<ul><li>在一个线程内代码的执行顺序编写在前面的发生在编写后面的，例如：<code>int a; a+1</code>，这里顺序是固定的；</li><li>unlock必须发生在lock之后，重排序的时候不可能先解锁在加锁；</li><li><code>volatile</code>修饰的变量对一个变量的写操作先于对该变量的读操作；</li><li>传递规则：操作A先于B，B先于C，那么A肯定先于C；</li><li>线程的启动规则：<code>start()</code>肯定先于线程的<code>run</code>；</li><li>线程的中断规则：<code>interrupt()</code>这个动作，必须发生在捕获该动作之前。</li><li>对象销毁规则：一个对象的初始化必须发生在<code>finalize</code>之前；</li><li>线程终结规则：所有的操作都发生在线程的死亡之前。</li></ul></li></ol><p>参考<a href="https://www.logicbig.com/tutorials/core-java-tutorial/java-multi-threading/happens-before.html" target="_blank" rel="noopener">链接</a></p>]]></content>
+    
+    
+    <categories>
+      
+      <category>后端</category>
+      
+      <category>JUC</category>
+      
+      <category>Java多线程编程实战</category>
+      
+      <category>中阶知识</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>学习</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>7.三个重要概念，原子性，可见性，有序性</title>
+    <link href="/juc-actualCombat-2-7.html"/>
+    <url>/juc-actualCombat-2-7.html</url>
+    
+    <content type="html"><![CDATA[<h1 id="原子性（A）"><a href="#原子性（A）" class="headerlink" title="原子性（A）"></a><p class="note note-primary">原子性（A）</p></h1><p class="note note-info">一个操作要么全部执行成功要么全部执行失败</p><h1 id="可见性（V）"><a href="#可见性（V）" class="headerlink" title="可见性（V）"></a><p class="note note-primary">可见性（V）</p></h1><p>多个线程访问变量的时候一个线程修改了变量的值，其它线程要能够看到变化之后的值</p><h1 id="有序性（顺序性）（0）"><a href="#有序性（顺序性）（0）" class="headerlink" title="有序性（顺序性）（0）"></a><p class="note note-primary">有序性（顺序性）（0）</p></h1><p class="note note-info"><code> int i =0;  boolean flag=false; i=1; flag=true; </code>，这里做了2次赋值，这里有一个Java的“重排序”，重排序是什么意思？比如说这里的代码，最终结果是<code>i=1,flag=true</code>，但是在中间的过程中可能会与你编写的代码顺序不一样，因为<code>i和flag</code> 没做任何的关联，有就是说它中间的过程有可能变成这个样子：<code> int i =0; i=1;  boolean flag=false;  flag=true; </code>，这样看上去不会有什么问题，因为最终结果保证一样就可以了，所以重排序只要求最终一致性，对于重排序它在单线程的时候没有影响，但是对于多线程的时候就可能有问题：</p><pre><code class="hljs isbl">-------<span class="hljs-variable">Thread</span>-<span class="hljs-number">1</span>-------<span class="hljs-variable">obj</span>=<span class="hljs-function"><span class="hljs-title">createObj</span>() <span class="hljs-number">1</span></span><span class="hljs-function"><span class="hljs-variable">init</span>=<span class="hljs-variable"><span class="hljs-literal">true</span></span>       <span class="hljs-number">2</span></span><span class="hljs-function"></span><span class="hljs-function">-------<span class="hljs-variable">Thread</span>-<span class="hljs-number">2</span>-------</span><span class="hljs-function"></span><span class="hljs-function"><span class="hljs-title">while</span>(<span class="hljs-variable">!init</span>)&#123;</span><span class="hljs-function">    <span class="hljs-title"><span class="hljs-built_in">sleep</span></span>()</span>&#125;<span class="hljs-function"><span class="hljs-title">useTheObj</span>(<span class="hljs-variable">obj</span>)</span></code></pre><p class="note note-info">在线程1中间的过程发生了重排序，把2和1调了一个位置，<code>init=true</code>的时候<code>obj</code>还没初始化，可这个时候线程2执行<code>useTheObj(obj)</code>就会出现空指针异常</p>]]></content>
+    
+    
+    <categories>
+      
+      <category>后端</category>
+      
+      <category>JUC</category>
+      
+      <category>Java多线程编程实战</category>
+      
+      <category>中阶知识</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>学习</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>6.CPU以及CPU缓存的结构，解决高速缓存一致性问题的两种方案介绍</title>
     <link href="/juc-actualCombat-2-6.html"/>
     <url>/juc-actualCombat-2-6.html</url>

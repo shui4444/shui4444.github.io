@@ -17,7 +17,7 @@
   <meta name="description" content="">
   <meta name="author" content="Shui">
   <meta name="keywords" content="">
-  <title>6.CPU以及CPU缓存的结构，解决高速缓存一致性问题的两种方案介绍 - Shui&#39;s Blog</title>
+  <title>8.指令重排序，happens-before规则 - Shui&#39;s Blog</title>
 
   <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
 
@@ -152,8 +152,8 @@
               
   <div class="mt-3 post-meta">
     <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-    <time datetime="2020-07-13 19:40">
-      2020年7月13日 晚上
+    <time datetime="2020-07-15 18:50">
+      2020年7月15日 晚上
     </time>
   </div>
 
@@ -163,7 +163,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      1.2k 字
+      405 字
     </span>
   
 
@@ -173,7 +173,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      14
+      4
        分钟
     </span>
   
@@ -204,84 +204,24 @@
           <div class="post-content mx-auto" id="post">
             
             <article class="markdown-body">
-              <p class="note note-info">由于内存Cache的出现，它是帮我们解决问题，可以加快CPU速度，因为CPU都跟主内存去要的话是比较慢的，有些时候它从Cache里去要数据它要快一些，并且这个Cache又分了3个级：L1、L2、L3，离CPU计较近的Cache又分了一个：LD：数据级的Cache、LI，指令级的Cache，越近是越快的，越远的稍微慢一点，但是还是比主内存好一些，但是引入了Cache之后又引入了缓存不一致的问题，这个问题是在应用过程中很严重很严重的事情，如果你想去解决它加个锁就可以了，但是加了锁的效率是比较低的，但实际上这个锁在JVM的版本更新对它的改进很大，它的性能不比显示锁要慢多少，它们差不多。<br/>
-当程序在执行的过程中，会将你运算的数据会在主从当中复制一份到CPU高速缓存当中去，也就是说CPU直接在高速缓存中读取数据，越算之后在将高速缓存的数据刷新到主内存中去，这个是缓存与主内存交互的问题，上一章出现的问题得到了解释。</p>
-
-<pre><code class="hljs java"><span class="hljs-keyword">new</span> Thread(
-            () -&gt; &#123;
-              <span class="hljs-keyword">int</span> localVal = INIT_VALUE;
-              <span class="hljs-keyword">while</span> (localVal &lt; MAX_LIMIT) &#123;
-                <span class="hljs-keyword">if</span> (localVal != INIT_VALUE) &#123;
-                  System.out.printf(getName() + <span class="hljs-string">"值已更新为 [%d]\n"</span>, INIT_VALUE);
-                  localVal = INIT_VALUE;
-                &#125;
-              &#125;
-            &#125;,
-            <span class="hljs-string">"reader"</span>)</code></pre>
-
-<p class="note note-info">由于它这里是只读的，所以不会去主内存中拿数据</p>
-
-<hr>
-<pre><code class="hljs java">
-<span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> MAX_LIMIT = <span class="hljs-number">50</span>;
-<span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> INIT_VALUE = <span class="hljs-number">0</span>;
-
-<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;
-    <span class="hljs-keyword">new</span> Thread(
-            () -&gt; &#123;
-              <span class="hljs-keyword">while</span> (INIT_VALUE &lt; MAX_LIMIT) &#123;
-                System.out.println(getName() + (++INIT_VALUE));
-
-                <span class="hljs-keyword">try</span> &#123;
-                  Thread.sleep(<span class="hljs-number">100</span>);
-                &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
-                  e.printStackTrace();
-                &#125;
-              &#125;
-            &#125;,
-            <span class="hljs-string">"add-1"</span>)
-        .start();
-    <span class="hljs-keyword">new</span> Thread(
-            () -&gt; &#123;
-              <span class="hljs-keyword">while</span> (INIT_VALUE &lt; MAX_LIMIT) &#123;
-                System.out.println(getName() + (++INIT_VALUE));
-                <span class="hljs-keyword">try</span> &#123;
-                  Thread.sleep(<span class="hljs-number">100</span>);
-                &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
-                  e.printStackTrace();
-                &#125;
-              &#125;
-            &#125;,
-            <span class="hljs-string">"add-2"</span>)
-        .start();
-  &#125;</code></pre>
-
-<p class="note note-info">在这里为什么不会2个线程都遍历50次？原因是2个线程都有修改的操作，它会刷新回主内存，以下面代码为例：</p>
-
-<pre><code class="hljs java">i=i+<span class="hljs-number">1</span>;</code></pre>
-
-<pre><code class="hljs xl"><span class="hljs-number">1</span>=<span class="hljs-number">1</span>;
-<span class="hljs-number">1</span>=i+<span class="hljs-number">1</span>;
-    <span class="hljs-function"><span class="hljs-title">main</span> memory -&gt;</span> <span class="hljs-function"><span class="hljs-title">i</span> -&gt;</span> <span class="hljs-function"><span class="hljs-title">cache</span> i+1 -&gt;</span> <span class="hljs-function"><span class="hljs-title">cache</span>(2) -&gt;</span> main memory(<span class="hljs-number">2</span>)
-    <span class="hljs-function"><span class="hljs-title">main</span> memory -&gt;</span> <span class="hljs-function"><span class="hljs-title">i</span> -&gt;</span> <span class="hljs-function"><span class="hljs-title">cache</span> i+1 -&gt;</span> <span class="hljs-function"><span class="hljs-title">cache</span>(2) -&gt;</span> main memory(<span class="hljs-number">2</span>)</code></pre>
-
-<p class="note note-info">
-当线程执行在这里的时候，它先从主内存获取数据，获取i的值放到缓存里面，然后在执行CPU的指令对i加1，在把它写回到Cache里面去，在由Cache把它刷回到主内存中去。<br/>
-这段代码在单线程中是没有任何问题的，但是在多核CPU或者多线程的情况下执行的时候就会有问题，比如第2个线程执行它的时候：读取主内存i的值，i放入Cache里面去，这个时候线程1读过来将它从1变为了2，但这个时候对于线程2来说并不知道，所以它读到的值是1，修改之后又变成了2，理论上应该要变成3才对。<br/>
-为了解决缓存不一致的问题有2种方法：
-</p>
+              <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><p class="note note-primary">前言</p></h1><p class="note note-info">上一章介绍了原子性、可见性、有序性，这一章介绍在Java中如何保证这3个特性。</p>
 
 <ol>
-<li>给数据总线加锁。CPU和所有的设备通讯通过总线的方式通讯， 总线分为：（数据总线、地址总线、控制总线），它和硬件通讯的时候都要通过中线去通讯，当然内存也是一个硬件设备，所以它也是通过总线通讯的，如果它对总线加了锁话：一个CPU它对总线加了锁其它CPU是不能对它进行访问，从而只有一个CPU能访问这个变量的值，抢到锁的线程会在执行完修改操作的时候，程序结束之后把锁释放掉，那其它线程抢到锁去主内存拿的时候就能拿到上一个线程改变之后的值。这里又有一个问题：CPU速度慢。</li>
-<li>缓存一致性协议，这个是非常常用的方式，它比较轻量级，它像数据库中的：脏读、幻读，上面的方案像串行读，我有一个事务去操作它其它事务都不能操作它，这边就不是串行读，它里面也会引起一些问题，但是它是比较好的解决方法，既提高了效率又一定程度保证一致性，这个是由Intel提出的MESI：保证每个缓存使用的共享变量的副本，CPU拿到数据放到Cache中来，在多个线程的Cache要完全一致，它就保证了Cache是一样的。</li>
+<li>原子性：不做例子；</li>
+<li>可见性：使用<code>volatile</code>关键字保证可见性。当一个变量被修饰时它会保证变量在修改的时候立即主存里面去，到其它其它线程中读取的时候去从主从中拿数据的，而不是在缓存中拿数据；</li>
+<li>有序性：在Java内存模型中允许编译器在运行过程中或者编译过程中允许对变量重排序，它只满足最终一致性就可以了，对于单线程的时候是没问题的，当时在多线程可能会有问题，Java的有序性它天生支持一些，这个就叫做”happens-before规则”：<ul>
+<li>在一个线程内代码的执行顺序编写在前面的发生在编写后面的，例如：<code>int a; a+1</code>，这里顺序是固定的；</li>
+<li>unlock必须发生在lock之后，重排序的时候不可能先解锁在加锁；</li>
+<li><code>volatile</code>修饰的变量对一个变量的写操作先于对该变量的读操作；</li>
+<li>传递规则：操作A先于B，B先于C，那么A肯定先于C；</li>
+<li>线程的启动规则：<code>start()</code>肯定先于线程的<code>run</code>；</li>
+<li>线程的中断规则：<code>interrupt()</code>这个动作，必须发生在捕获该动作之前。</li>
+<li>对象销毁规则：一个对象的初始化必须发生在<code>finalize</code>之前；</li>
+<li>线程终结规则：所有的操作都发生在线程的死亡之前。</li>
+</ul>
+</li>
 </ol>
-<p class="note note-light">缓存一致性协议核心思想:</p>
-
-<ol>
-<li>当CPU写入数据的时候，如果发现该变量被内存共享（也就是说，在其它CPU中也存在该变量副本），会发出一个信号，通知其它CPU该变量的缓存无效</li>
-<li>当其它CPU访问该变量重新到主内存进行获取</li>
-</ol>
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/2/image-20200713204000115.png" srcset="/img/loading.gif" alt="image-20200713204000115"></p>
+<p>参考<a href="https://www.logicbig.com/tutorials/core-java-tutorial/java-multi-threading/happens-before.html" target="_blank" rel="noopener">链接</a></p>
 
             </article>
             <hr>
@@ -318,9 +258,9 @@
                   <div class="post-prev col-6">
                     
                     
-                      <a href="/juc-actualCombat-2-7.html">
+                      <a href="/juc-actualCombat-2-9.html">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">7.三个重要概念，原子性，可见性，有序性</span>
+                        <span class="hidden-mobile">9.volatile关键字深入详解</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -328,8 +268,8 @@
                   <div class="post-next col-6">
                     
                     
-                      <a href="/juc-actualCombat-2-5.html">
-                        <span class="hidden-mobile">5.内存模型以及CPU缓存不一致问题的引入</span>
+                      <a href="/juc-actualCombat-2-7.html">
+                        <span class="hidden-mobile">7.三个重要概念，原子性，可见性，有序性</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
@@ -523,7 +463,7 @@
     var typed = new Typed('#subtitle', {
       strings: [
         '  ',
-        "6.CPU以及CPU缓存的结构，解决高速缓存一致性问题的两种方案介绍&nbsp;",
+        "8.指令重排序，happens-before规则&nbsp;",
       ],
       cursorChar: "_",
       typeSpeed: 70,

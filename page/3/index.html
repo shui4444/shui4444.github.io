@@ -168,6 +168,109 @@
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/juc-actualCombat-1-25.html">25.线程生产者消费者的综合实战结合Java8语法</a>
+
+      <a href="/juc-actualCombat-1-25.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>
+join()可以保证你的线程都执行结束之后在去执行main后面的代码，不记得了可以回顾下11章节。
+来说下案例：
+
+
+
+有这么一个需求：现在需要对三台服务器做信息统计，如果想尽快做完，那就要使用多线程去完成了，你可以创建3个线程去取三个服务器的信息，那么如果是10台服务器，你去创建10个线程是没有问题的，但是有100、1k台机器呢？这个时候如果去创建100、1k个线程是行不通的，现在的Linux</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-07-01
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">Java多线程编程实战</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/juc-actualCombat-1-24.html">24.wait和sleep的本质区别是什么，深入分析</a>
+
+      <a href="/juc-actualCombat-1-24.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>前言这章介绍wait与sleep的区别，它们两都捆让线程进入阻塞，但是它两之间有一个本质的区别
+
+
+sleep是Thread的方法；wait是Object的方法，就算是对象数组也有。
+sleep不会释放对象monitor的锁；但是wait会释放这个锁，并且把它加入到对象 monitor 队列里面去。
+使用sleep并不需要定义synchronized；但是你去使用wait你必须定义一个synchr</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-07-01
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">Java多线程编程实战</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
       <a class="index-header" href="/juc-actualCombat-1-23.html">23.多线程下的生产者消费者模型，以及详细介绍notifyAll方法</a>
 
       <a href="/juc-actualCombat-1-23.html" class="index-excerpt">
@@ -539,115 +642,6 @@ public class SynchronizedRunnable implements Runnable &#123</div>
           
         
         <div>上一章介绍了线程安全的问题，通过银行叫号的例子发现它在多线程情况下会对数据修改产生一些问题，其实在深层次可以把这个问题归结到线程的MemroyCache，它会在后续中介绍。上一章介绍的synchronized到底是什么？它会导致在多线程的时候在它里面的代码变成“单线程”，可以理解为：只要有一个线程进入了synchronized的区域，那其它线程在执行到这的时候需要等待，待上一个线程进入synchr</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-06-25
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">Java多线程编程实战</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/juc-actualCombat-1-15.html">15.数据同步的引入与Synchronized的简单介绍</a>
-
-      <a href="/juc-actualCombat-1-15.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>在之前做了一个银行叫号的案例，代码如下
-
-package com.shui.juc.chapter7;
-
-/**
- * @author Shui
- * @date 2020/6/17
- */
-public class TicketWindowRunnable implements Runnable &#123;
-
-  private static final int MAX = 50;
-  pri</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-06-25
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">Java多线程编程实战</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/juc-actualCombat-1-14.html">14.编写ThreadService实现暴力结束线程</a>
-
-      <a href="/juc-actualCombat-1-14.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>这一章介绍如何强制结束线程，举个例子：读一个网络资源、做一些比较耗时的事情，期望是30分钟执行完成，超过30分钟就认为是失败的就不等待它了，通过暴力的方式去结束，但是在JDK暴力的方式只有stop()，这个方式已经被弃用了，那么用什么方式来做这个呢？
-
-package com.shui.juc.chapter6;
-
-/**
- * @author Shui
- * @date 2020/6/25 10</div>
       </a>
 
       <div class="index-btm post-metas">

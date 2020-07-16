@@ -17,7 +17,7 @@
   <meta name="description" content="">
   <meta name="author" content="Shui">
   <meta name="keywords" content="">
-  <title>10.volatile关键字总结 - Shui&#39;s Blog</title>
+  <title>11.观察者设计模式介绍 - Shui&#39;s Blog</title>
 
   <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
 
@@ -163,7 +163,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      202 字
+      291 字
     </span>
   
 
@@ -173,7 +173,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      2
+      5
        分钟
     </span>
   
@@ -204,39 +204,113 @@
           <div class="post-content mx-auto" id="post">
             
             <article class="markdown-body">
-              <h1 id="volatile的使用场景"><a href="#volatile的使用场景" class="headerlink" title="volatile的使用场景"></a><p class="note note-primary"><code>volatile</code>的使用场景</p></h1><h2 id="状态量标记"><a href="#状态量标记" class="headerlink" title="状态量标记"></a><p class="note note-primary">状态量标记</p></h2><pre><code class="hljs arduino"><span class="hljs-keyword">volatile</span> <span class="hljs-keyword">boolean</span> start=<span class="hljs-literal">true</span>
-<span class="hljs-keyword">while</span>(start)&#123;
-    <span class="hljs-comment">//...</span>
-&#125;
+              <p class="note note-info">
+在介绍多线程观察者模式，先介绍普通的观察者模式，这里会根据以下的URML图来编写相关代码
+</p>
 
-<span class="hljs-keyword">void</span> <span class="hljs-built_in">close</span>()&#123;
-    start=<span class="hljs-literal">false</span>;
+<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/2/b3517f5b-5848-4acc-a200-0b17a7ac1c3e.png" srcset="/img/loading.gif" alt="b3517f5b-5848-4acc-a200-0b17a7ac1c3e"></p>
+<p class="note note-light">主题</p>
+
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter4.observer;
+
+<span class="hljs-keyword">import</span> java.util.ArrayList;
+<span class="hljs-keyword">import</span> java.util.List;
+
+<span class="hljs-comment">/** <span class="hljs-doctag">@author</span> Shui */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Subject</span> </span>&#123;
+
+  <span class="hljs-keyword">private</span> List&lt;Observer&gt; observers = <span class="hljs-keyword">new</span> ArrayList&lt;&gt;();
+
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> state;
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">attach</span><span class="hljs-params">(Observer observer)</span> </span>&#123;
+    observers.add(observer);
+  &#125;
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> <span class="hljs-title">getState</span><span class="hljs-params">()</span> </span>&#123;
+    <span class="hljs-keyword">return</span> state;
+  &#125;
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setState</span><span class="hljs-params">(<span class="hljs-keyword">int</span> state)</span> </span>&#123;
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.state == state) &#123;
+      <span class="hljs-keyword">return</span>;
+    &#125;
+    <span class="hljs-keyword">this</span>.state = state;
+    notifyAllObserver();
+  &#125;
+
+  <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">notifyAllObserver</span><span class="hljs-params">()</span> </span>&#123;
+    observers.stream().forEach(Observer::update);
+  &#125;
 &#125;</code></pre>
 
-<p class="note note-info">如果这里不用<code>volatile</code>，其它线程调用了<code>close()</code>没有刷到主存，那这里的<code>while</code>循环就一直到自己的线程工作空间（线程高速缓存、线程工作内存）里面去读，读的一直是<code>true</code>一直在执行。</p>
+<p class="note note-light">观察者抽象类</p>
 
-<h2 id="屏障前后的一致性"><a href="#屏障前后的一致性" class="headerlink" title="屏障前后的一致性"></a><p class="note note-primary">屏障前后的一致性</p></h2><pre><code class="hljs isbl"><span class="hljs-variable">volatile</span> <span class="hljs-variable">init</span> =<span class="hljs-variable"><span class="hljs-literal">true</span></span>
-----<span class="hljs-variable">Thread</span> <span class="hljs-number">1</span>----
-<span class="hljs-variable">obj</span> = <span class="hljs-function"><span class="hljs-title">createObj</span>()</span>
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter4.observer;
 
-----<span class="hljs-variable">Thread</span> <span class="hljs-number">2</span>----
-<span class="hljs-function"><span class="hljs-title">while</span>(<span class="hljs-variable">!init</span>)&#123;</span>
-<span class="hljs-function">    <span class="hljs-title"><span class="hljs-built_in">sleep</span></span>()</span>
-&#125;
-<span class="hljs-function"><span class="hljs-title">useTheObj</span>(<span class="hljs-variable">obj</span>)</span></code></pre>
+<span class="hljs-comment">/** <span class="hljs-doctag">@author</span> Shui */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">abstract</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Observer</span> </span>&#123;
+  
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">Observer</span><span class="hljs-params">(Subject subject)</span> </span>&#123;
+    <span class="hljs-keyword">this</span>.subject = subject;
+  &#125;
+  
+  <span class="hljs-keyword">protected</span> Subject subject;
 
-<p class="note note-info">这里的<code>init=true</code>肯定是发生在2个线程中间的，其它的不保证不重排序，但是<code>init</code>一定在<code>obj</code>之前</p>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">abstract</span> <span class="hljs-keyword">void</span> <span class="hljs-title">update</span><span class="hljs-params">()</span></span>;
+&#125;</code></pre>
+
+<p class="note note-light">二进制观察者</p>
+
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter4.observer;
+
+<span class="hljs-comment">/** <span class="hljs-doctag">@author</span> Shui */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">BinaryObserver</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Observer</span> </span>&#123;
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">BinaryObserver</span><span class="hljs-params">(Subject subject)</span> </span>&#123;
+    <span class="hljs-keyword">super</span>(subject);
+  &#125;
+
+  <span class="hljs-meta">@Override</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">update</span><span class="hljs-params">()</span> </span>&#123;
+    System.out.println(<span class="hljs-string">"Binary String:"</span> + Integer.toBinaryString(subject.getState()));
+  &#125;
+&#125;</code></pre>
+
+<p class="note note-info">八进制观察者</p>
+
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter4.observer;
+
+<span class="hljs-comment">/** <span class="hljs-doctag">@author</span> Shui */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">OctalObserver</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Observer</span> </span>&#123;
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">OctalObserver</span><span class="hljs-params">(Subject subject)</span> </span>&#123;
+    <span class="hljs-keyword">super</span>(subject);
+  &#125;
+
+  <span class="hljs-meta">@Override</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">update</span><span class="hljs-params">()</span> </span>&#123;
+    System.out.println(<span class="hljs-string">"OctalObserver String:"</span> + Integer.toOctalString(subject.getState()));
+  &#125;
+&#125;</code></pre>
+
+<p class="note note-light">测试类</p>
+
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter4.observer;
+
+<span class="hljs-comment">/** <span class="hljs-doctag">@author</span> Shui */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ObserverClient</span> </span>&#123;
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;
+    <span class="hljs-keyword">final</span> Subject subject = <span class="hljs-keyword">new</span> Subject();
+    subject.attach(<span class="hljs-keyword">new</span> BinaryObserver(subject));
+    subject.attach(<span class="hljs-keyword">new</span> OctalObserver(subject));
+    subject.setState(<span class="hljs-number">1</span>);
+    subject.setState(<span class="hljs-number">2</span>);
+    
+  &#125;
+&#125;</code></pre>
 
 
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a><p class="note note-primary">总结</p></h1><ol>
-<li>CPU的大致结构</li>
-<li>JMM（Java内存模型）的大致结构</li>
-<li>缓存一致性协议</li>
-<li>指令重排序</li>
-<li>happens-before规则</li>
-<li>并发编程的3大要素</li>
-<li>volatile关键字的作用</li>
-</ol>
+<p><a href="https://www.cnblogs.com/java-my-life/archive/2012/05/16/2502279.html" target="_blank" rel="noopener">链接</a></p>
 
             </article>
             <hr>
@@ -273,18 +347,12 @@
                   <div class="post-prev col-6">
                     
                     
-                      <a href="/juc-actualCombat-2-12.html">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">12.使用观察者设计模式观察线程的生命周期</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </div>
                   <div class="post-next col-6">
                     
                     
-                      <a href="/juc-actualCombat-2-9.html">
-                        <span class="hidden-mobile">9.volatile关键字深入详解</span>
+                      <a href="/juc-actualCombat-2-12.html">
+                        <span class="hidden-mobile">12.使用观察者设计模式观察线程的生命周期</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
@@ -478,7 +546,7 @@
     var typed = new Typed('#subtitle', {
       strings: [
         '  ',
-        "10.volatile关键字总结&nbsp;",
+        "11.观察者设计模式介绍&nbsp;",
       ],
       cursorChar: "_",
       typeSpeed: 70,

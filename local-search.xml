@@ -4,6 +4,68 @@
   
   
   <entry>
+    <title>11.观察者设计模式介绍</title>
+    <link href="/juc-actualCombat-2-11.html"/>
+    <url>/juc-actualCombat-2-11.html</url>
+    
+    <content type="html"><![CDATA[<p class="note note-info">在介绍多线程观察者模式，先介绍普通的观察者模式，这里会根据以下的URML图来编写相关代码</p><p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/2/b3517f5b-5848-4acc-a200-0b17a7ac1c3e.png" srcset="/img/loading.gif" alt="b3517f5b-5848-4acc-a200-0b17a7ac1c3e"></p><p class="note note-light">主题</p><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter4.observer;<span class="hljs-keyword">import</span> java.util.ArrayList;<span class="hljs-keyword">import</span> java.util.List;<span class="hljs-comment">/** <span class="hljs-doctag">@author</span> Shui */</span><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Subject</span> </span>&#123;  <span class="hljs-keyword">private</span> List&lt;Observer&gt; observers = <span class="hljs-keyword">new</span> ArrayList&lt;&gt;();  <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> state;  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">attach</span><span class="hljs-params">(Observer observer)</span> </span>&#123;    observers.add(observer);  &#125;  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> <span class="hljs-title">getState</span><span class="hljs-params">()</span> </span>&#123;    <span class="hljs-keyword">return</span> state;  &#125;  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setState</span><span class="hljs-params">(<span class="hljs-keyword">int</span> state)</span> </span>&#123;    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.state == state) &#123;      <span class="hljs-keyword">return</span>;    &#125;    <span class="hljs-keyword">this</span>.state = state;    notifyAllObserver();  &#125;  <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">notifyAllObserver</span><span class="hljs-params">()</span> </span>&#123;    observers.stream().forEach(Observer::update);  &#125;&#125;</code></pre><p class="note note-light">观察者抽象类</p><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter4.observer;<span class="hljs-comment">/** <span class="hljs-doctag">@author</span> Shui */</span><span class="hljs-keyword">public</span> <span class="hljs-keyword">abstract</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Observer</span> </span>&#123;    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">Observer</span><span class="hljs-params">(Subject subject)</span> </span>&#123;    <span class="hljs-keyword">this</span>.subject = subject;  &#125;    <span class="hljs-keyword">protected</span> Subject subject;  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">abstract</span> <span class="hljs-keyword">void</span> <span class="hljs-title">update</span><span class="hljs-params">()</span></span>;&#125;</code></pre><p class="note note-light">二进制观察者</p><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter4.observer;<span class="hljs-comment">/** <span class="hljs-doctag">@author</span> Shui */</span><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">BinaryObserver</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Observer</span> </span>&#123;  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">BinaryObserver</span><span class="hljs-params">(Subject subject)</span> </span>&#123;    <span class="hljs-keyword">super</span>(subject);  &#125;  <span class="hljs-meta">@Override</span>  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">update</span><span class="hljs-params">()</span> </span>&#123;    System.out.println(<span class="hljs-string">"Binary String:"</span> + Integer.toBinaryString(subject.getState()));  &#125;&#125;</code></pre><p class="note note-info">八进制观察者</p><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter4.observer;<span class="hljs-comment">/** <span class="hljs-doctag">@author</span> Shui */</span><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">OctalObserver</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Observer</span> </span>&#123;  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">OctalObserver</span><span class="hljs-params">(Subject subject)</span> </span>&#123;    <span class="hljs-keyword">super</span>(subject);  &#125;  <span class="hljs-meta">@Override</span>  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">update</span><span class="hljs-params">()</span> </span>&#123;    System.out.println(<span class="hljs-string">"OctalObserver String:"</span> + Integer.toOctalString(subject.getState()));  &#125;&#125;</code></pre><p class="note note-light">测试类</p><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter4.observer;<span class="hljs-comment">/** <span class="hljs-doctag">@author</span> Shui */</span><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ObserverClient</span> </span>&#123;  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;    <span class="hljs-keyword">final</span> Subject subject = <span class="hljs-keyword">new</span> Subject();    subject.attach(<span class="hljs-keyword">new</span> BinaryObserver(subject));    subject.attach(<span class="hljs-keyword">new</span> OctalObserver(subject));    subject.setState(<span class="hljs-number">1</span>);    subject.setState(<span class="hljs-number">2</span>);      &#125;&#125;</code></pre><p><a href="https://www.cnblogs.com/java-my-life/archive/2012/05/16/2502279.html" target="_blank" rel="noopener">链接</a></p>]]></content>
+    
+    
+    <categories>
+      
+      <category>后端</category>
+      
+      <category>JUC</category>
+      
+      <category>Java多线程编程实战</category>
+      
+      <category>中阶知识</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>学习</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>12.使用观察者设计模式观察线程的生命周期</title>
+    <link href="/juc-actualCombat-2-12.html"/>
+    <url>/juc-actualCombat-2-12.html</url>
+    
+    <content type="html"><![CDATA[]]></content>
+    
+    
+    <categories>
+      
+      <category>后端</category>
+      
+      <category>JUC</category>
+      
+      <category>Java多线程编程实战</category>
+      
+      <category>中阶知识</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>学习</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>10.volatile关键字总结</title>
     <link href="/juc-actualCombat-2-10.html"/>
     <url>/juc-actualCombat-2-10.html</url>

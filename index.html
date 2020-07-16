@@ -214,23 +214,29 @@
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/juc-actualCombat-2-10.html">10.volatile关键字总结</a>
+      <a class="index-header" href="/juc-actualCombat-2-11.html">11.观察者设计模式介绍</a>
 
-      <a href="/juc-actualCombat-2-10.html" class="index-excerpt">
+      <a href="/juc-actualCombat-2-11.html" class="index-excerpt">
         
         
           
         
-        <div>volatile的使用场景状态量标记volatile boolean start=true
-while(start)&#123;
-    //...
-&#125;
+        <div>
+在介绍多线程观察者模式，先介绍普通的观察者模式，这里会根据以下的URML图来编写相关代码
 
-void close()&#123;
-    start=false;
-&#125;
 
-如果这里不用volatile，其它线程调用了close()没有刷到主存，那这里的while循环就一直到自己的线程工作空间（线程高速缓存、线程工作内</div>
+
+主题
+
+package com.shui.juc.chapter4.observer;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/** @author Shui */
+public class Subject &#123;
+
+  pri</div>
       </a>
 
       <div class="index-btm post-metas">
@@ -269,29 +275,23 @@ void close()&#123;
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/juc-actualCombat-2-11.html">11.观察者设计模式介绍</a>
+      <a class="index-header" href="/juc-actualCombat-2-10.html">10.volatile关键字总结</a>
 
-      <a href="/juc-actualCombat-2-11.html" class="index-excerpt">
+      <a href="/juc-actualCombat-2-10.html" class="index-excerpt">
         
         
           
         
-        <div>
-在介绍多线程观察者模式，先介绍普通的观察者模式，这里会根据以下的URML图来编写相关代码
+        <div>volatile的使用场景状态量标记volatile boolean start=true
+while(start)&#123;
+    //...
+&#125;
 
+void close()&#123;
+    start=false;
+&#125;
 
-
-主题
-
-package com.shui.juc.chapter4.observer;
-
-import java.util.ArrayList;
-import java.util.List;
-
-/** @author Shui */
-public class Subject &#123;
-
-  pri</div>
+如果这里不用volatile，其它线程调用了close()没有刷到主存，那这里的while循环就一直到自己的线程工作空间（线程高速缓存、线程工作内</div>
       </a>
 
       <div class="index-btm post-metas">

@@ -168,14 +168,26 @@
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/juc-actualCombat-2-15.html">15.多线程读写锁分离设计模式讲解</a>
+      <a class="index-header" href="/juc-actualCombat-2-15.html">15.多线程读写锁分离设计模式</a>
 
       <a href="/juc-actualCombat-2-15.html" class="index-excerpt">
         
         
           
         
-        <div></div>
+        <div>UML图
+
+
+读写锁
+
+package com.shui.juc.chapter6;
+
+/** @author Shui */
+public class ReadWriteLock &#123;
+
+  private int readingReaders = 0;
+  private int waitingReaders = 0;
+  private int waitingWriters = 0;</div>
       </a>
 
       <div class="index-btm post-metas">

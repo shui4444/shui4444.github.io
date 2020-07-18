@@ -17,7 +17,7 @@
   <meta name="description" content="">
   <meta name="author" content="Shui">
   <meta name="keywords" content="">
-  <title>13.单线程执行设计模式，有一个门，始终只能一个人通过-上 - Shui&#39;s Blog</title>
+  <title>14.单线程执行设计模式，有一个门，始终只能一个人通过 - Shui&#39;s Blog</title>
 
   <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
 
@@ -152,7 +152,7 @@
               
   <div class="mt-3 post-meta">
     <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-    <time datetime="2020-07-18 09:04">
+    <time datetime="2020-07-18 10:26">
       2020年7月18日 上午
     </time>
   </div>
@@ -163,7 +163,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      328 字
+      229 字
     </span>
   
 
@@ -173,7 +173,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      5
+      2
        分钟
     </span>
   
@@ -204,106 +204,17 @@
           <div class="post-content mx-auto" id="post">
             
             <article class="markdown-body">
-              <pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter5;
+              <p class="note note-info">解决方式很简单，加this锁</p>
 
-<span class="hljs-comment">/**</span>
-<span class="hljs-comment"> * 门</span>
-<span class="hljs-comment"> *</span>
-<span class="hljs-comment"> * <span class="hljs-doctag">@author</span> Shui</span>
-<span class="hljs-comment"> */</span>
-<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Gate</span> </span>&#123;
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">synchronized</span> <span class="hljs-keyword">void</span> <span class="hljs-title">pass</span><span class="hljs-params">(String name, String address)</span> </span>&#123;
+    ...
+&#125;
 
-  <span class="hljs-keyword">private</span> String address = <span class="hljs-string">"NoWhere"</span>;
-  <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> counter = <span class="hljs-number">0</span>;
-  <span class="hljs-keyword">private</span> String name = <span class="hljs-string">"Nobody"</span>;
-
-  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">pass</span><span class="hljs-params">(String name, String address)</span> </span>&#123;
-    <span class="hljs-keyword">this</span>.counter++;
-    <span class="hljs-keyword">this</span>.name = name;
-    <span class="hljs-keyword">this</span>.address = address;
-    verify();
-  &#125;
-
-  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">verify</span><span class="hljs-params">()</span> </span>&#123;
-    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.name.charAt(<span class="hljs-number">0</span>) != <span class="hljs-keyword">this</span>.address.charAt(<span class="hljs-number">0</span>)) &#123;
-      System.out.println(<span class="hljs-string">"**************破碎**************"</span> + toString());
-    &#125;
-  &#125;
-
-  
-  
-  <span class="hljs-meta">@Override</span>
-  <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">toString</span><span class="hljs-params">()</span> </span>&#123;
-    <span class="hljs-keyword">return</span> <span class="hljs-string">"Gate&#123;"</span>
-        + <span class="hljs-string">"address='"</span>
-        + address
-        + <span class="hljs-string">'\''</span>
-        + <span class="hljs-string">", counter="</span>
-        + counter
-        + <span class="hljs-string">", name='"</span>
-        + name
-        + <span class="hljs-string">'\''</span>
-        + <span class="hljs-string">'&#125;'</span>;
-  &#125;
+<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">synchronized</span> String <span class="hljs-title">toString</span><span class="hljs-params">()</span> </span>&#123;
+    ...
 &#125;</code></pre>
 
-<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter5;
-
-<span class="hljs-comment">/**</span>
-<span class="hljs-comment"> * 用户</span>
-<span class="hljs-comment"> *</span>
-<span class="hljs-comment"> * <span class="hljs-doctag">@author</span> Shui</span>
-<span class="hljs-comment"> */</span>
-<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Thread</span> </span>&#123;
-
-  <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Gate gate;
-  <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String myAddress;
-  <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String myName;
-
-  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">User</span><span class="hljs-params">(String myName, String myAddress, Gate gate)</span> </span>&#123;
-    <span class="hljs-keyword">this</span>.myName = myName;
-    <span class="hljs-keyword">this</span>.myAddress = myAddress;
-    <span class="hljs-keyword">this</span>.gate = gate;
-  &#125;
-
-  <span class="hljs-meta">@Override</span>
-  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;
-    System.out.println(myName + <span class="hljs-string">"begin"</span>);
-    <span class="hljs-keyword">while</span> (<span class="hljs-keyword">true</span>) &#123;
-      <span class="hljs-keyword">this</span>.gate.pass(myName, myAddress);
-    &#125;
-  &#125;
-&#125;</code></pre>
-
-<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter5;
-
-<span class="hljs-comment">/** <span class="hljs-doctag">@author</span> Shui */</span>
-<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Client</span> </span>&#123;
-  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;
-    Gate gate = <span class="hljs-keyword">new</span> Gate();
-    User bj = <span class="hljs-keyword">new</span> User(<span class="hljs-string">"Baobao"</span>, <span class="hljs-string">"BeJing"</span>, gate);
-    User sh = <span class="hljs-keyword">new</span> User(<span class="hljs-string">"Baobao"</span>, <span class="hljs-string">"ShangHai"</span>, gate);
-    User gz = <span class="hljs-keyword">new</span> User(<span class="hljs-string">"Baobao"</span>, <span class="hljs-string">"GuangZhou"</span>, gate);
-
-    bj.start();
-    sh.start();
-    gz.start();
-  &#125;
-&#125;</code></pre>
-
-<p class="note note-light">结果</p>
-
-<pre><code class="hljs java">...
-**************破碎**************Gate&#123;address=<span class="hljs-string">'BeJing'</span>, counter=<span class="hljs-number">1274503313</span>, name=<span class="hljs-string">'Baobao'</span>&#125;
-**************破碎**************Gate&#123;address=<span class="hljs-string">'BeJing'</span>, counter=<span class="hljs-number">1274503508</span>, name=<span class="hljs-string">'Baobao'</span>&#125;
-**************破碎**************Gate&#123;address=<span class="hljs-string">'BeJing'</span>, counter=<span class="hljs-number">1274504748</span>, name=<span class="hljs-string">'Baobao'</span>&#125;
-**************破碎**************Gate&#123;address=<span class="hljs-string">'BeJing'</span>, counter=<span class="hljs-number">1274506291</span>, name=<span class="hljs-string">'Baobao'</span>&#125;
-**************破碎**************Gate&#123;address=<span class="hljs-string">'BeJing'</span>, counter=<span class="hljs-number">1274507603</span>, name=<span class="hljs-string">'Baobao'</span>&#125;
-**************破碎**************Gate&#123;address=<span class="hljs-string">'BeJing'</span>, counter=<span class="hljs-number">1274508796</span>, name=<span class="hljs-string">'Baobao'</span>&#125;
-**************破碎**************Gate&#123;address=<span class="hljs-string">'BeJing'</span>, counter=<span class="hljs-number">1274510656</span>, name=<span class="hljs-string">'Baobao'</span>&#125;
-...</code></pre>
-
-<p>这里的结果中，按道理BeJing的第一个字符是B，Baobao第一个字符也是B，条件不满足不输出它才对，这个会在下个章节介绍解决方法</p>
+<p class="note note-info">这个方式在线程调用<code>pass()</code>的时候只有一个线程可以通过。这边对共享资源<code>Gate</code>的<code>name、address、counter</code>都是有一个修改的动作，在<code>verify()</code>也是加了锁的，因为它在<code>pass()</code>之中，在<ocde>toString()</code>也是加了锁的，这些都是读的操作，读的操作2个线程分别去读它然后给它加个锁这个会导致运行的效率比较低，写和写像<code>pass()</code>中加锁是可以防止线程不安全数据共享引起线程安全性问题，写和读也会出现线程不安全问题，但是对于读和读本身没有任何的修改但是在这里也加了锁，那就导致程序运行的效率低，对于这个问题会在下一章介绍</p>
 
             </article>
             <hr>
@@ -340,9 +251,9 @@
                   <div class="post-prev col-6">
                     
                     
-                      <a href="/juc-actualCombat-2-14.html">
+                      <a href="/juc-actualCombat-2-15.html">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">14.单线程执行设计模式，有一个门，始终只能一个人通过</span>
+                        <span class="hidden-mobile">15.多线程读写锁分离设计模式讲解</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -350,8 +261,8 @@
                   <div class="post-next col-6">
                     
                     
-                      <a href="/juc-actualCombat-2-12.html">
-                        <span class="hidden-mobile">12.使用观察者设计模式观察线程的生命周期</span>
+                      <a href="/juc-actualCombat-2-13.html">
+                        <span class="hidden-mobile">13.单线程执行设计模式，有一个门，始终只能一个人通过-上</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
@@ -545,7 +456,7 @@
     var typed = new Typed('#subtitle', {
       strings: [
         '  ',
-        "13.单线程执行设计模式，有一个门，始终只能一个人通过-上&nbsp;",
+        "14.单线程执行设计模式，有一个门，始终只能一个人通过&nbsp;",
       ],
       cursorChar: "_",
       typeSpeed: 70,

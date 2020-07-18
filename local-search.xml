@@ -4,6 +4,68 @@
   
   
   <entry>
+    <title>15.多线程读写锁分离设计模式讲解</title>
+    <link href="/juc-actualCombat-2-15.html"/>
+    <url>/juc-actualCombat-2-15.html</url>
+    
+    <content type="html"><![CDATA[]]></content>
+    
+    
+    <categories>
+      
+      <category>后端</category>
+      
+      <category>JUC</category>
+      
+      <category>Java多线程编程实战</category>
+      
+      <category>中阶知识</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>学习</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>14.单线程执行设计模式，有一个门，始终只能一个人通过</title>
+    <link href="/juc-actualCombat-2-14.html"/>
+    <url>/juc-actualCombat-2-14.html</url>
+    
+    <content type="html"><![CDATA[<p class="note note-info">解决方式很简单，加this锁</p><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">synchronized</span> <span class="hljs-keyword">void</span> <span class="hljs-title">pass</span><span class="hljs-params">(String name, String address)</span> </span>&#123;    ...&#125;<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">synchronized</span> String <span class="hljs-title">toString</span><span class="hljs-params">()</span> </span>&#123;    ...&#125;</code></pre><p class="note note-info">这个方式在线程调用<code>pass()</code>的时候只有一个线程可以通过。这边对共享资源<code>Gate</code>的<code>name、address、counter</code>都是有一个修改的动作，在<code>verify()</code>也是加了锁的，因为它在<code>pass()</code>之中，在<ocde>toString()</code>也是加了锁的，这些都是读的操作，读的操作2个线程分别去读它然后给它加个锁这个会导致运行的效率比较低，写和写像<code>pass()</code>中加锁是可以防止线程不安全数据共享引起线程安全性问题，写和读也会出现线程不安全问题，但是对于读和读本身没有任何的修改但是在这里也加了锁，那就导致程序运行的效率低，对于这个问题会在下一章介绍</p>]]></content>
+    
+    
+    <categories>
+      
+      <category>后端</category>
+      
+      <category>JUC</category>
+      
+      <category>Java多线程编程实战</category>
+      
+      <category>中阶知识</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>学习</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>13.单线程执行设计模式，有一个门，始终只能一个人通过-上</title>
     <link href="/juc-actualCombat-2-13.html"/>
     <url>/juc-actualCombat-2-13.html</url>

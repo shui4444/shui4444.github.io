@@ -17,7 +17,7 @@
   <meta name="description" content="">
   <meta name="author" content="Shui">
   <meta name="keywords" content="">
-  <title>12.使用观察者设计模式观察线程的生命周期 - Shui&#39;s Blog</title>
+  <title>13.单线程执行设计模式，有一个门，始终只能一个人通过-上 - Shui&#39;s Blog</title>
 
   <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
 
@@ -152,8 +152,8 @@
               
   <div class="mt-3 post-meta">
     <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-    <time datetime="2020-07-16 22:50">
-      2020年7月16日 晚上
+    <time datetime="2020-07-18 09:04">
+      2020年7月18日 上午
     </time>
   </div>
 
@@ -163,7 +163,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      387 字
+      328 字
     </span>
   
 
@@ -173,7 +173,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      7
+      5
        分钟
     </span>
   
@@ -204,147 +204,106 @@
           <div class="post-content mx-auto" id="post">
             
             <article class="markdown-body">
-              <p class="note note-light">UML图</p>
+              <pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter5;
 
-<p><img src="https://shui-blog.oss-cn-shenzhen.aliyuncs.com/img/2/7755c3e9-09f2-449a-b864-82c792816e20.png" srcset="/img/loading.gif" alt="UML图"></p>
-<p class="note note-light">主题</p>
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * 门</span>
+<span class="hljs-comment"> *</span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@author</span> Shui</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Gate</span> </span>&#123;
 
-<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter4.thread;
+  <span class="hljs-keyword">private</span> String address = <span class="hljs-string">"NoWhere"</span>;
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> counter = <span class="hljs-number">0</span>;
+  <span class="hljs-keyword">private</span> String name = <span class="hljs-string">"Nobody"</span>;
 
-<span class="hljs-comment">/** <span class="hljs-doctag">@author</span> Shui */</span>
-<span class="hljs-keyword">public</span> <span class="hljs-keyword">abstract</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ObservableRunnable</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Runnable</span> </span>&#123;
-
-  <span class="hljs-keyword">protected</span> <span class="hljs-keyword">final</span> LifecycleListener listener;
-
-  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">ObservableRunnable</span><span class="hljs-params">(LifecycleListener listener)</span> </span>&#123;
-    <span class="hljs-keyword">this</span>.listener = listener;
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">pass</span><span class="hljs-params">(String name, String address)</span> </span>&#123;
+    <span class="hljs-keyword">this</span>.counter++;
+    <span class="hljs-keyword">this</span>.name = name;
+    <span class="hljs-keyword">this</span>.address = address;
+    verify();
   &#125;
 
-  <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">notifyChange</span><span class="hljs-params">(<span class="hljs-keyword">final</span> RunnableEvent event)</span> </span>&#123;
-    <span class="hljs-keyword">this</span>.listener.onEvent(event);
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">verify</span><span class="hljs-params">()</span> </span>&#123;
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.name.charAt(<span class="hljs-number">0</span>) != <span class="hljs-keyword">this</span>.address.charAt(<span class="hljs-number">0</span>)) &#123;
+      System.out.println(<span class="hljs-string">"**************破碎**************"</span> + toString());
+    &#125;
   &#125;
 
-  <span class="hljs-keyword">public</span> <span class="hljs-keyword">enum</span> RunnableState &#123;
-    <span class="hljs-comment">/** 运行中 */</span>
-    RUNNING,
-    <span class="hljs-comment">/** 出错 */</span>
-    ERROR,
-    <span class="hljs-comment">/** 完成 */</span>
-    DONE
-  &#125;
-
-  <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">RunnableEvent</span> </span>&#123;
-    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Throwable cause;
-    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> RunnableState runnableState;
-    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Thread thread;
-
-    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">RunnableEvent</span><span class="hljs-params">(RunnableState runnableState, Thread thread, Throwable cause)</span> </span>&#123;
-      <span class="hljs-keyword">this</span>.runnableState = runnableState;
-      <span class="hljs-keyword">this</span>.thread = thread;
-      <span class="hljs-keyword">this</span>.cause = cause;
-    &#125;
-
-    <span class="hljs-function"><span class="hljs-keyword">public</span> Throwable <span class="hljs-title">getCause</span><span class="hljs-params">()</span> </span>&#123;
-      <span class="hljs-keyword">return</span> cause;
-    &#125;
-
-    <span class="hljs-function"><span class="hljs-keyword">public</span> RunnableState <span class="hljs-title">getRunnableState</span><span class="hljs-params">()</span> </span>&#123;
-      <span class="hljs-keyword">return</span> runnableState;
-    &#125;
-
-    <span class="hljs-function"><span class="hljs-keyword">public</span> Thread <span class="hljs-title">getThread</span><span class="hljs-params">()</span> </span>&#123;
-      <span class="hljs-keyword">return</span> thread;
-    &#125;
+  
+  
+  <span class="hljs-meta">@Override</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">toString</span><span class="hljs-params">()</span> </span>&#123;
+    <span class="hljs-keyword">return</span> <span class="hljs-string">"Gate&#123;"</span>
+        + <span class="hljs-string">"address='"</span>
+        + address
+        + <span class="hljs-string">'\''</span>
+        + <span class="hljs-string">", counter="</span>
+        + counter
+        + <span class="hljs-string">", name='"</span>
+        + name
+        + <span class="hljs-string">'\''</span>
+        + <span class="hljs-string">'&#125;'</span>;
   &#125;
 &#125;</code></pre>
 
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter5;
 
-<p class="note note-light">观察者接口</p>
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * 用户</span>
+<span class="hljs-comment"> *</span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@author</span> Shui</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Thread</span> </span>&#123;
 
-<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter4.thread;
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Gate gate;
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String myAddress;
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String myName;
 
-<span class="hljs-comment">/** <span class="hljs-doctag">@author</span> Shui */</span>
-<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">LifecycleListener</span> </span>&#123;
-  <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">onEvent</span><span class="hljs-params">(<span class="hljs-keyword">final</span> ObservableRunnable.RunnableEvent event)</span></span>;
-&#125;</code></pre>
-
-<p class="note note-light">观察者实现</p>
-
-<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter4.thread;
-<span class="hljs-keyword">import</span> java.util.List;
-
-<span class="hljs-comment">/** <span class="hljs-doctag">@author</span> Shui */</span>
-<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ThreadLifecycleObserver</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">LifecycleListener</span> </span>&#123;
-  <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> Object LOCK = <span class="hljs-keyword">new</span> Object();
-
-  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">concurrencyQuery</span><span class="hljs-params">(List&lt;String&gt; ids)</span> </span>&#123;
-    <span class="hljs-keyword">if</span> (ids == <span class="hljs-keyword">null</span> || ids.isEmpty()) &#123;
-      <span class="hljs-keyword">return</span>;
-    &#125;
-    ids.forEach(
-        id -&gt;
-            <span class="hljs-keyword">new</span> Thread(
-                    <span class="hljs-keyword">new</span> ObservableRunnable(<span class="hljs-keyword">this</span>) &#123;
-
-                      <span class="hljs-meta">@Override</span>
-                      <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;
-                        <span class="hljs-keyword">try</span> &#123;
-                          <span class="hljs-keyword">this</span>.notifyChange(
-                              <span class="hljs-keyword">new</span> RunnableEvent(
-                                  RunnableState.RUNNING, Thread.currentThread(), <span class="hljs-keyword">null</span>));
-                          System.out.println(<span class="hljs-string">"query for the id:"</span> + id);
-                          Thread.sleep(<span class="hljs-number">1000</span>);
-                          <span class="hljs-keyword">this</span>.notifyChange(
-                              <span class="hljs-keyword">new</span> RunnableEvent(RunnableState.DONE, Thread.currentThread(), <span class="hljs-keyword">null</span>));
-                        &#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;
-                          <span class="hljs-keyword">this</span>.notifyChange(
-                              <span class="hljs-keyword">new</span> RunnableEvent(RunnableState.ERROR, Thread.currentThread(), e));
-                        &#125;
-                      &#125;
-                    &#125;,
-                    id)
-                .start());
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">User</span><span class="hljs-params">(String myName, String myAddress, Gate gate)</span> </span>&#123;
+    <span class="hljs-keyword">this</span>.myName = myName;
+    <span class="hljs-keyword">this</span>.myAddress = myAddress;
+    <span class="hljs-keyword">this</span>.gate = gate;
   &#125;
 
   <span class="hljs-meta">@Override</span>
-  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">onEvent</span><span class="hljs-params">(ObservableRunnable.RunnableEvent event)</span> </span>&#123;
-    <span class="hljs-keyword">synchronized</span> (LOCK) &#123;
-      System.out.println(
-          <span class="hljs-string">"The runnable ["</span>
-              + event.getThread().getName()
-              + <span class="hljs-string">"] date changed and state is ["</span>
-              + event.getRunnableState()
-              + <span class="hljs-string">"]"</span>);
-      Throwable cause = event.getCause();
-      <span class="hljs-keyword">if</span> (cause != <span class="hljs-keyword">null</span>) &#123;
-        System.out.println(<span class="hljs-string">"The runnable ["</span> + event.getThread().getName() + <span class="hljs-string">"] process failed"</span>);
-        cause.printStackTrace();
-      &#125;
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;
+    System.out.println(myName + <span class="hljs-string">"begin"</span>);
+    <span class="hljs-keyword">while</span> (<span class="hljs-keyword">true</span>) &#123;
+      <span class="hljs-keyword">this</span>.gate.pass(myName, myAddress);
     &#125;
   &#125;
 &#125;</code></pre>
 
-<p class="note note-light">测试</p>
-
-<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter4.thread;
-
-<span class="hljs-keyword">import</span> java.util.Arrays;
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter5;
 
 <span class="hljs-comment">/** <span class="hljs-doctag">@author</span> Shui */</span>
-<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ThreadLifeCycleClient</span> </span>&#123;
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Client</span> </span>&#123;
   <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;
-    <span class="hljs-keyword">new</span> ThreadLifecycleObserver().concurrencyQuery(Arrays.asList(<span class="hljs-string">"1"</span>, <span class="hljs-string">"2"</span>));
+    Gate gate = <span class="hljs-keyword">new</span> Gate();
+    User bj = <span class="hljs-keyword">new</span> User(<span class="hljs-string">"Baobao"</span>, <span class="hljs-string">"BeJing"</span>, gate);
+    User sh = <span class="hljs-keyword">new</span> User(<span class="hljs-string">"Baobao"</span>, <span class="hljs-string">"ShangHai"</span>, gate);
+    User gz = <span class="hljs-keyword">new</span> User(<span class="hljs-string">"Baobao"</span>, <span class="hljs-string">"GuangZhou"</span>, gate);
+
+    bj.start();
+    sh.start();
+    gz.start();
   &#125;
 &#125;</code></pre>
 
 <p class="note note-light">结果</p>
 
-<pre><code class="hljs pf">The runnable [<span class="hljs-number">1</span>] date changed and <span class="hljs-keyword">state</span> is [RUNNING]
-The runnable [<span class="hljs-number">2</span>] date changed and <span class="hljs-keyword">state</span> is [RUNNING]
-query <span class="hljs-keyword">for</span> the id:<span class="hljs-number">2</span>
-query <span class="hljs-keyword">for</span> the id:<span class="hljs-number">1</span>
-The runnable [<span class="hljs-number">1</span>] date changed and <span class="hljs-keyword">state</span> is [DONE]
-The runnable [<span class="hljs-number">2</span>] date changed and <span class="hljs-keyword">state</span> is [DONE]</code></pre>
+<pre><code class="hljs java">...
+**************破碎**************Gate&#123;address=<span class="hljs-string">'BeJing'</span>, counter=<span class="hljs-number">1274503313</span>, name=<span class="hljs-string">'Baobao'</span>&#125;
+**************破碎**************Gate&#123;address=<span class="hljs-string">'BeJing'</span>, counter=<span class="hljs-number">1274503508</span>, name=<span class="hljs-string">'Baobao'</span>&#125;
+**************破碎**************Gate&#123;address=<span class="hljs-string">'BeJing'</span>, counter=<span class="hljs-number">1274504748</span>, name=<span class="hljs-string">'Baobao'</span>&#125;
+**************破碎**************Gate&#123;address=<span class="hljs-string">'BeJing'</span>, counter=<span class="hljs-number">1274506291</span>, name=<span class="hljs-string">'Baobao'</span>&#125;
+**************破碎**************Gate&#123;address=<span class="hljs-string">'BeJing'</span>, counter=<span class="hljs-number">1274507603</span>, name=<span class="hljs-string">'Baobao'</span>&#125;
+**************破碎**************Gate&#123;address=<span class="hljs-string">'BeJing'</span>, counter=<span class="hljs-number">1274508796</span>, name=<span class="hljs-string">'Baobao'</span>&#125;
+**************破碎**************Gate&#123;address=<span class="hljs-string">'BeJing'</span>, counter=<span class="hljs-number">1274510656</span>, name=<span class="hljs-string">'Baobao'</span>&#125;
+...</code></pre>
+
+<p>这里的结果中，按道理BeJing的第一个字符是B，Baobao第一个字符也是B，条件不满足不输出它才对，这个会在下个章节介绍解决方法</p>
 
             </article>
             <hr>
@@ -381,18 +340,12 @@ The runnable [<span class="hljs-number">2</span>] date changed and <span class="
                   <div class="post-prev col-6">
                     
                     
-                      <a href="/juc-actualCombat-2-13.html">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">13.单线程执行设计模式，有一个门，始终只能一个人通过-上</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </div>
                   <div class="post-next col-6">
                     
                     
-                      <a href="/juc-actualCombat-2-11.html">
-                        <span class="hidden-mobile">11.观察者设计模式介绍</span>
+                      <a href="/juc-actualCombat-2-12.html">
+                        <span class="hidden-mobile">12.使用观察者设计模式观察线程的生命周期</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
@@ -586,7 +539,7 @@ The runnable [<span class="hljs-number">2</span>] date changed and <span class="
     var typed = new Typed('#subtitle', {
       strings: [
         '  ',
-        "12.使用观察者设计模式观察线程的生命周期&nbsp;",
+        "13.单线程执行设计模式，有一个门，始终只能一个人通过-上&nbsp;",
       ],
       cursorChar: "_",
       typeSpeed: 70,

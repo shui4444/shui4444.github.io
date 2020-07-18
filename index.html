@@ -168,6 +168,65 @@
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/juc-actualCombat-2-13.html">13.单线程执行设计模式，有一个门，始终只能一个人通过-上</a>
+
+      <a href="/juc-actualCombat-2-13.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>package com.shui.juc.chapter5;
+
+/**
+ * 门
+ *
+ * @author Shui
+ */
+public class Gate &#123;
+
+  private String address = "NoWhere";
+  private int counter = 0;
+  private String name = "Nobody";
+
+  public v</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-07-18
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">Java多线程编程实战</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/%E4%B8%AD%E9%98%B6%E7%9F%A5%E8%AF%86/">中阶知识</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
       <a class="index-header" href="/juc-actualCombat-2-12.html">12.使用观察者设计模式观察线程的生命周期</a>
 
       <a href="/juc-actualCombat-2-12.html" class="index-excerpt">
@@ -609,54 +668,6 @@ public class VolatileTest2 &#123;
         <div>前言
 
 之前有去介绍《单例模式》，分了7个例子去介绍，然后怎么去让类又是单例又能够实现懒加载并且性能比较好，然后使用了Holder、枚举的方式，然后介绍了wait set的概念，在每一个对象Object在一个Monitor时候都会有一个wait set，wait set它主要存放一些Thread，然后用其它的线程去唤醒它，然后出来，wait set是一个比较虚的概念，可能在内存中也并没有给它划分一</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-07-12
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">Java多线程编程实战</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/%E4%B8%AD%E9%98%B6%E7%9F%A5%E8%AF%86/">中阶知识</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/juc-actualCombat-2-3.html">3.多线程的休息室WaitSet详细介绍与知识点</a>
-
-      <a href="/juc-actualCombat-2-3.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>前言在调用wait()的时候会有一个wait set的概念存在，它其实是一个虚的概念，因为从它里面拿不出任何东西，在内存结构里也没有，它确实是会去存放我们的线程。一些人把它称之为线程的休息室，就是让它休息起来，它里面一些容易让你在使用的过程中如果你进行深入思考的话肯东会产生一些疑问，在这个章节中就去介绍wait set
-
-wait()之后在哪里去唤醒当你的线程执行在同步语句块里面，它使用了 wai</div>
       </a>
 
       <div class="index-btm post-metas">

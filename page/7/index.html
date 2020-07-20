@@ -168,6 +168,56 @@
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/linux-1.html">【Linux】 Linux初始化必做的一些事情</a>
+
+      <a href="/linux-1.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>替换yum源链接
+设置静态IPvim /etc/sysconfig/network-scripts/ifcfg-ens33
+
+#内容：
+BOOTPROTO="static" #dhcp改为static 
+ONBOOT="yes" #开机启用本配置
+IPADDR=192.168.202.106 #静态IP
+GATEWAY=192.168.7.1 #默认网关
+NETMASK=255.255.255.0</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2019-12-13
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+            
+              <a href="/categories/%E8%BF%90%E7%BB%B4/Linux/">Linux</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E9%9B%B6%E7%A2%8E/">零碎</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
       <a class="index-header" href="/redis-15.html">【 Redis-学习笔记 】 15.开发运维常见坑</a>
 
       <a href="/redis-15.html" class="index-excerpt">
@@ -567,51 +617,6 @@ redis-s</div>
 为主实现一个分流，将大部分读放到从节点中去执行，减轻主节压力
 
 主从复制的问题如果说主节点挂掉了，那么当有客户端传送写的命令就无法进行执行了，在生产环境中是无法忍受的，我们不得不手动的将主节点进行重启，然后将其中一个slave节点执行slaveof no one将它变为一个master节点，然后再将其他节点对这个mast</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2019-10-17
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
-            
-              <a href="/categories/%E8%BF%90%E7%BB%B4/Redis/">Redis</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/redis-6.html">【 Redis-学习笔记 】 6.Redis复制原理和优化</a>
-
-      <a href="/redis-6.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>什么是主从复制单机有什么问题？
-在一台机器去部署一个Redis节点，如果我们机器发生故障，例如机器磁盘、CPU、主板坏了，那我们客户端怎么连接Redis？
-Redis节点宕掉了，需要进行重启，这里重启期间，客户端是连接不上Redis的,而且你也不能在第一时间发现Redis宕掉了；
-假如机器有16G内存，而Redis用了12G内存，现在有一个需求：我真的需要64G内存，那么单机是满足不了的，那这样是</div>
       </a>
 
       <div class="index-btm post-metas">

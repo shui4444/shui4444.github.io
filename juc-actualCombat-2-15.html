@@ -163,7 +163,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      759 字
+      843 字
     </span>
   
 
@@ -173,7 +173,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      13
+      15
        分钟
     </span>
   
@@ -440,6 +440,35 @@
 <span class="hljs-keyword">Thread</span><span class="hljs-number">-5</span> 读取数据： bbbbbbbbbb
 <span class="hljs-keyword">Thread</span><span class="hljs-number">-3</span> 读取数据： bbbbbbbbbb
 <span class="hljs-params">...</span></code></pre>
+
+<p class="note note-primary">写优先</p>
+
+<pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ReadWriteLock</span> </span>&#123;
+  <span class="hljs-comment">/** 是否优先写 */</span>
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">boolean</span> preferWriter = <span class="hljs-keyword">true</span>;
+  ...
+
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">ReadWriteLock</span><span class="hljs-params">()</span> </span>&#123;
+    <span class="hljs-keyword">this</span>(<span class="hljs-keyword">true</span>);
+  &#125;
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">ReadWriteLock</span><span class="hljs-params">(<span class="hljs-keyword">boolean</span> preferWriter)</span> </span>&#123;
+    <span class="hljs-keyword">this</span>.preferWriter = preferWriter;
+  &#125;
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">synchronized</span> <span class="hljs-keyword">void</span> <span class="hljs-title">readLock</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> InterruptedException </span>&#123;
+    <span class="hljs-keyword">this</span>.waitingReaders++;
+    <span class="hljs-keyword">try</span> &#123;
+      <span class="hljs-comment">// 如果有写，不能读 || 如果更偏于写，读进入 wait set中</span>
+      <span class="hljs-keyword">while</span> (wringWriters &gt; <span class="hljs-number">0</span> || (preferWriter &amp;&amp; waitingWriters &gt; <span class="hljs-number">0</span>)) &#123;
+        <span class="hljs-keyword">this</span>.wait();
+      &#125;
+      <span class="hljs-keyword">this</span>.readingReaders++;
+    &#125; <span class="hljs-keyword">finally</span> &#123;
+      <span class="hljs-keyword">this</span>.waitingReaders--;
+    &#125;
+  &#125;</code></pre>
             </article>
             <hr>
             <div>
@@ -474,6 +503,12 @@
                 <div class="post-prevnext row">
                   <div class="post-prev col-6">
                     
+                    
+                      <a href="/juc-actualCombat-2-16.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">16.多线程不可变对象设计模式Immutable</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
                     
                   </div>
                   <div class="post-next col-6">

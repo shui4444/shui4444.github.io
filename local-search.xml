@@ -4,6 +4,37 @@
   
   
   <entry>
+    <title>17.多线程Future设计模式详细介绍</title>
+    <link href="/juc-actualCombat-2-17.html"/>
+    <url>/juc-actualCombat-2-17.html</url>
+    
+    <content type="html"><![CDATA[<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter8;<span class="hljs-comment">/** <span class="hljs-doctag">@author</span> Shui */</span><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">Future</span>&lt;<span class="hljs-title">T</span>&gt; </span>&#123;  <span class="hljs-function">T <span class="hljs-title">get</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> InterruptedException</span>;&#125;</code></pre><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter8;<span class="hljs-comment">/** <span class="hljs-doctag">@author</span> Shui */</span><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AsyncFuture</span>&lt;<span class="hljs-title">T</span>&gt; <span class="hljs-keyword">implements</span> <span class="hljs-title">Future</span>&lt;<span class="hljs-title">T</span>&gt; </span>&#123;  <span class="hljs-comment">/** 是否结束 */</span>  <span class="hljs-keyword">private</span> <span class="hljs-keyword">volatile</span> <span class="hljs-keyword">boolean</span> done = <span class="hljs-keyword">false</span>;  <span class="hljs-keyword">private</span> T result;  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">done</span><span class="hljs-params">(T result)</span> </span>&#123;    <span class="hljs-keyword">synchronized</span> (<span class="hljs-keyword">this</span>) &#123;      <span class="hljs-keyword">this</span>.result = result;      <span class="hljs-keyword">this</span>.done = <span class="hljs-keyword">true</span>;      <span class="hljs-keyword">this</span>.notifyAll();    &#125;  &#125;  <span class="hljs-meta">@Override</span>  <span class="hljs-function"><span class="hljs-keyword">public</span> T <span class="hljs-title">get</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> InterruptedException </span>&#123;    <span class="hljs-keyword">synchronized</span> (<span class="hljs-keyword">this</span>) &#123;      <span class="hljs-keyword">while</span> (!done) &#123;        <span class="hljs-keyword">this</span>.wait();      &#125;    &#125;    <span class="hljs-keyword">return</span> result;  &#125;&#125;</code></pre><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter8;<span class="hljs-comment">/** <span class="hljs-doctag">@author</span> Shui */</span><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">FutureTask</span>&lt;<span class="hljs-title">T</span>&gt; </span>&#123;  <span class="hljs-function">T <span class="hljs-title">call</span><span class="hljs-params">()</span></span>;&#125;</code></pre><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter8;<span class="hljs-comment">/** <span class="hljs-doctag">@author</span> Shui */</span><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">FutureService</span> </span>&#123;  <span class="hljs-keyword">public</span> &lt;T&gt; <span class="hljs-function">Future&lt;T&gt; <span class="hljs-title">submit</span><span class="hljs-params">(<span class="hljs-keyword">final</span> FutureTask&lt;T&gt; task)</span> </span>&#123;    AsyncFuture&lt;T&gt; asyncFuture = <span class="hljs-keyword">new</span> AsyncFuture&lt;&gt;();    <span class="hljs-keyword">new</span> Thread(            () -&gt; &#123;              T result = task.call();              asyncFuture.done(result);            &#125;)        .start();    <span class="hljs-keyword">return</span> asyncFuture;  &#125;&#125;</code></pre><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter8;<span class="hljs-keyword">import</span> java.util.concurrent.TimeUnit;<span class="hljs-comment">/**</span><span class="hljs-comment"> *</span><span class="hljs-comment"> * <span class="hljs-doctag">@author</span> Shui</span><span class="hljs-comment"> */</span><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Test</span> </span>&#123;  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> InterruptedException </span>&#123;    FutureService futureService = <span class="hljs-keyword">new</span> FutureService();    Future&lt;String&gt; submit = futureService.submit(SyncInvoker::get);    System.out.println(<span class="hljs-number">123</span>);    String s = submit.get();    System.out.println(s);  &#125;  <span class="hljs-comment">/**</span><span class="hljs-comment">   * 模拟数据中非常消耗时间的sql</span><span class="hljs-comment">   *</span><span class="hljs-comment">   * <span class="hljs-doctag">@return</span></span><span class="hljs-comment">   */</span>  <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> String <span class="hljs-title">get</span><span class="hljs-params">()</span> </span>&#123;    <span class="hljs-keyword">try</span> &#123;      TimeUnit.SECONDS.sleep(<span class="hljs-number">10</span>);    &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;      e.printStackTrace();    &#125;    <span class="hljs-keyword">return</span> <span class="hljs-string">"Tom"</span>;  &#125;&#125;</code></pre>]]></content>
+    
+    
+    <categories>
+      
+      <category>后端</category>
+      
+      <category>JUC</category>
+      
+      <category>Java多线程编程实战</category>
+      
+      <category>中阶知识</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>学习</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>16.多线程不可变对象设计模式Immutable</title>
     <link href="/juc-actualCombat-2-16.html"/>
     <url>/juc-actualCombat-2-16.html</url>

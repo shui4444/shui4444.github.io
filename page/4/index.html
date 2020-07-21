@@ -168,6 +168,54 @@
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/juc-actualCombat-1-20.html">20.多线程死锁分析，案例介绍</a>
+
+      <a href="/juc-actualCombat-1-20.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>在前面章节介绍了通过synchronized修饰方法、代码块。这个锁可以让区间里面的东西可以串行执行，起到了数据保护的作用，但是它也有一个风险：会引起死锁。在什么情况会出现死锁呢？在这个章节介绍什么情况回出现死锁，怎么通过JDK的一些命令去查看程序有没有死锁住。有时候程序在运行的过程中什么事都没干日志不输出、CPU没变化这个时候它极有可能它进入了死锁的状态。接下来编写一个死锁案例
+
+package</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-06-26
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">Java多线程编程实战</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
       <a class="index-header" href="/juc-actualCombat-1-19.html">19.通过实验分析Class锁的存在</a>
 
       <a href="/juc-actualCombat-1-19.html" class="index-excerpt">
@@ -610,57 +658,6 @@ public final synchronized void join(long millis)
 
 最多等待millis毫秒该线程终止。 的超时0手段永远等待。
 此实现使用的循环this.wait电话空调上this.isAlive 。 作为线程终止this.notifyAll方法被调用</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-06-21
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">Java多线程编程实战</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/juc-actualCombat-1-10.html">10.线程ID，优先级</a>
-
-      <a href="/juc-actualCombat-1-10.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>线程IDpublic static void main(String[] args) &#123;
-    Thread t = new Thread(() -&gt; &#123;
-      System.out.println("Hello");
-      try &#123;
-        Thread.sleep(1_000);
-      &#125; catch (Interru</div>
       </a>
 
       <div class="index-btm post-metas">

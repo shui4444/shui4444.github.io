@@ -163,7 +163,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      248 字
+      630 字
     </span>
   
 
@@ -173,7 +173,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      4
+      9
        分钟
     </span>
   
@@ -298,8 +298,72 @@
   &#125;
 &#125;</code></pre>
 
+<table>
+<thead>
+<tr>
+<th>类</th>
+<th>介绍</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Future</td>
+<td>代表的是未来的一个凭据</td>
+</tr>
+<tr>
+<td>FutureTask</td>
+<td>将你的调用逻辑进行了隔离</td>
+</tr>
+<tr>
+<td>FutureService</td>
+<td>桥接Future和FutureTask</td>
+</tr>
+</tbody></table>
+<p class="note note-info">在这里有一个问题：这里执行话了10秒，做其它事情话了1秒，但是在调用<code>Future#get()</code>的时候同样也陷入了阻塞，举个例子：早上去订蛋糕，然后老板让你下午3点过来取，它可能忙完事情到1点了，但是它1点-3点2个小时没事做，他就只能等，他跑过去问，老板说还没好让他在休息区等待，所以这里一直等一直，为什么等下去呢？我们来看下写的代码AsyncFuture#get：</p>
 
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> T <span class="hljs-title">get</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> InterruptedException </span>&#123;
+    <span class="hljs-keyword">synchronized</span> (<span class="hljs-keyword">this</span>) &#123;
+      <span class="hljs-keyword">while</span> (!done) &#123;
+        <span class="hljs-keyword">this</span>.wait();
+      &#125;
+    &#125;
+    <span class="hljs-keyword">return</span> result;
+  &#125;</code></pre>
 
+<p class="note note-info">那么怎么知道蛋糕好了没？是由一个做蛋糕的师傅，他做完了之后告诉他蛋糕好了，通知他:AsyncFuture#done</p>
+
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">done</span><span class="hljs-params">(T result)</span> </span>&#123;
+   <span class="hljs-keyword">synchronized</span> (<span class="hljs-keyword">this</span>) &#123;
+     <span class="hljs-keyword">this</span>.result = result;
+     <span class="hljs-keyword">this</span>.done = <span class="hljs-keyword">true</span>;
+     <span class="hljs-keyword">this</span>.notifyAll();
+   &#125;
+ &#125;</code></pre>
+
+<p class="note note-info">这里有个问题：怎么解决1点-3点这2个小时的等待，你能不能做好了你给我打个电话或者找人送到家，这里改造一下：
+FutureService#submit</p>
+
+<pre><code class="hljs java"><span class="hljs-keyword">public</span> &lt;T&gt; <span class="hljs-function">Future&lt;T&gt; <span class="hljs-title">submit</span><span class="hljs-params">(<span class="hljs-keyword">final</span> FutureTask&lt;T&gt; task, <span class="hljs-keyword">final</span> Consumer&lt;T&gt; consumer)</span> </span>&#123;
+    AsyncFuture&lt;T&gt; asyncFuture = <span class="hljs-keyword">new</span> AsyncFuture&lt;&gt;();
+    <span class="hljs-keyword">new</span> Thread(
+            () -&gt; &#123;
+              T result = task.call();
+              asyncFuture.done(result);
+              consumer.accept(result);
+            &#125;)
+        .start();
+    <span class="hljs-keyword">return</span> asyncFuture;
+  &#125;</code></pre>
+
+<p class="note note-primary">测试</p>
+
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> InterruptedException </span>&#123;
+    FutureService futureService = <span class="hljs-keyword">new</span> FutureService();
+    Future&lt;String&gt; submit = futureService.submit(SyncInvoker::get, System.out::println);
+  &#125;</code></pre>
+
+<p class="note note-primary">结果</p>
+
+<pre><code class="hljs ebnf"><span class="hljs-attribute">Tom</span></code></pre>
             </article>
             <hr>
             <div>

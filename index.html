@@ -168,6 +168,53 @@
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/juc-actualCombat-2-18.html">18.Guarded Suspension设计模式</a>
+
+      <a href="/juc-actualCombat-2-18.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>前言Guarded Suspension是什么？在这一章介绍的是确保挂起设计模式，举例说明：你在厨房里面做早餐的关键时候不能离开，此时快递员敲门让你开门，这个时候因为你在厨房里做的事情不能中断的，你只能让快递员等一下，把事情做完之后在去去开门拿快递。
+在比如说在开发中使用的Tomcat，在一个请求过来时，Tomcat进行处理，另外又来了一个请求，这个时候线程已经满了，就做不了事了，此时这个请求会等</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-07-27
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">Java多线程编程实战</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/%E4%B8%AD%E9%98%B6%E7%9F%A5%E8%AF%86/">中阶知识</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
       <a class="index-header" href="/juc-actualCombat-2-17.html">17.多线程Future设计模式详细介绍</a>
 
       <a href="/juc-actualCombat-2-17.html" class="index-excerpt">
@@ -652,57 +699,6 @@ package com.shui.juc.chapter3;
 
 public class VolatileTest2 &#123;
   private</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-07-15
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">Java多线程编程实战</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/%E4%B8%AD%E9%98%B6%E7%9F%A5%E8%AF%86/">中阶知识</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/juc-actualCombat-2-8.html">8.指令重排序，happens-before规则</a>
-
-      <a href="/juc-actualCombat-2-8.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>前言上一章介绍了原子性、可见性、有序性，这一章介绍在Java中如何保证这3个特性。
-
-
-原子性：不做例子；
-可见性：使用volatile关键字保证可见性。当一个变量被修饰时它会保证变量在修改的时候立即主存里面去，到其它其它线程中读取的时候去从主从中拿数据的，而不是在缓存中拿数据；
-有序性：在Java内存模型中允许编译器在运行过程中或者编译过程中允许对变量重排序，它只满足最终一致性就可以了，对于单线</div>
       </a>
 
       <div class="index-btm post-metas">

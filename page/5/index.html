@@ -168,6 +168,61 @@
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/juc-actualCombat-1-11.html">11.Thread的join方法详细介绍</a>
+
+      <a href="/juc-actualCombat-1-11.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>语法public final void join()
+
+该线程等待死亡。
+此方法的调用行为完全相同的方式调用
+
+public final synchronized void join(long millis)
+
+
+最多等待millis毫秒该线程终止。 的超时0手段永远等待。
+此实现使用的循环this.wait电话空调上this.isAlive 。 作为线程终止this.notifyAll方法被调用</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-06-21
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">Java多线程编程实战</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
       <a class="index-header" href="/juc-actualCombat-1-10.html">10.线程ID，优先级</a>
 
       <a href="/juc-actualCombat-1-10.html" class="index-excerpt">
@@ -594,58 +649,6 @@ new Thread();
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>&nbsp;2020-06-15
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">Java多线程编程实战</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/juc-actualCombat-1-2.html">2.创建并启动线程</a>
-
-      <a href="/juc-actualCombat-1-2.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>案例演示
-在Java的方法体中，假设某处地方耗时需要很长时间，那么就会造成后面全部等待，而后面的代码与上面的代码完全没有依赖关系，在这个时候使用多线程更合适，你可以对它们分别建立一个线程来并行执行。现在有一个功能：读取数据库的数据+写文件
-
-普通实现package com.shui.juc.chapter1;
-
-import java.time.Duration;
-import java.time</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-06-14
           </div>
         
         

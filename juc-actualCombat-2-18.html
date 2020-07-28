@@ -17,7 +17,7 @@
   <meta name="description" content="">
   <meta name="author" content="Shui">
   <meta name="keywords" content="">
-  <title>17.多线程Future设计模式详细介绍 - Shui&#39;s Blog</title>
+  <title>18.Guarded Suspension设计模式 - Shui&#39;s Blog</title>
 
   <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
 
@@ -152,8 +152,8 @@
               
   <div class="mt-3 post-meta">
     <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-    <time datetime="2020-07-21 22:42">
-      2020年7月21日 晚上
+    <time datetime="2020-07-27 19:01">
+      2020年7月27日 晚上
     </time>
   </div>
 
@@ -163,7 +163,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      630 字
+      555 字
     </span>
   
 
@@ -204,166 +204,167 @@
           <div class="post-content mx-auto" id="post">
             
             <article class="markdown-body">
-              <pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter8;
+              <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><p class="note note-primary">前言</p></h1><h1 id="Guarded-Suspension是什么？"><a href="#Guarded-Suspension是什么？" class="headerlink" title="Guarded Suspension是什么？"></a><p class="note note-primary">Guarded Suspension是什么？</p></h1><p class="note note-info">在这一章介绍的是确保挂起设计模式，举例说明：你在厨房里面做早餐的关键时候不能离开，此时快递员敲门让你开门，这个时候因为你在厨房里做的事情不能中断的，你只能让快递员等一下，把事情做完之后在去去开门拿快递。<br/>
+在比如说在开发中使用的Tomcat，在一个请求过来时，Tomcat进行处理，另外又来了一个请求，这个时候线程已经满了，就做不了事了，此时这个请求会等待中，它会被放到队列里来，等有空闲的线程就会去对列里执行该请求
+</p>
 
-<span class="hljs-comment">/** <span class="hljs-doctag">@author</span> Shui */</span>
-<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">Future</span>&lt;<span class="hljs-title">T</span>&gt; </span>&#123;
 
-  <span class="hljs-function">T <span class="hljs-title">get</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> InterruptedException</span>;
+
+
+<h1 id="Coding"><a href="#Coding" class="headerlink" title="Coding"></a><p class="note note-primary">Coding</p></h1><p class="note note-primary">请求</p>
+
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter9;
+
+<span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * <span class="hljs-doctag">@author</span> Shui</span>
+<span class="hljs-comment"> */</span>
+
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Request</span> </span>&#123;
+  <span class="hljs-keyword">private</span> String value;
+  
+  <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">getValue</span><span class="hljs-params">()</span> </span>&#123;
+    <span class="hljs-keyword">return</span> value;
+  &#125;
+  
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">Request</span><span class="hljs-params">(String value)</span> </span>&#123;
+    <span class="hljs-keyword">this</span>.value = value;
+  &#125;
 &#125;</code></pre>
 
+<p class="note note-primary">请求对列</p>
 
-<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter8;
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter9;
+
+<span class="hljs-keyword">import</span> java.util.LinkedList;
 
 <span class="hljs-comment">/** <span class="hljs-doctag">@author</span> Shui */</span>
-<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AsyncFuture</span>&lt;<span class="hljs-title">T</span>&gt; <span class="hljs-keyword">implements</span> <span class="hljs-title">Future</span>&lt;<span class="hljs-title">T</span>&gt; </span>&#123;
-  <span class="hljs-comment">/** 是否结束 */</span>
-  <span class="hljs-keyword">private</span> <span class="hljs-keyword">volatile</span> <span class="hljs-keyword">boolean</span> done = <span class="hljs-keyword">false</span>;
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">RequestQueue</span> </span>&#123;
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> LinkedList&lt;Request&gt; queue = <span class="hljs-keyword">new</span> LinkedList&lt;&gt;();
 
-  <span class="hljs-keyword">private</span> T result;
-
-  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">done</span><span class="hljs-params">(T result)</span> </span>&#123;
-    <span class="hljs-keyword">synchronized</span> (<span class="hljs-keyword">this</span>) &#123;
-      <span class="hljs-keyword">this</span>.result = result;
-      <span class="hljs-keyword">this</span>.done = <span class="hljs-keyword">true</span>;
-      <span class="hljs-keyword">this</span>.notifyAll();
+  <span class="hljs-function"><span class="hljs-keyword">public</span> Request <span class="hljs-title">getRequest</span><span class="hljs-params">()</span> </span>&#123;
+    <span class="hljs-keyword">synchronized</span> (queue) &#123;
+      <span class="hljs-keyword">while</span> (queue.isEmpty()) &#123;
+        <span class="hljs-keyword">try</span> &#123;
+          queue.wait();
+        &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
+          <span class="hljs-keyword">return</span> <span class="hljs-keyword">null</span>;
+        &#125;
+      &#125;
     &#125;
+    <span class="hljs-keyword">return</span> queue.removeFirst();
+  &#125;
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">putRequest</span><span class="hljs-params">(Request request)</span> </span>&#123;
+    <span class="hljs-keyword">synchronized</span> (queue) &#123;
+      queue.addLast(request);
+      queue.notifyAll();
+    &#125;
+  &#125;
+&#125;</code></pre>
+
+<p class="note note-primary">客户端</p>
+
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter9;
+
+<span class="hljs-keyword">import</span> java.util.Random;
+
+<span class="hljs-comment">/** <span class="hljs-doctag">@author</span> Shui */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ClientThread</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Thread</span> </span>&#123;
+
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Random random;
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> RequestQueue requestQueue;
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String sendValue;
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">ClientThread</span><span class="hljs-params">(RequestQueue requestQueue, String sendValue)</span> </span>&#123;
+    <span class="hljs-keyword">this</span>.requestQueue = requestQueue;
+    <span class="hljs-keyword">this</span>.sendValue = sendValue;
+    random = <span class="hljs-keyword">new</span> Random(System.currentTimeMillis());
   &#125;
 
   <span class="hljs-meta">@Override</span>
-  <span class="hljs-function"><span class="hljs-keyword">public</span> T <span class="hljs-title">get</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> InterruptedException </span>&#123;
-    <span class="hljs-keyword">synchronized</span> (<span class="hljs-keyword">this</span>) &#123;
-      <span class="hljs-keyword">while</span> (!done) &#123;
-        <span class="hljs-keyword">this</span>.wait();
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">1000</span>; i++) &#123;
+      System.out.println(<span class="hljs-string">"Client-&gt; request:"</span> + sendValue);
+      requestQueue.putRequest(<span class="hljs-keyword">new</span> Request(sendValue));
+      <span class="hljs-keyword">try</span> &#123;
+        Thread.sleep(random.nextInt(<span class="hljs-number">1000</span>));
+      &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
+        <span class="hljs-keyword">break</span>;
       &#125;
     &#125;
-    <span class="hljs-keyword">return</span> result;
   &#125;
 &#125;</code></pre>
 
+<p class="note note-primary">服务端</p>
 
-<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter8;
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter9;
 
-<span class="hljs-comment">/** <span class="hljs-doctag">@author</span> Shui */</span>
-<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">FutureTask</span>&lt;<span class="hljs-title">T</span>&gt; </span>&#123;
-
-  <span class="hljs-function">T <span class="hljs-title">call</span><span class="hljs-params">()</span></span>;
-&#125;</code></pre>
-
-<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter8;
+<span class="hljs-keyword">import</span> java.util.Random;
 
 <span class="hljs-comment">/** <span class="hljs-doctag">@author</span> Shui */</span>
-<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">FutureService</span> </span>&#123;
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ServerThread</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Thread</span> </span>&#123;
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Random random;
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> RequestQueue requestQueue;
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">volatile</span> <span class="hljs-keyword">boolean</span> flag = <span class="hljs-keyword">true</span>;
 
-  <span class="hljs-keyword">public</span> &lt;T&gt; <span class="hljs-function">Future&lt;T&gt; <span class="hljs-title">submit</span><span class="hljs-params">(<span class="hljs-keyword">final</span> FutureTask&lt;T&gt; task)</span> </span>&#123;
-    AsyncFuture&lt;T&gt; asyncFuture = <span class="hljs-keyword">new</span> AsyncFuture&lt;&gt;();
-    <span class="hljs-keyword">new</span> Thread(
-            () -&gt; &#123;
-              T result = task.call();
-              asyncFuture.done(result);
-            &#125;)
-        .start();
-    <span class="hljs-keyword">return</span> asyncFuture;
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">ServerThread</span><span class="hljs-params">(RequestQueue requestQueue)</span> </span>&#123;
+    <span class="hljs-keyword">this</span>.requestQueue = requestQueue;
+    <span class="hljs-keyword">this</span>.random = <span class="hljs-keyword">new</span> Random(System.currentTimeMillis());
+  &#125;
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">close</span><span class="hljs-params">()</span> </span>&#123;
+    <span class="hljs-keyword">this</span>.flag = <span class="hljs-keyword">false</span>;
+    <span class="hljs-keyword">this</span>.interrupt();
+  &#125;
+
+  <span class="hljs-meta">@Override</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;
+    <span class="hljs-keyword">while</span> (flag) &#123;
+      Request request = requestQueue.getRequest();
+      <span class="hljs-keyword">if</span> (request == <span class="hljs-keyword">null</span>) &#123;
+        System.out.println(<span class="hljs-string">"Received the empty request."</span>);
+        <span class="hljs-keyword">continue</span>;
+      &#125;
+      System.out.println(<span class="hljs-string">"Server-&gt;"</span> + request.getValue());
+      <span class="hljs-keyword">try</span> &#123;
+        Thread.sleep(random.nextInt(<span class="hljs-number">1000</span>));
+      &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
+        <span class="hljs-keyword">break</span>;
+      &#125;
+    &#125;
   &#125;
 &#125;</code></pre>
 
-<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter8;
+<p class="note note-primary">测试</p>
+
+<pre><code class="hljs java"><span class="hljs-keyword">package</span> com.shui.juc.chapter9;
 
 <span class="hljs-keyword">import</span> java.util.concurrent.TimeUnit;
 
 <span class="hljs-comment">/**</span>
+<span class="hljs-comment"> * 暂停客户</span>
 <span class="hljs-comment"> *</span>
 <span class="hljs-comment"> * <span class="hljs-doctag">@author</span> Shui</span>
 <span class="hljs-comment"> */</span>
-<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Test</span> </span>&#123;
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SuspensionClient</span> </span>&#123;
   <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> InterruptedException </span>&#123;
-    FutureService futureService = <span class="hljs-keyword">new</span> FutureService();
-    Future&lt;String&gt; submit = futureService.submit(SyncInvoker::get);
-    System.out.println(<span class="hljs-number">123</span>);
-    String s = submit.get();
-    System.out.println(s);
-  &#125;
-  <span class="hljs-comment">/**</span>
-<span class="hljs-comment">   * 模拟数据中非常消耗时间的sql</span>
-<span class="hljs-comment">   *</span>
-<span class="hljs-comment">   * <span class="hljs-doctag">@return</span></span>
-<span class="hljs-comment">   */</span>
-  <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> String <span class="hljs-title">get</span><span class="hljs-params">()</span> </span>&#123;
-    <span class="hljs-keyword">try</span> &#123;
-      TimeUnit.SECONDS.sleep(<span class="hljs-number">10</span>);
-    &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;
-      e.printStackTrace();
-    &#125;
-    <span class="hljs-keyword">return</span> <span class="hljs-string">"Tom"</span>;
+    <span class="hljs-keyword">final</span> RequestQueue requestQueue = <span class="hljs-keyword">new</span> RequestQueue();
+    <span class="hljs-keyword">new</span> ClientThread(requestQueue, <span class="hljs-string">"Tom"</span>).start();
+    ServerThread serverThread = <span class="hljs-keyword">new</span> ServerThread(requestQueue);
+    serverThread.start();
+    TimeUnit.SECONDS.sleep(<span class="hljs-number">10</span>);
+    serverThread.close();
   &#125;
 &#125;</code></pre>
 
-<table>
-<thead>
-<tr>
-<th>类</th>
-<th>介绍</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>Future</td>
-<td>代表的是未来的一个凭据</td>
-</tr>
-<tr>
-<td>FutureTask</td>
-<td>将你的调用逻辑进行了隔离</td>
-</tr>
-<tr>
-<td>FutureService</td>
-<td>桥接Future和FutureTask</td>
-</tr>
-</tbody></table>
-<p class="note note-info">在这里有一个问题：这里执行话了10秒，做其它事情话了1秒，但是在调用<code>Future#get()</code>的时候同样也陷入了阻塞，举个例子：早上去订蛋糕，然后老板让你下午3点过来取，它可能忙完事情到1点了，但是它1点-3点2个小时没事做，他就只能等，他跑过去问，老板说还没好让他在休息区等待，所以这里一直等一直，为什么等下去呢？我们来看下写的代码AsyncFuture#get：</p>
 
-<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> T <span class="hljs-title">get</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> InterruptedException </span>&#123;
-    <span class="hljs-keyword">synchronized</span> (<span class="hljs-keyword">this</span>) &#123;
-      <span class="hljs-keyword">while</span> (!done) &#123;
-        <span class="hljs-keyword">this</span>.wait();
-      &#125;
-    &#125;
-    <span class="hljs-keyword">return</span> result;
-  &#125;</code></pre>
 
-<p class="note note-info">那么怎么知道蛋糕好了没？是由一个做蛋糕的师傅，他做完了之后告诉他蛋糕好了，通知他:AsyncFuture#done</p>
 
-<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">done</span><span class="hljs-params">(T result)</span> </span>&#123;
-   <span class="hljs-keyword">synchronized</span> (<span class="hljs-keyword">this</span>) &#123;
-     <span class="hljs-keyword">this</span>.result = result;
-     <span class="hljs-keyword">this</span>.done = <span class="hljs-keyword">true</span>;
-     <span class="hljs-keyword">this</span>.notifyAll();
-   &#125;
- &#125;</code></pre>
 
-<p class="note note-info">这里有个问题：怎么解决1点-3点这2个小时的等待，你能不能做好了你给我打个电话或者找人送到家，这里改造一下：
-FutureService#submit</p>
 
-<pre><code class="hljs java"><span class="hljs-keyword">public</span> &lt;T&gt; <span class="hljs-function">Future&lt;T&gt; <span class="hljs-title">submit</span><span class="hljs-params">(<span class="hljs-keyword">final</span> FutureTask&lt;T&gt; task, <span class="hljs-keyword">final</span> Consumer&lt;T&gt; consumer)</span> </span>&#123;
-    AsyncFuture&lt;T&gt; asyncFuture = <span class="hljs-keyword">new</span> AsyncFuture&lt;&gt;();
-    <span class="hljs-keyword">new</span> Thread(
-            () -&gt; &#123;
-              T result = task.call();
-              asyncFuture.done(result);
-              consumer.accept(result);
-            &#125;)
-        .start();
-    <span class="hljs-keyword">return</span> asyncFuture;
-  &#125;</code></pre>
 
-<p class="note note-primary">测试</p>
 
-<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> InterruptedException </span>&#123;
-    FutureService futureService = <span class="hljs-keyword">new</span> FutureService();
-    Future&lt;String&gt; submit = futureService.submit(SyncInvoker::get, System.out::println);
-  &#125;</code></pre>
 
-<p class="note note-primary">结果</p>
-
-<pre><code class="hljs ebnf"><span class="hljs-attribute">Tom</span></code></pre>
             </article>
             <hr>
             <div>
@@ -399,18 +400,12 @@ FutureService#submit</p>
                   <div class="post-prev col-6">
                     
                     
-                      <a href="/juc-actualCombat-2-18.html">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">18.Guarded Suspension设计模式</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </div>
                   <div class="post-next col-6">
                     
                     
-                      <a href="/juc-actualCombat-2-16.html">
-                        <span class="hidden-mobile">16.多线程不可变对象设计模式Immutable</span>
+                      <a href="/juc-actualCombat-2-17.html">
+                        <span class="hidden-mobile">17.多线程Future设计模式详细介绍</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
@@ -604,7 +599,7 @@ FutureService#submit</p>
     var typed = new Typed('#subtitle', {
       strings: [
         '  ',
-        "17.多线程Future设计模式详细介绍&nbsp;",
+        "18.Guarded Suspension设计模式&nbsp;",
       ],
       cursorChar: "_",
       typeSpeed: 70,

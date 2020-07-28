@@ -168,6 +168,54 @@
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/juc-actualCombat-1-21.html">21.线程间通信快速入门，使用wait和notify进行线程间的数据通信</a>
+
+      <a href="/juc-actualCombat-1-21.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>在应用程序过程中它并不是一个线程，多个线程做同一个事情，有可能是不同线程做不同事情，但是它们之间要做线程的通讯，比如：有多个线程去运行A任务，多个线程去运行去运行B任务，假设任务A是在数据库里拿数据的，拿完数据要把数据交给B，B负责去展示、写文件、发给另外的机器...，任务A产生的数据要交给B去进行接下来的工作，这个时候就导致一个线程之间的通信。接下来就介绍
+
+来一个案例。一个线程负责生产，每生产</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-06-29
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">Java多线程编程实战</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
       <a class="index-header" href="/juc-actualCombat-1-20.html">20.多线程死锁分析，案例介绍</a>
 
       <a href="/juc-actualCombat-1-20.html" class="index-excerpt">
@@ -603,61 +651,6 @@ public class ThreadCloseGraceful &#123;
 
 中断该线程。
 除非当前线程被中断本身，它总是允许的，所述checkAccess该线程的方法被调用，这可能导致SecurityException被抛出。如果该线程被阻塞在的调用wait() ， wait(long) ，或者wait(long, int)的方法的 Object 类，或者在join() join(long) ， join(long,</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-06-21
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">Java多线程编程实战</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/juc-actualCombat-1-11.html">11.Thread的join方法详细介绍</a>
-
-      <a href="/juc-actualCombat-1-11.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>语法public final void join()
-
-该线程等待死亡。
-此方法的调用行为完全相同的方式调用
-
-public final synchronized void join(long millis)
-
-
-最多等待millis毫秒该线程终止。 的超时0手段永远等待。
-此实现使用的循环this.wait电话空调上this.isAlive 。 作为线程终止this.notifyAll方法被调用</div>
       </a>
 
       <div class="index-btm post-metas">

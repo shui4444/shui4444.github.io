@@ -17,7 +17,7 @@
   <meta name="description" content="">
   <meta name="author" content="Shui">
   <meta name="keywords" content="">
-  <title>分类 - Java多线程编程实战 - Shui&#39;s Blog</title>
+  <title>Shui&#39;s Blog</title>
 
   <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
 
@@ -42,7 +42,7 @@
 
 
 <body>
-  <header style="height: 60vh;">
+  <header style="height: 100vh;">
     <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand"
@@ -143,6 +143,10 @@
           </div>
 
           
+            <div class="scroll-down-bar">
+              <i class="iconfont icon-arrowdown"></i>
+            </div>
+          
         </div>
       </div>
     </div>
@@ -152,37 +156,90 @@
     
       <div class="container nopadding-md">
         <div class="py-5" id="board"
-          >
+          style=margin-top:0>
           
           <div class="container">
             <div class="row">
               <div class="col-12 col-md-10 m-auto">
                 
 
-<div class="list-group">
-  <p class="h4">共计 52 篇文章</p>
-  <hr>
-  
+
+  <div class="row mx-auto index-card">
     
-      
-      <p class="h5">2020</p>
     
-    <a href="/juc-actualCombat-1-2.html" class="list-group-item list-group-item-action">
-      <span class="archive-post-title">2.创建并启动线程</span>
-      <span style="float: right;">06-14</span>
-    </a>
-  
-    
-    <a href="/juc-actualCombat-1-1.html" class="list-group-item list-group-item-action">
-      <span class="archive-post-title">1.简单介绍什么是线程</span>
-      <span style="float: right;">06-14</span>
-    </a>
-  
-</div>
+    <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/spring-security-1.1.html">【 一、Restful Api 】  1.代码结构介绍</a>
+
+      <a href="/spring-security-1.1.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>模块介绍笔者使用的是maven进行构建的工程，这里给读者们介绍一下模块的含义以及pom.xml中所需要的依赖
+
+
+
+模块
+介绍
+
+
+
+mcr-auth
+主模块
+
+
+mcr-auth-core
+核心业务逻辑
+
+
+mcr-auth-browser
+浏览器安全特定代码
+
+
+mcr-auth-app
+app相关特定代码
+
+
+mcr-auth-demo
+样例程序
+
+
+mcr-auth&lt;properti</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2019-10-11
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/SpringSecurity/">SpringSecurity</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <a class="extend prev" rel="prev" href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/page/5/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">1</a><span class="space">&hellip;</span><a class="page-number" href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/page/4/">4</a><a class="page-number" href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/page/5/">5</a><span class="page-number current">6</span>
+      <a class="extend prev" rel="prev" href="/page/10/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><a class="page-number" href="/page/10/">10</a><span class="page-number current">11</span>
     </span>
   </nav>
   
@@ -306,7 +363,7 @@
     var typed = new Typed('#subtitle', {
       strings: [
         '  ',
-        "分类 - Java多线程编程实战&nbsp;",
+        "Shui's Blog&nbsp;",
       ],
       cursorChar: "_",
       typeSpeed: 70,

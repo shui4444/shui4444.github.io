@@ -168,6 +168,54 @@
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/spring-security-6.3.html">【 六、RBAC 】 3.权限表达式</a>
+
+      <a href="/spring-security-6.3.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>权限表达式通过源码分析可知，最终的配置都会转成ExpressionUrlAuthorizationConfigurer.AuthorizedUrl并进行投票决定。
+常见表达式如下：
+
+如何写联合表达式呢？就是既满足A条件，也满足B条件
+.antMatchers("xx").access("hasRole('ROLE_USER') and hasRole('ROLE_SUPER')")
+
+ 这个都是</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2019-10-16
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/SpringSecurity/">SpringSecurity</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
       <a class="index-header" href="/spring-security-6.2.html">【 六、RBAC 】 2.Spring Security授权源码解析</a>
 
       <a href="/spring-security-6.2.html" class="index-excerpt">
@@ -581,58 +629,11 @@ TokenEndpoint：它是整个流程的入口点，可以理解成co</div>
     </div>
   </div>
 
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/spring-security-5.2.html">【 五、OAuth 】 2.实现标准到OAuth服务器提供商</a>
-
-      <a href="/spring-security-5.2.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>因为这里是针对APP进行开发，所以代码大部分是放到App模块中的
-首先将demo模块中pom.xml修改成依赖app模块
-&lt;dependency&gt;
-     &lt;groupId&gt;com.b4&lt;/groupId&gt;
-     &lt;artifactId&gt;mcr-auth-app&lt;/artifactId&gt;
-     &lt;version&gt;1.</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2019-10-15
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/SpringSecurity/">SpringSecurity</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
 
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <a class="extend prev" rel="prev" href="/page/8/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" href="/page/10/"><i class="iconfont icon-arrowright"></i></a>
+      <a class="extend prev" rel="prev" href="/page/8/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/">10</a><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/10/"><i class="iconfont icon-arrowright"></i></a>
     </span>
   </nav>
   

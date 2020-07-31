@@ -168,6 +168,57 @@
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/juc-actualCombat-2-2.html">2.三种高效优雅的Singleton实现方式</a>
+
+      <a href="/juc-actualCombat-2-2.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>Double Check的问题对于上一章介绍的Double Check方式是有问题的，那就是重排序，这里需要通过volatile修饰，它不能保证原子性，它能保证内存的可见性：多个线程看见的数据是同一份。有序性：在C++里面，它告诉编译器不要去优化，它完成之后就代表它真正的完成了
+
+内部类单例package com.shui.juc.chapter1;
+
+/**
+ * 2020-07-12 12:2</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-07-12
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">Java多线程编程实战</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/%E4%B8%AD%E9%98%B6%E7%9F%A5%E8%AF%86/">中阶知识</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
       <a class="index-header" href="/juc-actualCombat-2-1.html">1.四种Singleton方式的优缺点在多线程情况下</a>
 
       <a href="/juc-actualCombat-2-1.html" class="index-excerpt">
@@ -559,58 +610,6 @@ import java.util.Collection;
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>&nbsp;2020-07-02
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">Java多线程编程实战</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/juc-actualCombat-1-25.html">25.线程生产者消费者的综合实战结合Java8语法</a>
-
-      <a href="/juc-actualCombat-1-25.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>
-join()可以保证你的线程都执行结束之后在去执行main后面的代码，不记得了可以回顾下11章节。
-来说下案例：
-
-
-
-有这么一个需求：现在需要对三台服务器做信息统计，如果想尽快做完，那就要使用多线程去完成了，你可以创建3个线程去取三个服务器的信息，那么如果是10台服务器，你去创建10个线程是没有问题的，但是有100、1k台机器呢？这个时候如果去创建100、1k个线程是行不通的，现在的Linux</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-07-01
           </div>
         
         

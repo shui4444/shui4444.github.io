@@ -168,6 +168,108 @@
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/juc-actualCombat-1-24.html">24.wait和sleep的本质区别是什么，深入分析</a>
+
+      <a href="/juc-actualCombat-1-24.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>前言这章介绍wait与sleep的区别，它们两都捆让线程进入阻塞，但是它两之间有一个本质的区别
+
+
+sleep是Thread的方法；wait是Object的方法，就算是对象数组也有。
+sleep不会释放对象monitor的锁；但是wait会释放这个锁，并且把它加入到对象 monitor 队列里面去。
+使用sleep并不需要定义synchronized；但是你去使用wait你必须定义一个synchr</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-07-01
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">Java多线程编程实战</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/juc-actualCombat-1-23.html">23.多线程下的生产者消费者模型，以及详细介绍notifyAll方法</a>
+
+      <a href="/juc-actualCombat-1-23.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>在上一章介绍的案例有一个很严重的问题，它那样做只能有一个生产者一个消费者，在实际开发中是会有多个生产者、消费者去做，但是通过wait+notify会出现假死，这章提供一个解决方案。这里先分析下之前的代码
+
+public void produce() &#123;
+   synchronized (LOCK) &#123;
+     // 如果已经生产了，调用 wait 方法
+     if (is</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-06-30
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">Java多线程编程实战</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
       <a class="index-header" href="/juc-actualCombat-1-22.html">22.多Produce多Consume之间的通讯导致出现程序假死的原因分析</a>
 
       <a href="/juc-actualCombat-1-22.html" class="index-excerpt">
@@ -545,114 +647,6 @@ public class TicketWindowRunnable implements Runnable &#123;
 
   private static final int MAX = 50;
   pri</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-06-25
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">Java多线程编程实战</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/juc-actualCombat-1-14.html">14.编写ThreadService实现暴力结束线程</a>
-
-      <a href="/juc-actualCombat-1-14.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>这一章介绍如何强制结束线程，举个例子：读一个网络资源、做一些比较耗时的事情，期望是30分钟执行完成，超过30分钟就认为是失败的就不等待它了，通过暴力的方式去结束，但是在JDK暴力的方式只有stop()，这个方式已经被弃用了，那么用什么方式来做这个呢？
-
-package com.shui.juc.chapter6;
-
-/**
- * @author Shui
- * @date 2020/6/25 10</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-06-25
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">Java多线程编程实战</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/juc-actualCombat-1-13.html">13.采用优雅的方式结束线程生命周期</a>
-
-      <a href="/juc-actualCombat-1-13.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>通过变量改变来结束
-
-package com.shui.juc.chapter6;
-
-/**
- * @author Shui
- * @date 2020/6/25 8:33
- */
-public class ThreadCloseGraceful &#123;
-
-  public static void main(String[] args) throws InterruptedException</div>
       </a>
 
       <div class="index-btm post-metas">

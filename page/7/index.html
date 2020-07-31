@@ -168,6 +168,98 @@
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/nginx-4.html">【Nginx】 4-深度学习篇</a>
+
+      <a href="/nginx-4.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>动静分离介绍什么是动静分离？通过中间件将动态请求和静态请求分离。
+为什么要使用动静分离？对于服务端而言减少不必要的请求消耗，我一些静态请求的资源不需要后端的CPU运算，对于客户端而言我请求静态资源不用复杂的运算了那么就可以减少请求的等待时间。
+没有动静分离的请求流程：
+
+一个请求首先去会去请求中间件，由中间件把请求转给程序框架执行对应的加载，程序框架去执行运算对应的程序获取相关的数据资源。如果每一</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-02-12
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+            
+              <a href="/categories/%E8%BF%90%E7%BB%B4/Nginx/">Nginx</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/linux-2.html">【Linux】 Linux中的常见问题</a>
+
+      <a href="/linux-2.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>HTTP服务端口没有权限 系统启动 Nginx 后，报 [emerg] bind () to 0.0.0.0:XXXX failed (13: Permission denied) 错误的处理方式，分为两种：
+第一种：端口小于 1024 的情况：
+[emerg] bind() to 0.0.0.0:80 failed (13: Permission denied)
+
+原因是 1024 以下端口启动</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-02-10
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+            
+              <a href="/categories/%E8%BF%90%E7%BB%B4/Linux/">Linux</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E9%9B%B6%E7%A2%8E/">零碎</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
       <a class="index-header" href="/nginx-3.html">【Nginx】 3.场景实践篇</a>
 
       <a href="/nginx-3.html" class="index-excerpt">
@@ -537,106 +629,6 @@ hyperloglog：准确有点难。
 以上的方式都是无法实现需求的，上述的应用场景在很多地方都有遇到：
 
 垃圾邮件过滤：现在有几亿封垃圾邮件，在这种情</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2019-10-17
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
-            
-              <a href="/categories/%E8%BF%90%E7%BB%B4/Redis/">Redis</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/redis-11.html">【 Redis-学习笔记 】 11.Redis云平台CacheCloud.md</a>
-
-      <a href="/redis-11.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>Redis规模化运维困扰遇到的问题当集群数量多的时候就会遇到很多问题
-
-发布构建繁琐，私搭乱盖：你可能会找几台机器进行集群的安装或者单机安装、Sentinel安装，然后随便记录一下文档客户端就可以调用了，这个属于一个私搭乱盖的情况，当有几百台机器、上千上万台的时候，你怎么可能记得在某台机器安装了一个集群呢？何况集群之间本身就发生高可用的切换，本身对于这种场景去管理去使用非常的混乱。当到了一定量的时</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2019-10-17
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
-            
-              <a href="/categories/%E8%BF%90%E7%BB%B4/Redis/">Redis</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/redis-10.html">【 Redis-学习笔记 】 10.缓存设计与优化</a>
-
-      <a href="/redis-10.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>缓存的收益与成本
-使用缓存能带来哪些收益又会付出什么成本？
-
-收益
-加速读写
-通过缓存加速读写：CPU  L1/L2/L3 Cache、Linux page Cache加速硬盘读写、浏览器缓存、Ehcache缓存数据库结果；
-
-
-降低后端负载
-后端服务器通过前端缓存降低负载：业务端使用Redis降低后端MySQL负载等。
-
-
-
-成本
-数据不一致：缓存层和数据层有时间窗口不一致，和更新策略有关：你需</div>
       </a>
 
       <div class="index-btm post-metas">

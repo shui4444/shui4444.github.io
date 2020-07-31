@@ -168,6 +168,122 @@
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/juc-actualCombat-2-11.html">11.观察者设计模式介绍</a>
+
+      <a href="/juc-actualCombat-2-11.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>
+在介绍多线程观察者模式，先介绍普通的观察者模式，这里会根据以下的URML图来编写相关代码
+
+
+
+主题
+
+package com.shui.juc.chapter4.observer;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/** @author Shui */
+public class Subject &#123;
+
+  pri</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-07-15
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">Java多线程编程实战</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/%E4%B8%AD%E9%98%B6%E7%9F%A5%E8%AF%86/">中阶知识</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/juc-actualCombat-2-10.html">10.volatile关键字总结</a>
+
+      <a href="/juc-actualCombat-2-10.html" class="index-excerpt">
+        
+        
+          
+        
+        <div>volatile的使用场景状态量标记volatile boolean start=true
+while(start)&#123;
+    //...
+&#125;
+
+void close()&#123;
+    start=false;
+&#125;
+
+如果这里不用volatile，其它线程调用了close()没有刷到主存，那这里的while循环就一直到自己的线程工作空间（线程高速缓存、线程工作内</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-07-15
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">Java多线程编程实战</a>
+            
+              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/%E4%B8%AD%E9%98%B6%E7%9F%A5%E8%AF%86/">中阶知识</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
       <a class="index-header" href="/juc-actualCombat-2-9.html">9.volatile关键字深入详解</a>
 
       <a href="/juc-actualCombat-2-9.html" class="index-excerpt">
@@ -563,107 +679,6 @@ wait()之后在哪里去唤醒当你的线程执行在同步语句块里面，�
               <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
             
           </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/juc-actualCombat-2-1.html">1.四种Singleton方式的优缺点在多线程情况下</a>
-
-      <a href="/juc-actualCombat-2-1.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>饿汉模式package com.shui.juc.chapter1;
-
-/**
- * 2020/7/12 11:15
- *
- * @author Shui
- */
-public class SingletonObject1 &#123;
-  public static final SingletonObject1 INSTANCE = new SingletonObject1();
-
-  priv</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-07-12
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">Java多线程编程实战</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/%E4%B8%AD%E9%98%B6%E7%9F%A5%E8%AF%86/">中阶知识</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/juc-actualCombat-1-33.html">33.给线程池增加自动扩充线程数量，以及闲时自动回收的功能</a>
-
-      <a href="/juc-actualCombat-1-33.html" class="index-excerpt">
-        
-        
-          
-        
-        <div>前言对于前面2个章节实现的线程池还是存在问题，假设对它的size设置为2000，那么就会创建对应的线程，对于一些情况没有任务或者任务比较少的时候就可以关闭几个认为的。这里就来实现一下
-
-增加线程package com.shui.juc.chapter13;
-
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.u</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-07-06
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/">JUC</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">Java多线程编程实战</a>
-            
-              <a href="/categories/%E5%90%8E%E7%AB%AF/JUC/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
-            
-          </div>
-        
         
       </div>
     </div>
